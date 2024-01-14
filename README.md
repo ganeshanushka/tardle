@@ -6,10 +6,11 @@ Developed using HTML, JavaScript, and CSS, Tardle is a testament to the power of
 
 # 🔍 Features
 
-Simple and Engaging Gameplay: Players have six attempts to guess the right word.
-Tarheel-Themed: Every word is chosen for its significance to tarheel culture.
-Dynamic Date Display: The game dynamically displays the current date on the game page.
-Responsive Design: Enjoy the game on any device, thanks to its flexible layout.
+* Dynamic word bank with a range of word lengths
+* Real-time typing feedback with every guess providing instant feedback via color of tiles
+* Cross-Platform compatibility ensures the game can be played on any device
+* Tarheel-Themed with every word chosen for its significance to tarheel culture
+* Dynamic Date Display has the game dynamically display the current date on the game page
 
 # How to Play
 
