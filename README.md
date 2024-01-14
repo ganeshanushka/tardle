@@ -1,4 +1,4 @@
-# Tardle
+# Tardle - [Tardle](
 
 Welcome to Tardle, a web-based word-guessing game where players get six chances to guess a word that only a true tarheel would know. Perfect for word game enthusiasts and tarheel fans alike!
 
