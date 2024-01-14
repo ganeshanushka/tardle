@@ -12,34 +12,15 @@ Developed using HTML, JavaScript, and CSS, Tardle is a testament to the power of
 * Tarheel-Themed : *Every word is chosen for its significance to tarheel culture*
 * Real-Time Date Display : *Game dynamically displays the current date on the game page*
 
-# How to Play
+# 🎮 How to Play
 
-Visit the Tardle website.
-Click on 'Play' to start the game.
-You have six attempts to guess the tarheel word of the day.
-Use the 'How to Play' guide for detailed instructions.
-
-uess the Carolina word in 6 tries.
-Each guess must be a valid word with the same number of letters as boxes.
-The color of the tiles will change to show how close your guess was to the word.
-Green indicates the letter is in the word and in the correct spot.
-Yellow indicates the letter is in the word but in the wrong spot.
-Gray indicates the letter is not in the word in any spot.
-
-# Installation
-
-To run Tardle locally:
-
-Clone the repository to your local machine.
-Open the HTML file in a web browser.
-Note: No additional installation is required as the game runs directly in the browser.
+1. Access the game : Click on the highlighted blue text in the title OR click on the link in the "About section on the right corner of this page
+2. Learn the rules : Click on the "How to Play" button for a guide on the game's rules
+3. Begin playing : Once familiar with the rules, press the "Play" button to start the game. You'll have 6 attempts to correctly guess the 'Tarheel Word of the Day'
+Good luck and enjoy the game!🤞
 
 # Technologies Used
 
 HTML
 CSS
 JavaScript
-
-# Acknowledgements
-
-Special thanks to all contributors and supporters of the Tardle project!
