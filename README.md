@@ -1,4 +1,4 @@
-# [Tardle](https://ganeshanushka.github.io) : The Ultimate Tar Heel Word Challenge
+# Tardle : [The Ultimate Tar Heel Word Challenge](https://ganeshanushka.github.io)
 
 Welcome to Tardle, an innovative spin-off of the widely popular game, wordle. Unlike the original wordle, Tardle challenges users with a unique twist: players have 6 attempts to guess words that are linked to UNC Chapel Hill or what we students lovingly call, Carolina. These specific, Carolina-themed words transform Tardle into the ultimate test for true tar heels, combining the thrill of word puzzles with the pride of Tar Heel culture. This game is not just for UNC students but also for word game enthusiast as well as fans and members of the UNC Chapel Hill community. Whether your a current student, an alumnus, or simply a fan of the Tar Heels, Tardle offers an engaging way to celebrate and connect with our university's unmatched spirit.
 
