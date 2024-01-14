@@ -14,7 +14,7 @@ Developed using HTML, JavaScript, and CSS, Tardle is a testament to the power of
 
 # 🎮 How to Play
 
-1. Access the game : Click on the highlighted blue text in the title OR click on the link in the "About section on the right corner of this page
+1. Access the game : Click on the highlighted blue text in the title OR click on the link in the "About" section on the right corner of this page
 2. Learn the rules : Click on the "How to Play" button for a guide on the game's rules
 3. Begin playing : Once familiar with the rules, press the "Play" button to start the game. You'll have 6 attempts to correctly guess the 'Tarheel Word of the Day'
 Good luck and enjoy the game!🤞
