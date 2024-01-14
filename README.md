@@ -4,7 +4,7 @@ Welcome to Tardle, an innovative spin-off of the widely popular game, wordle. Un
 
 Developed using HTML, JavaScript, and CSS, Tardle is a testament to the power of simple yet powerful web technologies in creating fun user experiences. It's a playful, interactive game that brings together the Tar Heel community through shared knowledge and love for UNC Chapel Hill. Put your Tar Heel knowledge to the test with Tardle - the game where every word is a cheer for the Carolina blue!
 
-# Features
+# 🔍 Features
 
 Simple and Engaging Gameplay: Players have six attempts to guess the right word.
 Tarheel-Themed: Every word is chosen for its significance to tarheel culture.
