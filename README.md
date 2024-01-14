@@ -6,11 +6,11 @@ Developed using HTML, JavaScript, and CSS, Tardle is a testament to the power of
 
 # 🔍 Features
 
-* Dynamic word bank: Diverse range of word lengths
-* Instant typing feedback: Each guess is immediately validated with color-coded tiles
-* Cross-Platform compatibility: Ensures accessibility for all users on various devices
-* Tarheel-Themed: Every word is chosen for its significance to tarheel culture
-* Real-Time Date Display: Game dynamically displays the current date on the game page
+* Dynamic word bank : *Diverse range of word lengths*
+* Instant typing feedback : *Each guess is immediately validated with color-coded tiles*
+* Cross-Platform compatibility : *Ensures accessibility for all users on various devices*
+* Tarheel-Themed : *Every word is chosen for its significance to tarheel culture*
+* Real-Time Date Display : *Game dynamically displays the current date on the game page*
 
 # How to Play
 
