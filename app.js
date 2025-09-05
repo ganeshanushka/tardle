@@ -132,8 +132,31 @@ let words = [
         keyboard.innerHTML += `<button id="${key}" class="key" onclick="keyClick('${key}')">` + key + '</button>';
       }
     });
+
+    // Add keyboard event listener
+    document.addEventListener('keydown', handleKeyPress);
   }
   initialize()
+  
+  function handleKeyPress(event) {
+    const key = event.key.toLowerCase();
+    
+    // Handle letter keys
+    if (key >= 'a' && key <= 'z') {
+      event.preventDefault(); // Prevent default behavior
+      keyClick(key);
+    }
+    // Handle Enter key
+    else if (event.key === 'Enter') {
+      event.preventDefault(); // Prevent form submission or page reload
+      keyClick('enter');
+    }
+    // Handle Backspace key
+    else if (event.key === 'Backspace') {
+      event.preventDefault(); // Prevent browser back navigation
+      keyClick('⌫');
+    }
+  }
   
   function keyClick(key) {
     switch (key) {
