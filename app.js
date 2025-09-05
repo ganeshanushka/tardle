@@ -182,10 +182,26 @@ let words = [
     updateCurrentGuess();
   }
   
+  function isValidWord(word) {
+    // Convert to lowercase for comparison
+    const lowerWord = word.toLowerCase();
+    
+    // Check if word is in the English dictionary (word_list) or answer key (words)
+    return word_list.includes(lowerWord) || words.includes(word.toUpperCase());
+  }
+
   function enter() {
     if (currentGuess.length === SecretWord.length) {
         let guessedWord = currentGuess.map(c => c.key).join('').toUpperCase();
         let secret = SecretWord.toUpperCase();
+
+        // Validate the guessed word
+        if (!isValidWord(guessedWord)) {
+            showAlert("Not a valid word!");
+            currentGuess = []; // Clear the current guess
+            updateCurrentGuess(); // Update the display
+            return; // Don't process the guess if it's invalid
+        }
 
         let secretLetterCount = {};
         for (let letter of secret) {
