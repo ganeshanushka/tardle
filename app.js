@@ -139,22 +139,23 @@ let words = [
   initialize()
   
   function handleKeyPress(event) {
-    const key = event.key.toLowerCase();
-    
-    // Handle letter keys
-    if (key >= 'a' && key <= 'z') {
-      event.preventDefault(); // Prevent default behavior
-      keyClick(key);
+    // Handle Backspace key first
+    if (event.key === 'Backspace') {
+      event.preventDefault(); // Prevent browser back navigation
+      keyClick('⌫');
+      return;
     }
     // Handle Enter key
     else if (event.key === 'Enter') {
       event.preventDefault(); // Prevent form submission or page reload
       keyClick('enter');
+      return;
     }
-    // Handle Backspace key
-    else if (event.key === 'Backspace') {
-      event.preventDefault(); // Prevent browser back navigation
-      keyClick('⌫');
+    // Handle letter keys
+    else if (event.key.length === 1 && event.key.match(/[a-zA-Z]/)) {
+      event.preventDefault(); // Prevent default behavior
+      keyClick(event.key.toLowerCase());
+      return;
     }
     // Ignore all other keys
   }
