@@ -246,7 +246,7 @@ let words = [
     // 9 letter words
     'Sitterson', 'Granville', 'Alexander', 'Starbucks', 'Bojangles', 'Coldstone', 'Streaking', 'Stilllife', 'Arboretum', 'Sushinara', 'Sophomore', 'Spicynine',
     'Campusrec', 'fratcourt'
-]
+];
   
 // Tardle-specific answer key words (the secret words that can be selected)
 let words = [
