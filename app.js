@@ -316,7 +316,7 @@ let words = [
         backspace();
         break;
       case 'enter':
-        enter();
+        enter(); // This will now be async
         break;
       default:
         if (currentGuess.length < SecretWord.length
@@ -334,21 +334,44 @@ let words = [
     updateCurrentGuess();
   }
   
-  function isValidWord(word) {
+  async function isValidWord(word) {
     // Convert to lowercase for comparison
     const lowerWord = word.toLowerCase();
     
-    // Check if word is in the English dictionary (word_list) or answer key (words)
-    return word_list.includes(lowerWord) || words.includes(word.toUpperCase());
+    // First check if word is in the answer key (words) - these are always valid
+    if (words.includes(word.toUpperCase())) {
+      return true;
+    }
+    
+    // Check if word is in our local word list
+    if (word_list.includes(lowerWord)) {
+      return true;
+    }
+    
+    // For words not in our local list, use dictionary API
+    try {
+      const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${lowerWord}`);
+      if (response.ok) {
+        const data = await response.json();
+        // If API returns data, the word exists in the dictionary
+        return data && data.length > 0;
+      }
+      return false;
+    } catch (error) {
+      console.log('Dictionary API error:', error);
+      // If API fails, fall back to local word list only
+      return false;
+    }
   }
 
-  function enter() {
+  async function enter() {
     if (currentGuess.length === SecretWord.length) {
         let guessedWord = currentGuess.map(c => c.key).join('').toUpperCase();
         let secret = SecretWord.toUpperCase();
 
         // Validate the guessed word
-        if (!isValidWord(guessedWord)) {
+        const isValid = await isValidWord(guessedWord);
+        if (!isValid) {
             showInvalidWordAlert("Not in word list");
             currentGuess = []; // Clear the current guess
             updateCurrentGuess(); // Update the display
