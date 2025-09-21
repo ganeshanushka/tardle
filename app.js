@@ -299,13 +299,27 @@ let words = [
   const Wrong = 'wrong';
   
   function initialize() {
+    console.log("Initializing game...");
+    console.log("SecretWord:", SecretWord);
+    console.log("SecretWord.length:", SecretWord.length);
+    console.log("NumberOfGuesses:", NumberOfGuesses);
+    
     let guessGrid = document.getElementById("guessGrid");
+    console.log("guessGrid element:", guessGrid);
+    
+    if (!guessGrid) {
+      console.error("guessGrid element not found!");
+      return;
+    }
+    
     for (let i = 0; i < NumberOfGuesses; i++) { // This loop creates rows in the guess grid
       for (let j = 0; j < SecretWord.length; j++) { // This loop adds blocks based on the no. of letters in the secret
         guessGrid.innerHTML += `<div id="${i}${j}" class="key-guess"></div>`
       }
       guessGrid.innerHTML += '<br/>'
     }
+    
+    console.log("Grid created successfully");
   
     let keyboard = document.getElementById("keyboard");
     Object.keys(keys).forEach((key) => {
