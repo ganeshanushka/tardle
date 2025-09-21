@@ -247,7 +247,40 @@ let words = [
     'Sitterson', 'Granville', 'Alexander', 'Starbucks', 'Bojangles', 'Coldstone', 'Streaking', 'Stilllife', 'Arboretum', 'Sushinara', 'Sophomore', 'Spicynine',
     'Campusrec', 'fratcourt'
 ]
+
+// Tardle-specific answer key words (the secret words that can be selected)
+let words = [
+  // 2-letter words
+  'UL', 'Rj',
   
+  // 3-letter words  
+  'Dey', 'SRC', 'Pit', 'Maw', 'Tez', 'Rah', 'TRU', 'CCS', 'ARS',
+  
+  // 4-letter words
+  'Hojo', 'Cobb', 'Rams', 'Navy', 'Kemp', 'Polk', 'Rams', 'Navy', 'Arts', 'Dorm', 'Bell', 'Quad', 'Pitt', 'Dean', 'UNC', 'Goon', 'Hill', 'Quad',
+  
+  // 5-letter words
+  'Davis', 'Ehaus', 'Avery', 'Koury', 'Hanes', 'Fedex', 'Kenan', 'Lewis', 'Manly', 'Stacy', 'Kevin', 'Davie', 'Karen', 'Union', 'Chase', 'Adams', 'Canes', 'Roots',
+  'Wheat', 'Heels', 'Manek', 'Coker', 'Baity', 'Dames', 'Momos',
+  
+  // 6-letter words
+  'Wilson', 'Craige', 'Parker', 'Teague', 'Graham', 'Murray', 'Genome', 'Cocker', 'Connor', 'Grimes', 'Hardin', 'Horton', 'Joiner', 'Mangum', 'Mciver',
+  'Fetzer', 'Hooker', 'Bryson', 'Lenoir', 'Kurama', 'Panera', 'Target', 'Alpine', 'Subway', 'Bulbox', 'Ramses', 'Jordan', 'Ruffin', 'Aycock', 'Joyner',
+  'Howell', 'Alumni', 'Junior', 'Senior', 'Lindas', 'Cosmic', 'Yikyak',
+  
+  // 7-letter words
+  'Philips', 'Carroll', 'Gardner', 'Everett', 'Spencer', 'Winston', 'Woollen', 'Peabody', 'Chapman', 'Hussman', 'Hibachi', 'Bonchon', 'Chimney', 'Tarheel',
+  'GDTBATH', 'Armando', 'Supdogs', 'Rameses', 'Manning', 'Caudill', 'Bingham', 'Murphey', 'Kessing', 'Vimalas', 'Suttons', 'Bschool',
+  
+  // 8-letter words
+  'Morrison', 'Carolina', 'Greenlaw', 'Alderman', 'Mclinton', 'Hamilton', 'Caldwell', 'Dorrance', 'Franklin', 'Gillings', 'Eshelman', 'Insomnia', 'Epilogue',
+  'Cholanad', 'Meantime', 'Chipotle', 'Basecamp', 'Bandidos', 'Carolina', 'Whistler', 'Preacher', 'Safewalk', 'Mitchell', 'Morehead', 'Freshman', 'QueChula',
+  'Football', 'FookDook', 'DukeFuke',
+  
+  // 9-letter words
+  'Sitterson', 'Granville', 'Alexander', 'Starbucks', 'Bojangles', 'Coldstone', 'Streaking', 'Stilllife', 'Arboretum', 'Sushinara', 'Sophomore', 'Spicynine',
+  'Campusrec', 'fratcourt'
+];
 
   let guesses = [];
   let currentGuess = [];
