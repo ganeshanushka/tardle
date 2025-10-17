@@ -133,7 +133,13 @@ let words = [
       }
     });
   }
-  initialize()
+  
+  // Wait for DOM to be ready before initializing
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initialize);
+  } else {
+    initialize();
+  }
   
   function keyClick(key) {
     switch (key) {
