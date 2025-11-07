@@ -35,6 +35,12 @@ html, body {
     vertical-align: baseline;
     color: #1a1a1b;
     margin: 4px;
+    transition: border-color 0.1s ease;
+  }
+  
+  /* Darker border when box has a letter (like Wordle) */
+  .key-guess.filled {
+    border-color: #878a8c;
   }
   
   .key-guess::before {

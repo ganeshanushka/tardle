@@ -623,11 +623,17 @@ function updateKeyboard() {
       let guessGrid = document.getElementById(`${index}${i}`);
       if (currentGuess[i]) {
         guessGrid.innerHTML = currentGuess[i].key;
+        // Add filled class for darker border when box has a letter
+        guessGrid.classList.add('filled');
       } else {
         guessGrid.innerHTML = '';
+        // Remove filled class when box is empty
+        guessGrid.classList.remove('filled');
       }
       if (guessed && currentGuess[i]) {
         guessGrid.classList.add(currentGuess[i].result);
+        // Remove filled class when box gets a result color (border will be set by result class)
+        guessGrid.classList.remove('filled');
       }
     }
     if (guessed) {
