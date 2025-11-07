@@ -144,6 +144,9 @@ let words = [
   // Add keyboard event listener for physical keyboard input
   // Chrome-compatible version that works with both file:// and http:// protocols
   let keyboardListenerAttached = false;
+  let lastKeyProcessed = null;
+  let lastKeyTime = 0;
+  
   function attachKeyboardListener() {
     // Prevent attaching listener multiple times
     if (keyboardListenerAttached) {
@@ -154,35 +157,36 @@ let words = [
     
     // Handler function for keyboard events
     function handleKeyDown(event) {
+      // Prevent default immediately to stop any other handlers
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      
       console.log('Key pressed:', event.key, 'Code:', event.code, 'KeyCode:', event.keyCode);
       
-      // Prevent event from being processed multiple times
-      if (event.defaultPrevented) {
+      // Debounce: prevent same key from being processed twice within 100ms
+      const now = Date.now();
+      const keyString = event.key + event.code;
+      if (lastKeyProcessed === keyString && (now - lastKeyTime) < 100) {
+        console.log('Duplicate key event ignored:', event.key);
         return;
       }
+      lastKeyProcessed = keyString;
+      lastKeyTime = now;
       
       // Handle backspace/delete first (most specific)
       if (event.key === 'Backspace' || event.key === 'Delete' || event.code === 'Backspace' || event.keyCode === 8) {
         console.log('Delete/Backspace detected!');
-        event.preventDefault(); // Prevent default behavior
-        event.stopPropagation(); // Stop event from bubbling
-        event.stopImmediatePropagation(); // Stop other listeners on the same element
         backspace(); // Call backspace directly instead of through keyClick
         return; // Exit early to prevent other handlers
       }
       
       // Handle letter keys (both lowercase and uppercase)
       if ((event.key >= 'a' && event.key <= 'z') || (event.key >= 'A' && event.key <= 'Z')) {
-        event.preventDefault(); // Prevent default behavior
-        event.stopPropagation(); // Stop event from bubbling
-        event.stopImmediatePropagation(); // Stop other listeners on the same element
         keyClick(event.key.toLowerCase()); // Convert to lowercase
       }
       // Handle enter
       else if (event.key === 'Enter') {
-        event.preventDefault(); // Prevent default behavior
-        event.stopPropagation(); // Stop event from bubbling
-        event.stopImmediatePropagation(); // Stop other listeners on the same element
         keyClick('enter');
       }
     }
@@ -222,8 +226,22 @@ let words = [
     attachKeyboardListener();
   }
   
+  // Track last keyClick call to prevent duplicates
+  let lastKeyClick = null;
+  let lastKeyClickTime = 0;
+  
   function keyClick(key) {
     console.log('keyClick called with:', key);
+    
+    // Debounce: prevent same key from being processed twice within 50ms
+    const now = Date.now();
+    if (lastKeyClick === key && (now - lastKeyClickTime) < 50) {
+      console.log('Duplicate keyClick ignored:', key);
+      return;
+    }
+    lastKeyClick = key;
+    lastKeyClickTime = now;
+    
     switch (key) {
       case '⌫':
         backspace();
