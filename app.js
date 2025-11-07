@@ -281,6 +281,28 @@ let words = [
       return true;
     }
     
+    // Check for profanity/inappropriate words
+    try {
+      // Check if bad-words library is loaded (it exposes Filter globally)
+      if (typeof Filter !== 'undefined') {
+        const filter = new Filter();
+        if (filter.isProfane(word.toLowerCase())) {
+          console.log('Word contains profanity - rejected');
+          return false;
+        }
+      } else if (typeof window !== 'undefined' && window.Filter) {
+        // Alternative check for window.Filter
+        const filter = new window.Filter();
+        if (filter.isProfane(word.toLowerCase())) {
+          console.log('Word contains profanity - rejected');
+          return false;
+        }
+      }
+    } catch (error) {
+      console.log('Profanity filter not available or error:', error);
+      // Continue with other checks if filter fails
+    }
+    
     // Then check if it's in our keyword list (UNC-specific words)
     if (words.includes(upperWord)) {
       console.log('Word found in keywords list');
