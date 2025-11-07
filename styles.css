@@ -68,4 +68,31 @@ html, body {
     width: 90px;
   }
 
+  /* Shake animation for invalid words */
+  .shake {
+    animation: shake 0.5s ease-in-out;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+  }
+
+  /* Flip animation for revealing colors */
+  .flip {
+    animation: flip 0.8s ease-in-out;
+  }
+
+  @keyframes flip {
+    0% { transform: rotateX(0); }
+    50% { transform: rotateX(-90deg); }
+    100% { transform: rotateX(0); }
+  }
+
+  /* Ensure the grid has perspective for 3D flip effect */
+  .grid {
+    perspective: 1000px;
+  }
+
   

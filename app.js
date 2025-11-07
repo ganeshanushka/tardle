@@ -140,14 +140,53 @@ let words = [
   } else {
     initialize();
   }
+
+  // Add keyboard event listener for physical keyboard input
+  // Use window instead of document and attach after DOM is ready
+  function attachKeyboardListener() {
+    window.addEventListener('keydown', function(event) {
+      console.log('Key pressed:', event.key, 'Code:', event.code, 'KeyCode:', event.keyCode);
+      
+      // Handle backspace/delete first (most specific)
+      if (event.key === 'Backspace' || event.key === 'Delete' || event.code === 'Backspace' || event.keyCode === 8) {
+        console.log('Delete/Backspace detected!');
+        event.preventDefault(); // Prevent default behavior
+        event.stopPropagation(); // Stop event from bubbling
+        backspace(); // Call backspace directly instead of through keyClick
+        return; // Exit early to prevent other handlers
+      }
+      
+      // Handle letter keys (both lowercase and uppercase)
+      if ((event.key >= 'a' && event.key <= 'z') || (event.key >= 'A' && event.key <= 'Z')) {
+        event.preventDefault(); // Prevent default behavior
+        keyClick(event.key.toLowerCase()); // Convert to lowercase
+      }
+      // Handle enter
+      else if (event.key === 'Enter') {
+        event.preventDefault(); // Prevent default behavior
+        keyClick('enter');
+      }
+    }, true); // Use capture phase to catch events early
+  }
+
+  // Attach keyboard listener after DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', attachKeyboardListener);
+  } else {
+    attachKeyboardListener();
+  }
   
   function keyClick(key) {
+    console.log('keyClick called with:', key);
     switch (key) {
       case '⌫':
         backspace();
         break;
       case 'enter':
-        enter();
+        enter().catch(error => {
+          console.error('Error in enter function:', error);
+          showInvalidWordAlert();
+        });
         break;
       default:
         if (currentGuess.length < SecretWord.length
@@ -161,13 +200,108 @@ let words = [
   function backspace() {
     if (currentGuess.length > 0) {
       currentGuess.pop();
+      updateCurrentGuess();
     }
-    updateCurrentGuess();
   }
   
-  function enter() {
+  async function isValidWord(word) {
+    const upperWord = word.toUpperCase();
+    
+    console.log('Checking word:', upperWord);
+    console.log('Current SecretWord:', SecretWord);
+    console.log('Is in words array:', words.includes(upperWord));
+    
+    // First check if it's the current answer (always valid)
+    if (upperWord === SecretWord.toUpperCase()) {
+      console.log('Word is the current answer - always valid');
+      return true;
+    }
+    
+    // Then check if it's in our keyword list (UNC-specific words)
+    if (words.includes(upperWord)) {
+      console.log('Word found in keywords list');
+      return true;
+    }
+    
+    // Check if it's in the English dictionary
+    if (word_list.includes(upperWord)) {
+      console.log('Word found in English dictionary');
+      return true;
+    }
+    
+    // Use dictionary API to check if word exists
+    try {
+      const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word.toLowerCase()}`);
+      if (response.ok) {
+        const data = await response.json();
+        const isValid = data && data.length > 0;
+        console.log('Dictionary API result:', isValid);
+        return isValid;
+      }
+      console.log('Dictionary API failed, using pattern validation');
+      return false;
+    } catch (error) {
+      console.error('Dictionary API error:', error);
+      // Fallback to pattern validation if API fails
+      const patternResult = isValidEnglishPattern(upperWord);
+      console.log('Pattern validation result:', patternResult);
+      return patternResult;
+    }
+  }
+  
+  function isValidEnglishPattern(word) {
+    // Basic validation - reject obviously invalid patterns
+    if (word.length < 2 || word.length > 15) {
+      return false;
+    }
+    
+    // Must contain only letters
+    if (!/^[A-Z]+$/.test(word)) {
+      return false;
+    }
+    
+    // Reject patterns that are clearly not English words
+    const invalidPatterns = [
+      /^[BCDFGHJKLMNPQRSTVWXYZ]{5,}$/, // Too many consonants in a row
+      /^[AEIOU]{4,}$/, // Too many vowels in a row
+      /(.)\1{3,}/, // Same letter repeated 4+ times
+      /^[QWZX]{2,}/, // Too many rare letters
+    ];
+    
+    for (let pattern of invalidPatterns) {
+      if (pattern.test(word)) {
+        return false;
+      }
+    }
+    
+    // Must have at least one vowel
+    if (!/[AEIOU]/.test(word)) {
+      return false;
+    }
+    
+    // For now, accept most words that pass basic validation
+    // This is more permissive than the original approach
+    return true;
+  }
+
+  async function enter() {
+    // Check if user has entered enough letters
+    if (currentGuess.length < SecretWord.length) {
+        showNotEnoughLettersAlert();
+        return; // Don't process the guess if not enough letters
+    }
+
     if (currentGuess.length === SecretWord.length) {
         let guessedWord = currentGuess.map(c => c.key).join('').toUpperCase();
+        
+        // Check if the guessed word is valid
+        const isValid = await isValidWord(guessedWord);
+        
+        if (!isValid) {
+            showInvalidWordAlert();
+            return; // Don't process the guess if word is invalid
+        }
+        
         let secret = SecretWord.toUpperCase();
 
         let secretLetterCount = {};
@@ -179,28 +313,46 @@ let words = [
             }
         }
 
+        // First pass: mark correct letters
         currentGuess.forEach((keyGuess, index) => {
             if (secret[index] === keyGuess.key.toUpperCase()) {
                 keyGuess.result = Correct;
                 secretLetterCount[keyGuess.key.toUpperCase()]--;
-                keys[keyGuess.key] = 'correct'; // Update keys object with 'correct'
             }
         });
 
+        // Second pass: mark found and wrong letters
         currentGuess.forEach((keyGuess, index) => {
             if (!keyGuess.result && secret.includes(keyGuess.key.toUpperCase()) && secretLetterCount[keyGuess.key.toUpperCase()] > 0) {
                 keyGuess.result = Found;
                 secretLetterCount[keyGuess.key.toUpperCase()]--;
-                keys[keyGuess.key] = 'found'; // Update keys object with 'found'
             } else if (!keyGuess.result) {
                 keyGuess.result = Wrong;
-                keys[keyGuess.key] = 'wrong'; // Update keys object with 'wrong'
             }
         });
 
-        updateCurrentGuess(true);
+        // Update keyboard with best result for each letter
+        currentGuess.forEach((keyGuess) => {
+            const letter = keyGuess.key;
+            const currentResult = keys[letter];
+            const newResult = keyGuess.result;
+            
+            // Only update if the new result is better than the current one
+            // Priority: correct > found > wrong
+            if (!currentResult || 
+                (newResult === 'correct') || 
+                (newResult === 'found' && currentResult === 'wrong')) {
+                keys[letter] = newResult;
+            }
+        });
+
+        // Set up the guess with letters but no colors yet
+        updateCurrentGuess(false);
         guesses.push([...currentGuess]);
         currentGuess = [];
+        
+        // Then add flip animation to each cell and reveal colors during flip
+        flipAndRevealGuess();
 
         if (guessedWord === secret) {
             showAlert("Rah Rah Right answer!"); // Show the popup
@@ -213,7 +365,7 @@ let words = [
       } else {
         currentGuess = []; // Prepare for the next guess
       }
-        updateKeyboard(); // Make sure to call this to update the colors
+        // Keyboard will be updated after flip animation completes in flipAndRevealGuess()
     }
 }
 
@@ -226,6 +378,59 @@ function showAlert(message) {
         closePopup();
         showStatsPopup();
     }, 2000);
+}
+
+
+function showInvalidWordAlert() {
+    // Add shake animation to each cell in the current guess row
+    const currentRow = guesses.length;
+    for (let i = 0; i < SecretWord.length; i++) {
+        const guessCell = document.getElementById(`${currentRow}${i}`);
+        if (guessCell) {
+            guessCell.classList.add('shake');
+            // Remove shake class after animation completes
+            setTimeout(() => {
+                guessCell.classList.remove('shake');
+            }, 500);
+        }
+    }
+
+    // Show the invalid word alert 0.1 seconds after shake starts
+    setTimeout(() => {
+        document.getElementById('invalidWordMessage').innerText = "Not in word list";
+        document.getElementById('invalidWordPopup').classList.remove('hidden');
+
+        // Auto-hide after 1 second
+        setTimeout(() => {
+            document.getElementById('invalidWordPopup').classList.add('hidden');
+        }, 1000);
+    }, 100);
+}
+
+function showNotEnoughLettersAlert() {
+    // Add shake animation to each cell in the current guess row
+    const currentRow = guesses.length;
+    for (let i = 0; i < SecretWord.length; i++) {
+        const guessCell = document.getElementById(`${currentRow}${i}`);
+        if (guessCell) {
+            guessCell.classList.add('shake');
+            // Remove shake class after animation completes
+            setTimeout(() => {
+                guessCell.classList.remove('shake');
+            }, 500);
+        }
+    }
+
+    // Show the not enough letters alert 0.1 seconds after shake starts
+    setTimeout(() => {
+        document.getElementById('notEnoughLettersMessage').innerText = "Not enough letters";
+        document.getElementById('notEnoughLettersPopup').classList.remove('hidden');
+
+        // Auto-hide after 1 second
+        setTimeout(() => {
+            document.getElementById('notEnoughLettersPopup').classList.add('hidden');
+        }, 1000);
+    }, 100);
 }
 
 function closePopup() {
@@ -245,6 +450,38 @@ function updateKeyboard() {
     }
 }
 
+  function flipAndRevealGuess() {
+    const currentRow = guesses.length - 1; // Use the row that was just filled
+    const flipDelay = 250; // Delay between each flip (in milliseconds) - slightly slower than Wordle
+    const flipDuration = 800; // Duration of each flip animation (in milliseconds)
+    
+    // Flip each cell one by one and reveal colors during flip
+    for (let i = 0; i < SecretWord.length; i++) {
+      setTimeout(() => {
+        const guessCell = document.getElementById(`${currentRow}${i}`);
+        if (guessCell && guesses[currentRow][i]) {
+          // Add flip animation
+          guessCell.classList.add('flip');
+          
+          // Add the color class at the midpoint of the flip (when it's rotated 90 degrees)
+          setTimeout(() => {
+            guessCell.classList.add(guesses[currentRow][i].result);
+          }, flipDuration / 2); // Half of the flip duration (400ms)
+          
+          // Remove flip class after animation completes
+          setTimeout(() => {
+            guessCell.classList.remove('flip');
+          }, flipDuration);
+        }
+      }, i * flipDelay);
+    }
+    
+    // Update keyboard 0.25 seconds after all flips are complete
+    setTimeout(() => {
+      updateKeyboard();
+    }, (SecretWord.length * flipDelay) + flipDuration + 250);
+  }
+
   function updateCurrentGuess(guessed = false) {
     let index = guesses.length;
     for (let i = 0; i < SecretWord.length; i++) {
@@ -254,7 +491,7 @@ function updateKeyboard() {
       } else {
         guessGrid.innerHTML = '';
       }
-      if (guessed) {
+      if (guessed && currentGuess[i]) {
         guessGrid.classList.add(currentGuess[i].result);
       }
     }
