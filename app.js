@@ -142,9 +142,10 @@ let words = [
   }
 
   // Add keyboard event listener for physical keyboard input
-  // Use window instead of document and attach after DOM is ready
+  // Chrome-compatible version that works with both file:// and http:// protocols
   function attachKeyboardListener() {
-    window.addEventListener('keydown', function(event) {
+    // Handler function for keyboard events
+    function handleKeyDown(event) {
       console.log('Key pressed:', event.key, 'Code:', event.code, 'KeyCode:', event.keyCode);
       
       // Handle backspace/delete first (most specific)
@@ -166,13 +167,41 @@ let words = [
         event.preventDefault(); // Prevent default behavior
         keyClick('enter');
       }
-    }, true); // Use capture phase to catch events early
+    }
+
+    // Attach to multiple targets for better Chrome compatibility
+    // Chrome sometimes requires document-level listeners for file:// protocol
+    document.addEventListener('keydown', handleKeyDown, true);
+    window.addEventListener('keydown', handleKeyDown, true);
+    
+    // Ensure the page can receive keyboard events by focusing on load
+    window.addEventListener('load', function() {
+      // Try to focus the document body to ensure keyboard events work
+      if (document.body) {
+        document.body.focus();
+        // Also make body focusable if needed
+        if (!document.body.hasAttribute('tabindex')) {
+          document.body.setAttribute('tabindex', '-1');
+        }
+      }
+    });
+
+    // Add click handler to ensure page receives focus when clicked (important for Chrome file://)
+    document.addEventListener('click', function(event) {
+      // If clicking on the page (not on an input/button), ensure body is focused
+      if (event.target === document.body || !event.target.matches('input, button, a')) {
+        if (document.body && document.activeElement !== document.body) {
+          document.body.focus();
+        }
+      }
+    }, true);
   }
 
   // Attach keyboard listener after DOM is ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', attachKeyboardListener);
   } else {
+    // If DOM is already ready, attach immediately
     attachKeyboardListener();
   }
   
