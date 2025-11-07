@@ -143,16 +143,30 @@ let words = [
 
   // Add keyboard event listener for physical keyboard input
   // Chrome-compatible version that works with both file:// and http:// protocols
+  let keyboardListenerAttached = false;
   function attachKeyboardListener() {
+    // Prevent attaching listener multiple times
+    if (keyboardListenerAttached) {
+      console.log('Keyboard listener already attached, skipping...');
+      return;
+    }
+    keyboardListenerAttached = true;
+    
     // Handler function for keyboard events
     function handleKeyDown(event) {
       console.log('Key pressed:', event.key, 'Code:', event.code, 'KeyCode:', event.keyCode);
+      
+      // Prevent event from being processed multiple times
+      if (event.defaultPrevented) {
+        return;
+      }
       
       // Handle backspace/delete first (most specific)
       if (event.key === 'Backspace' || event.key === 'Delete' || event.code === 'Backspace' || event.keyCode === 8) {
         console.log('Delete/Backspace detected!');
         event.preventDefault(); // Prevent default behavior
         event.stopPropagation(); // Stop event from bubbling
+        event.stopImmediatePropagation(); // Stop other listeners on the same element
         backspace(); // Call backspace directly instead of through keyClick
         return; // Exit early to prevent other handlers
       }
@@ -160,19 +174,22 @@ let words = [
       // Handle letter keys (both lowercase and uppercase)
       if ((event.key >= 'a' && event.key <= 'z') || (event.key >= 'A' && event.key <= 'Z')) {
         event.preventDefault(); // Prevent default behavior
+        event.stopPropagation(); // Stop event from bubbling
+        event.stopImmediatePropagation(); // Stop other listeners on the same element
         keyClick(event.key.toLowerCase()); // Convert to lowercase
       }
       // Handle enter
       else if (event.key === 'Enter') {
         event.preventDefault(); // Prevent default behavior
+        event.stopPropagation(); // Stop event from bubbling
+        event.stopImmediatePropagation(); // Stop other listeners on the same element
         keyClick('enter');
       }
     }
 
-    // Attach to multiple targets for better Chrome compatibility
-    // Chrome sometimes requires document-level listeners for file:// protocol
+    // Attach only to document to avoid duplicate events
+    // Using capture phase for better compatibility
     document.addEventListener('keydown', handleKeyDown, true);
-    window.addEventListener('keydown', handleKeyDown, true);
     
     // Ensure the page can receive keyboard events by focusing on load
     window.addEventListener('load', function() {
@@ -411,6 +428,7 @@ function showAlert(message) {
 
 
 function showInvalidWordAlert() {
+    console.log('showInvalidWordAlert called');
     // Add shake animation to each cell in the current guess row
     const currentRow = guesses.length;
     for (let i = 0; i < SecretWord.length; i++) {
@@ -426,12 +444,31 @@ function showInvalidWordAlert() {
 
     // Show the invalid word alert 0.1 seconds after shake starts
     setTimeout(() => {
-        document.getElementById('invalidWordMessage').innerText = "Not in word list";
-        document.getElementById('invalidWordPopup').classList.remove('hidden');
+        const popup = document.getElementById('invalidWordPopup');
+        const message = document.getElementById('invalidWordMessage');
+        
+        if (!popup) {
+            console.error('invalidWordPopup element not found!');
+            return;
+        }
+        if (!message) {
+            console.error('invalidWordMessage element not found!');
+            return;
+        }
+        
+        console.log('Showing invalid word popup');
+        message.innerText = "Not in word list";
+        popup.classList.remove('hidden');
+        // Use inline style to override !important if needed
+        popup.style.display = 'flex';
+        console.log('Popup classes after remove:', popup.className);
+        console.log('Popup display style:', window.getComputedStyle(popup).display);
 
         // Auto-hide after 1 second
         setTimeout(() => {
-            document.getElementById('invalidWordPopup').classList.add('hidden');
+            popup.classList.add('hidden');
+            popup.style.display = 'none'; // Also set inline style
+            console.log('Hiding invalid word popup');
         }, 1000);
     }, 100);
 }
