@@ -116,6 +116,16 @@ let words = [
   const Wrong = 'wrong';
   
   function initialize() {
+    // Ensure all popups are hidden on page load
+    const popupIds = ['customPopup', 'invalidWordPopup', 'notEnoughLettersPopup', 'gameOverPopup', 'statsPopup'];
+    popupIds.forEach(popupId => {
+      const popup = document.getElementById(popupId);
+      if (popup) {
+        popup.classList.add('hidden');
+        popup.style.display = ''; // Remove any inline styles
+      }
+    });
+    
     let guessGrid = document.getElementById("guessGrid");
     for (let i = 0; i < NumberOfGuesses; i++) { // This loop creates rows in the guess grid
       for (let j = 0; j < SecretWord.length; j++) { // This loop adds blocks based on the no. of letters in the secret
