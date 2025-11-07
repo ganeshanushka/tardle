@@ -457,8 +457,13 @@ let words = [
 
 
 function showAlert(message) {
-    document.getElementById('popupMessage').innerText = message;
-    document.getElementById('customPopup').classList.remove('hidden');
+    const popup = document.getElementById('customPopup');
+    const messageEl = document.getElementById('popupMessage');
+    if (popup && messageEl) {
+        messageEl.innerText = message;
+        popup.classList.remove('hidden');
+        popup.style.display = 'flex'; // Set inline style to show
+    }
 
     setTimeout(() => {
         closePopup();
@@ -507,7 +512,7 @@ function showInvalidWordAlert() {
         // Auto-hide after 1 second
         setTimeout(() => {
             popup.classList.add('hidden');
-            popup.style.display = 'none'; // Also set inline style
+            popup.style.display = ''; // Remove inline style to let CSS handle it
             console.log('Hiding invalid word popup');
         }, 1000);
     }, 100);
@@ -529,19 +534,33 @@ function showNotEnoughLettersAlert() {
 
     // Show the not enough letters alert 0.1 seconds after shake starts
     setTimeout(() => {
-        document.getElementById('notEnoughLettersMessage').innerText = "Not enough letters";
-        document.getElementById('notEnoughLettersPopup').classList.remove('hidden');
+        const popup = document.getElementById('notEnoughLettersPopup');
+        const message = document.getElementById('notEnoughLettersMessage');
+        
+        if (!popup || !message) {
+            console.error('notEnoughLettersPopup or message element not found!');
+            return;
+        }
+        
+        message.innerText = "Not enough letters";
+        popup.classList.remove('hidden');
+        popup.style.display = 'flex'; // Set inline style to show
 
         // Auto-hide after 1 second
         setTimeout(() => {
-            document.getElementById('notEnoughLettersPopup').classList.add('hidden');
+            popup.classList.add('hidden');
+            popup.style.display = ''; // Remove inline style to let CSS handle it
         }, 1000);
     }, 100);
 }
 
 function closePopup() {
     // Hide the popup
-    document.getElementById('customPopup').classList.add('hidden');
+    const popup = document.getElementById('customPopup');
+    if (popup) {
+        popup.classList.add('hidden');
+        popup.style.display = ''; // Remove inline style to let CSS handle it
+    }
 }
 
 function updateKeyboard() {
@@ -621,24 +640,45 @@ function updateKeyboard() {
 
 function showGameOverPopup() {
     // Include the correct word in the game over message
-    document.getElementById('gameOverMessage').innerText = SecretWord;
-    document.getElementById('gameOverPopup').classList.remove('hidden');
+    const popup = document.getElementById('gameOverPopup');
+    const messageEl = document.getElementById('gameOverMessage');
+    if (popup && messageEl) {
+        messageEl.innerText = SecretWord;
+        popup.classList.remove('hidden');
+        popup.style.display = 'flex'; // Set inline style to show
+    }
     setTimeout(showStatsPopup, 2000); // Adjust the delay as needed
 }
 
 function closeGameOverPopup() {
-    document.getElementById('gameOverPopup').classList.add('hidden');
+    const popup = document.getElementById('gameOverPopup');
+    if (popup) {
+        popup.classList.add('hidden');
+        popup.style.display = ''; // Remove inline style to let CSS handle it
+    }
 }
 
 function showStatsPopup() {
-    document.getElementById('gamesPlayed').innerText = "Games played: " + gamesPlayed;
-    document.getElementById('currentStreak').innerText = "Current streak: " + currentStreak;
-    document.getElementById('maxStreak').innerText = "Max streak: " + maxStreak;
-    document.getElementById('statsPopup').classList.remove('hidden');
+    const popup = document.getElementById('statsPopup');
+    const gamesPlayedEl = document.getElementById('gamesPlayed');
+    const currentStreakEl = document.getElementById('currentStreak');
+    const maxStreakEl = document.getElementById('maxStreak');
+    
+    if (popup && gamesPlayedEl && currentStreakEl && maxStreakEl) {
+        gamesPlayedEl.innerText = "Games played: " + gamesPlayed;
+        currentStreakEl.innerText = "Current streak: " + currentStreak;
+        maxStreakEl.innerText = "Max streak: " + maxStreak;
+        popup.classList.remove('hidden');
+        popup.style.display = 'flex'; // Set inline style to show
+    }
 }
 
 function closeStatsPopup() {
-    document.getElementById('statsPopup').classList.add('hidden');
+    const popup = document.getElementById('statsPopup');
+    if (popup) {
+        popup.classList.add('hidden');
+        popup.style.display = ''; // Remove inline style to let CSS handle it
+    }
     // Possibly reset the game or redirect the user here
 }
 

@@ -84,7 +84,7 @@
     background-color: #ddd;
   }
 
-.hidden { display: none; }
+.hidden { display: none !important; }
 
 /* Popup container styles */
 #invalidWordPopup,
@@ -101,6 +101,15 @@
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+/* Ensure hidden popups are not displayed */
+#invalidWordPopup.hidden,
+#notEnoughLettersPopup.hidden,
+#customPopup.hidden,
+#gameOverPopup.hidden,
+#statsPopup.hidden {
+  display: none !important;
 }
 
 .popup-content {
