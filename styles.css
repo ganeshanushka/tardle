@@ -8,19 +8,19 @@ html, body {
 
 .container .correct {
     background-color: #56a0d3;
-    border-color: #56a0d3;
+    border: none;
     color: white;
   }
   
   .container .found {
     background-color: #c9b458;
-    border-color: #c9b458;
+    border: none;
     color: white;
   }
   
   .container .wrong {
     background-color: #00539B;
-    border-color: #00539B;
+    border: none;
     color: white;
   }
   

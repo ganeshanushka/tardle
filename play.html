@@ -71,6 +71,13 @@
   .grid div.filled {
     border-color: #878a8c !important;
   }
+  
+  /* Remove borders when box has a result color */
+  .grid div.correct,
+  .grid div.found,
+  .grid div.wrong {
+    border: none !important;
+  }
 
   .keyboard {
     display: grid;
