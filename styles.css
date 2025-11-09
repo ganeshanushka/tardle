@@ -30,12 +30,14 @@ html, body {
     align-items: center;
     text-transform: uppercase;
     border: 2px solid #d3d6da;
-    height: 50px;
-    width: 50px;
-    vertical-align: baseline;
+    height: 62px;
+    width: 62px;
+    vertical-align: top;
     color: #1a1a1b;
-    margin: 4px;
+    margin: 3px;
     transition: border-color 0.1s ease;
+    font-size: 32px;
+    font-weight: bold;
   }
   
   /* Darker border when box has a letter (like Wordle) */
