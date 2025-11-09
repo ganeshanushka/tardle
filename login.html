@@ -94,10 +94,17 @@
     const loginForm = document.getElementById('loginForm');
     const emailInput = document.getElementById('email');
     
+    if (!loginForm) {
+      console.error('Login form not found!');
+      return;
+    }
+    
     loginForm.addEventListener('submit', function(e) {
       e.preventDefault();
+      console.log('Form submitted');
       
       const email = emailInput.value.trim();
+      console.log('Email entered:', email);
       
       // Validate email format
       if (!email || !email.includes('@')) {
@@ -106,16 +113,31 @@
       }
       
       // Check if email exists in localStorage (simulating database check)
+      // If localStorage is empty, it will be an empty object, so all emails will go to sign-up
       const users = JSON.parse(localStorage.getItem('users') || '{}');
+      console.log('Users in storage:', users);
+      console.log('Email exists?', users[email]);
       
       if (users[email]) {
         // Email exists - redirect to sign in page
+        console.log('Redirecting to sign in');
         window.location.href = `signin.html?email=${encodeURIComponent(email)}`;
       } else {
         // Email doesn't exist - redirect to sign up page
+        console.log('Redirecting to sign up');
         window.location.href = `signup.html?email=${encodeURIComponent(email)}`;
       }
     });
+    
+    // Also handle button click as backup
+    const continueBtn = document.getElementById('continueBtn');
+    if (continueBtn) {
+      continueBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        console.log('Button clicked');
+        loginForm.dispatchEvent(new Event('submit'));
+      });
+    }
   });
 </script>
 
