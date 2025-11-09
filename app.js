@@ -137,8 +137,7 @@ let words = [
     let keyboard = document.getElementById("keyboard");
     Object.keys(keys).forEach((key) => {
       if (key.includes('break')) {
-        // For flexbox, add a flex-basis: 100% element to force a line break
-        keyboard.innerHTML += '<div style="flex-basis: 100%; height: 0;"></div>';
+        keyboard.innerHTML += '<br/>';
       } else {
         keyboard.innerHTML += `<button id="${key}" class="key" onclick="keyClick('${key}')">` + key + '</button>';
       }
@@ -434,29 +433,11 @@ let words = [
             const currentResult = keys[letter];
             const newResult = keyGuess.result;
             
-            // Only update if the new result is better than or equal to the current one
+            // Only update if the new result is better than the current one
             // Priority: correct > found > wrong
-            let shouldUpdate = false;
-            
-            if (!currentResult || currentResult === '') {
-                // No current result, always update
-                shouldUpdate = true;
-            } else if (newResult === 'correct') {
-                // Correct is always best, always update
-                shouldUpdate = true;
-            } else if (newResult === 'found') {
-                // Found is better than wrong, update if current is wrong or empty
-                if (currentResult === 'wrong' || !currentResult) {
-                    shouldUpdate = true;
-                }
-            } else if (newResult === 'wrong') {
-                // Wrong is worst, only update if no current result
-                if (!currentResult) {
-                    shouldUpdate = true;
-                }
-            }
-            
-            if (shouldUpdate) {
+            if (!currentResult || 
+                (newResult === 'correct') || 
+                (newResult === 'found' && currentResult === 'wrong')) {
                 keys[letter] = newResult;
             }
         });

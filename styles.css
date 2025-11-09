@@ -4,7 +4,6 @@ html, body {
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow-x: hidden; /* Prevent horizontal scrolling */
   }
 
 .container .correct {
@@ -31,12 +30,12 @@ html, body {
     align-items: center;
     text-transform: uppercase;
     border: 2px solid #d3d6da;
-    aspect-ratio: 1; /* Maintain square shape */
+    height: 50px;
+    width: 50px;
     vertical-align: baseline;
     color: #1a1a1b;
     margin: 4px;
     transition: border-color 0.1s ease;
-    font-size: clamp(16px, 4vw, 24px); /* Responsive font size */
   }
   
   /* Darker border when box has a letter (like Wordle) */
@@ -56,79 +55,23 @@ html, body {
   
   .key {
     font-weight: bold;
-    font-size: clamp(12px, 2.5vw, 18px); /* Responsive font size */
+    font-size: 18px; /* You can adjust this value as needed */
+    font-weight: bold; /* This will make the text bold */
     text-transform: uppercase;
     border-radius: 4px;
     background-color: #d3d6da;
     border: 0;
-    min-height: 40px;
-    min-width: 30px;
+    height: 50px;
+    width: 43px;
     margin: 2px;
     cursor: pointer;
     color: #1a1a1b;
-    padding: clamp(6px, 1.5vw, 10px) clamp(8px, 2vw, 16px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  /* Keyboard key colors */
-  .key.correct {
-    background-color: #56a0d3;
-    color: white;
-  }
-  
-  .key.found {
-    background-color: #c9b458;
-    color: white;
-  }
-  
-  .key.wrong {
-    background-color: #00539B;
-    color: white;
+    padding: 10px 16px; 
+    
   }
   
   #enter{
-    min-width: 70px;
-    width: auto;
-    padding: clamp(6px, 1.5vw, 10px) clamp(12px, 3vw, 20px);
-  }
-  
-  /* Responsive adjustments */
-  @media (max-width: 600px) {
-    .key-guess {
-      margin: 2px;
-    }
-    
-    .key {
-      min-height: 35px;
-      min-width: 25px;
-      margin: 1px;
-      padding: 5px 8px;
-    }
-    
-    #enter {
-      min-width: 60px;
-      padding: 5px 10px;
-    }
-  }
-  
-  @media (max-width: 400px) {
-    .key-guess {
-      margin: 1px;
-    }
-    
-    .key {
-      min-height: 30px;
-      min-width: 20px;
-      margin: 1px;
-      padding: 4px 6px;
-    }
-    
-    #enter {
-      min-width: 50px;
-      padding: 4px 8px;
-    }
+    width: 90px;
   }
 
   /* Shake animation for invalid words */
