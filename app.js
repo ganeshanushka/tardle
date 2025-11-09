@@ -433,11 +433,29 @@ let words = [
             const currentResult = keys[letter];
             const newResult = keyGuess.result;
             
-            // Only update if the new result is better than the current one
+            // Only update if the new result is better than or equal to the current one
             // Priority: correct > found > wrong
-            if (!currentResult || 
-                (newResult === 'correct') || 
-                (newResult === 'found' && currentResult === 'wrong')) {
+            let shouldUpdate = false;
+            
+            if (!currentResult || currentResult === '') {
+                // No current result, always update
+                shouldUpdate = true;
+            } else if (newResult === 'correct') {
+                // Correct is always best, always update
+                shouldUpdate = true;
+            } else if (newResult === 'found') {
+                // Found is better than wrong, update if current is wrong or empty
+                if (currentResult === 'wrong' || !currentResult) {
+                    shouldUpdate = true;
+                }
+            } else if (newResult === 'wrong') {
+                // Wrong is worst, only update if no current result
+                if (!currentResult) {
+                    shouldUpdate = true;
+                }
+            }
+            
+            if (shouldUpdate) {
                 keys[letter] = newResult;
             }
         });
