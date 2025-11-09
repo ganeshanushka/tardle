@@ -127,11 +127,16 @@ let words = [
     });
     
     let guessGrid = document.getElementById("guessGrid");
+    // Set grid dimensions dynamically based on word length
+    guessGrid.style.gridTemplateColumns = `repeat(${SecretWord.length}, 1fr)`;
+    guessGrid.style.gridTemplateRows = `repeat(${NumberOfGuesses}, 1fr)`;
+    // Calculate and set aspect ratio dynamically
+    guessGrid.style.aspectRatio = `${SecretWord.length} / ${NumberOfGuesses}`;
     for (let i = 0; i < NumberOfGuesses; i++) { // This loop creates rows in the guess grid
       for (let j = 0; j < SecretWord.length; j++) { // This loop adds blocks based on the no. of letters in the secret
         guessGrid.innerHTML += `<div id="${i}${j}" class="key-guess"></div>`
       }
-      guessGrid.innerHTML += '<br/>'
+      // No need for <br/> tags when using CSS Grid
     }
   
     let keyboard = document.getElementById("keyboard");

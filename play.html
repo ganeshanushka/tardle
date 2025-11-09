@@ -59,24 +59,26 @@
     box-sizing: border-box;
   }
 
-  .grid {
-    display: inline-grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    grid-template-rows: repeat(6, minmax(0, 1fr));
+  #guessGrid.grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); /* Default, will be overridden by JS if needed */
+    grid-template-rows: repeat(6, 1fr); /* Default, will be overridden by JS if needed */
     gap: clamp(3px, 1vw, 5px);
-    width: 100%;
-    max-width: min(350px, 90vw);
-    aspect-ratio: 5/6; /* Maintain grid proportions */
+    width: min(350px, 90vw);
+    margin: 0 auto; /* Center the grid */
+    /* aspect-ratio will be set dynamically in JavaScript */
   }
-  .grid div {
+  #guessGrid.grid div,
+  #guessGrid.grid .key-guess {
     border: 2px solid #d3d6da;
-    width: 100%;
     aspect-ratio: 1; /* Maintain square shape */
     transition: border-color 0.1s ease;
     font-size: clamp(20px, 5vw, 32px);
     display: flex;
     align-items: center;
     justify-content: center;
+    min-width: 0; /* Prevent overflow */
+    min-height: 0; /* Prevent overflow */
   }
   
   /* Darker border when box has a letter (like Wordle) */
@@ -105,8 +107,8 @@
   /* Responsive adjustments for smaller screens */
   @media (max-width: 600px) {
     .grid {
-      max-width: min(300px, 85vw);
-      gap: 2px;
+      width: min(300px, 85vw);
+      gap: clamp(2px, 0.8vw, 4px);
     }
     
     .grid div {
@@ -115,14 +117,14 @@
     
     .keyboard {
       max-width: min(500px, 90vw);
-      gap: 2px;
+      gap: clamp(2px, 0.8vw, 4px);
     }
   }
   
   @media (max-width: 400px) {
     .grid {
-      max-width: min(250px, 80vw);
-      gap: 1px;
+      width: min(250px, 80vw);
+      gap: clamp(1px, 0.5vw, 3px);
     }
     
     .grid div {
@@ -131,7 +133,7 @@
     
     .keyboard {
       max-width: min(400px, 85vw);
-      gap: 1px;
+      gap: clamp(1px, 0.5vw, 3px);
     }
   }
 
@@ -244,7 +246,7 @@
         <div onclick="closePopup()" class="close-btn">X</div> <!-- 'X' symbol -->
       </div>
     </div>
-    <div id="guessGrid"></div>
+    <div id="guessGrid" class="grid"></div>
     <div id="keyboard"></div>
   </div>
 
