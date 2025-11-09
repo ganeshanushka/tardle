@@ -472,7 +472,7 @@ function showAlert(message) {
     if (popup && messageEl) {
         messageEl.innerText = message;
         popup.classList.remove('hidden');
-        popup.style.display = 'flex'; // Set inline style to show
+        popup.style.display = 'flex'; // Use flex to match CSS
     }
 
     setTimeout(() => {

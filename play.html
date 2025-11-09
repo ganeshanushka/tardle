@@ -51,7 +51,8 @@
     font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
     font-weight: bold;
     flex-grow: 1;
-    max-width: 600px; 
+    max-width: 600px;
+    position: relative; /* Needed for absolute positioning of success message */
   }
 
   .grid {
@@ -102,7 +103,6 @@
 /* Popup container styles */
 #invalidWordPopup,
 #notEnoughLettersPopup,
-#customPopup,
 #gameOverPopup,
 #statsPopup {
   position: fixed;
@@ -114,6 +114,31 @@
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+/* Success message popup - positioned at top of grid like Wordle */
+#customPopup {
+  position: absolute;
+  top: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  height: auto;
+  background: transparent;
+  pointer-events: none; /* Allow clicks to pass through */
+}
+
+/* Success message content styling */
+#customPopup .popup-content.success-message {
+  padding: 8px 16px !important;
+  font-size: 0.85em !important;
+  font-weight: bold !important;
+  min-width: auto !important;
+  margin: 0 !important;
+  pointer-events: auto; /* Re-enable clicks on the popup itself */
 }
 
 /* Ensure hidden popups are not displayed */
@@ -168,15 +193,15 @@
     <div class="close-button" onclick="goBack()">X</div>
   </div>
   <div class="container">
+    <div id="customPopup" class="hidden">
+      <div class="popup-content success-message">
+        <span id="popupMessage">Your message here</span>
+        <div onclick="closePopup()" class="close-btn">X</div> <!-- 'X' symbol -->
+      </div>
+    </div>
     <div id="guessGrid"></div>
     <div id="keyboard"></div>
   </div>
-  <div id="customPopup" class="hidden">
-    <div class="popup-content">
-              <span id="popupMessage">Your message here</span>
-              <div onclick="closePopup()" class="close-btn">X</div> <!-- 'X' symbol -->
-            </div>
-          </div>
 
   <div id="invalidWordPopup" class="hidden">
     <div class="popup-content">
