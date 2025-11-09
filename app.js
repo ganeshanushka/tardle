@@ -127,21 +127,18 @@ let words = [
     });
     
     let guessGrid = document.getElementById("guessGrid");
-    // Set grid dimensions dynamically based on word length
-    guessGrid.style.gridTemplateColumns = `repeat(${SecretWord.length}, 1fr)`;
-    guessGrid.style.gridTemplateRows = `repeat(${NumberOfGuesses}, auto)`;
-    // Use auto for rows so they size based on square items
     for (let i = 0; i < NumberOfGuesses; i++) { // This loop creates rows in the guess grid
       for (let j = 0; j < SecretWord.length; j++) { // This loop adds blocks based on the no. of letters in the secret
         guessGrid.innerHTML += `<div id="${i}${j}" class="key-guess"></div>`
       }
-      // No need for <br/> tags when using CSS Grid
+      guessGrid.innerHTML += '<br/>'
     }
   
     let keyboard = document.getElementById("keyboard");
     Object.keys(keys).forEach((key) => {
       if (key.includes('break')) {
-        keyboard.innerHTML += '<br/>';
+        // For flexbox, add a flex-basis: 100% element to force a line break
+        keyboard.innerHTML += '<div style="flex-basis: 100%; height: 0;"></div>';
       } else {
         keyboard.innerHTML += `<button id="${key}" class="key" onclick="keyClick('${key}')">` + key + '</button>';
       }
