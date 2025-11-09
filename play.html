@@ -62,23 +62,27 @@
   #guessGrid.grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr); /* Default, will be overridden by JS if needed */
-    grid-template-rows: repeat(6, 1fr); /* Default, will be overridden by JS if needed */
+    grid-template-rows: repeat(6, auto); /* Default, will be overridden by JS if needed */
     gap: clamp(3px, 1vw, 5px);
     width: min(350px, 90vw);
     margin: 0 auto; /* Center the grid */
-    /* aspect-ratio will be set dynamically in JavaScript */
+    /* Height will be calculated automatically based on grid items */
   }
   #guessGrid.grid div,
   #guessGrid.grid .key-guess {
     border: 2px solid #d3d6da;
+    width: 100%; /* Fill grid cell width */
     aspect-ratio: 1; /* Maintain square shape */
     transition: border-color 0.1s ease;
     font-size: clamp(20px, 5vw, 32px);
-    display: flex;
+    display: flex !important; /* Override inline-flex from styles.css */
     align-items: center;
     justify-content: center;
     min-width: 0; /* Prevent overflow */
     min-height: 0; /* Prevent overflow */
+    margin: 0 !important; /* Remove margin that breaks grid */
+    vertical-align: initial !important; /* Remove vertical-align */
+    box-sizing: border-box; /* Include border in width calculation */
   }
   
   /* Darker border when box has a letter (like Wordle) */
