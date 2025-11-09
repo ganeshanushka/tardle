@@ -74,7 +74,7 @@
       <input type="email" id="email" name="email" required>
     </div>
     <div class="input-group">
-      <input type="submit" value="Continue">
+      <input type="submit" id="continueBtn" value="Continue">
     </div>
   <p class="terms">
     By continuing, you agree to the updated <a href="#">Terms of Service</a>, 
@@ -86,6 +86,35 @@
   function goBack() {
     window.history.back();
   }
+
+  // Handle form submission
+  document.addEventListener('DOMContentLoaded', function() {
+    const continueBtn = document.getElementById('continueBtn');
+    const emailInput = document.getElementById('email');
+    
+    continueBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      const email = emailInput.value.trim();
+      
+      // Validate email format
+      if (!email || !email.includes('@')) {
+        alert('Please enter a valid email address');
+        return;
+      }
+      
+      // Check if email exists in localStorage (simulating database check)
+      const users = JSON.parse(localStorage.getItem('users') || '{}');
+      
+      if (users[email]) {
+        // Email exists - redirect to sign in page
+        window.location.href = `signin.html?email=${encodeURIComponent(email)}`;
+      } else {
+        // Email doesn't exist - redirect to sign up page
+        window.location.href = `signup.html?email=${encodeURIComponent(email)}`;
+      }
+    });
+  });
 </script>
 
 </body>

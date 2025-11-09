@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign In</title>
+<style>
+  body {
+    font-family: 'PT Serif', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #7BAFD4;
+  }
+
+  .login-container {
+    background-color: white;
+    margin: auto;
+    padding: 20px 30px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    width: 500px;
+  }
+
+  .close-button {
+    float: right;
+    cursor: pointer;
+    font-size: 1.5em;
+  }
+
+  .input-group {
+    font-size: 1.25em;
+  }
+
+  .input-group label {
+    text-align: left;
+    display: block; 
+    font-weight: bold; 
+    margin-top: 30px;
+    margin-bottom: 0.7em;
+  }
+
+  .input-group input {
+    width: 97%;
+    padding: 0.5em;
+    font-size: 1em;
+    margin-bottom: 0.5em;
+    border: 1px solid #ccc;
+  }
+
+  .input-group input[type="submit"] {
+    background-color: #7BAFD4;
+    color: white;
+    cursor: pointer;
+    width: 50%;
+    border: none;
+    padding: 0.7em;
+    font-weight: bold;
+  }
+
+  .input-group input[type="submit"]:hover {
+    background-color: #6a9fc0;
+  }
+
+  .error-message {
+    color: red;
+    font-size: 0.9em;
+    margin-top: 0.5em;
+    display: none;
+  }
+
+  .email-display {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 1em;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="login-container">
+  <div class="close-button" onclick="goBack()">X</div>
+  <h1>Sign in</h1>
+  <div class="email-display" id="emailDisplay"></div>
+  <form id="signinForm">
+    <div class="input-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" required>
+    </div>
+    <div class="error-message" id="errorMessage">Incorrect password. Please try again.</div>
+    <div class="input-group">
+      <input type="submit" value="Sign in">
+    </div>
+  </form>
+</div>
+
+<script>
+  // Get email from URL parameter
+  const urlParams = new URLSearchParams(window.location.search);
+  const email = urlParams.get('email');
+  
+  if (email) {
+    document.getElementById('emailDisplay').textContent = email;
+  } else {
+    // If no email, redirect back to login
+    window.location.href = 'login.html';
+  }
+
+  function goBack() {
+    window.location.href = 'login.html';
+  }
+
+  document.getElementById('signinForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const password = document.getElementById('password').value;
+    
+    // Check if user exists and password matches
+    const users = JSON.parse(localStorage.getItem('users') || '{}');
+    
+    if (users[email] && users[email].password === password) {
+      // Store logged in user
+      localStorage.setItem('currentUser', email);
+      localStorage.setItem('isLoggedIn', 'true');
+      
+      // Redirect to play page
+      window.location.href = 'play.html';
+    } else {
+      // Show error message
+      document.getElementById('errorMessage').style.display = 'block';
+    }
+  });
+</script>
+
+</body>
+</html>
+
