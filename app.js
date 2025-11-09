@@ -448,11 +448,12 @@ let words = [
         currentGuess = [];
         
         // Then add flip animation to each cell and reveal colors during flip
-        flipAndRevealGuess();
+        const isCorrect = (guessedWord === secret);
+        flipAndRevealGuess(isCorrect);
 
-        if (guessedWord === secret) {
-            showAlert("Rah Rah Right answer!"); // Show the popup
-            setTimeout(showStatsPopup, 2000); // Show the stats popup after 2 seconds
+        if (isCorrect) {
+            // Show alert after flip animation completes
+            // flipAndRevealGuess will handle showing the alert
             updateStatsOnWin(); // Update stats as a win
         }
      else if (guesses.length >= NumberOfGuesses) {
@@ -585,10 +586,11 @@ function updateKeyboard() {
     }
 }
 
-  function flipAndRevealGuess() {
+  function flipAndRevealGuess(isCorrect = false) {
     const currentRow = guesses.length - 1; // Use the row that was just filled
     const flipDelay = 250; // Delay between each flip (in milliseconds) - slightly slower than Wordle
     const flipDuration = 800; // Duration of each flip animation (in milliseconds)
+    const totalFlipTime = (SecretWord.length * flipDelay) + flipDuration; // Total time for all flips to complete
     
     // Flip each cell one by one and reveal colors during flip
     for (let i = 0; i < SecretWord.length; i++) {
@@ -614,7 +616,15 @@ function updateKeyboard() {
     // Update keyboard 0.25 seconds after all flips are complete
     setTimeout(() => {
       updateKeyboard();
-    }, (SecretWord.length * flipDelay) + flipDuration + 250);
+    }, totalFlipTime + 250);
+    
+    // Show success message after all flips complete (only if correct)
+    if (isCorrect) {
+      setTimeout(() => {
+        showAlert("Rah Rah Right answer!");
+        setTimeout(showStatsPopup, 2000); // Show the stats popup after 2 seconds
+      }, totalFlipTime);
+    }
   }
 
   function updateCurrentGuess(guessed = false) {
