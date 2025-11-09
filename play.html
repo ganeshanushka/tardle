@@ -72,11 +72,11 @@
     border-color: #878a8c !important;
   }
   
-  /* Remove borders when box has a result color */
+  /* Use transparent borders when box has a result color to maintain size */
   .grid div.correct,
   .grid div.found,
   .grid div.wrong {
-    border: none !important;
+    border: 2px solid transparent !important;
   }
 
   .keyboard {
