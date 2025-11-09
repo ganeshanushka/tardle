@@ -59,47 +59,41 @@
     box-sizing: border-box;
   }
 
-  #guessGrid.grid {
+  #guessGrid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr); /* Default, will be overridden by JS if needed */
-    grid-template-rows: repeat(6, auto); /* Default, will be overridden by JS if needed */
     gap: clamp(3px, 1vw, 5px);
     width: min(350px, 90vw);
     margin: 0 auto; /* Center the grid */
-    /* Height will be calculated automatically based on grid items */
+    /* Grid dimensions will be set dynamically in JavaScript */
   }
-  #guessGrid.grid div,
-  #guessGrid.grid .key-guess {
+  #guessGrid .key-guess {
     border: 2px solid #d3d6da;
-    width: 100%; /* Fill grid cell width */
     aspect-ratio: 1; /* Maintain square shape */
     transition: border-color 0.1s ease;
     font-size: clamp(20px, 5vw, 32px);
-    display: flex !important; /* Override inline-flex from styles.css */
+    display: flex;
     align-items: center;
     justify-content: center;
-    min-width: 0; /* Prevent overflow */
-    min-height: 0; /* Prevent overflow */
-    margin: 0 !important; /* Remove margin that breaks grid */
-    vertical-align: initial !important; /* Remove vertical-align */
-    box-sizing: border-box; /* Include border in width calculation */
+    margin: 0;
+    box-sizing: border-box;
   }
   
   /* Darker border when box has a letter (like Wordle) */
-  .grid div.filled {
+  #guessGrid .key-guess.filled {
     border-color: #878a8c !important;
   }
-  
+
   /* Use transparent borders when box has a result color to maintain size */
-  .grid div.correct,
-  .grid div.found,
-  .grid div.wrong {
+  #guessGrid .key-guess.correct,
+  #guessGrid .key-guess.found,
+  #guessGrid .key-guess.wrong {
     border: 2px solid transparent !important;
   }
 
-  .keyboard {
-    display: grid;
-    grid-template-columns: repeat(10, minmax(0, 1fr));
+  #keyboard {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: clamp(3px, 1vw, 5px);
     margin-top: clamp(10px, 3vh, 20px);
     width: 100%;
@@ -110,47 +104,37 @@
   
   /* Responsive adjustments for smaller screens */
   @media (max-width: 600px) {
-    .grid {
+    #guessGrid {
       width: min(300px, 85vw);
       gap: clamp(2px, 0.8vw, 4px);
     }
     
-    .grid div {
+    #guessGrid .key-guess {
       font-size: clamp(16px, 4vw, 24px);
     }
     
-    .keyboard {
+    #keyboard {
       max-width: min(500px, 90vw);
       gap: clamp(2px, 0.8vw, 4px);
     }
   }
   
   @media (max-width: 400px) {
-    .grid {
+    #guessGrid {
       width: min(250px, 80vw);
       gap: clamp(1px, 0.5vw, 3px);
     }
     
-    .grid div {
+    #guessGrid .key-guess {
       font-size: clamp(14px, 3.5vw, 20px);
     }
     
-    .keyboard {
+    #keyboard {
       max-width: min(400px, 85vw);
       gap: clamp(1px, 0.5vw, 3px);
     }
   }
 
-  .keyboard div {
-    border: 1px solid #d3d6da;
-    padding: clamp(10px, 2.5vw, 20px);
-    background-color: white;
-    cursor: pointer;
-  }
-
-  .keyboard div:active {
-    background-color: #ddd;
-  }
 
 .hidden { display: none !important; }
 
