@@ -437,14 +437,17 @@
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    z-index: 2000;
+    z-index: 10000;
     display: none !important;
     justify-content: center;
     align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
   }
 
   #loginPromptModal.show {
     display: flex !important;
+    opacity: 1;
   }
 
   .login-prompt-content {
@@ -666,17 +669,31 @@
 
           // Check if user is logged in when page loads
           function checkLoginOnPageLoad() {
+            // Wait for Firebase to initialize
             const checkFirebase = setInterval(() => {
               if (window.firebaseAuth) {
                 clearInterval(checkFirebase);
                 
-                // Check current user
-                if (!window.firebaseAuth.currentUser) {
-                  // User is not logged in, show prompt
-                  showLoginPrompt();
+                // Use onAuthStateChanged to check auth state
+                if (window.firebaseAuthFunctions && window.firebaseAuthFunctions.onAuthStateChanged) {
+                  window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, (user) => {
+                    if (!user) {
+                      // User is not logged in, show prompt after a short delay to ensure page is loaded
+                      setTimeout(() => {
+                        showLoginPrompt();
+                      }, 300);
+                    }
+                  });
+                } else {
+                  // Fallback: check currentUser directly
+                  if (!window.firebaseAuth.currentUser) {
+                    setTimeout(() => {
+                      showLoginPrompt();
+                    }, 500);
+                  }
                 }
               }
-            }, 500);
+            }, 100);
           }
 
           // Initialize check when page loads
