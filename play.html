@@ -30,15 +30,31 @@
     cursor: pointer;
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    align-items: center;
     gap: 4px;
     padding: 8px;
+    background-color: transparent;
+    border: none;
+    transition: all 0.2s ease;
   }
 
   .hamburger-menu span {
-    width: 24px;
+    width: 20px;
     height: 2px;
     background-color: #fff;
     display: block;
+    transition: background-color 0.2s ease;
+  }
+
+  .hamburger-menu:hover {
+    background-color: #e0e0e0;
+    border: 2px solid #7BAFD4;
+    border-radius: 2px;
+  }
+
+  .hamburger-menu:hover span {
+    background-color: #000;
   }
 
   .title-text {
