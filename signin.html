@@ -4,10 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sign In</title>
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<!-- Firebase App (core) -->
+<script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js"></script>
+<!-- Firebase Auth -->
+<script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js"></script>
+<!-- Firestore -->
+<script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js"></script>
 <style>
   body {
     font-family: 'PT Serif', sans-serif;
@@ -101,7 +103,7 @@
 </div>
 
 <!-- Firebase Config -->
-<script src="firebase-config.js"></script>
+<script type="module" src="firebase-config.js"></script>
 
 <script>
   // Get email from URL parameter
@@ -127,8 +129,22 @@
     errorMessage.style.display = 'none';
     
     try {
+      // Wait for Firebase to be loaded
+      await new Promise((resolve) => {
+        if (window.firebaseAuthFunctions) {
+          resolve();
+        } else {
+          const checkInterval = setInterval(() => {
+            if (window.firebaseAuthFunctions) {
+              clearInterval(checkInterval);
+              resolve();
+            }
+          }, 100);
+        }
+      });
+      
       // Sign in with Firebase Auth
-      const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+      const userCredential = await window.firebaseAuthFunctions.signInWithEmailAndPassword(window.firebaseAuth, email, password);
       
       // User signed in successfully
       console.log('User signed in:', userCredential.user.email);

@@ -4,10 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sign Up</title>
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<!-- Firebase App (core) -->
+<script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js"></script>
+<!-- Firebase Auth -->
+<script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js"></script>
+<!-- Firestore -->
+<script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js"></script>
 <style>
   body {
     font-family: 'PT Serif', sans-serif;
@@ -111,7 +113,7 @@
 </div>
 
 <!-- Firebase Config -->
-<script src="firebase-config.js"></script>
+<script type="module" src="firebase-config.js"></script>
 
 <script>
   // Get email from URL parameter
@@ -144,24 +146,34 @@
     }
     
     try {
-      // Check if Firebase is initialized
-      if (typeof firebase === 'undefined' || !firebase.auth) {
-        throw new Error('Firebase is not loaded. Please check your Firebase configuration.');
-      }
+      // Wait for Firebase to be loaded
+      await new Promise((resolve) => {
+        if (window.firebaseAuthFunctions && window.firebaseFirestoreFunctions) {
+          resolve();
+        } else {
+          const checkInterval = setInterval(() => {
+            if (window.firebaseAuthFunctions && window.firebaseFirestoreFunctions) {
+              clearInterval(checkInterval);
+              resolve();
+            }
+          }, 100);
+        }
+      });
       
       // Create user account with Firebase Auth
-      const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+      const userCredential = await window.firebaseAuthFunctions.createUserWithEmailAndPassword(window.firebaseAuth, email, password);
       
       // User created successfully, now create user document in Firestore
       const user = userCredential.user;
       
       // Create user stats document in Firestore
-      await firebase.firestore().collection('users').doc(user.uid).set({
+      const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', user.uid);
+      await window.firebaseFirestoreFunctions.setDoc(userDocRef, {
         email: email,
         gamesPlayed: 0,
         currentStreak: 0,
         maxStreak: 0,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        createdAt: window.firebaseFirestoreFunctions.serverTimestamp()
       });
       
       console.log('User account created:', user.email);

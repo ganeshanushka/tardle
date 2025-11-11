@@ -110,29 +110,46 @@ let words = [
   let maxStreak = 0;
   
   // Initialize Firebase auth state
-  if (typeof firebase !== 'undefined') {
-    firebase.auth().onAuthStateChanged(async (user) => {
-      if (user) {
-        isLoggedIn = true;
-        currentUser = user;
-        await loadUserStats();
-      } else {
-        isLoggedIn = false;
-        currentUser = null;
-        gamesPlayed = 1;
-        currentStreak = 0;
-        maxStreak = 0;
+  function initializeFirebaseAuth() {
+    // Wait for Firebase to be loaded
+    const checkFirebase = setInterval(() => {
+      if (window.firebaseAuthFunctions && window.firebaseAuth) {
+        clearInterval(checkFirebase);
+        
+        // Set up auth state listener
+        window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, async (user) => {
+          if (user) {
+            isLoggedIn = true;
+            currentUser = user;
+            await loadUserStats();
+          } else {
+            isLoggedIn = false;
+            currentUser = null;
+            gamesPlayed = 1;
+            currentStreak = 0;
+            maxStreak = 0;
+          }
+        });
       }
-    });
+    }, 100);
+  }
+  
+  // Initialize Firebase auth when page loads
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeFirebaseAuth);
+  } else {
+    initializeFirebaseAuth();
   }
   
   // Load user stats from Firestore
   async function loadUserStats() {
-    if (!currentUser) return;
+    if (!currentUser || !window.firebaseFirestoreFunctions) return;
     
     try {
-      const userDoc = await firebase.firestore().collection('users').doc(currentUser.uid).get();
-      if (userDoc.exists) {
+      const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
+      const userDoc = await window.firebaseFirestoreFunctions.getDoc(userDocRef);
+      
+      if (userDoc.exists()) {
         const data = userDoc.data();
         gamesPlayed = data.gamesPlayed || 0;
         currentStreak = data.currentStreak || 0;
@@ -747,14 +764,15 @@ function closeStatsPopup() {
 
 // Update these functions as necessary to handle user's stats updates
 async function updateStatsOnWin() {
-    if (isLoggedIn && currentUser) {
+    if (isLoggedIn && currentUser && window.firebaseFirestoreFunctions) {
         gamesPlayed++;
         currentStreak++;
         maxStreak = Math.max(maxStreak, currentStreak);
         
         // Update stats in Firestore
         try {
-            await firebase.firestore().collection('users').doc(currentUser.uid).update({
+            const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
+            await window.firebaseFirestoreFunctions.updateDoc(userDocRef, {
                 gamesPlayed: gamesPlayed,
                 currentStreak: currentStreak,
                 maxStreak: maxStreak
@@ -766,13 +784,14 @@ async function updateStatsOnWin() {
 }
 
 async function updateStatsOnLoss() {
-    if (isLoggedIn && currentUser) {
+    if (isLoggedIn && currentUser && window.firebaseFirestoreFunctions) {
         gamesPlayed++;
         currentStreak = 0;
         
         // Update stats in Firestore
         try {
-            await firebase.firestore().collection('users').doc(currentUser.uid).update({
+            const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
+            await window.firebaseFirestoreFunctions.updateDoc(userDocRef, {
                 gamesPlayed: gamesPlayed,
                 currentStreak: currentStreak
             });
