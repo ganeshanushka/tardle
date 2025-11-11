@@ -77,6 +77,49 @@
   }
 
   .side-panel-content {
+    padding: 0;
+  }
+
+  .side-panel-header {
+    background-color: white;
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .side-panel-close {
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: bold;
+    color: #7BAFD4;
+    background: none;
+    border: none;
+    padding: 0;
+    line-height: 1;
+    transition: opacity 0.2s ease;
+  }
+
+  .side-panel-close:hover {
+    opacity: 0.7;
+  }
+
+  .side-panel-separator {
+    width: 1px;
+    height: 20px;
+    background-color: #7BAFD4;
+  }
+
+  .side-panel-title {
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+    color: #7BAFD4;
+    margin: 0;
+  }
+
+  .side-panel-body {
     padding: 40px 30px;
   }
 
@@ -116,12 +159,13 @@
   }
 
   .side-panel-buttons {
-    position: absolute;
+    position: fixed;
     bottom: 30px;
     left: 30px;
     right: 30px;
     display: flex;
     gap: 15px;
+    max-width: 290px;
   }
 
   .side-panel-button {
@@ -380,25 +424,33 @@
   <!-- Side panel -->
   <div class="side-panel" id="sidePanel">
     <div class="side-panel-content">
-      <div class="side-panel-section">
-        <div class="side-panel-section-title">PRIVACY SETTINGS</div>
-        <a href="#" class="side-panel-link">Privacy Policy</a>
-        <a href="#" class="side-panel-link">Cookie Policy</a>
-        <a href="#" class="side-panel-link">Privacy FAQ</a>
-        <a href="#" class="side-panel-link">Delete My Account</a>
-        <a href="#" class="side-panel-link">Your Privacy Choices</a>
+      <div class="side-panel-header">
+        <button class="side-panel-close" onclick="toggleMenu()">×</button>
+        <div class="side-panel-separator"></div>
+        <h2 class="side-panel-title">Tardle</h2>
       </div>
       
-      <div class="side-panel-divider"></div>
-      
-      <div class="side-panel-section">
-        <div class="side-panel-section-title">PROFILE</div>
-        <a href="#" class="side-panel-link">Account details</a>
-      </div>
-      
-      <div class="side-panel-buttons">
-        <button class="side-panel-button subscribe-button" onclick="handleSubscribe()">SUBSCRIBE</button>
-        <button class="side-panel-button logout-button" onclick="handleLogout()">LOG OUT</button>
+      <div class="side-panel-body">
+        <div class="side-panel-section">
+          <div class="side-panel-section-title">PRIVACY SETTINGS</div>
+          <a href="#" class="side-panel-link">Privacy Policy</a>
+          <a href="#" class="side-panel-link">Cookie Policy</a>
+          <a href="#" class="side-panel-link">Privacy FAQ</a>
+          <a href="#" class="side-panel-link">Delete My Account</a>
+          <a href="#" class="side-panel-link">Your Privacy Choices</a>
+        </div>
+        
+        <div class="side-panel-divider"></div>
+        
+        <div class="side-panel-section">
+          <div class="side-panel-section-title">PROFILE</div>
+          <a href="#" class="side-panel-link">Account details</a>
+        </div>
+        
+        <div class="side-panel-buttons">
+          <button class="side-panel-button subscribe-button" onclick="handleSubscribe()">SUBSCRIBE</button>
+          <button class="side-panel-button logout-button" onclick="handleLogout()">LOG OUT</button>
+        </div>
       </div>
     </div>
   </div>
