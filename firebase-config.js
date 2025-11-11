@@ -1,12 +1,12 @@
 // Firebase configuration
-// Replace these values with your Firebase project configuration
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyDQ-sNiiGZqM6PF2WMf9rxx166oW8btFaE",
+  authDomain: "tardle-c0c26.firebaseapp.com",
+  projectId: "tardle-c0c26",
+  storageBucket: "tardle-c0c26.firebasestorage.app",
+  messagingSenderId: "1067984572977",
+  appId: "1:1067984572977:web:ed3abe48d5f74cde12fb10",
+  measurementId: "G-C0R98KC5RF"
 };
 
 // Initialize Firebase
