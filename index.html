@@ -89,13 +89,13 @@
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 2000;
-  display: none;
+  display: none !important;
   justify-content: center;
   align-items: center;
 }
 
 #loginPromptModal.show {
-  display: flex;
+  display: flex !important;
 }
 
 .login-prompt-content {
@@ -250,18 +250,6 @@
     }, 100);
   }
   
-  // Handle Play button click
-  function handlePlayClick(e) {
-    // Wait a bit for auth state to be determined
-    setTimeout(() => {
-      if (!isUserLoggedIn) {
-        e.preventDefault();
-        showLoginPrompt();
-      }
-      // If logged in, allow default link behavior (go to play.html)
-    }, 200);
-  }
-  
   function showLoginPrompt() {
     const modal = document.getElementById('loginPromptModal');
     if (modal) {
@@ -273,6 +261,19 @@
     const modal = document.getElementById('loginPromptModal');
     if (modal) {
       modal.classList.remove('show');
+    }
+  }
+  
+  // Handle Play button click
+  function handlePlayClick(e) {
+    e.preventDefault();
+    
+    // Check auth state
+    if (!isUserLoggedIn) {
+      showLoginPrompt();
+    } else {
+      // User is logged in, allow navigation
+      window.location.href = 'play.html';
     }
   }
   
@@ -293,6 +294,14 @@
       });
     }
   });
+  
+  // Also attach handler immediately if DOM is already loaded
+  if (document.readyState !== 'loading') {
+    const playButton = document.getElementById('playButton');
+    if (playButton) {
+      playButton.addEventListener('click', handlePlayClick);
+    }
+  }
   
   // Initialize auth check when page loads
   if (document.readyState === 'loading') {
