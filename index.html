@@ -107,7 +107,7 @@
  
 <div class="button-container">
   <a href="how-to-play.html" class="button">How to play</a>
-  <a href="login.html" class="button">Log in</a>
+  <a href="login.html" class="button" id="loginButton">Log in</a>
   <a href="play.html" class="button play-button">Play</a>
 </div>
 <div class="footer-info">
@@ -115,12 +115,48 @@
 </div>
 </div>
 
+<!-- Firebase App (core) -->
+<script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js"></script>
+<!-- Firebase Auth -->
+<script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js"></script>
+<!-- Firestore -->
+<script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js"></script>
+<!-- Firebase Config -->
+<script type="module" src="firebase-config.js"></script>
+
 <script>
   window.onload = function date() {
     var currentDate = new Date(); 
     var options = { year: 'numeric', month: 'long', day: 'numeric' };
     document.getElementById('current-date').textContent = currentDate.toLocaleDateString('en-US', options);
   };
+  
+  // Check Firebase auth state and hide login button if user is logged in
+  function checkAuthState() {
+    const checkFirebase = setInterval(() => {
+      if (window.firebaseAuthFunctions && window.firebaseAuth) {
+        clearInterval(checkFirebase);
+        
+        window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, (user) => {
+          const loginButton = document.getElementById('loginButton');
+          if (user && loginButton) {
+            // User is logged in - hide the login button
+            loginButton.style.display = 'none';
+          } else if (loginButton) {
+            // User is not logged in - show the login button
+            loginButton.style.display = '';
+          }
+        });
+      }
+    }, 100);
+  }
+  
+  // Initialize auth check when page loads
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', checkAuthState);
+  } else {
+    checkAuthState();
+  }
 </script>
 
 </body>
