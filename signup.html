@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sign Up</title>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <style>
   body {
     font-family: 'PT Serif', sans-serif;
@@ -106,6 +110,9 @@
   </p>
 </div>
 
+<!-- Firebase Config -->
+<script src="firebase-config.js"></script>
+
 <script>
   // Get email from URL parameter
   const urlParams = new URLSearchParams(window.location.search);
@@ -122,38 +129,45 @@
     window.location.href = 'login.html';
   }
 
-  document.getElementById('signupForm').addEventListener('submit', function(e) {
+  document.getElementById('signupForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     
     const password = document.getElementById('password').value;
+    const errorMessage = document.getElementById('errorMessage');
+    errorMessage.style.display = 'none';
     
     // Validate password length
     if (password.length < 6) {
-      document.getElementById('errorMessage').style.display = 'block';
+      errorMessage.textContent = 'Password must be at least 6 characters long.';
+      errorMessage.style.display = 'block';
       return;
     }
     
-    // Get existing users or create new object
-    const users = JSON.parse(localStorage.getItem('users') || '{}');
-    
-    // Create new user account
-    users[email] = {
-      password: password,
-      gamesPlayed: 0,
-      currentStreak: 0,
-      maxStreak: 0,
-      createdAt: new Date().toISOString()
-    };
-    
-    // Save to localStorage
-    localStorage.setItem('users', JSON.stringify(users));
-    
-    // Store logged in user
-    localStorage.setItem('currentUser', email);
-    localStorage.setItem('isLoggedIn', 'true');
-    
-    // Redirect to play page
-    window.location.href = 'play.html';
+    try {
+      // Create user account with Firebase Auth
+      const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+      
+      // User created successfully, now create user document in Firestore
+      const user = userCredential.user;
+      
+      // Create user stats document in Firestore
+      await firebase.firestore().collection('users').doc(user.uid).set({
+        email: email,
+        gamesPlayed: 0,
+        currentStreak: 0,
+        maxStreak: 0,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      
+      console.log('User account created:', user.email);
+      
+      // Redirect to play page
+      window.location.href = 'play.html';
+    } catch (error) {
+      console.error('Sign up error:', error);
+      errorMessage.textContent = error.message || 'Error creating account. Please try again.';
+      errorMessage.style.display = 'block';
+    }
   });
 </script>
 

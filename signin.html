@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sign In</title>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <style>
   body {
     font-family: 'PT Serif', sans-serif;
@@ -96,6 +100,9 @@
   </form>
 </div>
 
+<!-- Firebase Config -->
+<script src="firebase-config.js"></script>
+
 <script>
   // Get email from URL parameter
   const urlParams = new URLSearchParams(window.location.search);
@@ -112,24 +119,27 @@
     window.location.href = 'login.html';
   }
 
-  document.getElementById('signinForm').addEventListener('submit', function(e) {
+  document.getElementById('signinForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     
     const password = document.getElementById('password').value;
+    const errorMessage = document.getElementById('errorMessage');
+    errorMessage.style.display = 'none';
     
-    // Check if user exists and password matches
-    const users = JSON.parse(localStorage.getItem('users') || '{}');
-    
-    if (users[email] && users[email].password === password) {
-      // Store logged in user
-      localStorage.setItem('currentUser', email);
-      localStorage.setItem('isLoggedIn', 'true');
+    try {
+      // Sign in with Firebase Auth
+      const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+      
+      // User signed in successfully
+      console.log('User signed in:', userCredential.user.email);
       
       // Redirect to play page
       window.location.href = 'play.html';
-    } else {
+    } catch (error) {
+      console.error('Sign in error:', error);
       // Show error message
-      document.getElementById('errorMessage').style.display = 'block';
+      errorMessage.style.display = 'block';
+      errorMessage.textContent = error.message || 'Incorrect password. Please try again.';
     }
   });
 </script>

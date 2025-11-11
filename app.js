@@ -103,10 +103,45 @@ let words = [
   let currentGuess = [];
   let tries = 0;
   const maxTries = 6;
-  let isLoggedIn = false; // You'll need to update this based on your authentication logic
-  let gamesPlayed = isLoggedIn ? getUserGamesPlayed() : 1;
-  let currentStreak = isLoggedIn ? getUserCurrentStreak() : 0;
-  let maxStreak = isLoggedIn ? getUserMaxStreak() : 0;
+  let isLoggedIn = false;
+  let currentUser = null;
+  let gamesPlayed = 1;
+  let currentStreak = 0;
+  let maxStreak = 0;
+  
+  // Initialize Firebase auth state
+  if (typeof firebase !== 'undefined') {
+    firebase.auth().onAuthStateChanged(async (user) => {
+      if (user) {
+        isLoggedIn = true;
+        currentUser = user;
+        await loadUserStats();
+      } else {
+        isLoggedIn = false;
+        currentUser = null;
+        gamesPlayed = 1;
+        currentStreak = 0;
+        maxStreak = 0;
+      }
+    });
+  }
+  
+  // Load user stats from Firestore
+  async function loadUserStats() {
+    if (!currentUser) return;
+    
+    try {
+      const userDoc = await firebase.firestore().collection('users').doc(currentUser.uid).get();
+      if (userDoc.exists) {
+        const data = userDoc.data();
+        gamesPlayed = data.gamesPlayed || 0;
+        currentStreak = data.currentStreak || 0;
+        maxStreak = data.maxStreak || 0;
+      }
+    } catch (error) {
+      console.error('Error loading user stats:', error);
+    }
+  }
 
   
   let SecretWord = words[Math.floor(Math.random() * words.length)]
@@ -291,15 +326,7 @@ let words = [
       return true;
     }
     
-    // Then check if it's in our keyword list (UNC-specific words) - ALL answer keywords are always valid
-    // Convert all words to uppercase for case-insensitive comparison
-    const upperWords = words.map(w => w.toUpperCase());
-    if (upperWords.includes(upperWord)) {
-      console.log('Word found in keywords list - always valid');
-      return true;
-    }
-    
-    // Check for profanity/inappropriate words (only for non-keyword words)
+    // Check for profanity/inappropriate words
     try {
       // Check if bad-words library is loaded (it exposes Filter globally)
       if (typeof Filter !== 'undefined') {
@@ -319,6 +346,14 @@ let words = [
     } catch (error) {
       console.log('Profanity filter not available or error:', error);
       // Continue with other checks if filter fails
+    }
+    
+    // Then check if it's in our keyword list (UNC-specific words)
+    // Convert all words to uppercase for case-insensitive comparison
+    const upperWords = words.map(w => w.toUpperCase());
+    if (upperWords.includes(upperWord)) {
+      console.log('Word found in keywords list');
+      return true;
     }
     
     // Check if it's in the English dictionary
@@ -711,19 +746,38 @@ function closeStatsPopup() {
 }
 
 // Update these functions as necessary to handle user's stats updates
-function updateStatsOnWin() {
-    if (isLoggedIn) {
+async function updateStatsOnWin() {
+    if (isLoggedIn && currentUser) {
         gamesPlayed++;
         currentStreak++;
         maxStreak = Math.max(maxStreak, currentStreak);
-        // Update these stats in your data store
+        
+        // Update stats in Firestore
+        try {
+            await firebase.firestore().collection('users').doc(currentUser.uid).update({
+                gamesPlayed: gamesPlayed,
+                currentStreak: currentStreak,
+                maxStreak: maxStreak
+            });
+        } catch (error) {
+            console.error('Error updating stats on win:', error);
+        }
     }
 }
 
-function updateStatsOnLoss() {
-    if (isLoggedIn) {
+async function updateStatsOnLoss() {
+    if (isLoggedIn && currentUser) {
         gamesPlayed++;
         currentStreak = 0;
-        // Update these stats in your data store
+        
+        // Update stats in Firestore
+        try {
+            await firebase.firestore().collection('users').doc(currentUser.uid).update({
+                gamesPlayed: gamesPlayed,
+                currentStreak: currentStreak
+            });
+        } catch (error) {
+            console.error('Error updating stats on loss:', error);
+        }
     }
 }

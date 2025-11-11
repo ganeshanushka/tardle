@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Login</title>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <style>
   body {
     font-family: 'PT Serif', sans-serif;
@@ -84,6 +88,9 @@
   </p>
 </div>
 
+<!-- Firebase Config -->
+<script src="firebase-config.js"></script>
+
 <script>
   function goBack() {
     window.history.back();
@@ -99,7 +106,7 @@
       return;
     }
     
-    loginForm.addEventListener('submit', function(e) {
+    loginForm.addEventListener('submit', async function(e) {
       e.preventDefault();
       console.log('Form submitted');
       
@@ -112,19 +119,24 @@
         return;
       }
       
-      // Check if email exists in localStorage (simulating database check)
-      // If localStorage is empty, it will be an empty object, so all emails will go to sign-up
-      const users = JSON.parse(localStorage.getItem('users') || '{}');
-      console.log('Users in storage:', users);
-      console.log('Email exists?', users[email]);
-      
-      if (users[email]) {
-        // Email exists - redirect to sign in page
-        console.log('Redirecting to sign in');
-        window.location.href = `signin.html?email=${encodeURIComponent(email)}`;
-      } else {
-        // Email doesn't exist - redirect to sign up page
-        console.log('Redirecting to sign up');
+      // Check if email exists in Firebase Auth
+      try {
+        // Use Firebase Auth to check if user exists
+        // We'll use fetchSignInMethodsForEmail to check if account exists
+        const signInMethods = await firebase.auth().fetchSignInMethodsForEmail(email);
+        
+        if (signInMethods && signInMethods.length > 0) {
+          // Email exists - redirect to sign in page
+          console.log('Email exists, redirecting to sign in');
+          window.location.href = `signin.html?email=${encodeURIComponent(email)}`;
+        } else {
+          // Email doesn't exist - redirect to sign up page
+          console.log('Email does not exist, redirecting to sign up');
+          window.location.href = `signup.html?email=${encodeURIComponent(email)}`;
+        }
+      } catch (error) {
+        console.error('Error checking email:', error);
+        // If there's an error, default to sign up (new user)
         window.location.href = `signup.html?email=${encodeURIComponent(email)}`;
       }
     });
