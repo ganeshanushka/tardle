@@ -91,7 +91,7 @@
 
   .side-panel-close {
     cursor: pointer;
-    font-size: 20px;
+    font-size: 28px;
     font-weight: bold;
     color: #7BAFD4;
     background: none;
@@ -107,13 +107,13 @@
 
   .side-panel-separator {
     width: 1px;
-    height: 20px;
+    height: 24px;
     background-color: #7BAFD4;
   }
 
   .side-panel-title {
     font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
-    font-size: 18px;
+    font-size: 22px;
     font-weight: bold;
     color: #7BAFD4;
     margin: 0;
@@ -225,15 +225,26 @@
     transform: translateX(-50%);
   }
 
+  /* Standard close button style - used across all pages */
   .close-button {
-  position: absolute;
-  right: 40px; 
-  top: 50%;
-  transform: translateY(-50%); 
-  font-size: 30px; 
-  color: white;
-  cursor: pointer;
-}
+    position: absolute;
+    right: 40px; 
+    top: 50%;
+    transform: translateY(-50%); 
+    font-size: 28px; 
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    line-height: 1;
+    transition: opacity 0.2s ease;
+  }
+
+  .close-button:hover {
+    opacity: 0.7;
+  }
 
 .container {
     display: flex;
@@ -389,13 +400,14 @@
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Close button for game over and stats popups */
+/* Standard close button for popups - consistent across all pages */
+.close-btn,
 #gameOverPopup .popup-content .close-btn,
 #statsPopup .popup-content .close-btn {
     position: absolute;
     top: 8px;
     right: 12px;
-    font-size: 20px;
+    font-size: 28px;
     font-weight: bold;
     cursor: pointer;
     border: none;
@@ -403,15 +415,13 @@
     padding: 0;
     color: #878a8c;
     line-height: 1;
+    transition: opacity 0.2s ease;
   }
   
   #gameOverPopup .popup-content .close-btn:hover,
-  #statsPopup .popup-content .close-btn:hover {
-    color: #000;
-  }
-
+  #statsPopup .popup-content .close-btn:hover,
   .close-btn:hover {
-    color: #e74c3c; /* Change color on hover for better user feedback */
+    opacity: 0.7;
   }
 
 </style>
