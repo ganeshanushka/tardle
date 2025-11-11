@@ -291,7 +291,15 @@ let words = [
       return true;
     }
     
-    // Check for profanity/inappropriate words
+    // Then check if it's in our keyword list (UNC-specific words) - ALL answer keywords are always valid
+    // Convert all words to uppercase for case-insensitive comparison
+    const upperWords = words.map(w => w.toUpperCase());
+    if (upperWords.includes(upperWord)) {
+      console.log('Word found in keywords list - always valid');
+      return true;
+    }
+    
+    // Check for profanity/inappropriate words (only for non-keyword words)
     try {
       // Check if bad-words library is loaded (it exposes Filter globally)
       if (typeof Filter !== 'undefined') {
@@ -311,14 +319,6 @@ let words = [
     } catch (error) {
       console.log('Profanity filter not available or error:', error);
       // Continue with other checks if filter fails
-    }
-    
-    // Then check if it's in our keyword list (UNC-specific words)
-    // Convert all words to uppercase for case-insensitive comparison
-    const upperWords = words.map(w => w.toUpperCase());
-    if (upperWords.includes(upperWord)) {
-      console.log('Word found in keywords list');
-      return true;
     }
     
     // Check if it's in the English dictionary
