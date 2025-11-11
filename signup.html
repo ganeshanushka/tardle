@@ -144,6 +144,11 @@
     }
     
     try {
+      // Check if Firebase is initialized
+      if (typeof firebase === 'undefined' || !firebase.auth) {
+        throw new Error('Firebase is not loaded. Please check your Firebase configuration.');
+      }
+      
       // Create user account with Firebase Auth
       const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
       
@@ -165,7 +170,23 @@
       window.location.href = 'play.html';
     } catch (error) {
       console.error('Sign up error:', error);
-      errorMessage.textContent = error.message || 'Error creating account. Please try again.';
+      
+      // Provide helpful error messages
+      let errorMsg = 'Error creating account. Please try again.';
+      
+      if (error.code === 'auth/configuration-not-found') {
+        errorMsg = 'Email/Password authentication is not enabled in Firebase. Please enable it in Firebase Console → Authentication → Sign-in method.';
+      } else if (error.code === 'auth/email-already-in-use') {
+        errorMsg = 'This email is already registered. Please sign in instead.';
+      } else if (error.code === 'auth/weak-password') {
+        errorMsg = 'Password is too weak. Please use a stronger password.';
+      } else if (error.code === 'auth/invalid-email') {
+        errorMsg = 'Invalid email address. Please enter a valid email.';
+      } else if (error.message) {
+        errorMsg = error.message;
+      }
+      
+      errorMessage.textContent = errorMsg;
       errorMessage.style.display = 'block';
     }
   });
