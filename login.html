@@ -122,21 +122,26 @@
       // Check if email exists in Firebase Auth
       try {
         // Use Firebase Auth to check if user exists
-        // We'll use fetchSignInMethodsForEmail to check if account exists
+        // fetchSignInMethodsForEmail returns an array of sign-in methods if the email exists
         const signInMethods = await firebase.auth().fetchSignInMethodsForEmail(email);
         
+        console.log('Sign-in methods for email:', signInMethods);
+        
+        // If signInMethods array has any methods, the email exists
         if (signInMethods && signInMethods.length > 0) {
-          // Email exists - redirect to sign in page
-          console.log('Email exists, redirecting to sign in');
+          // Email exists in Firebase - redirect to sign in page
+          console.log('Email exists in Firebase, redirecting to sign in');
           window.location.href = `signin.html?email=${encodeURIComponent(email)}`;
         } else {
-          // Email doesn't exist - redirect to sign up page
-          console.log('Email does not exist, redirecting to sign up');
+          // Email does NOT exist in Firebase - redirect to sign up page
+          console.log('Email does NOT exist in Firebase, redirecting to sign up');
           window.location.href = `signup.html?email=${encodeURIComponent(email)}`;
         }
       } catch (error) {
-        console.error('Error checking email:', error);
-        // If there's an error, default to sign up (new user)
+        console.error('Error checking email in Firebase:', error);
+        // If there's an error (e.g., invalid email format, network issue), 
+        // default to sign up page (treat as new user)
+        console.log('Defaulting to sign up page due to error');
         window.location.href = `signup.html?email=${encodeURIComponent(email)}`;
       }
     });
