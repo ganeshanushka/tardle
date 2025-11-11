@@ -268,12 +268,13 @@
   function handlePlayClick(e) {
     e.preventDefault();
     
-    // Check auth state
-    if (!isUserLoggedIn) {
-      showLoginPrompt();
-    } else {
+    // Check current auth state directly
+    if (window.firebaseAuth && window.firebaseAuth.currentUser) {
       // User is logged in, allow navigation
       window.location.href = 'play.html';
+    } else {
+      // User is not logged in, show prompt
+      showLoginPrompt();
     }
   }
   
