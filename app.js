@@ -314,7 +314,9 @@ let words = [
     }
     
     // Then check if it's in our keyword list (UNC-specific words)
-    if (words.includes(upperWord)) {
+    // Convert all words to uppercase for case-insensitive comparison
+    const upperWords = words.map(w => w.toUpperCase());
+    if (upperWords.includes(upperWord)) {
       console.log('Word found in keywords list');
       return true;
     }
