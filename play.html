@@ -159,13 +159,18 @@
   }
 
   .side-panel-buttons {
-    position: fixed;
+    position: absolute;
     bottom: 30px;
     left: 30px;
     right: 30px;
     display: flex;
     gap: 15px;
     max-width: 290px;
+  }
+
+  /* Hide buttons when panel is closed */
+  .side-panel:not(.open) .side-panel-buttons {
+    display: none;
   }
 
   .side-panel-button {
