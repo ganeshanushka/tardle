@@ -84,7 +84,7 @@ let words = [
 
 
     // 7 letter words
-    'Philips', 'Carroll', 'Gardner', 'Everett', 'Spencer', 'Winston', 'Woollen', 'Peabody', 'Chapman', 'Hussman', 'Hibachi', 'Bonchon', 'Chimney', 'Tarheel',
+    'Philips', 'Carroll', 'Gardner', 'Everett', 'Spencer', 'Winston', 'Woollen', 'Peabody', 'Chapman', 'Hussman', 'Hibachi', 'Bonchon', 'Chimney', 'Tarheel', 'tarheel',
     'GDTBATH', 'Armando', 'Supdogs', 'Rameses', 'Manning', 'Caudill', 'Bingham', 'Murphey', 'Kessing', 'Vimalas', 'Suttons', 'Bschool',
 
     // 8 letter words
