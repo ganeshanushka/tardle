@@ -459,6 +459,19 @@
     position: relative;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     box-sizing: border-box;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+
+  #loginPromptModal.show .login-prompt-content {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  #loginPromptModal.closing .login-prompt-content {
+    transform: translateY(100px);
+    opacity: 0;
   }
 
   .login-prompt-close {
@@ -669,6 +682,9 @@
           function showLoginPrompt() {
             const modal = document.getElementById('loginPromptModal');
             if (modal) {
+              modal.classList.remove('closing');
+              // Force reflow to ensure animation starts
+              void modal.offsetWidth;
               modal.classList.add('show');
             }
           }
@@ -676,7 +692,11 @@
           function closeLoginPrompt() {
             const modal = document.getElementById('loginPromptModal');
             if (modal) {
-              modal.classList.remove('show');
+              modal.classList.add('closing');
+              // Wait for animation to complete before hiding
+              setTimeout(() => {
+                modal.classList.remove('show', 'closing');
+              }, 300); // Match animation duration
             }
           }
 
