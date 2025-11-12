@@ -462,16 +462,17 @@
     transform: translateY(100px);
     opacity: 0;
     transition: transform 0.3s ease, opacity 0.3s ease;
+    z-index: 10001;
   }
 
   #loginPromptModal.show .login-prompt-content {
-    transform: translateY(0);
-    opacity: 1;
+    transform: translateY(0) !important;
+    opacity: 1 !important;
   }
 
   #loginPromptModal.closing .login-prompt-content {
-    transform: translateY(100px);
-    opacity: 0;
+    transform: translateY(100px) !important;
+    opacity: 0 !important;
   }
 
   .login-prompt-close {
@@ -690,12 +691,20 @@
                 content.style.transform = 'translateY(100px)';
                 content.style.opacity = '0';
               }
-              // Show the modal container
+              // Show the modal container first
               modal.style.display = 'flex';
+              modal.style.opacity = '0';
               // Force reflow to ensure initial state is applied
               void modal.offsetWidth;
               // Add show class to trigger animation
               modal.classList.add('show');
+              // Ensure content is visible after a tiny delay
+              setTimeout(() => {
+                if (content) {
+                  content.style.transform = '';
+                  content.style.opacity = '';
+                }
+              }, 10);
             }
           }
           
