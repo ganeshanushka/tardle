@@ -683,28 +683,27 @@
           function showLoginPrompt() {
             const modal = document.getElementById('loginPromptModal');
             if (modal) {
-              // Remove any existing classes
+              // Remove any existing classes and inline styles
               modal.classList.remove('closing', 'show');
-              // Reset to initial state (below, invisible)
               const content = modal.querySelector('.login-prompt-content');
+              if (content) {
+                // Remove any inline styles that might interfere
+                content.style.transform = '';
+                content.style.opacity = '';
+              }
+              // Show the modal container
+              modal.style.display = 'flex';
+              // Force reflow
+              void modal.offsetWidth;
+              // Set initial state via inline styles
               if (content) {
                 content.style.transform = 'translateY(100px)';
                 content.style.opacity = '0';
               }
-              // Show the modal container first
-              modal.style.display = 'flex';
-              modal.style.opacity = '0';
-              // Force reflow to ensure initial state is applied
-              void modal.offsetWidth;
+              // Force another reflow
+              void content.offsetWidth;
               // Add show class to trigger animation
               modal.classList.add('show');
-              // Ensure content is visible after a tiny delay
-              setTimeout(() => {
-                if (content) {
-                  content.style.transform = '';
-                  content.style.opacity = '';
-                }
-              }, 10);
             }
           }
           
