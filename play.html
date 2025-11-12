@@ -669,43 +669,32 @@
 
           // Check if user is logged in after page fully loads
           function checkLoginOnPageLoad() {
-            // Check immediately and also after a short delay
-            const checkAuth = function() {
-              // Wait for Firebase to initialize
-              const checkFirebase = setInterval(() => {
-                if (window.firebaseAuth) {
-                  clearInterval(checkFirebase);
-                  
-                  // Check auth state
-                  if (window.firebaseAuthFunctions && window.firebaseAuthFunctions.onAuthStateChanged) {
-                    // Use onAuthStateChanged to check auth state
-                    window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, (user) => {
-                      if (!user) {
-                        // User is not logged in, show prompt immediately
+            // Wait for page to load, then check auth after 0.5 seconds
+            window.addEventListener('load', function() {
+              setTimeout(function() {
+                // Wait for Firebase to initialize
+                const checkFirebase = setInterval(() => {
+                  if (window.firebaseAuth) {
+                    clearInterval(checkFirebase);
+                    
+                    // Check auth state
+                    if (window.firebaseAuthFunctions && window.firebaseAuthFunctions.onAuthStateChanged) {
+                      // Use onAuthStateChanged to check auth state
+                      window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, (user) => {
+                        if (!user) {
+                          // User is not logged in, show prompt
+                          showLoginPrompt();
+                        }
+                      });
+                    } else {
+                      // Fallback: check currentUser directly
+                      if (!window.firebaseAuth.currentUser) {
                         showLoginPrompt();
                       }
-                    });
-                  } else {
-                    // Fallback: check currentUser directly
-                    if (!window.firebaseAuth.currentUser) {
-                      showLoginPrompt();
                     }
                   }
-                }
-              }, 50);
-            };
-            
-            // Check immediately
-            checkAuth();
-            
-            // Also check after DOM is ready
-            if (document.readyState === 'loading') {
-              document.addEventListener('DOMContentLoaded', checkAuth);
-            }
-            
-            // Also check after window loads (as backup)
-            window.addEventListener('load', function() {
-              setTimeout(checkAuth, 100);
+                }, 50);
+              }, 500); // 0.5 seconds after page loads
             });
           }
 
