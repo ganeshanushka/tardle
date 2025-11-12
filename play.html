@@ -669,47 +669,44 @@
 
           // Check if user is logged in after page fully loads
           function checkLoginOnPageLoad() {
-            // Wait for window to fully load (including all resources and game grid)
-            if (window.addEventListener) {
-              window.addEventListener('load', function() {
-                // Wait for game grid to be initialized
-                setTimeout(function() {
-                  // Wait for Firebase to initialize
-                  const checkFirebase = setInterval(() => {
-                    if (window.firebaseAuth) {
-                      clearInterval(checkFirebase);
-                      
-                      // Check auth state
-                      if (window.firebaseAuthFunctions && window.firebaseAuthFunctions.onAuthStateChanged) {
-                        // Use onAuthStateChanged to check auth state
-                        window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, (user) => {
-                          if (!user) {
-                            // User is not logged in, show prompt after game grid is visible
-                            setTimeout(() => {
-                              showLoginPrompt();
-                            }, 300);
-                          }
-                        });
-                      } else {
-                        // Fallback: check currentUser directly
-                        if (!window.firebaseAuth.currentUser) {
-                          setTimeout(() => {
-                            showLoginPrompt();
-                          }, 300);
-                        }
+            // Check immediately and also after a short delay
+            const checkAuth = function() {
+              // Wait for Firebase to initialize
+              const checkFirebase = setInterval(() => {
+                if (window.firebaseAuth) {
+                  clearInterval(checkFirebase);
+                  
+                  // Check auth state
+                  if (window.firebaseAuthFunctions && window.firebaseAuthFunctions.onAuthStateChanged) {
+                    // Use onAuthStateChanged to check auth state
+                    window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, (user) => {
+                      if (!user) {
+                        // User is not logged in, show prompt immediately
+                        showLoginPrompt();
                       }
+                    });
+                  } else {
+                    // Fallback: check currentUser directly
+                    if (!window.firebaseAuth.currentUser) {
+                      showLoginPrompt();
                     }
-                  }, 100);
-                }, 1000); // Wait 1 second for game grid to fully initialize and be visible
-              });
-            } else {
-              // Fallback for older browsers
-              setTimeout(function() {
-                if (window.firebaseAuth && !window.firebaseAuth.currentUser) {
-                  showLoginPrompt();
+                  }
                 }
-              }, 1500);
+              }, 50);
+            };
+            
+            // Check immediately
+            checkAuth();
+            
+            // Also check after DOM is ready
+            if (document.readyState === 'loading') {
+              document.addEventListener('DOMContentLoaded', checkAuth);
             }
+            
+            // Also check after window loads (as backup)
+            window.addEventListener('load', function() {
+              setTimeout(checkAuth, 100);
+            });
           }
 
           // Initialize check when page loads
