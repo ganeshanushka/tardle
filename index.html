@@ -266,16 +266,9 @@
   
   // Handle Play button click
   function handlePlayClick(e) {
-    e.preventDefault();
-    
-    // Check current auth state directly
-    if (window.firebaseAuth && window.firebaseAuth.currentUser) {
-      // User is logged in, allow navigation
-      window.location.href = 'play.html';
-    } else {
-      // User is not logged in, show prompt
-      showLoginPrompt();
-    }
+    // Always allow navigation to play.html first
+    // The popup will be shown on play.html if user is not logged in
+    // Don't prevent default - let the link work normally
   }
   
   // Attach click handler to Play button
