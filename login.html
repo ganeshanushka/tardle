@@ -143,10 +143,39 @@
         
         // Use Firebase Auth to check if user exists
         // fetchSignInMethodsForEmail returns an array of sign-in methods if the email exists
-        const signInMethods = await window.firebaseAuthFunctions.fetchSignInMethodsForEmail(window.firebaseAuth, email);
-        
-        console.log('Sign-in methods for email:', signInMethods);
-        console.log('Sign-in methods length:', signInMethods ? signInMethods.length : 'null/undefined');
+        let signInMethods;
+        try {
+          signInMethods = await window.firebaseAuthFunctions.fetchSignInMethodsForEmail(window.firebaseAuth, email);
+          console.log('Sign-in methods for email:', signInMethods);
+          console.log('Sign-in methods length:', signInMethods ? signInMethods.length : 'null/undefined');
+        } catch (fetchError) {
+          console.error('Error calling fetchSignInMethodsForEmail:', fetchError);
+          // If fetchSignInMethodsForEmail fails, try alternative method
+          // We'll attempt a sign-in with a dummy password to check if user exists
+          // This is a fallback method
+          console.log('Trying alternative method to check if email exists...');
+          try {
+            // Try to sign in with a dummy password - if user doesn't exist, we'll get user-not-found
+            // If user exists, we'll get wrong-password (which means user exists)
+            await window.firebaseAuthFunctions.signInWithEmailAndPassword(window.firebaseAuth, email, 'dummy_password_check_12345');
+          } catch (signInError) {
+            if (signInError.code === 'auth/user-not-found') {
+              console.log('User not found via alternative method, redirecting to sign up');
+              window.location.href = `signup.html?email=${encodeURIComponent(email)}`;
+              return;
+            } else if (signInError.code === 'auth/wrong-password' || signInError.code === 'auth/invalid-credential') {
+              // User exists but password is wrong - means email is registered
+              console.log('Email exists (wrong password error), redirecting to sign in');
+              window.location.href = `signin.html?email=${encodeURIComponent(email)}`;
+              return;
+            } else {
+              // Other error, default to signup
+              console.log('Unknown error, defaulting to sign up');
+              window.location.href = `signup.html?email=${encodeURIComponent(email)}`;
+              return;
+            }
+          }
+        }
         
         // If signInMethods array has any methods, the email exists
         if (signInMethods && Array.isArray(signInMethods) && signInMethods.length > 0) {
