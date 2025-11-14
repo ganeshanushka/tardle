@@ -142,54 +142,73 @@
         console.log('fetchSignInMethodsForEmail available:', !!window.firebaseAuthFunctions.fetchSignInMethodsForEmail);
         
         // Use Firebase Auth to check if user exists
-        // Try fetchSignInMethodsForEmail first
+        // Primary method: Try fetchSignInMethodsForEmail
         let emailExists = false;
+        let checkMethod = 'none';
         
         try {
           const signInMethods = await window.firebaseAuthFunctions.fetchSignInMethodsForEmail(window.firebaseAuth, email);
           console.log('Sign-in methods for email:', signInMethods);
+          console.log('Sign-in methods type:', typeof signInMethods);
+          console.log('Sign-in methods is array:', Array.isArray(signInMethods));
           console.log('Sign-in methods length:', signInMethods ? signInMethods.length : 'null/undefined');
           
           // If signInMethods array has any methods, the email exists
           if (signInMethods && Array.isArray(signInMethods) && signInMethods.length > 0) {
             emailExists = true;
-            console.log('Email exists in Firebase (via fetchSignInMethodsForEmail)');
+            checkMethod = 'fetchSignInMethodsForEmail';
+            console.log('✓ Email exists in Firebase (via fetchSignInMethodsForEmail)');
+          } else {
+            console.log('✗ Email does NOT exist (empty sign-in methods array)');
           }
         } catch (fetchError) {
           console.error('Error calling fetchSignInMethodsForEmail:', fetchError);
+          console.error('Error code:', fetchError.code);
+          console.error('Error message:', fetchError.message);
           console.log('Trying alternative method to check if email exists...');
           
           // Fallback: Try to sign in with a dummy password to check if user exists
           try {
-            // Try to sign in with a dummy password
-            // If user doesn't exist, we'll get user-not-found
-            // If user exists, we'll get wrong-password (which means user exists)
-            await window.firebaseAuthFunctions.signInWithEmailAndPassword(window.firebaseAuth, email, 'dummy_password_check_12345_xyz');
+            // Use a very specific dummy password that will definitely fail
+            await window.firebaseAuthFunctions.signInWithEmailAndPassword(window.firebaseAuth, email, 'DUMMY_CHECK_PASSWORD_XYZ_12345');
+            // If we get here, somehow the dummy password worked (shouldn't happen)
+            console.log('Unexpected: Dummy password worked?');
+            emailExists = false;
           } catch (signInError) {
             console.log('Sign-in error code:', signInError.code);
+            console.log('Sign-in error message:', signInError.message);
+            
             if (signInError.code === 'auth/user-not-found') {
               emailExists = false;
-              console.log('User not found via alternative method');
+              checkMethod = 'dummySignIn-user-not-found';
+              console.log('✗ User not found via alternative method');
             } else if (signInError.code === 'auth/wrong-password' || 
-                       signInError.code === 'auth/invalid-credential' ||
-                       signInError.code === 'auth/invalid-email') {
+                       signInError.code === 'auth/invalid-credential') {
               // User exists but password is wrong - means email is registered
               emailExists = true;
-              console.log('Email exists (wrong password error means user exists)');
+              checkMethod = 'dummySignIn-wrong-password';
+              console.log('✓ Email exists (wrong password error means user exists)');
+            } else if (signInError.code === 'auth/invalid-email') {
+              // Invalid email format
+              alert('Please enter a valid email address');
+              return;
             } else {
-              // Other error - default to assuming email doesn't exist
-              console.log('Unknown error, defaulting to sign up');
+              // Other error - log it and default to signup
+              console.log('Unknown error code:', signInError.code);
               emailExists = false;
+              checkMethod = 'dummySignIn-unknown-error';
             }
           }
         }
         
+        console.log('Final check result - emailExists:', emailExists, 'method:', checkMethod);
+        
         // Redirect based on whether email exists
         if (emailExists) {
-          console.log('Email exists, redirecting to sign in page');
+          console.log('→ Redirecting to sign in page');
           window.location.href = `signin.html?email=${encodeURIComponent(email)}`;
         } else {
-          console.log('Email does NOT exist, redirecting to sign up page');
+          console.log('→ Redirecting to sign up page');
           window.location.href = `signup.html?email=${encodeURIComponent(email)}`;
         }
       } catch (error) {
