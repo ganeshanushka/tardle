@@ -537,15 +537,15 @@
   }
 
   .login-prompt-button {
-    width: calc(100% - 20px);
+    width: calc(100% - clamp(15px, 3vw, 20px));
     max-width: 100%;
-    padding: 16px 24px;
+    padding: clamp(12px, 2vh, 16px) clamp(20px, 3vw, 24px);
     background-color: white;
     color: #000;
     border: 3px solid #000;
     border-radius: 30px;
     font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
-    font-size: 15px;
+    font-size: clamp(13px, 2vw, 15px);
     font-weight: bold;
     text-align: center;
     text-decoration: none;
