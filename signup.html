@@ -193,11 +193,17 @@
       window.location.href = 'index.html';
     } catch (error) {
       console.error('Sign up error:', error);
+      console.error('Error code:', error.code);
+      console.error('Error message:', error.message);
       
       // If email is already in use, automatically redirect to sign in page
-      if (error.code === 'auth/email-already-in-use') {
-        console.log('Email already exists, redirecting to sign in page');
-        window.location.href = `signin.html?email=${encodeURIComponent(email)}`;
+      // Check for both possible error code formats
+      if (error.code === 'auth/email-already-in-use' || 
+          error.code === 'auth/emailAlreadyInUse' ||
+          error.message && error.message.toLowerCase().includes('already in use')) {
+        console.log('Email already exists, redirecting to sign in page immediately');
+        // Use replace instead of href to prevent back button issues
+        window.location.replace(`signin.html?email=${encodeURIComponent(email)}`);
         return;
       }
       
