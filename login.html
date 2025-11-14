@@ -134,29 +134,49 @@
         // Simple check: try to sign in with dummy password
         // If error is "wrong-password" → email exists → go to signin
         // If error is "user-not-found" → email doesn't exist → go to signup
+        console.log('Attempting to check if email exists:', email);
         try {
           await window.firebaseAuthFunctions.signInWithEmailAndPassword(window.firebaseAuth, email, 'CHECK_IF_EMAIL_EXISTS_DUMMY_PASSWORD_123');
+          // Should never reach here - dummy password should always fail
+          console.log('Unexpected: Dummy password worked?');
+          window.location.replace(`signup.html?email=${encodeURIComponent(email)}`);
+          return;
         } catch (error) {
-          if (error.code === 'auth/user-not-found') {
+          console.log('Sign-in check error code:', error.code);
+          console.log('Sign-in check error message:', error.message);
+          
+          // Check if email exists based on error code
+          if (error.code === 'auth/user-not-found' || 
+              error.code === 'auth/userNotFound' ||
+              error.message && error.message.toLowerCase().includes('user-not-found')) {
             // Email does NOT exist - go to signup
-            window.location.href = `signup.html?email=${encodeURIComponent(email)}`;
+            console.log('Email does NOT exist - redirecting to signup');
+            window.location.replace(`signup.html?email=${encodeURIComponent(email)}`);
             return;
-          } else if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+          } else if (error.code === 'auth/wrong-password' || 
+                     error.code === 'auth/invalid-credential' ||
+                     error.code === 'auth/wrongPassword' ||
+                     error.code === 'auth/invalidCredential' ||
+                     (error.message && (error.message.toLowerCase().includes('wrong-password') || 
+                                       error.message.toLowerCase().includes('invalid-credential') ||
+                                       error.message.toLowerCase().includes('password is invalid')))) {
             // Email EXISTS - go to signin
-            window.location.href = `signin.html?email=${encodeURIComponent(email)}`;
+            console.log('Email EXISTS - redirecting to signin');
+            window.location.replace(`signin.html?email=${encodeURIComponent(email)}`);
             return;
-          } else if (error.code === 'auth/invalid-email') {
+          } else if (error.code === 'auth/invalid-email' || 
+                     error.code === 'auth/invalidEmail') {
             alert('Please enter a valid email address');
             return;
           } else {
-            // Unknown error - default to signup
-            window.location.href = `signup.html?email=${encodeURIComponent(email)}`;
+            // Unknown error - log it and default to signup
+            console.error('Unknown error code:', error.code);
+            console.error('Error message:', error.message);
+            // Default to signup for unknown errors
+            window.location.replace(`signup.html?email=${encodeURIComponent(email)}`);
             return;
           }
         }
-        
-        // Should never reach here, but just in case
-        window.location.href = `signup.html?email=${encodeURIComponent(email)}`;
       } catch (error) {
         console.error('Error checking email in Firebase:', error);
         console.error('Error code:', error.code);
