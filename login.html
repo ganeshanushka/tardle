@@ -125,11 +125,11 @@
       try {
         // Wait for Firebase to be loaded
         await new Promise((resolve) => {
-          if (window.firebaseAuthFunctions) {
+          if (window.firebaseAuthFunctions && window.firebaseAuth) {
             resolve();
           } else {
             const checkInterval = setInterval(() => {
-              if (window.firebaseAuthFunctions) {
+              if (window.firebaseAuthFunctions && window.firebaseAuth) {
                 clearInterval(checkInterval);
                 resolve();
               }
@@ -137,14 +137,19 @@
           }
         });
         
+        console.log('Firebase loaded, checking email:', email);
+        console.log('firebaseAuthFunctions available:', !!window.firebaseAuthFunctions);
+        console.log('fetchSignInMethodsForEmail available:', !!window.firebaseAuthFunctions.fetchSignInMethodsForEmail);
+        
         // Use Firebase Auth to check if user exists
         // fetchSignInMethodsForEmail returns an array of sign-in methods if the email exists
         const signInMethods = await window.firebaseAuthFunctions.fetchSignInMethodsForEmail(window.firebaseAuth, email);
         
         console.log('Sign-in methods for email:', signInMethods);
+        console.log('Sign-in methods length:', signInMethods ? signInMethods.length : 'null/undefined');
         
         // If signInMethods array has any methods, the email exists
-        if (signInMethods && signInMethods.length > 0) {
+        if (signInMethods && Array.isArray(signInMethods) && signInMethods.length > 0) {
           // Email exists in Firebase - redirect to sign in page
           console.log('Email exists in Firebase, redirecting to sign in');
           window.location.href = `signin.html?email=${encodeURIComponent(email)}`;
@@ -155,9 +160,20 @@
         }
       } catch (error) {
         console.error('Error checking email in Firebase:', error);
-        // If there's an error (e.g., invalid email format, network issue), 
-        // default to sign up page (treat as new user)
-        console.log('Defaulting to sign up page due to error');
+        console.error('Error code:', error.code);
+        console.error('Error message:', error.message);
+        
+        // Check for specific error codes
+        if (error.code === 'auth/invalid-email') {
+          alert('Please enter a valid email address');
+          return;
+        }
+        
+        // For other errors, show the error but still allow user to proceed
+        // If it's a network error or similar, we'll default to signup
+        // But log it so we can debug
+        console.log('Error occurred, defaulting to sign up page');
+        alert('Unable to verify email. You will be redirected to create an account.');
         window.location.href = `signup.html?email=${encodeURIComponent(email)}`;
       }
     });
