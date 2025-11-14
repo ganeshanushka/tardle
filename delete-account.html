@@ -306,8 +306,9 @@
       }
 
       // Delete user from Firebase Auth
-      if (currentUser && window.firebaseAuthFunctions && window.firebaseAuthFunctions.deleteUser) {
-        await window.firebaseAuthFunctions.deleteUser(currentUser);
+      // deleteUser is a method on the User object, not a standalone function
+      if (currentUser && currentUser.delete) {
+        await currentUser.delete();
         console.log('User account deleted from Firebase Auth');
         
         // Show success message and redirect
