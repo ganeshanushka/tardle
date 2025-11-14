@@ -137,68 +137,32 @@
           }
         });
         
-        console.log('Firebase loaded, checking email:', email);
-        
-        let emailExists = false;
-        
-        // Method 1: Try fetchSignInMethodsForEmail first
+        // Simple check: try to sign in with dummy password
+        // If error is "wrong-password" → email exists → go to signin
+        // If error is "user-not-found" → email doesn't exist → go to signup
         try {
-          console.log('Trying fetchSignInMethodsForEmail...');
-          const signInMethods = await window.firebaseAuthFunctions.fetchSignInMethodsForEmail(window.firebaseAuth, email);
-          console.log('fetchSignInMethodsForEmail result:', signInMethods);
-          console.log('Is array?', Array.isArray(signInMethods));
-          console.log('Length:', signInMethods ? signInMethods.length : 'null');
-          
-          if (signInMethods && Array.isArray(signInMethods) && signInMethods.length > 0) {
-            emailExists = true;
-            console.log('✓ Email EXISTS (via fetchSignInMethodsForEmail)');
+          await window.firebaseAuthFunctions.signInWithEmailAndPassword(window.firebaseAuth, email, 'CHECK_IF_EMAIL_EXISTS_DUMMY_PASSWORD_123');
+        } catch (error) {
+          if (error.code === 'auth/user-not-found') {
+            // Email does NOT exist - go to signup
+            window.location.href = `signup.html?email=${encodeURIComponent(email)}`;
+            return;
+          } else if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+            // Email EXISTS - go to signin
+            window.location.href = `signin.html?email=${encodeURIComponent(email)}`;
+            return;
+          } else if (error.code === 'auth/invalid-email') {
+            alert('Please enter a valid email address');
+            return;
           } else {
-            console.log('✗ Email does NOT exist (empty array from fetchSignInMethodsForEmail)');
-            emailExists = false;
-          }
-        } catch (fetchError) {
-          console.error('fetchSignInMethodsForEmail failed:', fetchError);
-          console.error('Error code:', fetchError.code);
-          console.error('Error message:', fetchError.message);
-          
-          // Method 2: Fallback to dummy password sign-in attempt
-          console.log('Trying dummy password sign-in method...');
-          try {
-            await window.firebaseAuthFunctions.signInWithEmailAndPassword(window.firebaseAuth, email, 'DUMMY_CHECK_XYZ_12345');
-            // Should never reach here
-            emailExists = false;
-          } catch (signInError) {
-            console.log('Dummy sign-in error code:', signInError.code);
-            console.log('Dummy sign-in error message:', signInError.message);
-            
-            if (signInError.code === 'auth/user-not-found') {
-              emailExists = false;
-              console.log('✗ Email does NOT exist (user-not-found)');
-            } else if (signInError.code === 'auth/wrong-password' || 
-                       signInError.code === 'auth/invalid-credential') {
-              emailExists = true;
-              console.log('✓ Email EXISTS (wrong-password means user exists)');
-            } else if (signInError.code === 'auth/invalid-email') {
-              alert('Please enter a valid email address');
-              return;
-            } else {
-              // Unknown error - default to signup
-              console.log('Unknown error, defaulting to signup');
-              emailExists = false;
-            }
+            // Unknown error - default to signup
+            window.location.href = `signup.html?email=${encodeURIComponent(email)}`;
+            return;
           }
         }
         
-        console.log('=== FINAL RESULT ===');
-        console.log('emailExists:', emailExists);
-        console.log('Redirecting to:', emailExists ? 'SIGN IN' : 'SIGN UP');
-        
-        // Redirect immediately
-        if (emailExists) {
-          window.location.href = `signin.html?email=${encodeURIComponent(email)}`;
-        } else {
-          window.location.href = `signup.html?email=${encodeURIComponent(email)}`;
-        }
+        // Should never reach here, but just in case
+        window.location.href = `signup.html?email=${encodeURIComponent(email)}`;
       } catch (error) {
         console.error('Error checking email in Firebase:', error);
         console.error('Error code:', error.code);
