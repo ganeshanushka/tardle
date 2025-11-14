@@ -141,8 +141,16 @@
           window.location.replace(`signup.html?email=${encodeURIComponent(email)}`);
           return;
         } catch (createError) {
-          if (createError.code === 'auth/email-already-in-use') {
+          console.log('Create account error code:', createError.code);
+          console.log('Create account error message:', createError.message);
+          
+          // Check for email-already-in-use in multiple ways
+          if (createError.code === 'auth/email-already-in-use' || 
+              createError.code === 'auth/emailAlreadyInUse' ||
+              (createError.message && createError.message.toLowerCase().includes('already in use')) ||
+              (createError.message && createError.message.toLowerCase().includes('email already exists'))) {
             // Email EXISTS - go to signin
+            console.log('Email exists - redirecting to signin');
             window.location.replace(`signin.html?email=${encodeURIComponent(email)}`);
             return;
           } else if (createError.code === 'auth/invalid-email') {
@@ -150,6 +158,8 @@
             return;
           } else {
             // Email doesn't exist or other error - go to signup
+            console.log('Email does not exist or other error - redirecting to signup');
+            console.log('Error code was:', createError.code);
             window.location.replace(`signup.html?email=${encodeURIComponent(email)}`);
             return;
           }
