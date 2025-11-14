@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sign In</title>
+<title>Log In</title>
 <!-- Firebase App (core) -->
 <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js"></script>
 <!-- Firebase Auth -->
@@ -32,18 +32,7 @@
   .close-button {
     float: right;
     cursor: pointer;
-    font-size: 28px;
-    font-weight: bold;
-    color: #000;
-    background: none;
-    border: none;
-    padding: 0;
-    line-height: 1;
-    transition: opacity 0.2s ease;
-  }
-
-  .close-button:hover {
-    opacity: 0.7;
+    font-size: 1.5em;
   }
 
   .input-group {
@@ -51,12 +40,12 @@
   }
 
   .input-group label {
-    text-align: left;
-    display: block; 
-    font-weight: bold; 
-    margin-top: 30px;
-    margin-bottom: 0.7em;
-  }
+  text-align: left;
+  display: block; 
+  font-weight: bold; 
+  margin-top: 30px;
+  margin-bottom: 0.7em;
+}
 
   .input-group input {
     width: 97%;
@@ -70,14 +59,7 @@
     background-color: #7BAFD4;
     color: white;
     cursor: pointer;
-    width: 50%;
-    border: none;
-    padding: 0.7em;
-    font-weight: bold;
-  }
-
-  .input-group input[type="submit"]:hover {
-    background-color: #6a9fc0;
+    width: 50%
   }
 
   .error-message {
@@ -87,10 +69,10 @@
     display: none;
   }
 
-  .email-display {
-    font-size: 0.9em;
+  .terms {
+    font-size: 0.75em;
     color: #666;
-    margin-bottom: 1em;
+    margin-top: 2em;
   }
 
 </style>
@@ -99,33 +81,37 @@
 
 <div class="login-container">
   <div class="close-button" onclick="goBack()">X</div>
-  <h1>Sign in</h1>
-  <div class="email-display" id="emailDisplay"></div>
+  <h1>Log in</h1>
   <form id="signinForm">
+    <div class="input-group">
+      <label for="email">Email Address</label>
+      <input type="email" id="email" name="email" required>
+    </div>
     <div class="input-group">
       <label for="password">Password</label>
       <input type="password" id="password" name="password" required>
     </div>
     <div class="error-message" id="errorMessage">Incorrect password. Please try again.</div>
     <div class="input-group">
-      <input type="submit" value="Sign in">
+      <input type="submit" value="Log in">
     </div>
   </form>
+  <p class="terms">
+    By continuing, you agree to the updated <a href="#">Terms of Service</a>, 
+    and <a href="#">Privacy Policy</a>.
+  </p>
 </div>
 
 <!-- Firebase Config -->
 <script type="module" src="firebase-config.js"></script>
 
 <script>
-  // Get email from URL parameter
+  // Get email from URL parameter and pre-fill if provided
   const urlParams = new URLSearchParams(window.location.search);
-  const email = urlParams.get('email');
+  const emailParam = urlParams.get('email');
   
-  if (email) {
-    document.getElementById('emailDisplay').textContent = email;
-  } else {
-    // If no email, redirect back to login
-    window.location.href = 'login.html';
+  if (emailParam) {
+    document.getElementById('email').value = emailParam;
   }
 
   function goBack() {
@@ -135,9 +121,17 @@
   document.getElementById('signinForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     
+    const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
     const errorMessage = document.getElementById('errorMessage');
     errorMessage.style.display = 'none';
+    
+    // Validate email format
+    if (!email || !email.includes('@')) {
+      errorMessage.textContent = 'Please enter a valid email address';
+      errorMessage.style.display = 'block';
+      return;
+    }
     
     try {
       // Wait for Firebase to be loaded
@@ -166,7 +160,15 @@
       console.error('Sign in error:', error);
       // Show error message
       errorMessage.style.display = 'block';
-      errorMessage.textContent = error.message || 'Incorrect password. Please try again.';
+      if (error.code === 'auth/user-not-found') {
+        errorMessage.textContent = 'No account found with this email address.';
+      } else if (error.code === 'auth/wrong-password') {
+        errorMessage.textContent = 'Incorrect password. Please try again.';
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage.textContent = 'Invalid email address. Please enter a valid email.';
+      } else {
+        errorMessage.textContent = error.message || 'Incorrect password. Please try again.';
+      }
     }
   });
 </script>
