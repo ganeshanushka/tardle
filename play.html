@@ -412,22 +412,22 @@
     pointer-events: auto;
 }
 
-/* Game over and stats popups - matches Wordle modal style */
+/* Game over and stats popups - original Carolina blue design */
 #gameOverPopup .popup-content,
 #statsPopup .popup-content {
     font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
     position: relative;
-    background-color: rgb(255, 255, 255);
-    color: black; 
-    padding: clamp(12px, 2vh, 16px);
-    border-radius: 8px;
+    background-color: #7BAFD4;
+    color: white; 
+    padding: clamp(20px, 3vh, 30px);
+    border-radius: 12px;
     z-index: 1000;
     max-width: 90%;
-    width: min(300px, 85vw);
-    border: 1px solid #d3d6da;
-    font-size: clamp(14px, 2.2vw, 16px);
+    width: min(400px, 85vw);
+    border: none;
+    font-size: clamp(16px, 2.5vw, 20px);
     text-align: center;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 /* Standard close button for popups - consistent across all pages */
@@ -435,15 +435,15 @@
 #gameOverPopup .popup-content .close-btn,
 #statsPopup .popup-content .close-btn {
     position: absolute;
-    top: clamp(6px, 1vh, 8px);
-    right: clamp(10px, 1.5vw, 12px);
+    top: clamp(10px, 1.5vh, 15px);
+    right: clamp(15px, 2vw, 20px);
     font-size: clamp(24px, 3.5vw, 28px);
     font-weight: bold;
     cursor: pointer;
     border: none;
     background: none;
     padding: 0;
-    color: #878a8c;
+    color: white;
     line-height: 1;
     transition: opacity 0.2s ease;
   }
