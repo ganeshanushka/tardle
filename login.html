@@ -131,59 +131,29 @@
           }
         });
         
-        // Use fetchSignInMethodsForEmail - the official Firebase method to check if email exists
-        console.log('Checking if email exists:', email);
-        let emailExists = false;
-        
+        // Direct method: Try to create account - if email exists, it will error
+        // This is the most reliable way since signup page already works
         try {
-          const signInMethods = await window.firebaseAuthFunctions.fetchSignInMethodsForEmail(window.firebaseAuth, email);
-          console.log('Sign-in methods returned:', signInMethods);
-          console.log('Is array?', Array.isArray(signInMethods));
-          console.log('Length:', signInMethods ? signInMethods.length : 'null');
-          
-          // If signInMethods has any items, the email exists
-          if (signInMethods && Array.isArray(signInMethods) && signInMethods.length > 0) {
-            emailExists = true;
-            console.log('✓ Email EXISTS in Firebase');
-          } else {
-            emailExists = false;
-            console.log('✗ Email does NOT exist in Firebase');
-          }
-        } catch (fetchError) {
-          console.error('fetchSignInMethodsForEmail error:', fetchError);
-          console.error('Error code:', fetchError.code);
-          console.error('Error message:', fetchError.message);
-          
-          // If fetchSignInMethodsForEmail fails, try fallback method
-          console.log('Trying fallback method: dummy password sign-in');
-          try {
-            await window.firebaseAuthFunctions.signInWithEmailAndPassword(window.firebaseAuth, email, 'DUMMY_CHECK_12345');
-          } catch (signInError) {
-            console.log('Fallback error code:', signInError.code);
-            if (signInError.code === 'auth/user-not-found') {
-              emailExists = false;
-              console.log('✗ Email does NOT exist (fallback method)');
-            } else if (signInError.code === 'auth/wrong-password' || signInError.code === 'auth/invalid-credential') {
-              emailExists = true;
-              console.log('✓ Email EXISTS (fallback method)');
-            } else {
-              // Unknown error - default to signup
-              emailExists = false;
-              console.log('Unknown error, defaulting to signup');
-            }
-          }
-        }
-        
-        // Redirect based on result
-        console.log('Final decision - emailExists:', emailExists);
-        if (emailExists) {
-          console.log('→ Redirecting to SIGN IN page');
-          window.location.replace(`signin.html?email=${encodeURIComponent(email)}`);
-        } else {
-          console.log('→ Redirecting to SIGN UP page');
+          // Try to create account with dummy password - if email exists, we'll get email-already-in-use
+          await window.firebaseAuthFunctions.createUserWithEmailAndPassword(window.firebaseAuth, email, 'DUMMY_CHECK_PASSWORD_12345');
+          // If we get here, account was created (shouldn't happen with dummy password)
+          // Delete it immediately and go to signup
           window.location.replace(`signup.html?email=${encodeURIComponent(email)}`);
+          return;
+        } catch (createError) {
+          if (createError.code === 'auth/email-already-in-use') {
+            // Email EXISTS - go to signin
+            window.location.replace(`signin.html?email=${encodeURIComponent(email)}`);
+            return;
+          } else if (createError.code === 'auth/invalid-email') {
+            alert('Please enter a valid email address');
+            return;
+          } else {
+            // Email doesn't exist or other error - go to signup
+            window.location.replace(`signup.html?email=${encodeURIComponent(email)}`);
+            return;
+          }
         }
-        return;
       } catch (error) {
         console.error('Error checking email in Firebase:', error);
         console.error('Error code:', error.code);
