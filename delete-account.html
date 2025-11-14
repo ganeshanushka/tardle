@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Delete your account</title>
+<!-- Firebase Config -->
+<script type="module" src="firebase-config.js"></script>
+<style>
+  body {
+    font-family: 'PT Serif', sans-serif;
+    background-color: white;
+    margin: 0;
+    padding: 40px 20px;
+    color: #1a1a1a;
+  }
+
+  .container {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  h1 {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #1a1a1a;
+  }
+
+  .account-info {
+    margin-bottom: 30px;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  .account-info strong {
+    font-weight: bold;
+  }
+
+  .consequences {
+    margin-bottom: 30px;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  .consequences p {
+    margin-bottom: 15px;
+  }
+
+  .warning {
+    font-weight: bold;
+    color: #1a1a1a;
+  }
+
+  .section-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    color: #1a1a1a;
+  }
+
+  .section-content {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 30px;
+  }
+
+  .feedback-section {
+    margin-bottom: 30px;
+  }
+
+  .feedback-label {
+    font-size: 16px;
+    margin-bottom: 10px;
+    display: block;
+    color: #1a1a1a;
+  }
+
+  .feedback-textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-family: 'PT Serif', sans-serif;
+    font-size: 16px;
+    resize: vertical;
+    box-sizing: border-box;
+  }
+
+  .char-count {
+    font-size: 14px;
+    color: #666;
+    margin-top: 5px;
+  }
+
+  .checkbox-container {
+    margin-bottom: 30px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .checkbox-container input[type="checkbox"] {
+    margin-top: 3px;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
+
+  .checkbox-container label {
+    font-size: 16px;
+    line-height: 1.5;
+    cursor: pointer;
+    color: #1a1a1a;
+  }
+
+  .button-container {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+  }
+
+  .delete-button {
+    background-color: #e0e0e0;
+    color: #333;
+    border: none;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'PT Serif', sans-serif;
+  }
+
+  .delete-button:hover {
+    background-color: #d0d0d0;
+  }
+
+  .delete-button:disabled {
+    background-color: #f0f0f0;
+    color: #999;
+    cursor: not-allowed;
+  }
+
+  .return-link {
+    color: #333;
+    text-decoration: none;
+    font-size: 16px;
+    padding: 12px 0;
+    display: inline-block;
+  }
+
+  .return-link:hover {
+    text-decoration: underline;
+  }
+
+  .error-message {
+    color: #d32f2f;
+    font-size: 14px;
+    margin-top: 10px;
+    display: none;
+  }
+
+  .error-message.show {
+    display: block;
+  }
+
+  .success-message {
+    color: #2e7d32;
+    font-size: 14px;
+    margin-top: 10px;
+    display: none;
+  }
+
+  .success-message.show {
+    display: block;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Delete your account</h1>
+  
+  <div class="account-info">
+    Delete the Tardle account for:<br>
+    <strong id="userEmail"></strong>
+  </div>
+
+  <div class="consequences">
+    <p>You will permanently lose access to all history associated with this account. You will no longer be able to use features that require a Tardle account.</p>
+    <p class="warning">This cannot be undone.</p>
+  </div>
+
+  <div class="section-title">What to expect</div>
+  <div class="section-content">
+    After your account has been deleted, you will no longer be able to log in to Tardle using this account. You will also stop receiving any emails to the email address associated with this account.
+  </div>
+
+  <div class="feedback-section">
+    <label class="feedback-label" for="feedback">Tell us why you are deleting your account. (optional)</label>
+    <textarea 
+      id="feedback" 
+      class="feedback-textarea" 
+      maxlength="400" 
+      placeholder=""
+    ></textarea>
+    <div class="char-count"><span id="charCount">400</span> characters left</div>
+  </div>
+
+  <div class="checkbox-container">
+    <input type="checkbox" id="confirmCheckbox">
+    <label for="confirmCheckbox">I confirm I want to delete my Tardle account.</label>
+  </div>
+
+  <div class="error-message" id="errorMessage"></div>
+  <div class="success-message" id="successMessage"></div>
+
+  <div class="button-container">
+    <button class="delete-button" id="deleteButton" disabled>Delete account</button>
+    <a href="play.html" class="return-link">Return to account</a>
+  </div>
+</div>
+
+<script>
+  // Get user email
+  let currentUser = null;
+  let userEmail = '';
+
+  // Wait for Firebase to load
+  const checkFirebase = setInterval(() => {
+    if (window.firebaseAuthFunctions && window.firebaseAuth) {
+      clearInterval(checkFirebase);
+      
+      window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, (user) => {
+        if (user) {
+          currentUser = user;
+          userEmail = user.email || '';
+          document.getElementById('userEmail').textContent = userEmail;
+        } else {
+          // Not logged in - redirect to login
+          window.location.href = 'login.html';
+        }
+      });
+    }
+  }, 100);
+
+  // Character count for feedback
+  const feedbackTextarea = document.getElementById('feedback');
+  const charCount = document.getElementById('charCount');
+  
+  feedbackTextarea.addEventListener('input', function() {
+    const remaining = 400 - this.value.length;
+    charCount.textContent = remaining;
+  });
+
+  // Enable/disable delete button based on checkbox
+  const confirmCheckbox = document.getElementById('confirmCheckbox');
+  const deleteButton = document.getElementById('deleteButton');
+  
+  confirmCheckbox.addEventListener('change', function() {
+    deleteButton.disabled = !this.checked;
+  });
+
+  // Handle delete account
+  deleteButton.addEventListener('click', async function() {
+    if (!confirmCheckbox.checked || !currentUser) {
+      return;
+    }
+
+    // Disable button and show loading state
+    deleteButton.disabled = true;
+    deleteButton.textContent = 'Deleting...';
+    
+    const errorMessage = document.getElementById('errorMessage');
+    const successMessage = document.getElementById('successMessage');
+    errorMessage.classList.remove('show');
+    successMessage.classList.remove('show');
+
+    try {
+      // Wait for Firebase functions to be available
+      await new Promise((resolve) => {
+        if (window.firebaseAuthFunctions && window.firebaseFirestoreFunctions && window.firebaseAuth) {
+          resolve();
+        } else {
+          const checkInterval = setInterval(() => {
+            if (window.firebaseAuthFunctions && window.firebaseFirestoreFunctions && window.firebaseAuth) {
+              clearInterval(checkInterval);
+              resolve();
+            }
+          }, 100);
+        }
+      });
+
+      // Delete user document from Firestore first
+      if (currentUser && window.firebaseFirestoreFunctions && window.firebaseDb) {
+        try {
+          const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
+          await window.firebaseFirestoreFunctions.deleteDoc(userDocRef);
+          console.log('User document deleted from Firestore');
+        } catch (firestoreError) {
+          console.error('Error deleting Firestore document:', firestoreError);
+          // Continue with auth deletion even if Firestore deletion fails
+        }
+      }
+
+      // Delete user from Firebase Auth
+      if (currentUser && window.firebaseAuthFunctions && window.firebaseAuthFunctions.deleteUser) {
+        await window.firebaseAuthFunctions.deleteUser(currentUser);
+        console.log('User account deleted from Firebase Auth');
+        
+        // Show success message and redirect
+        successMessage.textContent = 'Account deleted successfully. Redirecting...';
+        successMessage.classList.add('show');
+        
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 2000);
+      } else {
+        throw new Error('Unable to delete account. Please try logging out and logging back in, then try again.');
+      }
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      errorMessage.textContent = error.message || 'An error occurred while deleting your account. Please try again.';
+      errorMessage.classList.add('show');
+      deleteButton.disabled = false;
+      deleteButton.textContent = 'Delete account';
+    }
+  });
+</script>
+
+</body>
+</html>
+
