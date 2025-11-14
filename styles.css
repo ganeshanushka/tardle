@@ -30,14 +30,17 @@ html, body {
     align-items: center;
     text-transform: uppercase;
     border: 2px solid #d3d6da;
-    height: 62px;
-    width: 62px;
+    height: clamp(45px, 8vw, 62px);
+    width: clamp(45px, 8vw, 62px);
+    min-height: 45px;
+    min-width: 45px;
     vertical-align: top;
     color: #1a1a1b;
-    margin: 3px;
+    margin: clamp(2px, 0.4vw, 3px);
     transition: border-color 0.1s ease;
-    font-size: 32px;
+    font-size: clamp(24px, 4vw, 32px);
     font-weight: bold;
+    box-sizing: border-box;
   }
   
   /* Darker border when box has a letter (like Wordle) */
@@ -52,28 +55,27 @@ html, body {
   #keyboard {
     display: block;
     text-align: center;
-    margin-top: 20px;
+    margin-top: clamp(15px, 2.5vh, 20px);
   }
   
   .key {
     font-weight: bold;
-    font-size: 18px; /* You can adjust this value as needed */
-    font-weight: bold; /* This will make the text bold */
+    font-size: clamp(14px, 2.2vw, 18px);
     text-transform: uppercase;
     border-radius: 4px;
     background-color: #d3d6da;
     border: 0;
-    height: 50px;
-    width: 43px;
-    margin: 2px;
+    height: clamp(40px, 6.5vh, 50px);
+    min-width: clamp(35px, 5.5vw, 43px);
+    margin: clamp(1.5px, 0.3vw, 2px);
     cursor: pointer;
     color: #1a1a1b;
-    padding: 10px 16px; 
-    
+    padding: clamp(8px, 1.2vh, 10px) clamp(12px, 2vw, 16px);
+    box-sizing: border-box;
   }
   
   #enter{
-    width: 90px;
+    width: clamp(70px, 11vw, 90px);
   }
 
   /* Shake animation for invalid words */
