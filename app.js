@@ -251,6 +251,18 @@ let words = [
         return;
       }
       
+      // Explicitly ignore Tab and other special keys
+      if (event.key === 'Tab' || event.code === 'Tab' || event.keyCode === 9) {
+        // Allow Tab to work normally (for accessibility), but don't process it
+        return; // Don't prevent default - let Tab work for navigation
+      }
+      
+      // Explicitly ignore CapsLock
+      if (event.key === 'CapsLock' || event.code === 'CapsLock' || event.keyCode === 20) {
+        // Allow CapsLock to work normally, but don't process it
+        return; // Don't prevent default - let CapsLock work normally
+      }
+      
       // Handle letter keys (both lowercase and uppercase) - only process these
       if ((event.key >= 'a' && event.key <= 'z') || (event.key >= 'A' && event.key <= 'Z')) {
         keyClick(event.key.toLowerCase()); // Convert to lowercase
