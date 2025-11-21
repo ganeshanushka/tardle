@@ -60,6 +60,36 @@
     border: 1px solid #ccc;
   }
 
+  .password-wrapper {
+    position: relative;
+    width: 100%;
+  }
+
+  .password-wrapper input {
+    width: 97%;
+    padding-right: 40px;
+  }
+
+  .password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2em;
+    color: #666;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .password-toggle:hover {
+    color: #333;
+  }
+
   .input-group input[type="submit"] {
     background-color: #7BAFD4;
     color: white;
@@ -104,7 +134,12 @@
   <form id="signupForm">
     <div class="input-group">
       <label for="password">Password</label>
-      <input type="password" id="password" name="password" required minlength="6">
+      <div class="password-wrapper">
+        <input type="password" id="password" name="password" required minlength="6">
+        <button type="button" class="password-toggle" id="passwordToggle" aria-label="Toggle password visibility">
+          👁️
+        </button>
+      </div>
     </div>
     <div class="error-message" id="errorMessage">Password must be at least 6 characters long.</div>
     <div class="input-group">
@@ -135,6 +170,17 @@
   function goBack() {
     window.location.href = 'index.html';
   }
+
+  // Toggle password visibility
+  const passwordInput = document.getElementById('password');
+  const passwordToggle = document.getElementById('passwordToggle');
+  
+  passwordToggle.addEventListener('click', function() {
+    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+    passwordInput.setAttribute('type', type);
+    // Change icon based on visibility
+    passwordToggle.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
+  });
 
   document.getElementById('signupForm').addEventListener('submit', async function(e) {
     e.preventDefault();
