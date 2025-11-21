@@ -7,6 +7,46 @@
 </head>
 <title>Tardle</title>
 <style>
+  /* CSS Variables for Light Theme */
+  :root {
+    --bg-primary: white;
+    --bg-secondary: #f5f5f5;
+    --bg-header: #7BAFD4;
+    --text-primary: #1a1a1b;
+    --text-secondary: #666;
+    --text-inverse: white;
+    --border-color: #d3d6da;
+    --border-dark: #878a8c;
+    --correct-color: #56a0d3;
+    --found-color: #c9b458;
+    --wrong-color: #00539B;
+    --key-bg: white;
+    --key-active: #ddd;
+    --popup-bg: #7BAFD4;
+    --popup-text: white;
+    --overlay: rgba(0, 0, 0, 0.5);
+  }
+
+  /* CSS Variables for Dark Theme */
+  :root.dark-mode {
+    --bg-primary: #121213;
+    --bg-secondary: #1a1a1a;
+    --bg-header: #1a1a1a;
+    --text-primary: #ffffff;
+    --text-secondary: #d3d6da;
+    --text-inverse: #121213;
+    --border-color: #3a3a3c;
+    --border-dark: #565758;
+    --correct-color: #6aaa64;
+    --found-color: #c9b458;
+    --wrong-color: #787c7e;
+    --key-bg: #818384;
+    --key-active: #565758;
+    --popup-bg: #1a1a1a;
+    --popup-text: #ffffff;
+    --overlay: rgba(0, 0, 0, 0.7);
+  }
+
   html {
     margin: 0;
     padding: 0;
@@ -16,13 +56,15 @@
   
   body {
     font-family: 'PT Serif', sans-serif;
-    background-color: white;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
     font-size: clamp(1rem, 2.5vw, 2.5em);
     padding-bottom: 1.5vh;
     margin: 0;
     padding: 0;
     width: 100%;
     overflow-x: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
   
   .title-bar {
@@ -32,7 +74,7 @@
     width: 100%;
     height: clamp(50px, 8vh, 60px);
     min-height: 50px;
-    background-color:#7BAFD4;
+    background-color: var(--bg-header);
     padding: 0 clamp(10px, 2vw, 20px);
     position: fixed;
     top: 0;
@@ -41,6 +83,7 @@
     z-index: 1000;
     box-sizing: border-box;
     margin: 0;
+    transition: background-color 0.3s ease;
   }
 
   .hamburger-menu {
@@ -254,10 +297,11 @@
     font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
     font-size: clamp(24px, 4vw, 40px); 
     font-weight: bold;
-    color: white;
+    color: var(--text-inverse);
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
+    transition: color 0.3s ease;
   }
 
   /* Standard close button style - used across all pages */
@@ -268,13 +312,13 @@
     transform: translateY(-50%); 
     font-size: clamp(24px, 3.5vw, 28px); 
     font-weight: bold;
-    color: white;
+    color: var(--text-inverse);
     cursor: pointer;
     background: none;
     border: none;
     padding: 0;
     line-height: 1;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.2s ease, color 0.3s ease;
   }
 
   .close-button:hover {
@@ -370,7 +414,7 @@
   
   /* Darker border when box has a letter (like Wordle) */
   .key-guess.filled {
-    border-color: #878a8c !important;
+    border-color: var(--border-dark) !important;
   }
 
   /* Use transparent borders when box has a result color to maintain size */
@@ -391,14 +435,16 @@
   }
 
   .keyboard div {
-    border: 1px solid #d3d6da;
+    border: 1px solid var(--border-color);
     padding: clamp(15px, 2.5vh, 20px);
-    background-color: white;
+    background-color: var(--key-bg);
+    color: var(--text-primary);
     cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
   }
 
   .keyboard div:active {
-    background-color: #ddd;
+    background-color: var(--key-active);
   }
 
 .hidden { display: none !important; }
@@ -449,13 +495,15 @@
   }
 
   .settings-modal-content {
-    background-color: white;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
     border-radius: 8px;
     width: min(500px, 90vw);
     max-height: 90vh;
     overflow-y: auto;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     position: relative;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   .settings-modal-header {
@@ -471,7 +519,8 @@
     font-size: clamp(20px, 3vw, 24px);
     font-weight: bold;
     margin: 0;
-    color: #1a1a1a;
+    color: var(--text-primary);
+    transition: color 0.3s ease;
   }
 
   .settings-close-btn {
@@ -499,7 +548,8 @@
     justify-content: space-between;
     align-items: flex-start;
     padding: clamp(15px, 2.5vh, 20px) 0;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--border-color);
+    transition: border-color 0.3s ease;
   }
 
   .setting-item:last-child {
@@ -515,15 +565,17 @@
     font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
     font-size: clamp(16px, 2.5vw, 18px);
     font-weight: 600;
-    color: #1a1a1a;
+    color: var(--text-primary);
     margin-bottom: clamp(5px, 0.8vh, 8px);
+    transition: color 0.3s ease;
   }
 
   .setting-description {
     font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
     font-size: clamp(13px, 2vw, 15px);
-    color: #666;
+    color: var(--text-secondary);
     line-height: 1.4;
+    transition: color 0.3s ease;
   }
 
   /* Toggle Switch */
@@ -633,8 +685,8 @@
 #statsPopup .popup-content {
     font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
     position: relative;
-    background-color: #7BAFD4;
-    color: white; 
+    background-color: var(--popup-bg);
+    color: var(--popup-text); 
     padding: clamp(20px, 3vh, 30px);
     border-radius: 12px;
     z-index: 1000;
@@ -644,6 +696,7 @@
     font-size: clamp(16px, 2.5vw, 20px);
     text-align: center;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Standard close button for popups - consistent across all pages */
@@ -692,7 +745,8 @@
   }
 
   .login-prompt-content {
-    background-color: #7BAFD4;
+    background-color: var(--popup-bg);
+    color: var(--popup-text);
     border-radius: 12px;
     padding: 50px 40px 40px 40px;
     max-width: 500px;
@@ -702,7 +756,7 @@
     box-sizing: border-box;
     transform: translateY(100px);
     opacity: 0;
-    transition: transform 0.3s ease, opacity 0.3s ease;
+    transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, color 0.3s ease;
     z-index: 10001;
     visibility: hidden;
   }
@@ -991,6 +1045,39 @@
               settingsModal.classList.add('hidden');
             }
           }
+
+          // Dark mode toggle functionality
+          function initDarkMode() {
+            const darkThemeToggle = document.getElementById('darkThemeToggle');
+            if (!darkThemeToggle) return;
+
+            // Load saved preference
+            const savedTheme = localStorage.getItem('darkMode');
+            const isDarkMode = savedTheme === 'true';
+            
+            // Set initial state
+            darkThemeToggle.checked = isDarkMode;
+            if (isDarkMode) {
+              document.documentElement.classList.add('dark-mode');
+            }
+
+            // Handle toggle change
+            darkThemeToggle.addEventListener('change', function() {
+              const isDark = this.checked;
+              if (isDark) {
+                document.documentElement.classList.add('dark-mode');
+                localStorage.setItem('darkMode', 'true');
+              } else {
+                document.documentElement.classList.remove('dark-mode');
+                localStorage.setItem('darkMode', 'false');
+              }
+            });
+          }
+
+          // Initialize dark mode on page load
+          document.addEventListener('DOMContentLoaded', function() {
+            initDarkMode();
+          });
 
           // Close settings modal when clicking outside
           document.addEventListener('click', function(event) {
