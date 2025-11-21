@@ -417,18 +417,161 @@
   pointer-events: none;
 }
 
-#gameOverPopup,
-#statsPopup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+  #gameOverPopup,
+  #statsPopup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* Settings Modal */
+  #settingsModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10001;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  #settingsModal.hidden {
+    display: none !important;
+  }
+
+  .settings-modal-content {
+    background-color: white;
+    border-radius: 8px;
+    width: min(500px, 90vw);
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    position: relative;
+  }
+
+  .settings-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: clamp(20px, 3vh, 30px) clamp(25px, 4vw, 35px);
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .settings-modal-header h2 {
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    font-size: clamp(20px, 3vw, 24px);
+    font-weight: bold;
+    margin: 0;
+    color: #1a1a1a;
+  }
+
+  .settings-close-btn {
+    font-size: clamp(28px, 4vw, 32px);
+    font-weight: bold;
+    color: #7BAFD4;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    line-height: 1;
+    transition: opacity 0.2s ease;
+  }
+
+  .settings-close-btn:hover {
+    opacity: 0.7;
+  }
+
+  .settings-options {
+    padding: clamp(20px, 3vh, 30px) clamp(25px, 4vw, 35px);
+  }
+
+  .setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: clamp(15px, 2.5vh, 20px) 0;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .setting-item:last-child {
+    border-bottom: none;
+  }
+
+  .setting-info {
+    flex: 1;
+    margin-right: clamp(15px, 2.5vw, 20px);
+  }
+
+  .setting-title {
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    font-size: clamp(16px, 2.5vw, 18px);
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: clamp(5px, 0.8vh, 8px);
+  }
+
+  .setting-description {
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    font-size: clamp(13px, 2vw, 15px);
+    color: #666;
+    line-height: 1.4;
+  }
+
+  /* Toggle Switch */
+  .toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: clamp(44px, 6vw, 50px);
+    height: clamp(24px, 3.5vw, 28px);
+    flex-shrink: 0;
+  }
+
+  .toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.3s;
+    border-radius: clamp(24px, 3.5vw, 28px);
+  }
+
+  .toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: clamp(18px, 2.5vw, 22px);
+    width: clamp(18px, 2.5vw, 22px);
+    left: clamp(3px, 0.5vw, 4px);
+    bottom: clamp(3px, 0.5vw, 4px);
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+  }
+
+  .toggle-switch input:checked + .toggle-slider {
+    background-color: #7BAFD4;
+  }
+
+  .toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(clamp(20px, 3vw, 24px));
+  }
 
 /* Success message popup - positioned on top of first row like Wordle */
 #customPopup {
@@ -753,6 +896,36 @@
               <span onclick="closeStatsPopup()" class="close-btn">X</span>
             </div>
           </div>
+
+          <div id="settingsModal" class="hidden">
+            <div class="settings-modal-content">
+              <div class="settings-modal-header">
+                <h2>SETTINGS</h2>
+                <button class="settings-close-btn" onclick="closeSettingsModal()">×</button>
+              </div>
+              <div class="settings-options">
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <div class="setting-title">Dark Theme</div>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="darkThemeToggle">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <div class="setting-title">High Contrast Mode</div>
+                    <div class="setting-description">Contrast and colorblindness improvements</div>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="highContrastToggle">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
         <script>
           function goBack() {
             window.history.back();
@@ -802,9 +975,29 @@
           }
 
           function handleSettingsClick() {
-            // Add settings functionality here
-            console.log('Settings clicked');
+            const settingsModal = document.getElementById('settingsModal');
+            if (settingsModal) {
+              settingsModal.classList.remove('hidden');
+            }
           }
+
+          function closeSettingsModal() {
+            const settingsModal = document.getElementById('settingsModal');
+            if (settingsModal) {
+              settingsModal.classList.add('hidden');
+            }
+          }
+
+          // Close settings modal when clicking outside
+          document.addEventListener('click', function(event) {
+            const settingsModal = document.getElementById('settingsModal');
+            if (settingsModal && !settingsModal.classList.contains('hidden')) {
+              const modalContent = settingsModal.querySelector('.settings-modal-content');
+              if (modalContent && !modalContent.contains(event.target) && !event.target.closest('.settings-icon')) {
+                closeSettingsModal();
+              }
+            }
+          });
 
           function showLoginPrompt() {
             const modal = document.getElementById('loginPromptModal');
