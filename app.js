@@ -255,6 +255,15 @@ let words = [
         return; // Don't prevent default - let Alt work normally
       }
       
+      // Explicitly ignore Meta keys (Command on Mac, Windows key on Windows) - CHECK THIS
+      if (event.key === 'Meta' || event.code === 'MetaLeft' || event.code === 'MetaRight' || event.keyCode === 91 || event.keyCode === 92 || event.keyCode === 93) {
+        // Prevent default and stop propagation to prevent any processing
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        return; // Exit early - don't process Meta/Command
+      }
+      
       // Prevent default immediately to stop any other handlers (for valid keys)
       event.preventDefault();
       event.stopPropagation();
