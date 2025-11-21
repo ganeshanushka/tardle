@@ -264,6 +264,14 @@ let words = [
         return; // Exit early - don't process Meta/Command
       }
       
+      // Explicitly ignore Arrow keys
+      if (event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'ArrowLeft' || event.key === 'ArrowRight' ||
+          event.code === 'ArrowUp' || event.code === 'ArrowDown' || event.code === 'ArrowLeft' || event.code === 'ArrowRight' ||
+          event.keyCode === 37 || event.keyCode === 38 || event.keyCode === 39 || event.keyCode === 40) {
+        // Allow arrow keys to work normally (for navigation), but don't process them in the game
+        return; // Don't prevent default - let arrow keys work for navigation
+      }
+      
       // Prevent default immediately to stop any other handlers (for valid keys)
       event.preventDefault();
       event.stopPropagation();
