@@ -269,6 +269,18 @@ let words = [
         return; // Don't prevent default - let Shift work normally
       }
       
+      // Explicitly ignore Control keys (both left and right)
+      if (event.key === 'Control' || event.code === 'ControlLeft' || event.code === 'ControlRight' || event.keyCode === 17) {
+        // Allow Control to work normally (for shortcuts), but don't process it
+        return; // Don't prevent default - let Control work normally
+      }
+      
+      // Explicitly ignore Alt keys (both left and right)
+      if (event.key === 'Alt' || event.code === 'AltLeft' || event.code === 'AltRight' || event.keyCode === 18) {
+        // Allow Alt to work normally (for shortcuts), but don't process it
+        return; // Don't prevent default - let Alt work normally
+      }
+      
       // Handle letter keys (both lowercase and uppercase) - only process these
       if ((event.key >= 'a' && event.key <= 'z') || (event.key >= 'A' && event.key <= 'Z')) {
         keyClick(event.key.toLowerCase()); // Convert to lowercase
