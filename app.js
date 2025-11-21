@@ -219,12 +219,46 @@ let words = [
     
     // Handler function for keyboard events
     function handleKeyDown(event) {
-      // Prevent default immediately to stop any other handlers
+      console.log('Key pressed:', event.key, 'Code:', event.code, 'KeyCode:', event.keyCode);
+      
+      // Check for modifier keys and special keys FIRST, before preventDefault
+      // Explicitly ignore Tab
+      if (event.key === 'Tab' || event.code === 'Tab' || event.keyCode === 9) {
+        // Allow Tab to work normally (for accessibility), but don't process it
+        return; // Don't prevent default - let Tab work for navigation
+      }
+      
+      // Explicitly ignore CapsLock
+      if (event.key === 'CapsLock' || event.code === 'CapsLock' || event.keyCode === 20) {
+        // Allow CapsLock to work normally, but don't process it
+        return; // Don't prevent default - let CapsLock work normally
+      }
+      
+      // Explicitly ignore Shift keys (both left and right) - CHECK THIS FIRST
+      if (event.key === 'Shift' || event.code === 'ShiftLeft' || event.code === 'ShiftRight' || event.keyCode === 16) {
+        // Prevent default and stop propagation to prevent any processing
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        return; // Exit early - don't process Shift
+      }
+      
+      // Explicitly ignore Control keys (both left and right)
+      if (event.key === 'Control' || event.code === 'ControlLeft' || event.code === 'ControlRight' || event.keyCode === 17) {
+        // Allow Control to work normally (for shortcuts), but don't process it
+        return; // Don't prevent default - let Control work normally
+      }
+      
+      // Explicitly ignore Alt keys (both left and right)
+      if (event.key === 'Alt' || event.code === 'AltLeft' || event.code === 'AltRight' || event.keyCode === 18) {
+        // Allow Alt to work normally (for shortcuts), but don't process it
+        return; // Don't prevent default - let Alt work normally
+      }
+      
+      // Prevent default immediately to stop any other handlers (for valid keys)
       event.preventDefault();
       event.stopPropagation();
       event.stopImmediatePropagation();
-      
-      console.log('Key pressed:', event.key, 'Code:', event.code, 'KeyCode:', event.keyCode);
       
       // Debounce: prevent same key from being processed twice within 100ms
       const now = Date.now();
@@ -240,45 +274,13 @@ let words = [
       if (event.key === 'Backspace' || event.key === 'Delete' || event.code === 'Backspace' || event.keyCode === 8) {
         console.log('Delete/Backspace detected!');
         backspace(); // Call backspace directly instead of through keyClick
-        event.preventDefault(); // Prevent default behavior
         return; // Exit early to prevent other handlers
       }
       
       // Handle enter
       if (event.key === 'Enter') {
         keyClick('enter');
-        event.preventDefault(); // Prevent default behavior
         return;
-      }
-      
-      // Explicitly ignore Tab and other special keys
-      if (event.key === 'Tab' || event.code === 'Tab' || event.keyCode === 9) {
-        // Allow Tab to work normally (for accessibility), but don't process it
-        return; // Don't prevent default - let Tab work for navigation
-      }
-      
-      // Explicitly ignore CapsLock
-      if (event.key === 'CapsLock' || event.code === 'CapsLock' || event.keyCode === 20) {
-        // Allow CapsLock to work normally, but don't process it
-        return; // Don't prevent default - let CapsLock work normally
-      }
-      
-      // Explicitly ignore Shift keys (both left and right)
-      if (event.key === 'Shift' || event.code === 'ShiftLeft' || event.code === 'ShiftRight' || event.keyCode === 16) {
-        // Allow Shift to work normally (for capital letters), but don't process it
-        return; // Don't prevent default - let Shift work normally
-      }
-      
-      // Explicitly ignore Control keys (both left and right)
-      if (event.key === 'Control' || event.code === 'ControlLeft' || event.code === 'ControlRight' || event.keyCode === 17) {
-        // Allow Control to work normally (for shortcuts), but don't process it
-        return; // Don't prevent default - let Control work normally
-      }
-      
-      // Explicitly ignore Alt keys (both left and right)
-      if (event.key === 'Alt' || event.code === 'AltLeft' || event.code === 'AltRight' || event.keyCode === 18) {
-        // Allow Alt to work normally (for shortcuts), but don't process it
-        return; // Don't prevent default - let Alt work normally
       }
       
       // Handle letter keys (both lowercase and uppercase) - only process these
