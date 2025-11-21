@@ -263,6 +263,12 @@ let words = [
         return; // Don't prevent default - let CapsLock work normally
       }
       
+      // Explicitly ignore Shift keys (both left and right)
+      if (event.key === 'Shift' || event.code === 'ShiftLeft' || event.code === 'ShiftRight' || event.keyCode === 16) {
+        // Allow Shift to work normally (for capital letters), but don't process it
+        return; // Don't prevent default - let Shift work normally
+      }
+      
       // Handle letter keys (both lowercase and uppercase) - only process these
       if ((event.key >= 'a' && event.key <= 'z') || (event.key >= 'A' && event.key <= 'Z')) {
         keyClick(event.key.toLowerCase()); // Convert to lowercase
