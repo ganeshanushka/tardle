@@ -140,6 +140,19 @@
     padding: clamp(30px, 5vh, 40px) clamp(20px, 4vw, 30px);
   }
 
+  .side-panel-greeting {
+    margin-bottom: clamp(25px, 4vh, 30px);
+    padding-bottom: clamp(20px, 3vh, 25px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .side-panel-greeting-text {
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    font-size: clamp(16px, 2.2vw, 18px);
+    color: white;
+    line-height: 1.5;
+  }
+
   .side-panel-section {
     margin-bottom: clamp(30px, 5vh, 40px);
   }
@@ -599,6 +612,10 @@
       </div>
       
       <div class="side-panel-body">
+        <div class="side-panel-greeting" id="sidePanelGreeting" style="display: none;">
+          <div class="side-panel-greeting-text">Hello, <span id="userGreetingName"></span></div>
+        </div>
+        
         <div class="side-panel-section">
           <div class="side-panel-section-title">PRIVACY SETTINGS</div>
           <a href="#" class="side-panel-link">Privacy Policy</a>
@@ -742,6 +759,32 @@
             }
           }
 
+          // Update greeting with user email
+          function updateUserGreeting() {
+            const checkFirebase = setInterval(() => {
+              if (window.firebaseAuth && window.firebaseAuthFunctions && window.firebaseAuthFunctions.onAuthStateChanged) {
+                clearInterval(checkFirebase);
+                window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, (user) => {
+                  const greetingElement = document.getElementById('sidePanelGreeting');
+                  const greetingNameElement = document.getElementById('userGreetingName');
+                  
+                  if (user && user.email) {
+                    // Extract username from email (part before @)
+                    const username = user.email.split('@')[0];
+                    if (greetingElement && greetingNameElement) {
+                      greetingNameElement.textContent = username;
+                      greetingElement.style.display = 'block';
+                    }
+                  } else {
+                    if (greetingElement) {
+                      greetingElement.style.display = 'none';
+                    }
+                  }
+                });
+              }
+            }, 50);
+          }
+
           // Check if user is logged in after page fully loads
           function checkLoginOnPageLoad() {
             // Wait for page to load, then check auth after 0.5 seconds
@@ -773,7 +816,8 @@
             });
           }
 
-          // Initialize check when page loads
+          // Initialize greeting and check when page loads
+          updateUserGreeting();
           checkLoginOnPageLoad();
 
           // Close modal when clicking outside
