@@ -66,7 +66,7 @@ let words = [
     'UL','Rj',
 
     // 3 letter words
-    'Dey','SRC','Pit','Maw','Tez','Rah','TRU','CCS','ARS', 'SAE', 'AEPI',
+    'Dey','SRC','Pit','Maw','Tez','Rah','TRU','CCS','ARS', 'SAE', 'PID',
 
     // 4 letter words
     'Hojo', 'Cobb', 'Rams', 'Navy', 'Quad', 'Yopo', 'Buns', 'Dook', 'Maye', 'Mack', 'Pete', 'Seth', 'Blue', 'Topo',
@@ -74,27 +74,27 @@ let words = [
 
 
     // 5 letter words
-    'Davis', 'Ehaus', 'Avery', 'Koury', 'Hanes', 'Fedex', 'Kenan', 'Lewis', 'Manly', 'Stacy', 'Kevin', 'Davie', 'Karen', 'Union', 'Chase', 'Adams', 'Canes', 'Roots',
-    'Wheat', 'Heels', 'Manek', 'Coker', 'Baity', 'Dames', 'Momos', 
+    'Davis', 'Ehaus', 'Avery', 'Koury', 'Hanes', 'Kenan', 'Lewis', 'Manly', 'Stacy', 'Kevin', 'Davie', 'Karen', 'Union', 'Chase', 'Adams', 'Canes', 'Roots',
+    'Wheat', 'Heels', 'Manek', 'Coker', 'Baity', 'Dames', 'Momos', 'Playa', 'onyen',
 
     // 6 letter words
-    'Wilson', 'Craige', 'Parker', 'Teague', 'Graham', 'Murray', 'Genome', 'Cocker', 'Connor', 'Grimes', 'Hardin', 'Horton', 'Joiner', 'Mangum', 'Mciver',
-    'Fetzer', 'Hooker', 'Bryson', 'Lenoir', 'Kurama', 'Panera', 'Target', 'Alpine', 'Subway', 'Bulbox', 'Ramses', 'Jordan', 'Ruffin', 'Aycock', 'Joyner',
-    'Howell', 'Alumni', 'Junior', 'Senior', 'Lindas', 'Cosmic', 'Yikyak',
+    'Wilson', 'Craige', 'Parker', 'Teague', 'Graham', 'Murray', 'Genome', 'Cocker', 'Connor', 'Grimes', 'Hardin', 'Horton', 'Mangum', 'Mciver',
+    'Fetzer', 'Hooker', 'Lenoir', 'Kurama', 'Panera', 'Target', 'Subway', 'Bulbox', 'Ramses', 'Jordan', 'Ruffin', 'Aycock', 'Joyner',
+    'Howell', 'Alumni', 'Junior', 'Senior', 'Lindas', 'Cosmic', 'Yikyak', 'canvas',
 
 
     // 7 letter words
     'Philips', 'Carroll', 'Gardner', 'Everett', 'Spencer', 'Winston', 'Woollen', 'Peabody', 'Chapman', 'Hussman', 'Hibachi', 'Bonchon', 'Chimney', 'Tarheel', 'tarheel',
-    'GDTBATH', 'Armando', 'Supdogs', 'Rameses', 'Manning', 'Caudill', 'Bingham', 'Murphey', 'Kessing', 'Vimalas', 'Suttons', 'Bschool',
+    'GDTBATH', 'Supdogs', 'Rameses', 'Manning', 'Caudill', 'Bingham', 'Murphey', 'Kessing', 'Vimalas', 'Suttons', 'Bschool',
 
     // 8 letter words
     'Morrison', 'Carolina', 'Greenlaw', 'Alderman', 'Mclinton', 'Hamilton', 'Caldwell', 'Dorrance', 'Franklin', 'Gillings', 'Eshelman', 'Insomnia', 'Epilogue',
     'Cholanad', 'Meantime', 'Chipotle', 'Basecamp', 'Bandidos', 'Carolina', 'Whistler', 'Preacher', 'Safewalk', 'Mitchell', 'Morehead', 'Freshman', 'QueChula',
-    'Football', 'FookDook', 'DukeFuke',
+    'Football', 'FookDook', 'DukeFuke', 'Morehead',
 
 
     // 9 letter words
-    'Sitterson', 'Granville', 'Alexander', 'Starbucks', 'Bojangles', 'Coldstone', 'Streaking', 'Stilllife', 'Arboretum', 'Sushinara', 'Sophomore', 'Spicynine',
+    'Sitterson', 'Granville', 'Alexander', 'Starbucks', 'Bojangles', 'Coldstone', 'Streaking', 'Stilllife', 'Arboretum', 'Sophomore', 'Spicynine',
     'Campusrec', 'fratcourt'
 ]
   
@@ -240,17 +240,28 @@ let words = [
       if (event.key === 'Backspace' || event.key === 'Delete' || event.code === 'Backspace' || event.keyCode === 8) {
         console.log('Delete/Backspace detected!');
         backspace(); // Call backspace directly instead of through keyClick
+        event.preventDefault(); // Prevent default behavior
         return; // Exit early to prevent other handlers
       }
       
-      // Handle letter keys (both lowercase and uppercase)
+      // Handle enter
+      if (event.key === 'Enter') {
+        keyClick('enter');
+        event.preventDefault(); // Prevent default behavior
+        return;
+      }
+      
+      // Handle letter keys (both lowercase and uppercase) - only process these
       if ((event.key >= 'a' && event.key <= 'z') || (event.key >= 'A' && event.key <= 'Z')) {
         keyClick(event.key.toLowerCase()); // Convert to lowercase
+        event.preventDefault(); // Prevent default behavior
+        return;
       }
-      // Handle enter
-      else if (event.key === 'Enter') {
-        keyClick('enter');
-      }
+      
+      // Ignore all other keys - prevent default and stop propagation
+      event.preventDefault();
+      event.stopPropagation();
+      return;
     }
 
     // Attach only to document to avoid duplicate events
