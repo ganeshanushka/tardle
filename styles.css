@@ -86,22 +86,23 @@ html, body {
     font-size: clamp(14px, 2.2vw, 18px);
     text-transform: uppercase;
     border-radius: 4px;
-    background-color: white !important;
+    background-color: var(--key-bg);
     border: 0;
     height: clamp(40px, 6.5vh, 50px);
     min-width: clamp(35px, 5.5vw, 43px);
     margin: clamp(1.5px, 0.3vw, 2px);
     cursor: pointer;
-    color: #1a1a1b !important;
+    color: #1a1a1b;
     padding: clamp(8px, 1.2vh, 10px) clamp(12px, 2vw, 16px);
     box-sizing: border-box;
     transition: background-color 0.3s ease, color 0.3s ease;
     display: inline-block;
   }
 
-  /* Dark mode: Carolina blue text on white keys */
+  /* Dark mode: white keys with Carolina blue text */
   :root.dark-mode .key {
-    color: #7BAFD4 !important;
+    background-color: white;
+    color: #7BAFD4;
   }
 
   /* Keyboard key colors */
