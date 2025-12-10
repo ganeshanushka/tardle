@@ -297,11 +297,15 @@
     font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
     font-size: clamp(24px, 4vw, 40px); 
     font-weight: bold;
-    color: #7BAFD4;
+    color: white;
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
     transition: color 0.3s ease;
+  }
+
+  :root.dark-mode .title-text {
+    color: #7BAFD4;
   }
 
   /* Standard close button style - used across all pages */
