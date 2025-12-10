@@ -86,7 +86,7 @@ html, body {
     font-size: clamp(14px, 2.2vw, 18px);
     text-transform: uppercase;
     border-radius: 4px;
-    background-color: var(--key-bg);
+    background-color: #d3d6da;
     border: 0;
     height: clamp(40px, 6.5vh, 50px);
     min-width: clamp(35px, 5.5vw, 43px);
@@ -101,8 +101,8 @@ html, body {
 
   /* Dark mode: white keys with Carolina blue text */
   :root.dark-mode .key {
-    background-color: white;
-    color: #7BAFD4;
+    background-color: white !important;
+    color: #7BAFD4 !important;
   }
 
   /* Keyboard key colors */
