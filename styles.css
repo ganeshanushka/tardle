@@ -66,9 +66,9 @@ html, body {
     box-sizing: border-box;
   }
 
-  /* Dark mode: Carolina blue letters */
+  /* Dark mode: white letters */
   :root.dark-mode .key-guess {
-    color: #7BAFD4;
+    color: white;
   }
   
   /* Darker border when box has a letter (like Wordle) */
