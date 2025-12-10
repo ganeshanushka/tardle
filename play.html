@@ -1107,6 +1107,7 @@
             // Handle toggle change
             highContrastToggle.addEventListener('change', function() {
               const isEnabled = this.checked;
+              console.log('High Contrast Mode toggled:', isEnabled);
               if (isEnabled) {
                 document.documentElement.classList.add('high-contrast-mode');
                 localStorage.setItem('highContrastMode', 'true');
@@ -1114,6 +1115,7 @@
                 document.documentElement.classList.remove('high-contrast-mode');
                 localStorage.setItem('highContrastMode', 'false');
               }
+              console.log('Root classes:', document.documentElement.classList.toString());
             });
           }
 

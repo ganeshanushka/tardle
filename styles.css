@@ -25,21 +25,26 @@ html, body {
   }
 
   /* High Contrast Mode - Override colors for accessibility */
-  :root.high-contrast-mode .container .correct {
-    background-color: var(--correct-color-hc);
+  /* Works in both light and dark mode */
+  :root.high-contrast-mode .container .correct,
+  :root.high-contrast-mode .key-guess.correct {
+    background-color: #f5793a !important;
   }
   
-  :root.high-contrast-mode .container .found {
-    background-color: var(--found-color-hc);
+  :root.high-contrast-mode .container .found,
+  :root.high-contrast-mode .key-guess.found {
+    background-color: #85c0f9 !important;
   }
   
   /* Keyboard colors in high contrast mode */
   :root.high-contrast-mode .key.correct {
-    background-color: var(--correct-color-hc) !important;
+    background-color: #f5793a !important;
+    color: white !important;
   }
   
   :root.high-contrast-mode .key.found {
-    background-color: var(--found-color-hc) !important;
+    background-color: #85c0f9 !important;
+    color: white !important;
   }
   
   .key-guess {
@@ -119,6 +124,11 @@ html, body {
   .key.wrong {
     background-color: var(--wrong-color);
     color: white;
+  }
+
+  /* High Contrast Mode - Keyboard wrong keys stay the same */
+  :root.high-contrast-mode .key.wrong {
+    background-color: var(--wrong-color) !important;
   }
   
   #enter{
