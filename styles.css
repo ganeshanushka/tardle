@@ -23,6 +23,24 @@ html, body {
     border: 2px solid transparent;
     color: white;
   }
+
+  /* High Contrast Mode - Override colors for accessibility */
+  :root.high-contrast-mode .container .correct {
+    background-color: var(--correct-color-hc);
+  }
+  
+  :root.high-contrast-mode .container .found {
+    background-color: var(--found-color-hc);
+  }
+  
+  /* Keyboard colors in high contrast mode */
+  :root.high-contrast-mode .key.correct {
+    background-color: var(--correct-color-hc) !important;
+  }
+  
+  :root.high-contrast-mode .key.found {
+    background-color: var(--found-color-hc) !important;
+  }
   
   .key-guess {
     display: inline-flex;
@@ -73,6 +91,22 @@ html, body {
     padding: clamp(8px, 1.2vh, 10px) clamp(12px, 2vw, 16px);
     box-sizing: border-box;
     transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Keyboard key colors */
+  .key.correct {
+    background-color: var(--correct-color);
+    color: white;
+  }
+  
+  .key.found {
+    background-color: var(--found-color);
+    color: white;
+  }
+  
+  .key.wrong {
+    background-color: var(--wrong-color);
+    color: white;
   }
   
   #enter{

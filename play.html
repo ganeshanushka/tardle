@@ -25,6 +25,9 @@
     --popup-bg: #7BAFD4;
     --popup-text: white;
     --overlay: rgba(0, 0, 0, 0.5);
+    /* High contrast colors */
+    --correct-color-hc: #f5793a;
+    --found-color-hc: #85c0f9;
   }
 
   /* CSS Variables for Dark Theme */
@@ -45,6 +48,9 @@
     --popup-bg: #1a1a1a;
     --popup-text: #ffffff;
     --overlay: rgba(0, 0, 0, 0.7);
+    /* High contrast colors (same for dark mode) */
+    --correct-color-hc: #f5793a;
+    --found-color-hc: #85c0f9;
   }
 
   html {
@@ -1078,9 +1084,38 @@
             });
           }
 
-          // Initialize dark mode on page load
+          // High Contrast Mode toggle functionality
+          function initHighContrastMode() {
+            const highContrastToggle = document.getElementById('highContrastToggle');
+            if (!highContrastToggle) return;
+
+            // Load saved preference
+            const savedPreference = localStorage.getItem('highContrastMode');
+            const isHighContrast = savedPreference === 'true';
+            
+            // Set initial state
+            highContrastToggle.checked = isHighContrast;
+            if (isHighContrast) {
+              document.documentElement.classList.add('high-contrast-mode');
+            }
+
+            // Handle toggle change
+            highContrastToggle.addEventListener('change', function() {
+              const isEnabled = this.checked;
+              if (isEnabled) {
+                document.documentElement.classList.add('high-contrast-mode');
+                localStorage.setItem('highContrastMode', 'true');
+              } else {
+                document.documentElement.classList.remove('high-contrast-mode');
+                localStorage.setItem('highContrastMode', 'false');
+              }
+            });
+          }
+
+          // Initialize dark mode and high contrast mode on page load
           document.addEventListener('DOMContentLoaded', function() {
             initDarkMode();
+            initHighContrastMode();
           });
 
           // Close settings modal when clicking outside
