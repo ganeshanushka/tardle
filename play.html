@@ -533,6 +533,155 @@
     display: none !important;
   }
 
+  /* How to Play Modal */
+  #helpModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10001;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  #helpModal.hidden {
+    display: none !important;
+  }
+
+  .help-modal-content {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    border-radius: 8px;
+    width: min(600px, 90vw);
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    position: relative;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    padding: clamp(20px, 3vh, 30px) clamp(25px, 4vw, 35px);
+  }
+
+  .help-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: clamp(20px, 3vh, 30px);
+    padding-bottom: clamp(15px, 2vh, 20px);
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .help-modal-header h1 {
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    font-size: clamp(24px, 4vw, 32px);
+    font-weight: bold;
+    margin: 0;
+    color: var(--text-primary);
+  }
+
+  .help-close-btn {
+    font-size: clamp(28px, 4vw, 32px);
+    font-weight: bold;
+    color: var(--text-primary);
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    line-height: 1;
+    transition: opacity 0.2s ease;
+  }
+
+  .help-close-btn:hover {
+    opacity: 0.7;
+  }
+
+  .help-content p {
+    color: var(--text-primary);
+    line-height: 1.6;
+    margin-bottom: clamp(15px, 2vh, 20px);
+    font-size: clamp(14px, 2vw, 16px);
+  }
+
+  .help-content ul {
+    color: var(--text-primary);
+    margin-bottom: clamp(20px, 3vh, 30px);
+    padding-left: clamp(20px, 3vw, 30px);
+  }
+
+  .help-content li {
+    margin-bottom: clamp(8px, 1vh, 12px);
+    font-size: clamp(14px, 2vw, 16px);
+    line-height: 1.6;
+  }
+
+  .help-content h2 {
+    color: var(--text-primary);
+    font-size: clamp(18px, 3vw, 22px);
+    margin-top: clamp(25px, 4vh, 35px);
+    margin-bottom: clamp(15px, 2vh, 20px);
+  }
+
+  .help-example {
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    padding: clamp(12px, 2vh, 16px);
+    margin: clamp(15px, 2.5vh, 20px) 0;
+  }
+
+  .help-word-grid {
+    display: flex;
+    gap: 4px;
+    margin-bottom: clamp(8px, 1vh, 12px);
+  }
+
+  .help-cell {
+    width: clamp(35px, 5vw, 40px);
+    height: clamp(35px, 5vw, 40px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: clamp(18px, 2.5vw, 24px);
+    color: var(--text-primary);
+  }
+
+  .help-cell.correct {
+    background-color: var(--correct-color);
+    color: white;
+    border-color: transparent;
+  }
+
+  .help-cell.present {
+    background-color: var(--found-color);
+    color: white;
+    border-color: transparent;
+  }
+
+  .help-cell.absent {
+    background-color: var(--wrong-color);
+    color: white;
+    border-color: transparent;
+  }
+
+  .help-content hr {
+    border: none;
+    border-top: 1px solid var(--border-color);
+    margin: clamp(25px, 4vh, 35px) 0;
+  }
+
+  .help-content a {
+    color: #7BAFD4;
+    text-decoration: none;
+  }
+
+  .help-content a:hover {
+    text-decoration: underline;
+  }
+
   .settings-modal-content {
     background-color: var(--bg-primary);
     color: var(--text-primary);
@@ -1030,6 +1179,59 @@
               </div>
             </div>
           </div>
+
+          <!-- How to Play Modal -->
+          <div id="helpModal" class="hidden">
+            <div class="help-modal-content">
+              <div class="help-modal-header">
+                <h1>How To Play</h1>
+                <button class="help-close-btn" onclick="closeHelpModal()">×</button>
+              </div>
+              <div class="help-content">
+                <p>Guess the carolina word in 6 tries.</p>
+                <ul>
+                  <li>Each guess must be a valid word with the same number of letters as boxes.</li>
+                  <li>The color of the tiles will change to show how close your guess was to the word.</li>
+                </ul>
+                <h2>Examples</h2>
+                <div class="help-example">
+                  <div class="help-word-grid">
+                    <div class="help-cell correct">M</div>
+                    <div class="help-cell">A</div>
+                    <div class="help-cell">W</div>
+                  </div>
+                  <p><strong>M</strong> is in the word and in the correct spot.</p>
+                </div>
+                <div class="help-example">
+                  <div class="help-word-grid">
+                    <div class="help-cell">D</div>
+                    <div class="help-cell present">A</div>
+                    <div class="help-cell">V</div>
+                    <div class="help-cell">I</div>
+                    <div class="help-cell">S</div>
+                  </div>
+                  <p><strong>A</strong> is in the word but in the wrong spot.</p>
+                </div>
+                <div class="help-example">
+                  <div class="help-word-grid">
+                    <div class="help-cell">L</div>
+                    <div class="help-cell">E</div>
+                    <div class="help-cell absent">N</div>
+                    <div class="help-cell">O</div>
+                    <div class="help-cell">I</div>
+                    <div class="help-cell">R</div>
+                  </div>
+                  <p><strong>N</strong> is not in the word in any spot.</p>
+                </div>
+                <hr>
+                <p>
+                  <a href="login.html">Log in or create a free account</a> to link your stats.
+                </p>
+                <hr>
+                <p>A new puzzle is released daily at midnight. If you haven't already, you can <a href="login.html">sign up</a> for our daily reminder email.</p>
+              </div>
+            </div>
+          </div>
         <script>
           function goBack() {
             window.history.back();
@@ -1073,9 +1275,17 @@
           }
 
           function handleHelpClick() {
-            // Add help functionality here
-            console.log('Help clicked');
-            window.location.href = 'how-to-play.html';
+            const helpModal = document.getElementById('helpModal');
+            if (helpModal) {
+              helpModal.classList.remove('hidden');
+            }
+          }
+
+          function closeHelpModal() {
+            const helpModal = document.getElementById('helpModal');
+            if (helpModal) {
+              helpModal.classList.add('hidden');
+            }
           }
 
           function handleSettingsClick() {
@@ -1163,6 +1373,15 @@
               const modalContent = settingsModal.querySelector('.settings-modal-content');
               if (modalContent && !modalContent.contains(event.target) && !event.target.closest('.settings-icon')) {
                 closeSettingsModal();
+              }
+            }
+            
+            // Close help modal when clicking outside
+            const helpModal = document.getElementById('helpModal');
+            if (helpModal && !helpModal.classList.contains('hidden')) {
+              const helpModalContent = helpModal.querySelector('.help-modal-content');
+              if (helpModalContent && !helpModalContent.contains(event.target) && !event.target.closest('.help-icon')) {
+                closeHelpModal();
               }
             }
           });
