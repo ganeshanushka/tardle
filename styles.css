@@ -127,6 +127,22 @@ html, body {
     color: white;
   }
 
+  /* Ensure dark-mode keys also pick up the state colors (override base white keys) */
+  :root.dark-mode .key.correct {
+    background-color: var(--correct-color);
+    color: white;
+  }
+
+  :root.dark-mode .key.found {
+    background-color: var(--found-color);
+    color: white;
+  }
+
+  :root.dark-mode .key.wrong {
+    background-color: var(--wrong-color);
+    color: white;
+  }
+
   /* High Contrast Mode - Keyboard wrong keys stay the same */
   :root.high-contrast-mode .key.wrong {
     background-color: var(--wrong-color) !important;
