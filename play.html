@@ -833,8 +833,8 @@
   .toggle-switch {
     position: relative;
     display: inline-block;
-    width: clamp(44px, 6vw, 50px);
-    height: clamp(24px, 3.5vw, 28px);
+    width: 40px;
+    height: 22px;
     flex-shrink: 0;
   }
 
@@ -851,29 +851,43 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #ccc;
-    transition: 0.3s;
-    border-radius: clamp(24px, 3.5vw, 28px);
+    background-color: #d3d6da;
+    transition: 0.25s ease;
+    border-radius: 999px;
+    box-shadow: inset 0 0 0 1px #d3d6da;
   }
 
   .toggle-slider:before {
     position: absolute;
     content: "";
-    height: clamp(18px, 2.5vw, 22px);
-    width: clamp(18px, 2.5vw, 22px);
-    left: clamp(3px, 0.5vw, 4px);
-    bottom: clamp(3px, 0.5vw, 4px);
-    background-color: white;
-    transition: 0.3s;
+    height: 18px;
+    width: 18px;
+    left: 2px;
+    bottom: 2px;
+    background-color: #ffffff;
+    transition: 0.25s ease;
     border-radius: 50%;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
   }
 
   .toggle-switch input:checked + .toggle-slider {
     background-color: #7BAFD4;
+    box-shadow: inset 0 0 0 1px #7BAFD4;
   }
 
   .toggle-switch input:checked + .toggle-slider:before {
-    transform: translateX(clamp(20px, 3vw, 24px));
+    transform: translateX(18px);
+  }
+
+  /* Dark mode toggles */
+  :root.dark-mode .toggle-slider {
+    background-color: #3a3a3c;
+    box-shadow: inset 0 0 0 1px #565758;
+  }
+
+  :root.dark-mode .toggle-switch input:checked + .toggle-slider {
+    background-color: #7BAFD4;
+    box-shadow: inset 0 0 0 1px #7BAFD4;
   }
 
 /* Success message popup - positioned on top of first row like Wordle */
