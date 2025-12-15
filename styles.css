@@ -104,10 +104,11 @@ html, body {
     display: inline-block;
   }
 
-  /* Dark mode: white keys with Carolina blue text */
+  /* Dark mode: white keys with Carolina blue text.
+     State classes (.key.correct/.found/.wrong) defined below will override these. */
   :root.dark-mode .key {
-    background-color: white !important;
-    color: #7BAFD4 !important;
+    background-color: white;
+    color: #7BAFD4;
   }
 
   /* Keyboard key colors */

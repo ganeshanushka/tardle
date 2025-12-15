@@ -556,16 +556,17 @@
   }
 
   .help-modal-content {
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
-    border-radius: 8px;
-    width: min(600px, 90vw);
+    /* Light theme: match Wordle-style help modal */
+    background-color: #ffffff;
+    color: #1a1a1b;
+    border-radius: 12px;
+    width: min(640px, 95vw);
     max-height: 90vh;
     overflow-y: auto;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 0 1px #d3d6da, 0 8px 24px rgba(0, 0, 0, 0.35);
     position: relative;
     transition: background-color 0.3s ease, color 0.3s ease;
-    padding: clamp(20px, 3vh, 30px) clamp(25px, 4vw, 35px);
+    padding: 32px 40px 32px 40px;
   }
 
   .help-modal-header {
@@ -578,11 +579,11 @@
   }
 
   .help-modal-header h1 {
-    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
-    font-size: clamp(24px, 4vw, 32px);
-    font-weight: bold;
+    font-family: 'PT Serif', Georgia, 'Times New Roman', serif;
+    font-size: 32px;
+    font-weight: 700;
     margin: 0;
-    color: var(--text-primary);
+    color: #1a1a1b;
   }
 
   .help-close-btn {
@@ -602,55 +603,55 @@
   }
 
   .help-content p {
-    color: var(--text-primary);
+    color: #1a1a1b;
     line-height: 1.6;
-    margin-bottom: clamp(15px, 2vh, 20px);
-    font-size: clamp(14px, 2vw, 16px);
+    margin-bottom: 16px;
+    font-size: 16px;
   }
 
   .help-content ul {
-    color: var(--text-primary);
-    margin-bottom: clamp(20px, 3vh, 30px);
-    padding-left: clamp(20px, 3vw, 30px);
+    color: #1a1a1b;
+    margin-bottom: 24px;
+    padding-left: 24px;
   }
 
   .help-content li {
-    margin-bottom: clamp(8px, 1vh, 12px);
-    font-size: clamp(14px, 2vw, 16px);
+    margin-bottom: 8px;
+    font-size: 16px;
     line-height: 1.6;
   }
 
   .help-content h2 {
-    color: var(--text-primary);
-    font-size: clamp(18px, 3vw, 22px);
-    margin-top: clamp(25px, 4vh, 35px);
-    margin-bottom: clamp(15px, 2vh, 20px);
+    color: #1a1a1b;
+    font-size: 18px;
+    margin-top: 24px;
+    margin-bottom: 12px;
   }
 
   .help-example {
-    background-color: var(--bg-secondary);
-    border-radius: 8px;
-    padding: clamp(12px, 2vh, 16px);
-    margin: clamp(15px, 2.5vh, 20px) 0;
+    background-color: transparent;
+    border-radius: 0;
+    padding: 8px 0 12px 0;
+    margin: 8px 0 16px 0;
   }
 
   .help-word-grid {
     display: flex;
     gap: 4px;
-    margin-bottom: clamp(8px, 1vh, 12px);
+    margin-bottom: 6px;
   }
 
   .help-cell {
-    width: clamp(35px, 5vw, 40px);
-    height: clamp(35px, 5vw, 40px);
+    width: 40px;
+    height: 40px;
     display: flex;
     justify-content: center;
     align-items: center;
-    border: 2px solid var(--border-color);
+    border: 2px solid #878a8c;
     border-radius: 4px;
-    font-weight: bold;
-    font-size: clamp(18px, 2.5vw, 24px);
-    color: var(--text-primary);
+    font-weight: 700;
+    font-size: 20px;
+    color: #1a1a1b;
   }
 
   .help-cell.correct {
@@ -673,17 +674,75 @@
 
   .help-content hr {
     border: none;
-    border-top: 1px solid var(--border-color);
-    margin: clamp(25px, 4vh, 35px) 0;
+    border-top: 1px solid #d3d6da;
+    margin: 24px 0;
   }
 
   .help-content a {
-    color: #7BAFD4;
+    color: #1a73e8;
     text-decoration: none;
   }
 
   .help-content a:hover {
     text-decoration: underline;
+  }
+
+  /* How To Play modal - dark theme fine‑tuning to match Wordle layout */
+  :root.dark-mode #helpModal .help-modal-content {
+    background-color: #121213;
+    color: #ffffff;
+    border-radius: 12px;
+    width: min(640px, 95vw);
+    padding: 32px 40px 32px 40px;
+    box-shadow: 0 0 0 1px #3a3a3c, 0 8px 24px rgba(0, 0, 0, 0.6);
+  }
+
+  :root.dark-mode #helpModal .help-modal-header {
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #3a3a3c;
+  }
+
+  :root.dark-mode #helpModal .help-modal-header h1 {
+    font-family: 'PT Serif', Georgia, 'Times New Roman', serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: #ffffff;
+  }
+
+  :root.dark-mode #helpModal .help-close-btn {
+    color: #d3d6da;
+  }
+
+  :root.dark-mode #helpModal .help-content p,
+  :root.dark-mode #helpModal .help-content li {
+    color: #d3d6da;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  :root.dark-mode #helpModal .help-content h2 {
+    color: #ffffff;
+    font-size: 18px;
+    margin-top: 24px;
+    margin-bottom: 12px;
+  }
+
+  :root.dark-mode #helpModal .help-example {
+    background-color: #121213;
+    border-radius: 0;
+    padding: 8px 0 12px 0;
+    margin: 8px 0 16px 0;
+  }
+
+  :root.dark-mode #helpModal .help-word-grid {
+    margin-bottom: 6px;
+  }
+
+  :root.dark-mode #helpModal .help-cell {
+    background-color: #121213;
+    border-color: #3a3a3c;
+    color: #ffffff;
   }
 
   .settings-modal-content {
