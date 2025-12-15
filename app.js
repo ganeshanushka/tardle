@@ -70,7 +70,7 @@ let words = [
 
     // 4 letter words
     'Hojo', 'Cobb', 'Rams', 'Navy', 'Quad', 'Yopo', 'Buns', 'Dook', 'Maye', 'Mack', 'Pete', 'Seth', 'Blue', 'Topo',
-    'Bolo', 'Well', 'ROTC', 'LWOC', 'LDOC', 'FDOC', 'FWOC', 'Yaya', 'Moge', 'Cuab', 'SASB', 'hell', 
+    'Bolo', 'Well', 'ROTC', 'LWOC', 'LDOC', 'FDOC', 'FWOC', 'Yaya', 'Moge', 'Cuab', 'SASB',
 
 
     // 5 letter words
