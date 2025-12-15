@@ -592,11 +592,7 @@ function showAlert(message) {
         popup.classList.remove('hidden');
         popup.style.display = 'flex'; // Use flex to match CSS
     }
-
-    setTimeout(() => {
-        closePopup();
-        showStatsPopup();
-    }, 2000);
+    // Answer popup remains visible and does not auto-close
 }
 
 
