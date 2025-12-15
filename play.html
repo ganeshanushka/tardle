@@ -548,7 +548,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: rgba(0, 0, 0, 0.5);
+    /* Light theme: match how-to-play page background */
+    background-color: #7BAFD4;
   }
 
   #helpModal.hidden {
@@ -579,7 +580,8 @@
   }
 
   .help-modal-header h1 {
-    font-family: 'PT Serif', Georgia, 'Times New Roman', serif;
+    /* Match the Tardle heading font */
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
     font-size: 32px;
     font-weight: 700;
     margin: 0;
@@ -688,6 +690,10 @@
   }
 
   /* How To Play modal - dark theme fine‑tuning to match Wordle layout */
+  :root.dark-mode #helpModal {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
   :root.dark-mode #helpModal .help-modal-content {
     background-color: #121213;
     color: #ffffff;
@@ -704,7 +710,8 @@
   }
 
   :root.dark-mode #helpModal .help-modal-header h1 {
-    font-family: 'PT Serif', Georgia, 'Times New Roman', serif;
+    /* Match the Tardle heading font in dark mode as well */
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
     font-size: 32px;
     font-weight: 700;
     color: #ffffff;
