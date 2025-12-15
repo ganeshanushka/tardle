@@ -492,6 +492,22 @@
 
 .hidden { display: none !important; }
 
+  /* Ensure dark-mode keyboard keys get their state colors just like light mode */
+  :root.dark-mode .key.correct {
+    background-color: var(--correct-color) !important;
+    color: white !important;
+  }
+
+  :root.dark-mode .key.found {
+    background-color: var(--found-color) !important;
+    color: white !important;
+  }
+
+  :root.dark-mode .key.wrong {
+    background-color: var(--wrong-color) !important;
+    color: white !important;
+  }
+
 /* Popup container styles */
 #invalidWordPopup,
 #notEnoughLettersPopup {
