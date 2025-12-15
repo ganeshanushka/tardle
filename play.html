@@ -548,8 +548,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    /* Light theme: match how-to-play page background */
-    background-color: #7BAFD4;
+    /* Use translucent overlay so the game background is still visible */
+    background-color: rgba(0, 0, 0, 0.5);
   }
 
   #helpModal.hidden {
@@ -606,31 +606,13 @@
   }
 
   .help-content p {
+    /* Match how-to-play.html <p> */
     color: #000000;
-    line-height: 1.4;
-    margin-top: 0;
-    margin-bottom: 15px;
-    font-size: 1em; /* base like standalone page; first paragraph is enlarged below */
-    font-family: 'PT Serif', sans-serif;
-  }
-
-  /* First paragraph under the heading ("Guess the carolina word in 6 tries.") */
-  .help-content > p:first-of-type {
-    font-size: 1.5em;
     line-height: 1.1;
-  }
-
-  .help-content ul {
-    color: #000000;
+    margin-top: 0;
+    font-size: 1.5em;
     margin-bottom: 15px;
-    padding-left: 20px;
     font-family: 'PT Serif', sans-serif;
-  }
-
-  .help-content li {
-    margin-bottom: 6px;
-    font-size: 1em;
-    line-height: 1.4;
   }
 
   .help-content h2 {
@@ -653,6 +635,12 @@
     color: #333333;
     font-size: 1em;
     font-family: Arial, sans-serif;
+  }
+
+  /* Match smaller copy sizes for account + daily reminder text */
+  .help-content .account-prompt p,
+  .help-content .daily-reminder p {
+    font-size: 1em;
   }
 
   .help-word-grid {
@@ -710,10 +698,6 @@
   }
 
   /* How To Play modal - dark theme fine‑tuning to match Wordle layout */
-  :root.dark-mode #helpModal {
-    background-color: rgba(0, 0, 0, 0.5);
-  }
-
   :root.dark-mode #helpModal .help-modal-content {
     background-color: #121213;
     color: #ffffff;
@@ -1328,11 +1312,15 @@
                   <p><strong>N</strong> is not in the word in any spot.</p>
                 </div>
                 <hr>
-                <p>
-                  <a href="login.html">Log in or create a free account</a> to link your stats.
-                </p>
+                <div class="account-prompt">
+                  <p>
+                    <a href="login.html">Log in or create a free account</a> to link your stats.
+                  </p>
+                </div>
                 <hr>
-                <p>A new puzzle is released daily at midnight. If you haven't already, you can <a href="login.html">sign up</a> for our daily reminder email.</p>
+                <div class="daily-reminder">
+                  <p>A new puzzle is released daily at midnight. If you haven't already, you can <a href="login.html">sign up</a> for our daily reminder email.</p>
+                </div>
               </div>
             </div>
           </div>
