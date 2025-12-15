@@ -607,15 +607,22 @@
 
   .help-content p {
     color: #000000;
-    line-height: 1.5;
-    margin-bottom: 12px;
-    font-size: 1.25em;
+    line-height: 1.4;
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1em; /* base like standalone page; first paragraph is enlarged below */
     font-family: 'PT Serif', sans-serif;
+  }
+
+  /* First paragraph under the heading ("Guess the carolina word in 6 tries.") */
+  .help-content > p:first-of-type {
+    font-size: 1.5em;
+    line-height: 1.1;
   }
 
   .help-content ul {
     color: #000000;
-    margin-bottom: 16px;
+    margin-bottom: 15px;
     padding-left: 20px;
     font-family: 'PT Serif', sans-serif;
   }
@@ -639,6 +646,13 @@
     border-radius: 10px;
     padding: 6px;
     margin: 10px 0;
+  }
+
+  .help-example p {
+    margin: 2px 0;
+    color: #333333;
+    font-size: 1em;
+    font-family: Arial, sans-serif;
   }
 
   .help-word-grid {
