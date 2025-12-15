@@ -1134,6 +1134,18 @@
     background-color: #f5f5f5;
   }
 
+  /* Force login prompt to use same color scheme in both light and dark themes */
+  :root.dark-mode .login-prompt-content {
+    background-color: #7BAFD4 !important;
+    color: white !important;
+  }
+
+  :root.dark-mode .login-prompt-heading,
+  :root.dark-mode .login-prompt-text,
+  :root.dark-mode .login-prompt-close {
+    color: white !important;
+  }
+
 </style>
 </head>
 
