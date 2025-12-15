@@ -833,8 +833,8 @@
   .toggle-switch {
     position: relative;
     display: inline-block;
-    width: 40px;
-    height: 22px;
+    width: 44px;   /* a bit wider for a smoother pill shape */
+    height: 24px;
     flex-shrink: 0;
   }
 
@@ -860,9 +860,9 @@
   .toggle-slider:before {
     position: absolute;
     content: "";
-    height: 18px;
-    width: 18px;
-    left: 2px;
+    height: 20px;
+    width: 20px;
+    left: 2px;    /* 2px inset on all sides so the thumb sits cleanly inside */
     bottom: 2px;
     background-color: #ffffff;
     transition: 0.25s ease;
@@ -876,7 +876,7 @@
   }
 
   .toggle-switch input:checked + .toggle-slider:before {
-    transform: translateX(18px);
+    transform: translateX(20px); /* move exactly from one padded side to the other */
   }
 
   /* Dark mode toggles */
