@@ -564,8 +564,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    /* Use translucent overlay so the game background is still visible */
-    background-color: rgba(0, 0, 0, 0.5);
+    /* Match standalone how-to-play.html background */
+    background-color: #7BAFD4;
   }
 
   #helpModal.hidden {
@@ -573,10 +573,11 @@
   }
 
   .help-modal-content {
-    /* Light theme: reuse standalone how-to-play page card styles */
+    /* Match standalone how-to-play.html exactly */
     background-color: #ffffff;
     color: #000000;
     border-radius: 0;
+    max-width: 600px;
     width: min(600px, 95vw);
     max-height: 90vh;
     overflow-y: auto;
@@ -584,6 +585,7 @@
     position: relative;
     transition: background-color 0.3s ease, color 0.3s ease;
     padding: 20px 30px;
+    margin: auto;
   }
 
   .help-modal-header {
@@ -750,63 +752,110 @@
     border-color: transparent;
   }
 
-  /* How To Play modal - dark theme fine‑tuning to match Wordle layout */
+  /* How To Play modal - dark theme: still use Carolina blue background like standalone page */
+  :root.dark-mode #helpModal {
+    background-color: #7BAFD4;
+  }
+
   :root.dark-mode #helpModal .help-modal-content {
-    background-color: #121213;
-    color: #ffffff;
-    border-radius: 12px;
-    width: min(640px, 95vw);
-    padding: 32px 40px 32px 40px;
-    box-shadow: 0 0 0 1px #3a3a3c, 0 8px 24px rgba(0, 0, 0, 0.6);
+    background-color: #ffffff;
+    color: #000000;
+    border-radius: 0;
+    max-width: 600px;
+    width: min(600px, 95vw);
+    padding: 20px 30px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
   }
 
   :root.dark-mode #helpModal .help-modal-header {
-    margin-bottom: 24px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid #3a3a3c;
+    margin-bottom: 16px;
+    padding-bottom: 0;
+    border-bottom: none;
   }
 
   :root.dark-mode #helpModal .help-modal-header h1 {
-    /* Match the Tardle heading font in dark mode as well */
-    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
-    font-size: 32px;
+    /* Match standalone how-to-play heading */
+    font-family: 'PT Serif', sans-serif;
+    font-size: 2em;
     font-weight: 700;
-    color: #ffffff;
+    line-height: 1.2;
+    margin: 0 0 0.25em 0;
+    color: #000000;
   }
 
   :root.dark-mode #helpModal .help-close-btn {
-    color: #d3d6da;
+    color: #000000;
   }
 
   :root.dark-mode #helpModal .help-content p,
   :root.dark-mode #helpModal .help-content li {
-    color: #d3d6da;
-    font-size: 16px;
-    line-height: 1.6;
+    color: #000000;
+    font-size: 1.5em;
+    line-height: 1.1;
+    margin-bottom: 15px;
   }
 
   :root.dark-mode #helpModal .help-content h2 {
-    color: #ffffff;
-    font-size: 18px;
-    margin-top: 24px;
-    margin-bottom: 12px;
+    color: #000000;
+    font-size: 1.5em;
+    margin-top: 0;
+    margin-bottom: 0;
   }
 
   :root.dark-mode #helpModal .help-example {
-    background-color: #121213;
-    border-radius: 0;
-    padding: 8px 0 12px 0;
-    margin: 8px 0 16px 0;
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 6px;
+    margin: 10px 0;
   }
 
   :root.dark-mode #helpModal .help-word-grid {
-    margin-bottom: 6px;
+    margin-bottom: 10px;
   }
 
   :root.dark-mode #helpModal .help-cell {
-    background-color: #121213;
-    border-color: #3a3a3c;
-    color: #ffffff;
+    background-color: #ffffff;
+    border-color: #333;
+    color: #000000;
+  }
+
+  /* Colored cells in dark mode still use their colors with white text */
+  :root.dark-mode #helpModal .help-cell.correct {
+    background-color: var(--correct-color);
+    color: white;
+    border-color: transparent;
+  }
+
+  :root.dark-mode #helpModal .help-cell.present {
+    background-color: var(--found-color);
+    color: white;
+    border-color: transparent;
+  }
+
+  :root.dark-mode #helpModal .help-cell.absent {
+    background-color: var(--wrong-color);
+    color: white;
+    border-color: transparent;
+  }
+
+  :root.dark-mode #helpModal .help-content hr {
+    border-top: 1px solid #d3d6da;
+  }
+
+  :root.dark-mode #helpModal .help-content a {
+    color: #0000EE;
+  }
+
+  :root.dark-mode #helpModal .help-content .account-prompt p,
+  :root.dark-mode #helpModal .help-content .daily-reminder p {
+    color: #000000;
+    font-size: 1em;
+  }
+
+  :root.dark-mode #helpModal .help-example p {
+    color: #333333;
+    font-size: 1em;
+    font-family: Arial, sans-serif;
   }
 
   /* High Contrast Mode modal - dark theme */
