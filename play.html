@@ -564,8 +564,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    /* Match standalone how-to-play.html background */
-    background-color: #7BAFD4;
+    /* Use translucent overlay so the game background is visible */
+    background-color: rgba(0, 0, 0, 0.5);
   }
 
   #helpModal.hidden {
@@ -755,9 +755,9 @@
     border-color: transparent;
   }
 
-  /* How To Play modal - dark theme: still use Carolina blue background like standalone page */
+  /* How To Play modal - dark theme: use translucent overlay to show game background */
   :root.dark-mode #helpModal {
-    background-color: #7BAFD4;
+    background-color: rgba(0, 0, 0, 0.5);
   }
 
   :root.dark-mode #helpModal .help-modal-content {
