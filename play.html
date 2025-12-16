@@ -668,6 +668,7 @@
     display: flex;
     gap: 4px;
     margin-bottom: 4px;
+    perspective: 1000px; /* For 3D flip effect */
   }
 
   .help-cell {
@@ -682,21 +683,44 @@
     font-size: 1.5em;
     color: #000000;
     font-family: Arial, sans-serif;
+    background-color: #ffffff;
+    transition: background-color 0s, color 0s, border-color 0s;
   }
 
-  .help-cell.correct {
+  /* Flip animation for help cells */
+  .help-cell.flip {
+    animation: flip 0.8s ease-in-out;
+  }
+
+  @keyframes flip {
+    0% { transform: rotateX(0); }
+    50% { transform: rotateX(-90deg); }
+    100% { transform: rotateX(0); }
+  }
+
+  /* Initial state: colored cells start as white with black text */
+  .help-cell.correct,
+  .help-cell.present,
+  .help-cell.absent {
+    background-color: #ffffff;
+    color: #000000;
+    border-color: #333333;
+  }
+
+  /* Revealed state: colored cells show their colors */
+  .help-cell.correct.revealed {
     background-color: var(--correct-color);
     color: white;
     border-color: transparent;
   }
 
-  .help-cell.present {
+  .help-cell.present.revealed {
     background-color: var(--found-color);
     color: white;
     border-color: transparent;
   }
 
-  .help-cell.absent {
+  .help-cell.absent.revealed {
     background-color: var(--wrong-color);
     color: white;
     border-color: transparent;
@@ -825,20 +849,29 @@
     color: #000000;
   }
 
-  /* Colored cells in dark mode still use their colors with white text */
-  :root.dark-mode #helpModal .help-cell.correct {
+  /* Initial state: colored cells start as white with black text */
+  :root.dark-mode #helpModal .help-cell.correct,
+  :root.dark-mode #helpModal .help-cell.present,
+  :root.dark-mode #helpModal .help-cell.absent {
+    background-color: #ffffff;
+    color: #000000;
+    border-color: #333;
+  }
+
+  /* Revealed state: colored cells show their colors with white text */
+  :root.dark-mode #helpModal .help-cell.correct.revealed {
     background-color: var(--correct-color);
     color: white;
     border-color: transparent;
   }
 
-  :root.dark-mode #helpModal .help-cell.present {
+  :root.dark-mode #helpModal .help-cell.present.revealed {
     background-color: var(--found-color);
     color: white;
     border-color: transparent;
   }
 
-  :root.dark-mode #helpModal .help-cell.absent {
+  :root.dark-mode #helpModal .help-cell.absent.revealed {
     background-color: var(--wrong-color);
     color: white;
     border-color: transparent;
@@ -1613,6 +1646,35 @@
             const helpModal = document.getElementById('helpModal');
             if (helpModal) {
               helpModal.classList.remove('hidden');
+              
+              // Reset all colored cells to initial state
+              const coloredCells = helpModal.querySelectorAll('.help-cell.correct, .help-cell.present, .help-cell.absent');
+              coloredCells.forEach(cell => {
+                cell.classList.remove('revealed', 'flip');
+              });
+              
+              // After 1 second, flip the colored tiles
+              setTimeout(() => {
+                const flipDelay = 100; // Delay between each flip (in milliseconds)
+                const flipDuration = 800; // Duration of each flip animation (in milliseconds)
+                
+                coloredCells.forEach((cell, index) => {
+                  setTimeout(() => {
+                    // Add flip animation
+                    cell.classList.add('flip');
+                    
+                    // Reveal the color at the midpoint of the flip (when it's rotated 90 degrees)
+                    setTimeout(() => {
+                      cell.classList.add('revealed');
+                    }, flipDuration / 2); // Half of the flip duration (400ms)
+                    
+                    // Remove flip class after animation completes
+                    setTimeout(() => {
+                      cell.classList.remove('flip');
+                    }, flipDuration);
+                  }, index * flipDelay);
+                });
+              }, 1000); // Wait 1 second after popup appears
             }
           }
 
@@ -1620,6 +1682,12 @@
             const helpModal = document.getElementById('helpModal');
             if (helpModal) {
               helpModal.classList.add('hidden');
+              
+              // Reset all colored cells to initial state for next time
+              const coloredCells = helpModal.querySelectorAll('.help-cell.correct, .help-cell.present, .help-cell.absent');
+              coloredCells.forEach(cell => {
+                cell.classList.remove('revealed', 'flip');
+              });
             }
           }
 
