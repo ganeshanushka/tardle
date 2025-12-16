@@ -29,14 +29,22 @@ html, body {
   :root.high-contrast-mode .container .correct,
   :root.high-contrast-mode .key-guess.correct {
     background-color: #f5793a !important;
+    color: white !important;
   }
   
   :root.high-contrast-mode .container .found,
   :root.high-contrast-mode .key-guess.found {
     background-color: #85c0f9 !important;
+    color: white !important;
   }
   
-  /* Keyboard colors in high contrast mode */
+  :root.high-contrast-mode .container .wrong,
+  :root.high-contrast-mode .key-guess.wrong {
+    background-color: var(--wrong-color) !important;
+    color: white !important;
+  }
+  
+  /* Keyboard colors in high contrast mode - match grid colors exactly */
   :root.high-contrast-mode .key.correct {
     background-color: #f5793a !important;
     color: white !important;
@@ -143,9 +151,10 @@ html, body {
     color: white;
   }
 
-  /* High Contrast Mode - Keyboard wrong keys stay the same */
+  /* High Contrast Mode - Keyboard wrong keys match grid */
   :root.high-contrast-mode .key.wrong {
     background-color: var(--wrong-color) !important;
+    color: white !important;
   }
   
   #enter{

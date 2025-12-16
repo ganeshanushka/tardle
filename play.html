@@ -601,10 +601,10 @@
     background-color: #ffffff;
     color: #000000;
     border-radius: 0;
-    max-width: 650px;
-    width: min(650px, 90vw);
-    height: min(650px, 90vw); /* Make it square */
-    max-height: min(650px, 90vw, 90vh);
+    max-width: 490px; /* 1/4th smaller than 650px */
+    width: min(490px, 90vw);
+    height: min(490px, 90vw); /* Make it square */
+    max-height: min(490px, 90vw, 90vh);
     aspect-ratio: 1 / 1; /* Ensure square shape */
     overflow: hidden; /* No scrollbar */
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
@@ -663,8 +663,18 @@
     overflow: hidden;
   }
 
+  .help-content > p:first-of-type {
+    /* Intro text - make smaller to fit */
+    color: #000000;
+    line-height: 1.2;
+    margin-top: 0;
+    font-size: 1.1em;
+    margin-bottom: 10px;
+    font-family: 'PT Serif', sans-serif;
+  }
+
   .help-content p {
-    /* Match how-to-play.html <p> */
+    /* Other paragraphs */
     color: #000000;
     line-height: 1.2;
     margin-top: 0;
@@ -765,13 +775,13 @@
   }
 
   .help-content ul {
-    margin: 0 0 12px 0;
-    padding-left: 20px;
+    margin: 0 0 10px 0;
+    padding-left: 18px;
   }
 
   .help-content li {
-    margin-bottom: 6px;
-    font-size: 1.2em;
+    margin-bottom: 5px;
+    font-size: 1.0em;
     line-height: 1.2;
     font-family: 'PT Serif', sans-serif;
   }
@@ -838,10 +848,10 @@
     background-color: var(--bg-primary); /* Same as screen background */
     color: #ffffff; /* White text */
     border-radius: 0;
-    max-width: 650px;
-    width: min(650px, 90vw);
-    height: min(650px, 90vw); /* Make it square */
-    max-height: min(650px, 90vw, 90vh);
+    max-width: 490px; /* 1/4th smaller than 650px */
+    width: min(490px, 90vw);
+    height: min(490px, 90vw); /* Make it square */
+    max-height: min(490px, 90vw, 90vh);
     aspect-ratio: 1 / 1; /* Ensure square shape */
     overflow: hidden; /* No scrollbar */
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
@@ -885,7 +895,18 @@
     overflow: hidden;
   }
 
+  :root.dark-mode #helpModal .help-content > p:first-of-type {
+    /* Intro text - make smaller to fit */
+    color: #ffffff; /* White text */
+    line-height: 1.2;
+    margin-top: 0;
+    font-size: 1.1em;
+    margin-bottom: 10px;
+    font-family: 'PT Serif', sans-serif;
+  }
+
   :root.dark-mode #helpModal .help-content p {
+    /* Other paragraphs */
     color: #ffffff; /* White text */
     line-height: 1.2;
     margin-top: 0;
@@ -895,14 +916,14 @@
   }
 
   :root.dark-mode #helpModal .help-content ul {
-    margin: 0 0 12px 0;
-    padding-left: 20px;
+    margin: 0 0 10px 0;
+    padding-left: 18px;
   }
 
   :root.dark-mode #helpModal .help-content li {
     color: #ffffff; /* White text */
-    margin-bottom: 6px;
-    font-size: 1.2em;
+    margin-bottom: 5px;
+    font-size: 1.0em;
     line-height: 1.2;
     font-family: 'PT Serif', sans-serif;
   }
