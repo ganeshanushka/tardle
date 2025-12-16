@@ -597,145 +597,104 @@
   }
 
   .help-modal-content {
-    /* Match Wordle's How To Play popup exactly */
+    /* Match standalone how-to-play.html exactly */
     background-color: #ffffff;
     color: #000000;
-    border-radius: 8px;
-    max-width: 500px;
-    width: min(500px, 90vw);
-    max-height: 90vh;
+    border-radius: 0;
+    max-width: 540px;
+    width: min(540px, 90vw);
+    height: min(540px, 90vw); /* Make it square */
+    max-height: min(540px, 90vw, 85vh);
+    aspect-ratio: 1 / 1; /* Ensure square shape */
     overflow-y: auto;
-    box-shadow: 0 4px 23px 0 rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
     position: relative;
-    padding: 16px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    padding: 20px 30px;
     margin: auto;
     box-sizing: border-box;
+    /* Reset font-size to browser default (16px) so em units match standalone page */
     font-size: 16px;
   }
 
   .help-modal-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     margin-bottom: 16px;
     padding-bottom: 0;
     border-bottom: none;
   }
 
   .help-modal-header h1 {
-    /* Match Wordle's title - large bold serif */
-    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
-    font-size: 28px;
+    /* Match standalone how-to-play heading */
+    font-family: 'PT Serif', sans-serif;
+    font-size: 2em;
     font-weight: 700;
     line-height: 1.2;
-    margin: 0;
+    margin: 0 0 0.25em 0;
     color: #000000;
-    letter-spacing: 0.01em;
   }
 
   .help-close-btn {
-    /* Match Wordle's blue square close button */
-    width: 40px;
-    height: 40px;
-    font-size: 20px;
+    /* Match standalone how-to-play.html close button */
+    font-size: 28px;
     font-weight: bold;
-    color: #ffffff;
-    background-color: #1a1a1b;
-    border: none;
-    border-radius: 4px;
+    color: #000000;
     cursor: pointer;
+    background: none;
+    border: none;
     padding: 0;
     line-height: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.2s ease;
+    transition: opacity 0.2s ease;
   }
 
   .help-close-btn:hover {
-    background-color: #2a2a2b;
+    opacity: 0.7;
   }
 
-  .help-content {
-    padding: 0;
-  }
-
-  .help-content > p:first-of-type {
-    /* Main instruction - regular sans-serif */
+  .help-content p {
+    /* Match how-to-play.html <p> */
     color: #000000;
-    line-height: 1.5;
-    margin: 0 0 16px 0;
-    font-size: 16px;
-    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
-    font-weight: 400;
-  }
-
-  .help-content ul {
-    color: #000000;
-    margin: 0 0 24px 0;
-    padding-left: 20px;
-    font-size: 16px;
-    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
-    line-height: 1.5;
-  }
-
-  .help-content li {
-    margin-bottom: 8px;
-    line-height: 1.5;
+    line-height: 1.1;
+    margin-top: 0;
+    font-size: 1.5em;
+    margin-bottom: 15px;
+    font-family: 'PT Serif', sans-serif;
   }
 
   .help-content h2 {
     color: #000000;
-    font-size: 16px;
-    font-weight: 700;
-    margin: 0 0 16px 0;
-    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1.5em;
+    margin-top: 24px;
+    margin-bottom: 12px;
+    font-family: 'PT Serif', sans-serif;
   }
 
   .help-example {
-    background-color: transparent;
-    border-radius: 0;
-    padding: 0;
-    margin: 0 0 24px 0;
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 6px;
+    margin: 10px 0;
   }
 
   .help-example p {
-    margin: 8px 0 0 0;
-    color: #000000;
-    font-size: 16px;
-    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
-    line-height: 1.5;
+    margin: 2px 0;
+    color: #333333;
+    font-size: 1em;
+    font-family: Arial, sans-serif;
   }
 
-  .help-example p strong {
-    font-weight: 700;
-  }
-
-  /* Footer text styling */
-  .help-content .account-prompt,
-  .help-content .daily-reminder {
-    margin: 0;
-  }
-
+  /* Match smaller copy sizes for account + daily reminder text */
   .help-content .account-prompt p,
   .help-content .daily-reminder p {
-    font-size: 16px;
-    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
-    color: #000000;
-    line-height: 1.5;
-    margin: 0 0 16px 0;
-  }
-
-  .help-content hr {
-    border: none;
-    border-top: 1px solid #d3d6da;
-    margin: 16px 0;
+    font-size: 1em;
   }
 
   .help-word-grid {
     display: flex;
     gap: 4px;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
     perspective: 1000px; /* For 3D flip effect */
   }
 
@@ -745,12 +704,12 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    border: 2px solid #d3d6da;
-    border-radius: 0;
-    font-weight: 700;
-    font-size: 20px;
+    border: 2px solid #333333;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 1.5em;
     color: #000000;
-    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    font-family: Arial, sans-serif;
     background-color: #ffffff;
     transition: background-color 0s, color 0s, border-color 0s;
   }
@@ -797,18 +756,16 @@
   .help-content hr {
     border: none;
     border-top: 1px solid #d3d6da;
-    margin: 16px 0;
+    margin: 24px 0;
   }
 
   .help-content a {
-    color: #1a1a1b;
+    color: #0000EE;
     text-decoration: underline;
-    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
-    font-weight: 400;
+    font-family: 'PT Serif', sans-serif;
   }
 
   .help-content a:hover {
-    color: #1a1a1b;
     text-decoration: underline;
   }
 
@@ -857,16 +814,20 @@
   :root.dark-mode #helpModal .help-modal-content {
     background-color: var(--bg-primary); /* Same as screen background */
     color: #ffffff; /* White text */
-    border-radius: 8px;
-    max-width: 500px;
-    width: min(500px, 90vw);
-    max-height: 90vh;
+    border-radius: 0;
+    max-width: 540px;
+    width: min(540px, 90vw);
+    height: min(540px, 90vw); /* Make it square */
+    max-height: min(540px, 90vw, 85vh);
+    aspect-ratio: 1 / 1; /* Ensure square shape */
     overflow-y: auto;
-    box-shadow: 0 4px 23px 0 rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
     position: relative;
-    padding: 16px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    padding: 20px 30px;
     margin: auto;
     box-sizing: border-box;
+    /* Reset font-size to browser default (16px) so em units match standalone page */
     font-size: 16px;
   }
 
@@ -877,91 +838,50 @@
   }
 
   :root.dark-mode #helpModal .help-modal-header h1 {
-    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
-    font-size: 28px;
+    /* Match standalone how-to-play heading */
+    font-family: 'PT Serif', sans-serif;
+    font-size: 2em;
     font-weight: 700;
     line-height: 1.2;
-    margin: 0;
-    color: #ffffff;
-    letter-spacing: 0.01em;
+    margin: 0 0 0.25em 0;
+    color: #ffffff; /* White text */
   }
 
   :root.dark-mode #helpModal .help-close-btn {
-    width: 40px;
-    height: 40px;
-    font-size: 20px;
-    font-weight: bold;
-    color: #ffffff;
-    background-color: #1a1a1b;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    padding: 0;
-    line-height: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.2s ease;
+    color: #ffffff; /* White text */
+    font-size: 28px;
   }
 
-  :root.dark-mode #helpModal .help-close-btn:hover {
-    background-color: #2a2a2b;
-  }
-
-  :root.dark-mode #helpModal .help-content > p:first-of-type {
-    color: #ffffff;
-    line-height: 1.5;
-    margin: 0 0 16px 0;
-    font-size: 16px;
-    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
-    font-weight: 400;
-  }
-
-  :root.dark-mode #helpModal .help-content ul {
-    color: #ffffff;
-    margin: 0 0 24px 0;
-    padding-left: 20px;
-    font-size: 16px;
-    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
-    line-height: 1.5;
-  }
-
+  :root.dark-mode #helpModal .help-content p,
   :root.dark-mode #helpModal .help-content li {
-    margin-bottom: 8px;
-    line-height: 1.5;
+    color: #ffffff; /* White text */
+    font-size: 1.5em;
+    line-height: 1.1;
+    margin-bottom: 15px;
   }
 
   :root.dark-mode #helpModal .help-content h2 {
-    color: #ffffff;
-    font-size: 16px;
-    font-weight: 700;
-    margin: 0 0 16px 0;
-    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    color: #ffffff; /* White text */
+    font-size: 1.5em;
+    margin-top: 24px;
+    margin-bottom: 12px;
   }
 
   :root.dark-mode #helpModal .help-example {
-    background-color: transparent;
-    border-radius: 0;
-    padding: 0;
-    margin: 0 0 24px 0;
-  }
-
-  :root.dark-mode #helpModal .help-example p {
-    margin: 8px 0 0 0;
-    color: #ffffff;
-    font-size: 16px;
-    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
-    line-height: 1.5;
+    background-color: var(--bg-secondary); /* Dark secondary background */
+    border-radius: 10px;
+    padding: 6px;
+    margin: 10px 0;
   }
 
   :root.dark-mode #helpModal .help-word-grid {
-    margin-bottom: 8px;
+    margin-bottom: 10px;
   }
 
   :root.dark-mode #helpModal .help-cell {
-    background-color: var(--bg-secondary);
-    border-color: #3a3a3c;
-    color: #ffffff;
+    background-color: var(--bg-secondary); /* Dark secondary background */
+    border-color: #3a3a3c; /* Dark border */
+    color: #ffffff; /* White text */
   }
 
   /* Initial state: colored cells start as dark with white text */
@@ -993,30 +913,23 @@
   }
 
   :root.dark-mode #helpModal .help-content hr {
-    border: none;
-    border-top: 1px solid #3a3a3c;
-    margin: 16px 0;
+    border-top: 1px solid #3a3a3c; /* Dark border */
   }
 
   :root.dark-mode #helpModal .help-content a {
-    color: #ffffff;
-    text-decoration: underline;
-    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
-    font-weight: 400;
-  }
-
-  :root.dark-mode #helpModal .help-content a:hover {
-    color: #ffffff;
-    text-decoration: underline;
+    color: #7BAFD4; /* Carolina blue for links */
   }
 
   :root.dark-mode #helpModal .help-content .account-prompt p,
   :root.dark-mode #helpModal .help-content .daily-reminder p {
-    color: #ffffff;
-    font-size: 16px;
-    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
-    line-height: 1.5;
-    margin: 0 0 16px 0;
+    color: #ffffff; /* White text */
+    font-size: 1em;
+  }
+
+  :root.dark-mode #helpModal .help-example p {
+    color: #ffffff; /* White text */
+    font-size: 1em;
+    font-family: Arial, sans-serif;
   }
 
   /* High Contrast Mode modal - dark theme */
