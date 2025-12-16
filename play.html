@@ -601,10 +601,10 @@
     background-color: #ffffff;
     color: #000000;
     border-radius: 0;
-    max-width: 490px; /* 1/4th smaller than 650px */
-    width: min(490px, 90vw);
-    height: min(490px, 90vw); /* Make it square */
-    max-height: min(490px, 90vw, 90vh);
+    max-width: 550px; /* Slightly larger to fit all content */
+    width: min(550px, 90vw);
+    height: min(550px, 90vw); /* Make it square */
+    max-height: min(550px, 90vw, 90vh);
     aspect-ratio: 1 / 1; /* Ensure square shape */
     overflow: hidden; /* No scrollbar */
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
@@ -848,10 +848,10 @@
     background-color: var(--bg-primary); /* Same as screen background */
     color: #ffffff; /* White text */
     border-radius: 0;
-    max-width: 490px; /* 1/4th smaller than 650px */
-    width: min(490px, 90vw);
-    height: min(490px, 90vw); /* Make it square */
-    max-height: min(490px, 90vw, 90vh);
+    max-width: 550px; /* Slightly larger to fit all content */
+    width: min(550px, 90vw);
+    height: min(550px, 90vw); /* Make it square */
+    max-height: min(550px, 90vw, 90vh);
     aspect-ratio: 1 / 1; /* Ensure square shape */
     overflow: hidden; /* No scrollbar */
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
@@ -895,18 +895,7 @@
     overflow: hidden;
   }
 
-  :root.dark-mode #helpModal .help-content > p:first-of-type {
-    /* Intro text - make smaller to fit */
-    color: #ffffff; /* White text */
-    line-height: 1.2;
-    margin-top: 0;
-    font-size: 1.1em;
-    margin-bottom: 10px;
-    font-family: 'PT Serif', sans-serif;
-  }
-
   :root.dark-mode #helpModal .help-content p {
-    /* Other paragraphs */
     color: #ffffff; /* White text */
     line-height: 1.2;
     margin-top: 0;
@@ -916,14 +905,14 @@
   }
 
   :root.dark-mode #helpModal .help-content ul {
-    margin: 0 0 10px 0;
-    padding-left: 18px;
+    margin: 0 0 12px 0;
+    padding-left: 20px;
   }
 
   :root.dark-mode #helpModal .help-content li {
     color: #ffffff; /* White text */
-    margin-bottom: 5px;
-    font-size: 1.0em;
+    margin-bottom: 6px;
+    font-size: 1.2em;
     line-height: 1.2;
     font-family: 'PT Serif', sans-serif;
   }
@@ -1620,16 +1609,6 @@
                     <span class="toggle-slider"></span>
                   </label>
                 </div>
-                <div class="setting-item">
-                  <div class="setting-info">
-                    <div class="setting-title">Onscreen Keyboard Input Only</div>
-                    <div class="setting-description">Ignore key input except from the onscreen keyboard. Most helpful for users using speech recognition or other assistive devices.</div>
-                  </div>
-                  <label class="toggle-switch">
-                    <input type="checkbox" id="onscreenKeyboardOnlyToggle">
-                    <span class="toggle-slider"></span>
-                  </label>
-                </div>
               </div>
             </div>
           </div>
@@ -1707,7 +1686,7 @@
                     <div class="help-cell">A</div>
                     <div class="help-cell">W</div>
                   </div>
-                  <p><strong>M</strong> is in the word and in the correct spot. (Orange)</p>
+                  <p><strong>M</strong> is in the word and in the correct spot.</p>
                 </div>
                 <div class="help-example">
                   <div class="help-word-grid">
@@ -1717,7 +1696,7 @@
                     <div class="help-cell">I</div>
                     <div class="help-cell">S</div>
                   </div>
-                  <p><strong>A</strong> is in the word but in the wrong spot. (Light Blue)</p>
+                  <p><strong>A</strong> is in the word but in the wrong spot.</p>
                 </div>
                 <div class="help-example">
                   <div class="help-word-grid">
@@ -1728,7 +1707,7 @@
                     <div class="help-cell">I</div>
                     <div class="help-cell">R</div>
                   </div>
-                  <p><strong>N</strong> is not in the word in any spot. (Duke Blue)</p>
+                  <p><strong>N</strong> is not in the word in any spot.</p>
                 </div>
               </div>
             </div>
@@ -1924,45 +1903,10 @@
             });
           }
 
-          // Onscreen Keyboard Input Only toggle functionality
-          function initOnscreenKeyboardOnly() {
-            const onscreenKeyboardOnlyToggle = document.getElementById('onscreenKeyboardOnlyToggle');
-            if (!onscreenKeyboardOnlyToggle) return;
-
-            // Load saved preference
-            const savedPreference = localStorage.getItem('onscreenKeyboardOnly');
-            const isEnabled = savedPreference === 'true';
-            
-            // Set initial state
-            onscreenKeyboardOnlyToggle.checked = isEnabled;
-
-            // Handle toggle change
-            onscreenKeyboardOnlyToggle.addEventListener('change', function() {
-              const isEnabled = this.checked;
-              console.log('Onscreen Keyboard Input Only toggled:', isEnabled);
-              
-              localStorage.setItem('onscreenKeyboardOnly', isEnabled ? 'true' : 'false');
-              
-              // Access the functions from app.js via window if available, or use a global function
-              if (window.detachKeyboardListener && window.attachKeyboardListener) {
-                if (isEnabled) {
-                  window.detachKeyboardListener();
-                } else {
-                  window.attachKeyboardListener();
-                }
-              } else {
-                // Fallback: reload page to apply setting (less ideal but works)
-                console.log('Keyboard listener functions not available, reloading page...');
-                window.location.reload();
-              }
-            });
-          }
-
           // Initialize dark mode and high contrast mode on page load
           document.addEventListener('DOMContentLoaded', function() {
             initDarkMode();
             initHighContrastMode();
-            initOnscreenKeyboardOnly();
           });
 
           // Close settings modal when clicking outside
