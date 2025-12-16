@@ -63,24 +63,24 @@ let word_list = [
 // Making an array list for the tardle words
 let words = [
     // 2 letter words
-    'UL','Rj',
+    'UL','Rj', 'RU'
 
     // 3 letter words
-    'Dey','SRC','Pit','Maw','Tez','Rah','TRU','CCS','ARS', 'SAE', 'PID',
+    'Dey','SRC','Pit','Maw','Tez','Rah','TRU','CCS','ARS', 'SAE', 'PID', 
 
     // 4 letter words
     'Hojo', 'Cobb', 'Rams', 'Navy', 'Quad', 'Yopo', 'Buns', 'Dook', 'Maye', 'Mack', 'Pete', 'Seth', 'Blue', 'Topo',
-    'Bolo', 'Well', 'ROTC', 'LWOC', 'LDOC', 'FDOC', 'FWOC', 'Yaya', 'Moge', 'Cuab', 'SASB',
+    'Bolo', 'Well', 'ROTC', 'LWOC', 'LDOC', 'FDOC', 'FWOC', 'Yaya', 'Moge', 'Cuab', 'SASB', 'Quad', 'Rush', 'SCRC', 'Grad'
 
 
     // 5 letter words
     'Davis', 'Ehaus', 'Avery', 'Koury', 'Hanes', 'Kenan', 'Lewis', 'Manly', 'Stacy', 'Kevin', 'Davie', 'Karen', 'Union', 'Chase', 'Adams', 'Canes', 'Roots',
-    'Wheat', 'Heels', 'Manek', 'Coker', 'Baity', 'Dames', 'Momos', 'Playa', 'onyen',
+    'Wheat', 'Heels', 'Manek', 'Coker', 'Baity', 'Dames', 'Momos', 'Playa', 'onyen', 'Agora'
 
     // 6 letter words
     'Wilson', 'Craige', 'Parker', 'Teague', 'Graham', 'Murray', 'Genome', 'Cocker', 'Connor', 'Grimes', 'Hardin', 'Horton', 'Mangum', 'Mciver',
     'Fetzer', 'Hooker', 'Lenoir', 'Kurama', 'Panera', 'Target', 'Subway', 'Bulbox', 'Ramses', 'Jordan', 'Ruffin', 'Aycock', 'Joyner',
-    'Howell', 'Alumni', 'Junior', 'Senior', 'Lindas', 'Cosmic', 'Yikyak', 'canvas',
+    'Howell', 'Alumni', 'Junior', 'Senior', 'Lindas', 'Cosmic', 'Yikyak', 'canvas', 'Campus'
 
 
     // 7 letter words
@@ -208,8 +208,18 @@ let words = [
   let keyboardListenerAttached = false;
   let lastKeyProcessed = null;
   let lastKeyTime = 0;
+  let handleKeyDown = null;
+  let clickHandler = null;
+  let loadHandler = null;
   
   function attachKeyboardListener() {
+    // Check if onscreen keyboard only mode is enabled
+    const onscreenKeyboardOnly = localStorage.getItem('onscreenKeyboardOnly') === 'true';
+    if (onscreenKeyboardOnly) {
+      console.log('Onscreen keyboard only mode enabled - skipping physical keyboard listener');
+      return;
+    }
+    
     // Prevent attaching listener multiple times
     if (keyboardListenerAttached) {
       console.log('Keyboard listener already attached, skipping...');
@@ -218,7 +228,7 @@ let words = [
     keyboardListenerAttached = true;
     
     // Handler function for keyboard events
-    function handleKeyDown(event) {
+    handleKeyDown = function(event) {
       console.log('Key pressed:', event.key, 'Code:', event.code, 'KeyCode:', event.keyCode);
       
       // Check for modifier keys and special keys FIRST, before preventDefault
@@ -321,7 +331,7 @@ let words = [
     document.addEventListener('keydown', handleKeyDown, true);
     
     // Ensure the page can receive keyboard events by focusing on load
-    window.addEventListener('load', function() {
+    loadHandler = function() {
       // Try to focus the document body to ensure keyboard events work
       if (document.body) {
         document.body.focus();
@@ -330,26 +340,63 @@ let words = [
           document.body.setAttribute('tabindex', '-1');
         }
       }
-    });
+    };
+    window.addEventListener('load', loadHandler);
 
     // Add click handler to ensure page receives focus when clicked (important for Chrome file://)
-    document.addEventListener('click', function(event) {
+    clickHandler = function(event) {
       // If clicking on the page (not on an input/button), ensure body is focused
       if (event.target === document.body || !event.target.matches('input, button, a')) {
         if (document.body && document.activeElement !== document.body) {
           document.body.focus();
         }
       }
-    }, true);
+    };
+    document.addEventListener('click', clickHandler, true);
   }
 
-  // Attach keyboard listener after DOM is ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', attachKeyboardListener);
-  } else {
-    // If DOM is already ready, attach immediately
-    attachKeyboardListener();
+  function detachKeyboardListener() {
+    if (!keyboardListenerAttached) {
+      return;
+    }
+    
+    if (handleKeyDown) {
+      document.removeEventListener('keydown', handleKeyDown, true);
+    }
+    
+    if (clickHandler) {
+      document.removeEventListener('click', clickHandler, true);
+    }
+    
+    if (loadHandler) {
+      window.removeEventListener('load', loadHandler);
+    }
+    
+    keyboardListenerAttached = false;
+    handleKeyDown = null;
+    clickHandler = null;
+    loadHandler = null;
+    console.log('Keyboard listener detached');
   }
+
+  // Expose functions to window for access from play.html
+  window.attachKeyboardListener = attachKeyboardListener;
+  window.detachKeyboardListener = detachKeyboardListener;
+
+  // Attach keyboard listener after DOM is ready (only if onscreen keyboard only is not enabled)
+  function initKeyboardListener() {
+    const onscreenKeyboardOnly = localStorage.getItem('onscreenKeyboardOnly') === 'true';
+    if (!onscreenKeyboardOnly) {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', attachKeyboardListener);
+      } else {
+        // If DOM is already ready, attach immediately
+        attachKeyboardListener();
+      }
+    }
+  }
+  
+  initKeyboardListener();
   
   // Track last keyClick call to prevent duplicates
   let lastKeyClick = null;
