@@ -38,23 +38,6 @@ html, body {
     color: white !important;
   }
   
-  :root.high-contrast-mode .container .wrong,
-  :root.high-contrast-mode .key-guess.wrong {
-    background-color: var(--wrong-color) !important;
-    color: white !important;
-  }
-  
-  /* Keyboard colors in high contrast mode - match grid colors exactly */
-  :root.high-contrast-mode .key.correct {
-    background-color: #f5793a !important;
-    color: white !important;
-  }
-  
-  :root.high-contrast-mode .key.found {
-    background-color: #85c0f9 !important;
-    color: white !important;
-  }
-  
   .key-guess {
     display: inline-flex;
     justify-content: center;
@@ -151,8 +134,22 @@ html, body {
     color: white;
   }
 
-  /* High Contrast Mode - Keyboard wrong keys match grid */
-  :root.high-contrast-mode .key.wrong {
+  /* High Contrast Mode - Keyboard keys match grid colors */
+  /* These must come after dark mode rules to override them */
+  :root.high-contrast-mode .key.correct,
+  :root.dark-mode.high-contrast-mode .key.correct {
+    background-color: #f5793a !important;
+    color: white !important;
+  }
+
+  :root.high-contrast-mode .key.found,
+  :root.dark-mode.high-contrast-mode .key.found {
+    background-color: #85c0f9 !important;
+    color: white !important;
+  }
+
+  :root.high-contrast-mode .key.wrong,
+  :root.dark-mode.high-contrast-mode .key.wrong {
     background-color: var(--wrong-color) !important;
     color: white !important;
   }
