@@ -601,35 +601,38 @@
     background-color: #ffffff;
     color: #000000;
     border-radius: 0;
-    max-width: 540px;
-    width: min(540px, 90vw);
-    height: min(540px, 90vw); /* Make it square */
-    max-height: min(540px, 90vw, 85vh);
+    max-width: 650px;
+    width: min(650px, 90vw);
+    height: min(650px, 90vw); /* Make it square */
+    max-height: min(650px, 90vw, 90vh);
     aspect-ratio: 1 / 1; /* Ensure square shape */
-    overflow-y: auto;
+    overflow: hidden; /* No scrollbar */
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
     position: relative;
     transition: background-color 0.3s ease, color 0.3s ease;
-    padding: 20px 30px;
+    padding: 1cm; /* 1cm margin on all sides */
     margin: auto;
     box-sizing: border-box;
     /* Reset font-size to browser default (16px) so em units match standalone page */
     font-size: 16px;
+    display: flex;
+    flex-direction: column;
   }
 
   .help-modal-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     padding-bottom: 0;
     border-bottom: none;
+    flex-shrink: 0;
   }
 
   .help-modal-header h1 {
     /* Match standalone how-to-play heading */
     font-family: 'PT Serif', sans-serif;
-    font-size: 2em;
+    font-size: 1.8em;
     font-weight: 700;
     line-height: 1.2;
     margin: 0 0 0.25em 0;
@@ -653,61 +656,69 @@
     opacity: 0.7;
   }
 
+  .help-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
   .help-content p {
     /* Match how-to-play.html <p> */
     color: #000000;
-    line-height: 1.1;
+    line-height: 1.2;
     margin-top: 0;
-    font-size: 1.5em;
-    margin-bottom: 15px;
+    font-size: 1.3em;
+    margin-bottom: 12px;
     font-family: 'PT Serif', sans-serif;
   }
 
   .help-content h2 {
     color: #000000;
-    font-size: 1.5em;
-    margin-top: 24px;
-    margin-bottom: 12px;
+    font-size: 1.3em;
+    margin-top: 16px;
+    margin-bottom: 10px;
     font-family: 'PT Serif', sans-serif;
   }
 
   .help-example {
     background-color: #ffffff;
     border-radius: 10px;
-    padding: 6px;
-    margin: 10px 0;
+    padding: 4px;
+    margin: 6px 0;
   }
 
   .help-example p {
     margin: 2px 0;
     color: #333333;
-    font-size: 1em;
+    font-size: 0.9em;
     font-family: Arial, sans-serif;
   }
 
   /* Match smaller copy sizes for account + daily reminder text */
   .help-content .account-prompt p,
   .help-content .daily-reminder p {
-    font-size: 1em;
+    font-size: 0.9em;
+    margin-bottom: 8px;
   }
 
   .help-word-grid {
     display: flex;
-    gap: 4px;
-    margin-bottom: 4px;
+    gap: 3px;
+    margin-bottom: 3px;
     perspective: 1000px; /* For 3D flip effect */
   }
 
   .help-cell {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     display: flex;
     justify-content: center;
     align-items: center;
     border: 2px solid #333333;
     border-radius: 4px;
     font-weight: bold;
-    font-size: 1.5em;
+    font-size: 1.3em;
     color: #000000;
     font-family: Arial, sans-serif;
     background-color: #ffffff;
@@ -753,10 +764,22 @@
     border-color: transparent;
   }
 
+  .help-content ul {
+    margin: 0 0 12px 0;
+    padding-left: 20px;
+  }
+
+  .help-content li {
+    margin-bottom: 6px;
+    font-size: 1.2em;
+    line-height: 1.2;
+    font-family: 'PT Serif', sans-serif;
+  }
+
   .help-content hr {
     border: none;
     border-top: 1px solid #d3d6da;
-    margin: 24px 0;
+    margin: 12px 0;
   }
 
   .help-content a {
@@ -815,32 +838,35 @@
     background-color: var(--bg-primary); /* Same as screen background */
     color: #ffffff; /* White text */
     border-radius: 0;
-    max-width: 540px;
-    width: min(540px, 90vw);
-    height: min(540px, 90vw); /* Make it square */
-    max-height: min(540px, 90vw, 85vh);
+    max-width: 650px;
+    width: min(650px, 90vw);
+    height: min(650px, 90vw); /* Make it square */
+    max-height: min(650px, 90vw, 90vh);
     aspect-ratio: 1 / 1; /* Ensure square shape */
-    overflow-y: auto;
+    overflow: hidden; /* No scrollbar */
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
     position: relative;
     transition: background-color 0.3s ease, color 0.3s ease;
-    padding: 20px 30px;
+    padding: 1cm; /* 1cm margin on all sides */
     margin: auto;
     box-sizing: border-box;
     /* Reset font-size to browser default (16px) so em units match standalone page */
     font-size: 16px;
+    display: flex;
+    flex-direction: column;
   }
 
   :root.dark-mode #helpModal .help-modal-header {
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     padding-bottom: 0;
     border-bottom: none;
+    flex-shrink: 0;
   }
 
   :root.dark-mode #helpModal .help-modal-header h1 {
     /* Match standalone how-to-play heading */
     font-family: 'PT Serif', sans-serif;
-    font-size: 2em;
+    font-size: 1.8em;
     font-weight: 700;
     line-height: 1.2;
     margin: 0 0 0.25em 0;
@@ -852,36 +878,68 @@
     font-size: 28px;
   }
 
-  :root.dark-mode #helpModal .help-content p,
+  :root.dark-mode #helpModal .help-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  :root.dark-mode #helpModal .help-content p {
+    color: #ffffff; /* White text */
+    line-height: 1.2;
+    margin-top: 0;
+    font-size: 1.3em;
+    margin-bottom: 12px;
+    font-family: 'PT Serif', sans-serif;
+  }
+
+  :root.dark-mode #helpModal .help-content ul {
+    margin: 0 0 12px 0;
+    padding-left: 20px;
+  }
+
   :root.dark-mode #helpModal .help-content li {
     color: #ffffff; /* White text */
-    font-size: 1.5em;
-    line-height: 1.1;
-    margin-bottom: 15px;
+    margin-bottom: 6px;
+    font-size: 1.2em;
+    line-height: 1.2;
+    font-family: 'PT Serif', sans-serif;
   }
 
   :root.dark-mode #helpModal .help-content h2 {
     color: #ffffff; /* White text */
-    font-size: 1.5em;
-    margin-top: 24px;
-    margin-bottom: 12px;
+    font-size: 1.3em;
+    margin-top: 16px;
+    margin-bottom: 10px;
+    font-family: 'PT Serif', sans-serif;
   }
 
   :root.dark-mode #helpModal .help-example {
     background-color: var(--bg-secondary); /* Dark secondary background */
     border-radius: 10px;
-    padding: 6px;
-    margin: 10px 0;
+    padding: 4px;
+    margin: 6px 0;
+  }
+
+  :root.dark-mode #helpModal .help-example p {
+    margin: 2px 0;
+    color: #ffffff; /* White text */
+    font-size: 0.9em;
+    font-family: Arial, sans-serif;
   }
 
   :root.dark-mode #helpModal .help-word-grid {
-    margin-bottom: 10px;
+    margin-bottom: 3px;
   }
 
   :root.dark-mode #helpModal .help-cell {
+    width: 36px;
+    height: 36px;
     background-color: var(--bg-secondary); /* Dark secondary background */
     border-color: #3a3a3c; /* Dark border */
     color: #ffffff; /* White text */
+    font-size: 1.3em;
   }
 
   /* Initial state: colored cells start as dark with white text */
@@ -913,7 +971,9 @@
   }
 
   :root.dark-mode #helpModal .help-content hr {
+    border: none;
     border-top: 1px solid #3a3a3c; /* Dark border */
+    margin: 12px 0;
   }
 
   :root.dark-mode #helpModal .help-content a {
@@ -923,13 +983,8 @@
   :root.dark-mode #helpModal .help-content .account-prompt p,
   :root.dark-mode #helpModal .help-content .daily-reminder p {
     color: #ffffff; /* White text */
-    font-size: 1em;
-  }
-
-  :root.dark-mode #helpModal .help-example p {
-    color: #ffffff; /* White text */
-    font-size: 1em;
-    font-family: Arial, sans-serif;
+    font-size: 0.9em;
+    margin-bottom: 8px;
   }
 
   /* High Contrast Mode modal - dark theme */
