@@ -1896,8 +1896,6 @@
               if (isEnabled) {
                 document.documentElement.classList.add('high-contrast-mode');
                 localStorage.setItem('highContrastMode', 'true');
-                // Show the High Contrast Mode instructions popup
-                showHighContrastModal();
               } else {
                 document.documentElement.classList.remove('high-contrast-mode');
                 localStorage.setItem('highContrastMode', 'false');
