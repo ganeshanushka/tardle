@@ -1438,11 +1438,14 @@
     </div>
     <div class="title-text">Tardle</div>
     <div class="podium-icon" onclick="handlePodiumClick()" aria-label="Leaderboard">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="1.5">
         <!-- Podium with three bars: left (medium), middle (tallest), right (shortest) -->
-        <rect x="4" y="12" width="4" height="8" fill="none"/>
-        <rect x="10" y="6" width="4" height="14" fill="none"/>
-        <rect x="16" y="16" width="4" height="4" fill="none"/>
+        <!-- Left bar (medium height, second place) -->
+        <rect x="3" y="10" width="5" height="10" fill="white" stroke="white"/>
+        <!-- Middle bar (tallest, first place) -->
+        <rect x="9.5" y="4" width="5" height="16" fill="white" stroke="white"/>
+        <!-- Right bar (shortest, third place) -->
+        <rect x="16" y="14" width="5" height="6" fill="white" stroke="white"/>
       </svg>
     </div>
     <div class="help-icon" onclick="handleHelpClick()" aria-label="Help">
