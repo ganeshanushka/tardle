@@ -1424,7 +1424,7 @@
         
         <div class="side-panel-buttons">
           <button class="side-panel-button subscribe-button" onclick="handleSubscribe()">SUBSCRIBE</button>
-          <button class="side-panel-button logout-button" onclick="handleLogout()">LOG OUT</button>
+          <button class="side-panel-button logout-button" id="logoutButton" onclick="handleLogout()">LOG OUT</button>
         </div>
       </div>
     </div>
@@ -1656,16 +1656,22 @@
           }
 
           function handleLogout() {
-            // Add logout functionality here
-            if (window.firebaseAuth && window.firebaseAuthFunctions && window.firebaseAuthFunctions.signOut) {
-              window.firebaseAuthFunctions.signOut(window.firebaseAuth).then(() => {
+            // Check if user is logged in
+            if (window.firebaseAuth && window.firebaseAuth.currentUser) {
+              // User is logged in - log them out
+              if (window.firebaseAuthFunctions && window.firebaseAuthFunctions.signOut) {
+                window.firebaseAuthFunctions.signOut(window.firebaseAuth).then(() => {
+                  window.location.href = 'index.html';
+                }).catch((error) => {
+                  console.error('Logout error:', error);
+                  window.location.href = 'index.html';
+                });
+              } else {
                 window.location.href = 'index.html';
-              }).catch((error) => {
-                console.error('Logout error:', error);
-                window.location.href = 'index.html';
-              });
+              }
             } else {
-              window.location.href = 'index.html';
+              // User is not logged in - redirect to login page
+              window.location.href = 'login.html';
             }
           }
 
@@ -1895,6 +1901,7 @@
                 window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, (user) => {
                   const greetingElement = document.getElementById('sidePanelGreeting');
                   const greetingNameElement = document.getElementById('userGreetingName');
+                  const logoutButton = document.getElementById('logoutButton');
                   
                   if (user && user.email) {
                     // Extract username from email (part before @)
@@ -1903,9 +1910,17 @@
                       greetingNameElement.textContent = username;
                       greetingElement.style.display = 'block';
                     }
+                    // User is logged in - show "LOG OUT"
+                    if (logoutButton) {
+                      logoutButton.textContent = 'LOG OUT';
+                    }
                   } else {
                     if (greetingElement) {
                       greetingElement.style.display = 'none';
+                    }
+                    // User is not logged in - show "LOG IN"
+                    if (logoutButton) {
+                      logoutButton.textContent = 'LOG IN';
                     }
                   }
                 });
@@ -1927,15 +1942,35 @@
                     if (window.firebaseAuthFunctions && window.firebaseAuthFunctions.onAuthStateChanged) {
                       // Use onAuthStateChanged to check auth state
                       window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, (user) => {
+                        const logoutButton = document.getElementById('logoutButton');
                         if (!user) {
                           // User is not logged in, show prompt
                           showLoginPrompt();
+                          // Update button to "LOG IN"
+                          if (logoutButton) {
+                            logoutButton.textContent = 'LOG IN';
+                          }
+                        } else {
+                          // User is logged in, update button to "LOG OUT"
+                          if (logoutButton) {
+                            logoutButton.textContent = 'LOG OUT';
+                          }
                         }
                       });
                     } else {
                       // Fallback: check currentUser directly
+                      const logoutButton = document.getElementById('logoutButton');
                       if (!window.firebaseAuth.currentUser) {
                         showLoginPrompt();
+                        // Update button to "LOG IN"
+                        if (logoutButton) {
+                          logoutButton.textContent = 'LOG IN';
+                        }
+                      } else {
+                        // Update button to "LOG OUT"
+                        if (logoutButton) {
+                          logoutButton.textContent = 'LOG OUT';
+                        }
                       }
                     }
                   }
