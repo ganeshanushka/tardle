@@ -1012,6 +1012,12 @@
     color: #7BAFD4; /* Carolina blue for links */
   }
 
+  /* High Contrast Mode - Links use high contrast blue for better visibility */
+  :root.high-contrast-mode #helpModal .help-content a,
+  :root.dark-mode.high-contrast-mode #helpModal .help-content a {
+    color: #85c0f9 !important; /* High contrast blue for links */
+  }
+
   :root.dark-mode #helpModal .help-content .account-prompt p,
   :root.dark-mode #helpModal .help-content .daily-reminder p {
     color: #ffffff; /* White text */
