@@ -597,104 +597,145 @@
   }
 
   .help-modal-content {
-    /* Match standalone how-to-play.html exactly */
+    /* Match Wordle's How To Play popup exactly */
     background-color: #ffffff;
     color: #000000;
-    border-radius: 0;
-    max-width: 540px;
-    width: min(540px, 90vw);
-    height: min(540px, 90vw); /* Make it square */
-    max-height: min(540px, 90vw, 85vh);
-    aspect-ratio: 1 / 1; /* Ensure square shape */
+    border-radius: 8px;
+    max-width: 500px;
+    width: min(500px, 90vw);
+    max-height: 90vh;
     overflow-y: auto;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 23px 0 rgba(0, 0, 0, 0.2);
     position: relative;
-    transition: background-color 0.3s ease, color 0.3s ease;
-    padding: 20px 30px;
+    padding: 16px;
     margin: auto;
     box-sizing: border-box;
-    /* Reset font-size to browser default (16px) so em units match standalone page */
     font-size: 16px;
   }
 
   .help-modal-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
     margin-bottom: 16px;
     padding-bottom: 0;
     border-bottom: none;
   }
 
   .help-modal-header h1 {
-    /* Match standalone how-to-play heading */
-    font-family: 'PT Serif', sans-serif;
-    font-size: 2em;
+    /* Match Wordle's title - large bold serif */
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 28px;
     font-weight: 700;
     line-height: 1.2;
-    margin: 0 0 0.25em 0;
+    margin: 0;
     color: #000000;
+    letter-spacing: 0.01em;
   }
 
   .help-close-btn {
-    /* Match standalone how-to-play.html close button */
-    font-size: 28px;
+    /* Match Wordle's blue square close button */
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
     font-weight: bold;
-    color: #000000;
-    cursor: pointer;
-    background: none;
+    color: #ffffff;
+    background-color: #1a1a1b;
     border: none;
+    border-radius: 4px;
+    cursor: pointer;
     padding: 0;
     line-height: 1;
-    transition: opacity 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
   }
 
   .help-close-btn:hover {
-    opacity: 0.7;
+    background-color: #2a2a2b;
   }
 
-  .help-content p {
-    /* Match how-to-play.html <p> */
+  .help-content {
+    padding: 0;
+  }
+
+  .help-content > p:first-of-type {
+    /* Main instruction - regular sans-serif */
     color: #000000;
-    line-height: 1.1;
-    margin-top: 0;
-    font-size: 1.5em;
-    margin-bottom: 15px;
-    font-family: 'PT Serif', sans-serif;
+    line-height: 1.5;
+    margin: 0 0 16px 0;
+    font-size: 16px;
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 400;
+  }
+
+  .help-content ul {
+    color: #000000;
+    margin: 0 0 24px 0;
+    padding-left: 20px;
+    font-size: 16px;
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.5;
+  }
+
+  .help-content li {
+    margin-bottom: 8px;
+    line-height: 1.5;
   }
 
   .help-content h2 {
     color: #000000;
-    font-size: 1.5em;
-    margin-top: 24px;
-    margin-bottom: 12px;
-    font-family: 'PT Serif', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0 0 16px 0;
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
   }
 
   .help-example {
-    background-color: #ffffff;
-    border-radius: 10px;
-    padding: 6px;
-    margin: 10px 0;
+    background-color: transparent;
+    border-radius: 0;
+    padding: 0;
+    margin: 0 0 24px 0;
   }
 
   .help-example p {
-    margin: 2px 0;
-    color: #333333;
-    font-size: 1em;
-    font-family: Arial, sans-serif;
+    margin: 8px 0 0 0;
+    color: #000000;
+    font-size: 16px;
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.5;
   }
 
-  /* Match smaller copy sizes for account + daily reminder text */
+  .help-example p strong {
+    font-weight: 700;
+  }
+
+  /* Footer text styling */
+  .help-content .account-prompt,
+  .help-content .daily-reminder {
+    margin: 0;
+  }
+
   .help-content .account-prompt p,
   .help-content .daily-reminder p {
-    font-size: 1em;
+    font-size: 16px;
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    color: #000000;
+    line-height: 1.5;
+    margin: 0 0 16px 0;
+  }
+
+  .help-content hr {
+    border: none;
+    border-top: 1px solid #d3d6da;
+    margin: 16px 0;
   }
 
   .help-word-grid {
     display: flex;
     gap: 4px;
-    margin-bottom: 4px;
+    margin-bottom: 8px;
     perspective: 1000px; /* For 3D flip effect */
   }
 
@@ -704,12 +745,12 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    border: 2px solid #333333;
-    border-radius: 4px;
-    font-weight: bold;
-    font-size: 1.5em;
+    border: 2px solid #d3d6da;
+    border-radius: 0;
+    font-weight: 700;
+    font-size: 20px;
     color: #000000;
-    font-family: Arial, sans-serif;
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
     background-color: #ffffff;
     transition: background-color 0s, color 0s, border-color 0s;
   }
@@ -731,7 +772,7 @@
   .help-cell.absent {
     background-color: #ffffff;
     color: #000000;
-    border-color: #333333;
+    border-color: #d3d6da;
   }
 
   /* Revealed state: colored cells show their colors */
@@ -756,16 +797,18 @@
   .help-content hr {
     border: none;
     border-top: 1px solid #d3d6da;
-    margin: 24px 0;
+    margin: 16px 0;
   }
 
   .help-content a {
-    color: #0000EE;
+    color: #1a1a1b;
     text-decoration: underline;
-    font-family: 'PT Serif', sans-serif;
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 400;
   }
 
   .help-content a:hover {
+    color: #1a1a1b;
     text-decoration: underline;
   }
 
@@ -814,20 +857,16 @@
   :root.dark-mode #helpModal .help-modal-content {
     background-color: var(--bg-primary); /* Same as screen background */
     color: #ffffff; /* White text */
-    border-radius: 0;
-    max-width: 540px;
-    width: min(540px, 90vw);
-    height: min(540px, 90vw); /* Make it square */
-    max-height: min(540px, 90vw, 85vh);
-    aspect-ratio: 1 / 1; /* Ensure square shape */
+    border-radius: 8px;
+    max-width: 500px;
+    width: min(500px, 90vw);
+    max-height: 90vh;
     overflow-y: auto;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 23px 0 rgba(0, 0, 0, 0.2);
     position: relative;
-    transition: background-color 0.3s ease, color 0.3s ease;
-    padding: 20px 30px;
+    padding: 16px;
     margin: auto;
     box-sizing: border-box;
-    /* Reset font-size to browser default (16px) so em units match standalone page */
     font-size: 16px;
   }
 
@@ -838,59 +877,100 @@
   }
 
   :root.dark-mode #helpModal .help-modal-header h1 {
-    /* Match standalone how-to-play heading */
-    font-family: 'PT Serif', sans-serif;
-    font-size: 2em;
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 28px;
     font-weight: 700;
     line-height: 1.2;
-    margin: 0 0 0.25em 0;
-    color: #ffffff; /* White text */
+    margin: 0;
+    color: #ffffff;
+    letter-spacing: 0.01em;
   }
 
   :root.dark-mode #helpModal .help-close-btn {
-    color: #ffffff; /* White text */
-    font-size: 28px;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #1a1a1b;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
   }
 
-  :root.dark-mode #helpModal .help-content p,
+  :root.dark-mode #helpModal .help-close-btn:hover {
+    background-color: #2a2a2b;
+  }
+
+  :root.dark-mode #helpModal .help-content > p:first-of-type {
+    color: #ffffff;
+    line-height: 1.5;
+    margin: 0 0 16px 0;
+    font-size: 16px;
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 400;
+  }
+
+  :root.dark-mode #helpModal .help-content ul {
+    color: #ffffff;
+    margin: 0 0 24px 0;
+    padding-left: 20px;
+    font-size: 16px;
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.5;
+  }
+
   :root.dark-mode #helpModal .help-content li {
-    color: #ffffff; /* White text */
-    font-size: 1.5em;
-    line-height: 1.1;
-    margin-bottom: 15px;
+    margin-bottom: 8px;
+    line-height: 1.5;
   }
 
   :root.dark-mode #helpModal .help-content h2 {
-    color: #ffffff; /* White text */
-    font-size: 1.5em;
-    margin-top: 0;
-    margin-bottom: 0;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0 0 16px 0;
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
   }
 
   :root.dark-mode #helpModal .help-example {
-    background-color: var(--bg-secondary); /* Dark secondary background */
-    border-radius: 10px;
-    padding: 6px;
-    margin: 10px 0;
+    background-color: transparent;
+    border-radius: 0;
+    padding: 0;
+    margin: 0 0 24px 0;
+  }
+
+  :root.dark-mode #helpModal .help-example p {
+    margin: 8px 0 0 0;
+    color: #ffffff;
+    font-size: 16px;
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.5;
   }
 
   :root.dark-mode #helpModal .help-word-grid {
-    margin-bottom: 10px;
+    margin-bottom: 8px;
   }
 
   :root.dark-mode #helpModal .help-cell {
-    background-color: var(--bg-secondary); /* Dark secondary background */
-    border-color: #3a3a3c; /* Dark border */
-    color: #ffffff; /* White text */
+    background-color: var(--bg-secondary);
+    border-color: #3a3a3c;
+    color: #ffffff;
   }
 
   /* Initial state: colored cells start as dark with white text */
   :root.dark-mode #helpModal .help-cell.correct,
   :root.dark-mode #helpModal .help-cell.present,
   :root.dark-mode #helpModal .help-cell.absent {
-    background-color: var(--bg-secondary); /* Dark secondary background */
-    color: #ffffff; /* White text */
-    border-color: #3a3a3c; /* Dark border */
+    background-color: var(--bg-secondary);
+    color: #ffffff;
+    border-color: #3a3a3c;
   }
 
   /* Revealed state: colored cells show their colors with white text */
@@ -913,23 +993,30 @@
   }
 
   :root.dark-mode #helpModal .help-content hr {
-    border-top: 1px solid #3a3a3c; /* Dark border */
+    border: none;
+    border-top: 1px solid #3a3a3c;
+    margin: 16px 0;
   }
 
   :root.dark-mode #helpModal .help-content a {
-    color: #7BAFD4; /* Carolina blue for links */
+    color: #ffffff;
+    text-decoration: underline;
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 400;
+  }
+
+  :root.dark-mode #helpModal .help-content a:hover {
+    color: #ffffff;
+    text-decoration: underline;
   }
 
   :root.dark-mode #helpModal .help-content .account-prompt p,
   :root.dark-mode #helpModal .help-content .daily-reminder p {
-    color: #ffffff; /* White text */
-    font-size: 1em;
-  }
-
-  :root.dark-mode #helpModal .help-example p {
-    color: #ffffff; /* White text */
-    font-size: 1em;
-    font-family: Arial, sans-serif;
+    color: #ffffff;
+    font-size: 16px;
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.5;
+    margin: 0 0 16px 0;
   }
 
   /* High Contrast Mode modal - dark theme */
