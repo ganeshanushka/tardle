@@ -85,14 +85,18 @@ html, body {
     background-color: #d3d6da;
     border: 0;
     height: clamp(40px, 6.5vh, 50px);
+    width: clamp(35px, 5.5vw, 43px);
     min-width: clamp(35px, 5.5vw, 43px);
+    max-width: clamp(35px, 5.5vw, 43px);
     margin: clamp(1.5px, 0.3vw, 2px);
     cursor: pointer;
     color: #1a1a1b;
-    padding: clamp(8px, 1.2vh, 10px) clamp(12px, 2vw, 16px);
+    padding: clamp(8px, 1.2vh, 10px) clamp(6px, 1vw, 8px);
     box-sizing: border-box;
     transition: background-color 0.3s ease, color 0.3s ease;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 
   /* Dark mode: white keys with Carolina blue text.
@@ -106,32 +110,56 @@ html, body {
   .key.correct {
     background-color: var(--correct-color);
     color: white;
+    width: clamp(35px, 5.5vw, 43px);
+    min-width: clamp(35px, 5.5vw, 43px);
+    max-width: clamp(35px, 5.5vw, 43px);
+    height: clamp(40px, 6.5vh, 50px);
   }
   
   .key.found {
     background-color: var(--found-color);
     color: white;
+    width: clamp(35px, 5.5vw, 43px);
+    min-width: clamp(35px, 5.5vw, 43px);
+    max-width: clamp(35px, 5.5vw, 43px);
+    height: clamp(40px, 6.5vh, 50px);
   }
   
   .key.wrong {
     background-color: var(--wrong-color);
     color: white;
+    width: clamp(35px, 5.5vw, 43px);
+    min-width: clamp(35px, 5.5vw, 43px);
+    max-width: clamp(35px, 5.5vw, 43px);
+    height: clamp(40px, 6.5vh, 50px);
   }
 
   /* Ensure dark-mode keys also pick up the state colors (override base white keys) */
   :root.dark-mode .key.correct {
     background-color: var(--correct-color);
     color: white;
+    width: clamp(35px, 5.5vw, 43px);
+    min-width: clamp(35px, 5.5vw, 43px);
+    max-width: clamp(35px, 5.5vw, 43px);
+    height: clamp(40px, 6.5vh, 50px);
   }
 
   :root.dark-mode .key.found {
     background-color: var(--found-color);
     color: white;
+    width: clamp(35px, 5.5vw, 43px);
+    min-width: clamp(35px, 5.5vw, 43px);
+    max-width: clamp(35px, 5.5vw, 43px);
+    height: clamp(40px, 6.5vh, 50px);
   }
 
   :root.dark-mode .key.wrong {
     background-color: var(--wrong-color);
     color: white;
+    width: clamp(35px, 5.5vw, 43px);
+    min-width: clamp(35px, 5.5vw, 43px);
+    max-width: clamp(35px, 5.5vw, 43px);
+    height: clamp(40px, 6.5vh, 50px);
   }
 
   /* High Contrast Mode - Keyboard keys match grid colors */
@@ -140,22 +168,37 @@ html, body {
   :root.dark-mode.high-contrast-mode .key.correct {
     background-color: #f5793a !important;
     color: white !important;
+    width: clamp(35px, 5.5vw, 43px) !important;
+    min-width: clamp(35px, 5.5vw, 43px) !important;
+    max-width: clamp(35px, 5.5vw, 43px) !important;
+    height: clamp(40px, 6.5vh, 50px) !important;
   }
 
   :root.high-contrast-mode .key.found,
   :root.dark-mode.high-contrast-mode .key.found {
     background-color: #85c0f9 !important;
     color: white !important;
+    width: clamp(35px, 5.5vw, 43px) !important;
+    min-width: clamp(35px, 5.5vw, 43px) !important;
+    max-width: clamp(35px, 5.5vw, 43px) !important;
+    height: clamp(40px, 6.5vh, 50px) !important;
   }
 
   :root.high-contrast-mode .key.wrong,
   :root.dark-mode.high-contrast-mode .key.wrong {
     background-color: var(--wrong-color) !important;
     color: white !important;
+    width: clamp(35px, 5.5vw, 43px) !important;
+    min-width: clamp(35px, 5.5vw, 43px) !important;
+    max-width: clamp(35px, 5.5vw, 43px) !important;
+    height: clamp(40px, 6.5vh, 50px) !important;
   }
   
   #enter{
     width: clamp(70px, 11vw, 90px);
+    min-width: clamp(70px, 11vw, 90px);
+    max-width: clamp(70px, 11vw, 90px);
+    height: clamp(40px, 6.5vh, 50px);
   }
 
   /* Shake animation for invalid words */
