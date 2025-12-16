@@ -1653,7 +1653,7 @@
                 cell.classList.remove('revealed', 'flip');
               });
               
-              // After 1 second, flip the colored tiles
+              // After 0.5 seconds, flip the colored tiles
               setTimeout(() => {
                 const flipDelay = 100; // Delay between each flip (in milliseconds)
                 const flipDuration = 800; // Duration of each flip animation (in milliseconds)
@@ -1674,7 +1674,7 @@
                     }, flipDuration);
                   }, index * flipDelay);
                 });
-              }, 1000); // Wait 1 second after popup appears
+              }, 500); // Wait 0.5 seconds after popup appears
             }
           }
 
