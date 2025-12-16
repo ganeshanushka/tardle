@@ -586,6 +586,8 @@
     transition: background-color 0.3s ease, color 0.3s ease;
     padding: 20px 30px;
     margin: auto;
+    /* Reset font-size to browser default (16px) so em units match standalone page */
+    font-size: 16px;
   }
 
   .help-modal-header {
@@ -608,9 +610,10 @@
   }
 
   .help-close-btn {
-    font-size: clamp(28px, 4vw, 32px);
+    /* Match standalone how-to-play.html close button */
+    font-size: 28px;
     font-weight: bold;
-    color: var(--text-primary);
+    color: #000000;
     cursor: pointer;
     background: none;
     border: none;
@@ -765,6 +768,8 @@
     width: min(600px, 95vw);
     padding: 20px 30px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    /* Reset font-size to browser default (16px) so em units match standalone page */
+    font-size: 16px;
   }
 
   :root.dark-mode #helpModal .help-modal-header {
@@ -785,6 +790,7 @@
 
   :root.dark-mode #helpModal .help-close-btn {
     color: #000000;
+    font-size: 28px;
   }
 
   :root.dark-mode #helpModal .help-content p,
