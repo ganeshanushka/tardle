@@ -980,6 +980,28 @@
     border-color: transparent;
   }
 
+  /* High Contrast Mode - How to Play popup tiles (works in both light and dark mode) */
+  :root.high-contrast-mode #helpModal .help-cell.correct.revealed,
+  :root.dark-mode.high-contrast-mode #helpModal .help-cell.correct.revealed {
+    background-color: #f5793a !important; /* Orange for correct */
+    color: white !important;
+    border-color: transparent !important;
+  }
+
+  :root.high-contrast-mode #helpModal .help-cell.present.revealed,
+  :root.dark-mode.high-contrast-mode #helpModal .help-cell.present.revealed {
+    background-color: #85c0f9 !important; /* Blue for found */
+    color: white !important;
+    border-color: transparent !important;
+  }
+
+  :root.high-contrast-mode #helpModal .help-cell.absent.revealed,
+  :root.dark-mode.high-contrast-mode #helpModal .help-cell.absent.revealed {
+    background-color: var(--wrong-color) !important; /* Duke blue stays the same */
+    color: white !important;
+    border-color: transparent !important;
+  }
+
   :root.dark-mode #helpModal .help-content hr {
     border: none;
     border-top: 1px solid #3a3a3c; /* Dark border */
