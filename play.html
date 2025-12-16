@@ -388,6 +388,30 @@
     height: 100%;
   }
 
+  .podium-icon {
+    position: absolute;
+    right: clamp(150px, 20vw, 190px);
+    top: 50%;
+    transform: translateY(-50%);
+    width: clamp(24px, 3.5vw, 30px);
+    height: clamp(24px, 3.5vw, 30px);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s ease;
+    z-index: 1;
+  }
+
+  .podium-icon:hover {
+    opacity: 0.85;
+  }
+
+  .podium-icon svg {
+    width: 100%;
+    height: 100%;
+  }
+
   /* Header icons container */
   .header-icons {
     position: absolute;
@@ -577,15 +601,18 @@
     background-color: #ffffff;
     color: #000000;
     border-radius: 0;
-    max-width: 600px;
-    width: min(600px, 95vw);
-    max-height: 90vh;
+    max-width: 540px;
+    width: min(540px, 90vw);
+    height: min(540px, 90vw); /* Make it square */
+    max-height: min(540px, 90vw, 85vh);
+    aspect-ratio: 1 / 1; /* Ensure square shape */
     overflow-y: auto;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
     position: relative;
     transition: background-color 0.3s ease, color 0.3s ease;
     padding: 20px 30px;
     margin: auto;
+    box-sizing: border-box;
     /* Reset font-size to browser default (16px) so em units match standalone page */
     font-size: 16px;
   }
@@ -668,6 +695,7 @@
     display: flex;
     gap: 4px;
     margin-bottom: 4px;
+    perspective: 1000px; /* For 3D flip effect */
   }
 
   .help-cell {
@@ -682,21 +710,44 @@
     font-size: 1.5em;
     color: #000000;
     font-family: Arial, sans-serif;
+    background-color: #ffffff;
+    transition: background-color 0s, color 0s, border-color 0s;
   }
 
-  .help-cell.correct {
+  /* Flip animation for help cells */
+  .help-cell.flip {
+    animation: flip 0.8s ease-in-out;
+  }
+
+  @keyframes flip {
+    0% { transform: rotateX(0); }
+    50% { transform: rotateX(-90deg); }
+    100% { transform: rotateX(0); }
+  }
+
+  /* Initial state: colored cells start as white with black text */
+  .help-cell.correct,
+  .help-cell.present,
+  .help-cell.absent {
+    background-color: #ffffff;
+    color: #000000;
+    border-color: #d3d6da;
+  }
+
+  /* Revealed state: colored cells show their colors */
+  .help-cell.correct.revealed {
     background-color: var(--correct-color);
     color: white;
     border-color: transparent;
   }
 
-  .help-cell.present {
+  .help-cell.present.revealed {
     background-color: var(--found-color);
     color: white;
     border-color: transparent;
   }
 
-  .help-cell.absent {
+  .help-cell.absent.revealed {
     background-color: var(--wrong-color);
     color: white;
     border-color: transparent;
@@ -761,13 +812,21 @@
   }
 
   :root.dark-mode #helpModal .help-modal-content {
-    background-color: #ffffff;
-    color: #000000;
+    background-color: var(--bg-primary); /* Same as screen background */
+    color: #ffffff; /* White text */
     border-radius: 0;
-    max-width: 600px;
-    width: min(600px, 95vw);
-    padding: 20px 30px;
+    max-width: 540px;
+    width: min(540px, 90vw);
+    height: min(540px, 90vw); /* Make it square */
+    max-height: min(540px, 90vw, 85vh);
+    aspect-ratio: 1 / 1; /* Ensure square shape */
+    overflow-y: auto;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    position: relative;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    padding: 20px 30px;
+    margin: auto;
+    box-sizing: border-box;
     /* Reset font-size to browser default (16px) so em units match standalone page */
     font-size: 16px;
   }
@@ -785,31 +844,31 @@
     font-weight: 700;
     line-height: 1.2;
     margin: 0 0 0.25em 0;
-    color: #000000;
+    color: #ffffff; /* White text */
   }
 
   :root.dark-mode #helpModal .help-close-btn {
-    color: #000000;
+    color: #ffffff; /* White text */
     font-size: 28px;
   }
 
   :root.dark-mode #helpModal .help-content p,
   :root.dark-mode #helpModal .help-content li {
-    color: #000000;
+    color: #ffffff; /* White text */
     font-size: 1.5em;
     line-height: 1.1;
     margin-bottom: 15px;
   }
 
   :root.dark-mode #helpModal .help-content h2 {
-    color: #000000;
+    color: #ffffff; /* White text */
     font-size: 1.5em;
-    margin-top: 0;
-    margin-bottom: 0;
+    margin-top: 24px;
+    margin-bottom: 12px;
   }
 
   :root.dark-mode #helpModal .help-example {
-    background-color: #ffffff;
+    background-color: var(--bg-secondary); /* Dark secondary background */
     border-radius: 10px;
     padding: 6px;
     margin: 10px 0;
@@ -820,46 +879,55 @@
   }
 
   :root.dark-mode #helpModal .help-cell {
-    background-color: #ffffff;
-    border-color: #333;
-    color: #000000;
+    background-color: var(--bg-secondary); /* Dark secondary background */
+    border-color: #3a3a3c; /* Dark border */
+    color: #ffffff; /* White text */
   }
 
-  /* Colored cells in dark mode still use their colors with white text */
-  :root.dark-mode #helpModal .help-cell.correct {
+  /* Initial state: colored cells start as dark with white text */
+  :root.dark-mode #helpModal .help-cell.correct,
+  :root.dark-mode #helpModal .help-cell.present,
+  :root.dark-mode #helpModal .help-cell.absent {
+    background-color: var(--bg-secondary);
+    color: #ffffff;
+    border-color: #3a3a3c;
+  }
+
+  /* Revealed state: colored cells show their colors with white text */
+  :root.dark-mode #helpModal .help-cell.correct.revealed {
     background-color: var(--correct-color);
     color: white;
     border-color: transparent;
   }
 
-  :root.dark-mode #helpModal .help-cell.present {
+  :root.dark-mode #helpModal .help-cell.present.revealed {
     background-color: var(--found-color);
     color: white;
     border-color: transparent;
   }
 
-  :root.dark-mode #helpModal .help-cell.absent {
+  :root.dark-mode #helpModal .help-cell.absent.revealed {
     background-color: var(--wrong-color);
     color: white;
     border-color: transparent;
   }
 
   :root.dark-mode #helpModal .help-content hr {
-    border-top: 1px solid #d3d6da;
+    border-top: 1px solid #3a3a3c; /* Dark border */
   }
 
   :root.dark-mode #helpModal .help-content a {
-    color: #0000EE;
+    color: #7BAFD4; /* Carolina blue for links */
   }
 
   :root.dark-mode #helpModal .help-content .account-prompt p,
   :root.dark-mode #helpModal .help-content .daily-reminder p {
-    color: #000000;
+    color: #ffffff; /* White text */
     font-size: 1em;
   }
 
   :root.dark-mode #helpModal .help-example p {
-    color: #333333;
+    color: #ffffff; /* White text */
     font-size: 1em;
     font-family: Arial, sans-serif;
   }
@@ -1326,8 +1394,8 @@
   <div id="loginPromptModal">
     <div class="login-prompt-content">
       <button class="login-prompt-close" onclick="closeLoginPrompt()">×</button>
-      <h2 class="login-prompt-heading">Tardle is even better with a free account.</h2>
-      <p class="login-prompt-text">You can save your stats wherever you play and you'll never lose a streak again.</p>
+      <h2 class="login-prompt-heading">Make a Tardle account if you hate Duke!</h2>
+      <p class="login-prompt-text">(It's free, and you'll never lose a streak again)</p>
       <a href="login.html" class="login-prompt-button">Log in or create an account</a>
     </div>
   </div>
@@ -1367,7 +1435,7 @@
         
         <div class="side-panel-buttons">
           <button class="side-panel-button subscribe-button" onclick="handleSubscribe()">SUBSCRIBE</button>
-          <button class="side-panel-button logout-button" onclick="handleLogout()">LOG OUT</button>
+          <button class="side-panel-button logout-button" id="logoutButton" onclick="handleLogout()">LOG OUT</button>
         </div>
       </div>
     </div>
@@ -1380,8 +1448,20 @@
       <span></span>
     </div>
     <div class="title-text">Tardle</div>
+    <div class="podium-icon" onclick="handlePodiumClick()" aria-label="Leaderboard">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter">
+        <!-- Podium with three bars: left (medium), middle (tallest), right (shortest) -->
+        <!-- All bars aligned at bottom (y=20 for 24px viewBox) -->
+        <!-- Left bar (medium height, second place) -->
+        <rect x="3" y="10" width="5" height="10" fill="none"/>
+        <!-- Middle bar (tallest, first place) -->
+        <rect x="9.5" y="4" width="5" height="16" fill="none"/>
+        <!-- Right bar (shortest, third place) -->
+        <rect x="16" y="14" width="5" height="6" fill="none"/>
+      </svg>
+    </div>
     <div class="help-icon" onclick="handleHelpClick()" aria-label="Help">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="10" fill="none"/>
         <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
         <path d="M12 17h.01"/>
@@ -1601,16 +1681,22 @@
           }
 
           function handleLogout() {
-            // Add logout functionality here
-            if (window.firebaseAuth && window.firebaseAuthFunctions && window.firebaseAuthFunctions.signOut) {
-              window.firebaseAuthFunctions.signOut(window.firebaseAuth).then(() => {
+            // Check if user is logged in
+            if (window.firebaseAuth && window.firebaseAuth.currentUser) {
+              // User is logged in - log them out
+              if (window.firebaseAuthFunctions && window.firebaseAuthFunctions.signOut) {
+                window.firebaseAuthFunctions.signOut(window.firebaseAuth).then(() => {
+                  window.location.href = 'index.html';
+                }).catch((error) => {
+                  console.error('Logout error:', error);
+                  window.location.href = 'index.html';
+                });
+              } else {
                 window.location.href = 'index.html';
-              }).catch((error) => {
-                console.error('Logout error:', error);
-                window.location.href = 'index.html';
-              });
+              }
             } else {
-              window.location.href = 'index.html';
+              // User is not logged in - redirect to login page
+              window.location.href = 'login.html';
             }
           }
 
@@ -1623,6 +1709,35 @@
             const helpModal = document.getElementById('helpModal');
             if (helpModal) {
               helpModal.classList.remove('hidden');
+              
+              // Reset all colored cells to initial state
+              const coloredCells = helpModal.querySelectorAll('.help-cell.correct, .help-cell.present, .help-cell.absent');
+              coloredCells.forEach(cell => {
+                cell.classList.remove('revealed', 'flip');
+              });
+              
+              // After 0.5 seconds, flip the colored tiles
+              setTimeout(() => {
+                const flipDelay = 100; // Delay between each flip (in milliseconds)
+                const flipDuration = 800; // Duration of each flip animation (in milliseconds)
+                
+                coloredCells.forEach((cell, index) => {
+                  setTimeout(() => {
+                    // Add flip animation
+                    cell.classList.add('flip');
+                    
+                    // Reveal the color at the midpoint of the flip (when it's rotated 90 degrees)
+                    setTimeout(() => {
+                      cell.classList.add('revealed');
+                    }, flipDuration / 2); // Half of the flip duration (400ms)
+                    
+                    // Remove flip class after animation completes
+                    setTimeout(() => {
+                      cell.classList.remove('flip');
+                    }, flipDuration);
+                  }, index * flipDelay);
+                });
+              }, 150); // Wait 0.15 seconds after popup appears
             }
           }
 
@@ -1630,6 +1745,12 @@
             const helpModal = document.getElementById('helpModal');
             if (helpModal) {
               helpModal.classList.add('hidden');
+              
+              // Reset all colored cells to initial state for next time
+              const coloredCells = helpModal.querySelectorAll('.help-cell.correct, .help-cell.present, .help-cell.absent');
+              coloredCells.forEach(cell => {
+                cell.classList.remove('revealed', 'flip');
+              });
             }
           }
 
@@ -1652,6 +1773,12 @@
             if (settingsModal) {
               settingsModal.classList.remove('hidden');
             }
+          }
+
+          function handlePodiumClick() {
+            // Placeholder for leaderboard/podium functionality
+            console.log('Podium/Leaderboard clicked');
+            // TODO: Implement leaderboard functionality
           }
 
           function closeSettingsModal() {
@@ -1834,6 +1961,7 @@
                 window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, (user) => {
                   const greetingElement = document.getElementById('sidePanelGreeting');
                   const greetingNameElement = document.getElementById('userGreetingName');
+                  const logoutButton = document.getElementById('logoutButton');
                   
                   if (user && user.email) {
                     // Extract username from email (part before @)
@@ -1842,9 +1970,17 @@
                       greetingNameElement.textContent = username;
                       greetingElement.style.display = 'block';
                     }
+                    // User is logged in - show "LOG OUT"
+                    if (logoutButton) {
+                      logoutButton.textContent = 'LOG OUT';
+                    }
                   } else {
                     if (greetingElement) {
                       greetingElement.style.display = 'none';
+                    }
+                    // User is not logged in - show "LOG IN"
+                    if (logoutButton) {
+                      logoutButton.textContent = 'LOG IN';
                     }
                   }
                 });
@@ -1866,15 +2002,35 @@
                     if (window.firebaseAuthFunctions && window.firebaseAuthFunctions.onAuthStateChanged) {
                       // Use onAuthStateChanged to check auth state
                       window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, (user) => {
+                        const logoutButton = document.getElementById('logoutButton');
                         if (!user) {
                           // User is not logged in, show prompt
                           showLoginPrompt();
+                          // Update button to "LOG IN"
+                          if (logoutButton) {
+                            logoutButton.textContent = 'LOG IN';
+                          }
+                        } else {
+                          // User is logged in, update button to "LOG OUT"
+                          if (logoutButton) {
+                            logoutButton.textContent = 'LOG OUT';
+                          }
                         }
                       });
                     } else {
                       // Fallback: check currentUser directly
+                      const logoutButton = document.getElementById('logoutButton');
                       if (!window.firebaseAuth.currentUser) {
                         showLoginPrompt();
+                        // Update button to "LOG IN"
+                        if (logoutButton) {
+                          logoutButton.textContent = 'LOG IN';
+                        }
+                      } else {
+                        // Update button to "LOG OUT"
+                        if (logoutButton) {
+                          logoutButton.textContent = 'LOG OUT';
+                        }
                       }
                     }
                   }
