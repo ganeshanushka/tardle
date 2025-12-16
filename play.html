@@ -1243,6 +1243,13 @@
     box-shadow: inset 0 0 0 1px #7BAFD4;
   }
 
+  /* High Contrast Mode - Toggle buttons use high contrast blue */
+  :root.high-contrast-mode .toggle-switch input:checked + .toggle-slider,
+  :root.dark-mode.high-contrast-mode .toggle-switch input:checked + .toggle-slider {
+    background-color: #85c0f9 !important; /* High contrast blue */
+    box-shadow: inset 0 0 0 1px #85c0f9 !important;
+  }
+
 /* Success message popup - positioned on top of first row like Wordle */
 #customPopup {
   position: absolute;
