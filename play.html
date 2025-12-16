@@ -610,6 +610,7 @@
     transition: background-color 0.3s ease, color 0.3s ease;
     padding: 20px 30px;
     margin: auto;
+    box-sizing: border-box;
     /* Reset font-size to browser default (16px) so em units match standalone page */
     font-size: 16px;
   }
@@ -809,20 +810,10 @@
   }
 
   :root.dark-mode #helpModal .help-modal-content {
-    background-color: var(--bg-primary); /* Same as screen background */
-    color: #ffffff; /* White text */
-    border-radius: 0;
-    max-width: 480px; /* 1/5th thinner than 600px */
-    width: min(480px, 95vw);
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    position: relative;
-    transition: background-color 0.3s ease, color 0.3s ease;
-    padding: 20px 30px;
-    margin: auto;
-    /* Reset font-size to browser default (16px) so em units match standalone page */
-    font-size: 16px;
+    /* Only override colors, keep all size properties from base .help-modal-content */
+    background-color: var(--bg-primary) !important; /* Same as screen background */
+    color: #ffffff !important; /* White text */
+    box-sizing: border-box;
   }
 
   :root.dark-mode #helpModal .help-modal-header {
