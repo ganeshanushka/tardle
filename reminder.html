@@ -86,6 +86,26 @@
       font-size: 15px;
       margin-top: 14px;
     }
+    .signup-button {
+      display: inline-block;
+      background-color: #7BAFD4;
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+      padding: 12px 24px;
+      border-radius: 6px;
+      text-decoration: none;
+      margin-top: 28px;
+      border: none;
+      cursor: pointer;
+      font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    }
+    .signup-button:hover {
+      background-color: #6a9fc0;
+    }
+    .login-status {
+      margin-top: 28px;
+    }
   </style>
 </head>
 <body>
@@ -111,9 +131,56 @@
       <li>Sent to your inbox daily</li>
     </ul>
 
-    <p class="small">You’re logged in. Not you? <a href="login.html">Log out.</a></p>
+    <div class="login-status" id="loginStatus">
+      <p class="small">You're logged in. Not you? <a href="login.html">Log out.</a></p>
+    </div>
     <p class="muted"><a href="play.html">Back to game page</a></p>
   </div>
+
+  <!-- Firebase Config -->
+  <script type="module" src="firebase-config.js"></script>
+
+  <script>
+    // Check if user is logged in
+    function checkAuthState() {
+      if (!window.firebaseAuth || !window.firebaseAuthFunctions) {
+        // Firebase not loaded yet, show signup button by default
+        showSignupButton();
+        return;
+      }
+
+      if (window.firebaseAuthFunctions.onAuthStateChanged) {
+        window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, (user) => {
+          const loginStatus = document.getElementById('loginStatus');
+          if (user) {
+            // User is logged in - show login status
+            loginStatus.innerHTML = '<p class="small">You\'re logged in. Not you? <a href="login.html">Log out.</a></p>';
+          } else {
+            // User is not logged in - show signup button
+            showSignupButton();
+          }
+        });
+      } else {
+        // Fallback if onAuthStateChanged not available
+        showSignupButton();
+      }
+    }
+
+    function showSignupButton() {
+      const loginStatus = document.getElementById('loginStatus');
+      loginStatus.innerHTML = '<a href="login.html" class="signup-button">Sign up</a>';
+    }
+
+    // Wait for Firebase to load, then check auth state
+    window.addEventListener('load', function() {
+      if (window.firebaseAuthFunctions && window.firebaseAuth) {
+        checkAuthState();
+      } else {
+        // Wait a bit for Firebase to load
+        setTimeout(checkAuthState, 500);
+      }
+    });
+  </script>
 </body>
 </html>
 
