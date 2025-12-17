@@ -41,13 +41,40 @@
   margin-bottom: 0.7em;
 }
 
+  .email-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
   .input-group input {
-    width: 97%;
+    width: 100%;
     padding: 0.5em;
     font-size: 1em;
     margin-bottom: 0.5em;
     border: 1px solid #ccc;
     box-sizing: border-box;
+  }
+
+  .readonly-email {
+    background-color: #f7f7f7;
+    color: #9aa0a6;
+  }
+
+  .edit-button {
+    padding: 0.55em 0.9em;
+    font-size: 0.95em;
+    border: 1px solid #7BAFD4;
+    background: #ffffff;
+    color: #7BAFD4;
+    cursor: pointer;
+    border-radius: 4px;
+    height: 100%;
+    box-sizing: border-box;
+  }
+
+  .edit-button:hover {
+    background: #f0f6fb;
   }
 
   .password-wrapper {
@@ -119,7 +146,10 @@
   <form id="signinForm">
     <div class="input-group">
       <label for="email">Email Address</label>
-      <input type="email" id="email" name="email" required>
+      <div class="email-row">
+        <input type="email" id="email" name="email" required>
+        <button type="button" class="edit-button" id="editEmailBtn" style="display:none;">Edit</button>
+      </div>
     </div>
     <div class="input-group">
       <label for="password">Password</label>
@@ -151,9 +181,27 @@
   // Get email from URL parameter and pre-fill if provided
   const urlParams = new URLSearchParams(window.location.search);
   const emailParam = urlParams.get('email');
+  const emailInput = document.getElementById('email');
+  const editEmailBtn = document.getElementById('editEmailBtn');
   
   if (emailParam) {
-    document.getElementById('email').value = emailParam;
+    emailInput.value = emailParam;
+    emailInput.readOnly = true;
+    emailInput.classList.add('readonly-email');
+    if (editEmailBtn) {
+      editEmailBtn.style.display = 'inline-block';
+    }
+  } else {
+    if (editEmailBtn) {
+      editEmailBtn.style.display = 'none';
+    }
+  }
+
+  if (editEmailBtn) {
+    editEmailBtn.addEventListener('click', function() {
+      // Send user back to the email entry page
+      window.location.href = 'login.html';
+    });
   }
 
   function goBack() {
