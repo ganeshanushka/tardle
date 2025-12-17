@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tardle Reminder</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Georgia", "Times New Roman", serif;
+      color: #333333;
+      background: #ffffff;
+      display: flex;
+      justify-content: center;
+      padding: 40px 20px 60px;
+    }
+    .wrapper {
+      max-width: 720px;
+      width: 100%;
+    }
+    .icon {
+      width: 120px;
+      height: 120px;
+      border-radius: 6px;
+      background: #f2f2f2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 28px;
+    }
+    .icon-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 24px);
+      grid-template-rows: repeat(3, 24px);
+      gap: 6px;
+    }
+    .square {
+      width: 24px;
+      height: 24px;
+      border-radius: 3px;
+      background: #dcdcdc;
+    }
+    .square.green { background: #6aaa64; }
+    .square.yellow { background: #c9b458; }
+    .square.gray { background: #878a8c; }
+    h1 {
+      font-size: 48px;
+      margin: 0 0 12px 0;
+      font-weight: 800;
+      color: #1a1a1a;
+    }
+    h2 {
+      font-size: 42px;
+      margin: 0 0 24px 0;
+      font-weight: 400;
+      line-height: 1.1;
+    }
+    p {
+      font-size: 20px;
+      margin: 12px 0;
+      line-height: 1.5;
+    }
+    ul {
+      font-size: 20px;
+      padding-left: 22px;
+      margin: 16px 0 28px;
+      line-height: 1.5;
+    }
+    a {
+      color: #1a1a1a;
+      font-weight: 600;
+    }
+    .small {
+      font-size: 16px;
+      line-height: 1.5;
+      margin-top: 28px;
+    }
+    .muted {
+      color: #555;
+      font-size: 15px;
+      margin-top: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="icon">
+      <div class="icon-grid" aria-hidden="true">
+        <div class="square gray"></div>
+        <div class="square yellow"></div>
+        <div class="square gray"></div>
+        <div class="square green"></div>
+        <div class="square gray"></div>
+        <div class="square green"></div>
+        <div class="square green"></div>
+        <div class="square gray"></div>
+        <div class="square green"></div>
+      </div>
+    </div>
+
+    <h1>Tardle Reminder</h1>
+    <h2>Keep your Tardle streak alive with a daily reminder to solve our classic word puzzle.</h2>
+
+    <ul>
+      <li>Sent to your inbox daily</li>
+      <li><a href="play.html">Read the latest</a></li>
+    </ul>
+
+    <p>You are already signed up! <a href="https://www.nytimes.com/newsletters" target="_blank" rel="noopener noreferrer">See our other newsletters.</a></p>
+
+    <p class="small">You’re logged in. Not you? <a href="login.html">Log out.</a></p>
+    <p class="muted"><a href="play.html">Back to Tardle</a></p>
+  </div>
+</body>
+</html>
+
