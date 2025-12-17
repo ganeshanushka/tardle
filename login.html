@@ -129,24 +129,19 @@
           }
         });
         
-        // Try to create account - if email exists, we'll get email-already-in-use error
-        // Use the exact same logic as signup page
-        try {
-          await window.firebaseAuthFunctions.createUserWithEmailAndPassword(window.firebaseAuth, email, 'TempPassword123456');
-        } catch (createError) {
-          // Check if email is already in use - EXACT same check as signup page
-          if (createError.code === 'auth/email-already-in-use' || 
-              createError.code === 'auth/emailAlreadyInUse' ||
-              createError.message && createError.message.toLowerCase().includes('already in use')) {
-            // Email EXISTS - redirect to signin (same as signup page redirects)
-            window.location.replace(`signin.html?email=${encodeURIComponent(email)}`);
-            return;
-          }
-        }
+        // Check if the email already has an account
+        const methods = await window.firebaseAuthFunctions.fetchSignInMethodsForEmail(window.firebaseAuth, email);
+        const hasAccount = Array.isArray(methods) && methods.length > 0;
         
-        // If we get here, email doesn't exist - go to signup
-        window.location.replace(`signup.html?email=${encodeURIComponent(email)}`);
+        if (hasAccount) {
+          // Email exists -> go to signin with prefilled email
+          window.location.replace(`signin.html?email=${encodeURIComponent(email)}`);
+        } else {
+          // No account -> go to signup
+          window.location.replace(`signup.html?email=${encodeURIComponent(email)}`);
+        }
       } catch (error) {
+        console.error('Email check failed, defaulting to signup:', error);
         // Any other error - default to signup
         window.location.replace(`signup.html?email=${encodeURIComponent(email)}`);
       }
