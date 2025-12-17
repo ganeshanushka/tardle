@@ -21,28 +21,32 @@
     .icon {
       width: 120px;
       height: 120px;
-      border-radius: 6px;
+      border-radius: 8px;
       background: #f2f2f2;
       display: flex;
       align-items: center;
       justify-content: center;
       margin-bottom: 28px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
     .icon-grid {
       display: grid;
-      grid-template-columns: repeat(3, 24px);
-      grid-template-rows: repeat(3, 24px);
+      grid-template-columns: repeat(3, 26px);
+      grid-template-rows: repeat(3, 26px);
       gap: 6px;
     }
     .square {
-      width: 24px;
-      height: 24px;
-      border-radius: 3px;
-      background: #dcdcdc;
+      width: 26px;
+      height: 26px;
+      border-radius: 4px;
+      background: #e4e4e4;
+      border: 1px solid #d0d0d0;
     }
-    .square.green { background: #6aaa64; }
-    .square.yellow { background: #c9b458; }
-    .square.gray { background: #878a8c; }
+    /* Brand colors: Carolina blue for correct, gold for present, Duke blue for absent */
+    .square.carolina { background: #7BAFD4; border-color: #7BAFD4; }
+    .square.gold { background: #c9b458; border-color: #c9b458; }
+    .square.duke { background: #001A57; border-color: #001A57; }
+    .square.light { background: #ffffff; border-color: #d0d0d0; }
     h1 {
       font-size: 48px;
       margin: 0 0 12px 0;
@@ -84,17 +88,17 @@
 </head>
 <body>
   <div class="wrapper">
-    <div class="icon">
-      <div class="icon-grid" aria-hidden="true">
-        <div class="square gray"></div>
-        <div class="square yellow"></div>
-        <div class="square gray"></div>
-        <div class="square green"></div>
-        <div class="square gray"></div>
-        <div class="square green"></div>
-        <div class="square green"></div>
-        <div class="square gray"></div>
-        <div class="square green"></div>
+    <div class="icon" aria-hidden="true">
+      <div class="icon-grid">
+        <div class="square light"></div>
+        <div class="square gold"></div>
+        <div class="square light"></div>
+        <div class="square carolina"></div>
+        <div class="square light"></div>
+        <div class="square carolina"></div>
+        <div class="square duke"></div>
+        <div class="square light"></div>
+        <div class="square carolina"></div>
       </div>
     </div>
 
