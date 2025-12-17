@@ -238,8 +238,9 @@
 
   if (editEmailBtn) {
     editEmailBtn.addEventListener('click', function() {
-      // Send user back to the email entry page
-      window.location.href = 'login.html';
+      // Send user back to the email entry page with email pre-filled
+      const currentEmail = document.getElementById('email').value;
+      window.location.href = `login.html?email=${encodeURIComponent(currentEmail)}`;
     });
   }
 
