@@ -123,7 +123,7 @@
         return;
       }
       
-      // Check if email exists using the same method as signup page
+      // Check if email exists using fetchSignInMethodsForEmail (doesn't create account)
       try {
         // Wait for Firebase to be loaded
         await new Promise((resolve) => {
@@ -139,25 +139,19 @@
           }
         });
         
-        // Try to create account - if email exists, we'll get email-already-in-use error
-        // Use the exact same logic as signup page
-        try {
-          await window.firebaseAuthFunctions.createUserWithEmailAndPassword(window.firebaseAuth, email, 'TempPassword123456');
-        } catch (createError) {
-          // Check if email is already in use - EXACT same check as signup page
-          if (createError.code === 'auth/email-already-in-use' || 
-              createError.code === 'auth/emailAlreadyInUse' ||
-              createError.message && createError.message.toLowerCase().includes('already in use')) {
-            // Email EXISTS - redirect to signin (same as signup page redirects)
-            window.location.replace(`signin.html?email=${encodeURIComponent(email)}`);
-            return;
-          }
-        }
+        // Check if email exists without creating an account
+        const signInMethods = await window.firebaseAuthFunctions.fetchSignInMethodsForEmail(window.firebaseAuth, email);
         
-        // If we get here, email doesn't exist - go to signup
-        window.location.replace(`signup.html?email=${encodeURIComponent(email)}`);
+        if (signInMethods && signInMethods.length > 0) {
+          // Email EXISTS - redirect to signin
+          window.location.replace(`signin.html?email=${encodeURIComponent(email)}`);
+        } else {
+          // Email doesn't exist - go to signup
+          window.location.replace(`signup.html?email=${encodeURIComponent(email)}`);
+        }
       } catch (error) {
-        // Any other error - default to signup
+        console.error('Error checking email:', error);
+        // On error, default to signup (safer than assuming account exists)
         window.location.replace(`signup.html?email=${encodeURIComponent(email)}`);
       }
     });
