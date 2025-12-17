@@ -1644,6 +1644,16 @@
                     <span class="toggle-slider"></span>
                   </label>
                 </div>
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <div class="setting-title">Onscreen Keyboard Input Only</div>
+                    <div class="setting-description">Ignore key input except from the onscreen keyboard. Most helpful for users using speech recognition or other assistive devices.</div>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="onscreenKeyboardOnlyToggle">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
               </div>
             </div>
           </div>
@@ -1939,10 +1949,45 @@
             });
           }
 
+          // Onscreen Keyboard Input Only toggle functionality
+          function initOnscreenKeyboardOnly() {
+            const onscreenKeyboardOnlyToggle = document.getElementById('onscreenKeyboardOnlyToggle');
+            if (!onscreenKeyboardOnlyToggle) return;
+
+            // Load saved preference
+            const savedPreference = localStorage.getItem('onscreenKeyboardOnly');
+            const isEnabled = savedPreference === 'true';
+            
+            // Set initial state
+            onscreenKeyboardOnlyToggle.checked = isEnabled;
+
+            // Handle toggle change
+            onscreenKeyboardOnlyToggle.addEventListener('change', function() {
+              const enabled = this.checked;
+              console.log('Onscreen Keyboard Input Only toggled:', enabled);
+              
+              localStorage.setItem('onscreenKeyboardOnly', enabled ? 'true' : 'false');
+              
+              // Toggle physical keyboard listener
+              if (window.detachKeyboardListener && window.attachKeyboardListener) {
+                if (enabled) {
+                  window.detachKeyboardListener();
+                } else {
+                  window.attachKeyboardListener();
+                }
+              } else {
+                // Fallback: reload page to apply setting
+                console.log('Keyboard listener functions not available, reloading page...');
+                window.location.reload();
+              }
+            });
+          }
+
           // Initialize dark mode and high contrast mode on page load
           document.addEventListener('DOMContentLoaded', function() {
             initDarkMode();
             initHighContrastMode();
+            initOnscreenKeyboardOnly();
           });
 
           // Close settings modal when clicking outside
