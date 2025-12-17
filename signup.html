@@ -67,10 +67,45 @@
     box-sizing: border-box;
   }
 
-  .input-group input[readonly] {
+  .email-row {
+    display: flex;
+    gap: 0;
+    align-items: stretch;
+    width: 97%;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .email-row input {
+    flex: 1;
+    border: none;
+    border-radius: 0;
+    margin: 0;
+    width: auto;
+  }
+
+  .email-row input.readonly-email {
     background-color: #f7f7f7;
     color: #9aa0a6;
-    cursor: not-allowed;
+  }
+
+  .edit-button {
+    padding: 0.55em 0.9em;
+    font-size: 0.95em;
+    border: none;
+    border-left: 1px solid #ccc;
+    background: #ffffff;
+    color: #666;
+    cursor: pointer;
+    border-radius: 0;
+    height: auto;
+    box-sizing: border-box;
+    white-space: nowrap;
+  }
+
+  .edit-button:hover {
+    background: #f0f0f0;
   }
 
   .password-wrapper {
@@ -157,7 +192,10 @@
     </div>
     <div class="input-group">
       <label for="email">Email</label>
-      <input type="email" id="email" name="email" readonly required>
+      <div class="email-row">
+        <input type="email" id="email" name="email" readonly required class="readonly-email">
+        <button type="button" class="edit-button" id="editEmailBtn">Edit</button>
+      </div>
     </div>
     <div class="input-group">
       <label for="password">Password</label>
@@ -189,12 +227,20 @@
   // Get email from URL parameter
   const urlParams = new URLSearchParams(window.location.search);
   const email = urlParams.get('email');
+  const editEmailBtn = document.getElementById('editEmailBtn');
   
   if (email) {
     document.getElementById('email').value = email;
   } else {
     // If no email, redirect back to login
     window.location.href = 'login.html';
+  }
+
+  if (editEmailBtn) {
+    editEmailBtn.addEventListener('click', function() {
+      // Send user back to the email entry page
+      window.location.href = 'login.html';
+    });
   }
 
   function goBack() {
