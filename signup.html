@@ -272,19 +272,32 @@
     
     const firstName = document.getElementById('firstName').value.trim();
     const lastName = document.getElementById('lastName').value.trim();
+    const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
     const errorMessage = document.getElementById('errorMessage');
     errorMessage.style.display = 'none';
     
-    // Validate required fields
-    if (!firstName || !lastName) {
-      errorMessage.textContent = 'Please enter both first name and last name.';
+    // Validate all required fields are filled
+    if (!firstName) {
+      errorMessage.textContent = 'Please enter your first name.';
+      errorMessage.style.display = 'block';
+      return;
+    }
+    
+    if (!lastName) {
+      errorMessage.textContent = 'Please enter your last name.';
+      errorMessage.style.display = 'block';
+      return;
+    }
+    
+    if (!email || !email.includes('@')) {
+      errorMessage.textContent = 'Please enter a valid email address.';
       errorMessage.style.display = 'block';
       return;
     }
     
     // Validate password length
-    if (password.length < 6) {
+    if (!password || password.length < 6) {
       errorMessage.textContent = 'Password must be at least 6 characters long.';
       errorMessage.style.display = 'block';
       return;
