@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Newsletter Signup</title>
+<style>
+  body {
+    font-family: 'PT Serif', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #7BAFD4;
+  }
+
+  .login-container {
+    background-color: white;
+    margin: auto;
+    padding: 20px 30px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    width: 500px;
+  }
+
+  .close-button {
+    float: right;
+    cursor: pointer;
+    font-size: 1.5em;
+  }
+
+  .newsletter-intro {
+    font-size: 1em;
+    color: #333;
+    margin-bottom: 20px;
+    font-family: 'PT Serif', sans-serif;
+  }
+
+  .input-group {
+    font-size: 1.25em;
+  }
+
+  .input-group label {
+  text-align: left;
+  display: block; 
+  font-weight: bold; 
+  margin-top: 30px;
+  margin-bottom: 0.7em;
+}
+
+  .input-group input {
+    width: 97%;
+    padding: 0.5em;
+    font-size: 1em;
+    margin-bottom: 0.5em;
+    border: 1px solid #ccc;
+  }
+
+  .input-group input[type="submit"] {
+    background-color: #7BAFD4;
+    color: white;
+    cursor: pointer;
+    width: 50%
+  }
+
+  .terms {
+    font-size: 0.75em;
+    color: #666;
+    margin-top: 2em;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="login-container">
+  <div class="close-button" onclick="goBack()">X</div>
+  <p class="newsletter-intro">Enter your information to receive this newsletter.</p>
+  <h1>Log in or create an account</h1>
+  <form id="loginForm">
+    <div class="input-group">
+      <label for="email">Email Address</label>
+      <input type="email" id="email" name="email" required>
+    </div>
+    <div class="input-group">
+      <input type="submit" id="continueBtn" value="Continue">
+    </div>
+  </form>
+  <p class="terms">
+    By continuing, you agree to the updated <a href="#">Terms of Service</a>, 
+    and <a href="#">Privacy Policy</a>.
+  </p>
+</div>
+
+<!-- Firebase Config -->
+<script type="module" src="firebase-config.js"></script>
+
+<script>
+  function goBack() {
+    window.location.href = 'index.html';
+  }
+
+  // Handle form submission
+  document.addEventListener('DOMContentLoaded', function() {
+    const loginForm = document.getElementById('loginForm');
+    const emailInput = document.getElementById('email');
+    
+    // Check for email parameter and pre-fill + focus
+    const urlParams = new URLSearchParams(window.location.search);
+    const emailParam = urlParams.get('email');
+    if (emailParam && emailInput) {
+      emailInput.value = emailParam;
+      // Focus and position cursor at the end of the email
+      emailInput.focus();
+      emailInput.setSelectionRange(emailParam.length, emailParam.length);
+    }
+    
+    if (!loginForm) {
+      console.error('Login form not found!');
+      return;
+    }
+    
+    loginForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const email = emailInput.value.trim();
+      
+      // Validate email format
+      if (!email || !email.includes('@')) {
+        alert('Please enter a valid email address');
+        return;
+      }
+      
+      // Check if email exists using fetchSignInMethodsForEmail (doesn't create account)
+      try {
+        // Wait for Firebase to be loaded
+        await new Promise((resolve) => {
+          if (window.firebaseAuthFunctions && window.firebaseAuth) {
+            resolve();
+          } else {
+            const checkInterval = setInterval(() => {
+              if (window.firebaseAuthFunctions && window.firebaseAuth) {
+                clearInterval(checkInterval);
+                resolve();
+              }
+            }, 100);
+          }
+        });
+        
+        // Check if email exists in Firebase
+        let emailExists = false;
+        
+        // Method 1: Try fetchSignInMethodsForEmail first (doesn't create accounts)
+        try {
+          const signInMethods = await window.firebaseAuthFunctions.fetchSignInMethodsForEmail(window.firebaseAuth, email);
+          console.log('fetchSignInMethodsForEmail result:', signInMethods);
+          
+          if (signInMethods && Array.isArray(signInMethods) && signInMethods.length > 0) {
+            // Account exists
+            emailExists = true;
+            console.log('✓ Account EXISTS (found via fetchSignInMethodsForEmail)');
+          } else {
+            // No sign-in methods = account doesn't exist
+            emailExists = false;
+            console.log('✗ Account does NOT exist (no sign-in methods)');
+          }
+        } catch (fetchError) {
+          console.log('fetchSignInMethodsForEmail failed, using createUser fallback:', fetchError);
+          
+          // Method 2: Fallback - try to create account (will fail if email exists)
+          try {
+            const dummyPassword = 'DummyCheck123!@#';
+            await window.firebaseAuthFunctions.createUserWithEmailAndPassword(window.firebaseAuth, email, dummyPassword);
+            
+            // If we get here, account was created (didn't exist before)
+            emailExists = false;
+            console.log('✗ Account does NOT exist (created during check - will delete)');
+            
+            // Delete the account we just created
+            const user = window.firebaseAuth.currentUser;
+            if (user) {
+              try {
+                await user.delete();
+                console.log('✓ Deleted accidentally created account');
+              } catch (deleteError) {
+                console.error('Failed to delete account:', deleteError);
+              }
+            }
+          } catch (createError) {
+            console.log('Create account check error code:', createError.code);
+            console.log('Create account check error message:', createError.message);
+            
+            const errorCode = createError.code;
+            const errorMsg = (createError.message || '').toLowerCase();
+            
+            // Check if email is already in use
+            if (errorCode === 'auth/email-already-in-use' || 
+                errorCode === 'auth/emailAlreadyInUse' ||
+                errorMsg.includes('already in use')) {
+              // Account exists!
+              emailExists = true;
+              console.log('✓ Account EXISTS (email-already-in-use)');
+            } else {
+              // Any other error - assume account doesn't exist
+              emailExists = false;
+              console.log('✗ Account does NOT exist (error: ' + errorCode + ')');
+            }
+          }
+        }
+        
+        // Route based on whether email has an account
+        console.log('=== FINAL ROUTING DECISION ===');
+        console.log('Email:', email);
+        console.log('emailExists:', emailExists);
+        if (emailExists) {
+          console.log('→ Redirecting to SIGNIN page (account exists)');
+          window.location.replace(`signin.html?email=${encodeURIComponent(email)}`);
+        } else {
+          console.log('→ Redirecting to SIGNUP page (account does not exist)');
+          window.location.replace(`signup.html?email=${encodeURIComponent(email)}`);
+        }
+      } catch (error) {
+        console.error('Error checking email:', error);
+        // On error, default to signup (safer than assuming account exists)
+        window.location.replace(`signup.html?email=${encodeURIComponent(email)}`);
+      }
+    });
+    
+    // Also handle button click as backup
+    const continueBtn = document.getElementById('continueBtn');
+    if (continueBtn) {
+      continueBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        console.log('Button clicked');
+        loginForm.dispatchEvent(new Event('submit'));
+      });
+    }
+  });
+</script>
+
+</body>
+</html>
+
