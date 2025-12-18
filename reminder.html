@@ -103,15 +103,148 @@
       cursor: pointer;
       font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
     }
+    .signup-button:focus {
+      outline: 2px solid #7BAFD4;
+      outline-offset: 2px;
+    }
     .signup-button:hover {
       background-color: #6a9fc0;
     }
     .login-status {
       margin-top: 16px;
     }
+    
+    /* Popup Modal Styles */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .modal-overlay.show {
+      display: flex;
+    }
+    
+    .modal-content {
+      background-color: white;
+      border: 1px solid #7BAFD4;
+      border-radius: 0;
+      padding: 30px;
+      max-width: 500px;
+      width: 90%;
+      position: relative;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    .modal-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      font-size: 24px;
+      font-weight: bold;
+      color: #000;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+      line-height: 1;
+      font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    }
+    
+    .modal-close:hover {
+      opacity: 0.7;
+    }
+    
+    .modal-content h1 {
+      font-size: 28px;
+      font-weight: bold;
+      margin: 0 0 30px 0;
+      color: #000;
+      font-family: 'PT Serif', serif;
+    }
+    
+    .modal-input-group {
+      margin-bottom: 20px;
+    }
+    
+    .modal-input-group label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 8px;
+      color: #000;
+      font-family: 'PT Serif', serif;
+      font-size: 16px;
+    }
+    
+    .modal-input-group input[type="email"] {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    }
+    
+    .modal-input-group input[type="submit"] {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      background-color: #7BAFD4;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: normal;
+      font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+      margin-top: 10px;
+    }
+    
+    .modal-input-group input[type="submit"]:hover {
+      background-color: #6a9fc0;
+    }
+    
+    .modal-terms {
+      font-size: 14px;
+      color: #666;
+      margin-top: 20px;
+      line-height: 1.5;
+      font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    }
+    
+    .modal-terms a {
+      color: #7BAFD4;
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
+  <!-- Login Modal Popup -->
+  <div class="modal-overlay" id="loginModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeLoginModal()">X</button>
+      <h1>Log in or create an account</h1>
+      <form id="loginModalForm">
+        <div class="modal-input-group">
+          <label for="modalEmail">Email Address</label>
+          <input type="email" id="modalEmail" name="email" required>
+        </div>
+        <div class="modal-input-group">
+          <input type="submit" value="Continue">
+        </div>
+      </form>
+      <p class="modal-terms">
+        By continuing, you agree to the updated <a href="#">Terms of Service</a>, 
+        and <a href="#">Privacy Policy</a>.
+      </p>
+    </div>
+  </div>
+
   <div class="wrapper">
     <div class="icon" aria-hidden="true">
       <div class="icon-grid">
@@ -171,8 +304,127 @@
 
     function showSignupButton() {
       const loginStatus = document.getElementById('loginStatus');
-      loginStatus.innerHTML = '<a href="login.html" class="signup-button">Sign up</a>';
+      loginStatus.innerHTML = '<button onclick="openLoginModal()" class="signup-button">Sign up</button>';
     }
+    
+    function openLoginModal() {
+      const modal = document.getElementById('loginModal');
+      if (modal) {
+        modal.classList.add('show');
+        // Focus on email input
+        setTimeout(() => {
+          const emailInput = document.getElementById('modalEmail');
+          if (emailInput) {
+            emailInput.focus();
+          }
+        }, 100);
+      }
+    }
+    
+    function closeLoginModal() {
+      const modal = document.getElementById('loginModal');
+      if (modal) {
+        modal.classList.remove('show');
+      }
+    }
+    
+    // Close modal when clicking outside
+    document.addEventListener('DOMContentLoaded', function() {
+      const modal = document.getElementById('loginModal');
+      if (modal) {
+        modal.addEventListener('click', function(e) {
+          if (e.target === modal) {
+            closeLoginModal();
+          }
+        });
+      }
+      
+      // Handle form submission
+      const loginModalForm = document.getElementById('loginModalForm');
+      if (loginModalForm) {
+        loginModalForm.addEventListener('submit', async function(e) {
+          e.preventDefault();
+          
+          const emailInput = document.getElementById('modalEmail');
+          const email = emailInput.value.trim();
+          
+          // Validate email format
+          if (!email || !email.includes('@')) {
+            alert('Please enter a valid email address');
+            return;
+          }
+          
+          // Check if email exists in Firebase
+          let emailExists = false;
+          
+          // Method 1: Try fetchSignInMethodsForEmail first (doesn't create accounts)
+          try {
+            const signInMethods = await window.firebaseAuthFunctions.fetchSignInMethodsForEmail(window.firebaseAuth, email);
+            console.log('fetchSignInMethodsForEmail result:', signInMethods);
+            
+            if (signInMethods && Array.isArray(signInMethods) && signInMethods.length > 0) {
+              // Account exists
+              emailExists = true;
+              console.log('✓ Account EXISTS (found via fetchSignInMethodsForEmail)');
+            } else {
+              // No sign-in methods = account doesn't exist
+              emailExists = false;
+              console.log('✗ Account does NOT exist (no sign-in methods)');
+            }
+          } catch (fetchError) {
+            console.log('fetchSignInMethodsForEmail failed, using createUser fallback:', fetchError);
+            
+            // Method 2: Fallback - try to create account (will fail if email exists)
+            try {
+              const dummyPassword = 'DummyCheck123!@#';
+              await window.firebaseAuthFunctions.createUserWithEmailAndPassword(window.firebaseAuth, email, dummyPassword);
+              
+              // If we get here, account was created (didn't exist before)
+              emailExists = false;
+              console.log('✗ Account does NOT exist (created during check - will delete)');
+              
+              // Delete the account we just created
+              const user = window.firebaseAuth.currentUser;
+              if (user) {
+                try {
+                  await user.delete();
+                  console.log('✓ Deleted accidentally created account');
+                } catch (deleteError) {
+                  console.error('Failed to delete account:', deleteError);
+                }
+              }
+            } catch (createError) {
+              console.log('Create account check error code:', createError.code);
+              console.log('Create account check error message:', createError.message);
+              
+              const errorCode = createError.code;
+              const errorMsg = (createError.message || '').toLowerCase();
+              
+              // Check if email is already in use
+              if (errorCode === 'auth/email-already-in-use' || 
+                  errorCode === 'auth/emailAlreadyInUse' ||
+                  errorMsg.includes('already in use')) {
+                // Account exists!
+                emailExists = true;
+                console.log('✓ Account EXISTS (email-already-in-use)');
+              } else {
+                // Any other error - assume account doesn't exist
+                emailExists = false;
+                console.log('✗ Account does NOT exist (error: ' + errorCode + ')');
+              }
+            }
+          }
+          
+          // Route based on whether email has an account
+          closeLoginModal();
+          if (emailExists) {
+            window.location.replace(`signin.html?email=${encodeURIComponent(email)}`);
+          } else {
+            window.location.replace(`signup.html?email=${encodeURIComponent(email)}`);
+          }
+        });
+      }
+    });
 
     // Wait for Firebase to load, then check auth state
     window.addEventListener('load', function() {
