@@ -147,7 +147,10 @@
     loginForm.addEventListener('submit', async function(e) {
       e.preventDefault();
       
-      // Get email from input (works whether pre-filled or manually entered)
+      // Get email from input field - works the same whether:
+      // 1. Email was pre-filled from URL parameter (after clicking Edit)
+      // 2. Email was manually entered by user
+      // The same checking logic applies in both cases
       const email = emailInput.value.trim();
       
       // Validate email format
