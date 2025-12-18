@@ -146,12 +146,14 @@
     
     loginForm.addEventListener('submit', async function(e) {
       e.preventDefault();
+      console.log('Form submit event triggered');
       
       // Get email from input field - works the same whether:
       // 1. Email was pre-filled from URL parameter (after clicking Edit)
       // 2. Email was manually entered by user
       // The same checking logic applies in both cases
       const email = emailInput.value.trim();
+      console.log('Email from input:', email);
       
       // Validate email format
       if (!email || !email.includes('@')) {
@@ -159,6 +161,8 @@
         emailInput.focus();
         return;
       }
+      
+      console.log('Email validation passed, starting Firebase check...');
       
       // Disable submit button to prevent double submission
       const continueBtn = document.getElementById('continueBtn');
@@ -169,19 +173,29 @@
       
       // Check if email exists using fetchSignInMethodsForEmail (doesn't create account)
       try {
-        // Wait for Firebase to be loaded
-        await new Promise((resolve) => {
+        console.log('Waiting for Firebase to load...');
+        // Wait for Firebase to be loaded (with timeout)
+        await new Promise((resolve, reject) => {
           if (window.firebaseAuthFunctions && window.firebaseAuth) {
+            console.log('Firebase already loaded');
             resolve();
           } else {
+            let attempts = 0;
+            const maxAttempts = 50; // 5 seconds max wait
             const checkInterval = setInterval(() => {
+              attempts++;
               if (window.firebaseAuthFunctions && window.firebaseAuth) {
+                console.log('Firebase loaded after', attempts * 100, 'ms');
                 clearInterval(checkInterval);
                 resolve();
+              } else if (attempts >= maxAttempts) {
+                clearInterval(checkInterval);
+                reject(new Error('Firebase failed to load within timeout period'));
               }
             }, 100);
           }
         });
+        console.log('Firebase is ready, checking email...');
         
         // Check if email exists in Firebase
         // Use createUserWithEmailAndPassword - it gives us a clear error if email exists
@@ -244,24 +258,33 @@
         }
       } catch (error) {
         console.error('Error checking email:', error);
+        console.error('Error details:', error.message, error.stack);
         // Re-enable button on error
         if (continueBtn) {
           continueBtn.disabled = false;
           continueBtn.value = 'Continue';
         }
+        // Show error to user
+        alert('An error occurred while checking your email. Please try again.');
         // On error, default to signup (safer than assuming account exists)
-        const returnParam = returnUrl ? `&return=${encodeURIComponent(returnUrl)}` : '';
-        window.location.replace(`signup.html?email=${encodeURIComponent(email)}${returnParam}`);
+        // But only redirect if it's not a critical error
+        if (error.message && !error.message.includes('network') && !error.message.includes('timeout')) {
+          const returnParam = returnUrl ? `&return=${encodeURIComponent(returnUrl)}` : '';
+          window.location.replace(`signup.html?email=${encodeURIComponent(email)}${returnParam}`);
+        }
       }
     });
     
-    // Also handle button click as backup
+    // Also handle button click as backup (though form submit should handle it)
     const continueBtn = document.getElementById('continueBtn');
     if (continueBtn) {
       continueBtn.addEventListener('click', function(e) {
         e.preventDefault();
-        console.log('Button clicked');
-        loginForm.dispatchEvent(new Event('submit'));
+        console.log('Continue button clicked');
+        // Trigger form submission
+        if (loginForm) {
+          loginForm.requestSubmit();
+        }
       });
     }
   });
