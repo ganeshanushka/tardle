@@ -142,11 +142,16 @@
         // Check if email exists without creating an account
         const signInMethods = await window.firebaseAuthFunctions.fetchSignInMethodsForEmail(window.firebaseAuth, email);
         
-        if (signInMethods && signInMethods.length > 0) {
-          // Email EXISTS - redirect to signin
+        console.log('Sign in methods for', email, ':', signInMethods);
+        
+        // If email has sign-in methods, it means an account exists
+        if (signInMethods && Array.isArray(signInMethods) && signInMethods.length > 0) {
+          console.log('Email has account - redirecting to signin page');
+          // Email EXISTS - redirect to signin page
           window.location.replace(`signin.html?email=${encodeURIComponent(email)}`);
         } else {
-          // Email doesn't exist - go to signup
+          console.log('Email does not have account - redirecting to signup page');
+          // Email doesn't exist - go to signup page
           window.location.replace(`signup.html?email=${encodeURIComponent(email)}`);
         }
       } catch (error) {
