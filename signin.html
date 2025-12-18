@@ -192,9 +192,10 @@
 <script type="module" src="firebase-config.js"></script>
 
 <script>
-  // Get email from URL parameter and pre-fill if provided
+  // Get email and return URL from URL parameters
   const urlParams = new URLSearchParams(window.location.search);
   const emailParam = urlParams.get('email');
+  const returnUrl = urlParams.get('return');
   const emailInput = document.getElementById('email');
   const editEmailBtn = document.getElementById('editEmailBtn');
   
@@ -278,8 +279,9 @@
       // User signed in successfully
       console.log('User signed in:', userCredential.user.email);
       
-      // Redirect to home page
-      window.location.href = 'index.html';
+      // Redirect to return URL if provided, otherwise to home page
+      const redirectUrl = returnUrl || 'index.html';
+      window.location.href = redirectUrl;
     } catch (error) {
       console.error('Sign in error:', error);
       // Show error message

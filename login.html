@@ -100,6 +100,7 @@
     // Check for email parameter and pre-fill + focus
     const urlParams = new URLSearchParams(window.location.search);
     const emailParam = urlParams.get('email');
+    const returnUrl = urlParams.get('return'); // Get return URL parameter
     if (emailParam && emailInput) {
       emailInput.value = emailParam;
       // Focus and position cursor at the end of the email
@@ -187,17 +188,22 @@
         console.log('=== FINAL ROUTING DECISION ===');
         console.log('Email:', email);
         console.log('emailExists:', emailExists);
+        
+        // Build redirect URL with return parameter if present
+        const returnParam = returnUrl ? `&return=${encodeURIComponent(returnUrl)}` : '';
+        
         if (emailExists) {
           console.log('→ Redirecting to SIGNIN page (account exists)');
-          window.location.replace(`signin.html?email=${encodeURIComponent(email)}`);
+          window.location.replace(`signin.html?email=${encodeURIComponent(email)}${returnParam}`);
         } else {
           console.log('→ Redirecting to SIGNUP page (account does not exist)');
-          window.location.replace(`signup.html?email=${encodeURIComponent(email)}`);
+          window.location.replace(`signup.html?email=${encodeURIComponent(email)}${returnParam}`);
         }
       } catch (error) {
         console.error('Error checking email:', error);
         // On error, default to signup (safer than assuming account exists)
-        window.location.replace(`signup.html?email=${encodeURIComponent(email)}`);
+        const returnParam = returnUrl ? `&return=${encodeURIComponent(returnUrl)}` : '';
+        window.location.replace(`signup.html?email=${encodeURIComponent(email)}${returnParam}`);
       }
     });
     

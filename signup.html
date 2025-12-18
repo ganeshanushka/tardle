@@ -224,9 +224,10 @@
 <script type="module" src="firebase-config.js"></script>
 
 <script>
-  // Get email from URL parameter
+  // Get email and return URL from URL parameters
   const urlParams = new URLSearchParams(window.location.search);
   const email = urlParams.get('email');
+  const returnUrl = urlParams.get('return');
   const editEmailBtn = document.getElementById('editEmailBtn');
   
   if (email) {
@@ -338,8 +339,9 @@
       
       console.log('User account created:', user.email);
       
-      // Redirect to home page
-      window.location.href = 'index.html';
+      // Redirect to return URL if provided, otherwise to home page
+      const redirectUrl = returnUrl || 'index.html';
+      window.location.href = redirectUrl;
     } catch (error) {
       console.error('Sign up error:', error);
       console.error('Error code:', error.code);
@@ -352,7 +354,8 @@
           error.message && error.message.toLowerCase().includes('already in use')) {
         console.log('Email already exists, redirecting to sign in page immediately');
         // Use replace instead of href to prevent back button issues
-        window.location.replace(`signin.html?email=${encodeURIComponent(email)}`);
+        const returnParam = returnUrl ? `&return=${encodeURIComponent(returnUrl)}` : '';
+        window.location.replace(`signin.html?email=${encodeURIComponent(email)}${returnParam}`);
         return;
       }
       
