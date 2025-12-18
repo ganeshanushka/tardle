@@ -144,6 +144,23 @@
   <script type="module" src="firebase-config.js"></script>
 
   <script>
+    // Handle logout
+    async function handleLogout(event) {
+      event.preventDefault();
+      
+      try {
+        if (window.firebaseAuthFunctions && window.firebaseAuthFunctions.signOut) {
+          await window.firebaseAuthFunctions.signOut(window.firebaseAuth);
+          console.log('User signed out successfully');
+        }
+      } catch (error) {
+        console.error('Error signing out:', error);
+      }
+      
+      // Redirect to homepage
+      window.location.href = 'index.html';
+    }
+
     // Check if user is logged in
     function checkAuthState() {
       if (!window.firebaseAuth || !window.firebaseAuthFunctions) {
@@ -158,7 +175,7 @@
           if (user) {
             // User is logged in - show login status with email
             const userEmail = user.email || 'your account';
-            loginStatus.innerHTML = '<p class="small" style="margin-bottom: 4px;">You\'re logged in as <strong>' + userEmail + '</strong>.</p><p class="small" style="margin-top: 4px;">Not you? <a href="login.html">Log out.</a></p>';
+            loginStatus.innerHTML = '<p class="small" style="margin-bottom: 4px;">You\'re logged in as <strong>' + userEmail + '</strong>.</p><p class="small" style="margin-top: 4px;">Not you? <a href="#" onclick="handleLogout(event)">Log out.</a></p>';
           } else {
             // User is not logged in - show signup button
             showSignupButton();
