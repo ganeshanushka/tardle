@@ -156,8 +156,9 @@
         window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, (user) => {
           const loginStatus = document.getElementById('loginStatus');
           if (user) {
-            // User is logged in - show login status
-            loginStatus.innerHTML = '<p class="small">You\'re logged in. Not you? <a href="login.html">Log out.</a></p>';
+            // User is logged in - show login status with email
+            const userEmail = user.email || 'your account';
+            loginStatus.innerHTML = '<p class="small">You\'re logged in as ' + userEmail + '.</p><p class="small">Not you? <a href="login.html">Log out.</a></p>';
           } else {
             // User is not logged in - show signup button
             showSignupButton();
