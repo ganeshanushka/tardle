@@ -158,7 +158,7 @@
           if (user) {
             // User is logged in - show login status with email
             const userEmail = user.email || 'your account';
-            loginStatus.innerHTML = '<p class="small">You\'re logged in as ' + userEmail + '.</p><p class="small">Not you? <a href="login.html">Log out.</a></p>';
+            loginStatus.innerHTML = '<p class="small" style="margin-bottom: 4px;">You\'re logged in as <strong>' + userEmail + '</strong>.</p><p class="small" style="margin-top: 4px;">Not you? <a href="login.html">Log out.</a></p>';
           } else {
             // User is not logged in - show signup button
             showSignupButton();
