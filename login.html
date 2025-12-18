@@ -101,6 +101,37 @@
     const urlParams = new URLSearchParams(window.location.search);
     const emailParam = urlParams.get('email');
     const returnUrl = urlParams.get('return'); // Get return URL parameter
+    const logoutParam = urlParams.get('logout'); // Check for logout parameter
+    
+    // If logout parameter is present, sign out the user
+    if (logoutParam === 'true') {
+      // Wait for Firebase to load, then sign out
+      (async function() {
+        try {
+          // Wait for Firebase to be available
+          await new Promise((resolve) => {
+            if (window.firebaseAuthFunctions && window.firebaseAuth) {
+              resolve();
+            } else {
+              const checkInterval = setInterval(() => {
+                if (window.firebaseAuthFunctions && window.firebaseAuth) {
+                  clearInterval(checkInterval);
+                  resolve();
+                }
+              }, 100);
+            }
+          });
+          
+          // Sign out the user
+          if (window.firebaseAuthFunctions && window.firebaseAuthFunctions.signOut) {
+            await window.firebaseAuthFunctions.signOut(window.firebaseAuth);
+            console.log('User signed out successfully');
+          }
+        } catch (error) {
+          console.error('Error signing out:', error);
+        }
+      })();
+    }
     if (emailParam && emailInput) {
       emailInput.value = emailParam;
       // Focus and position cursor at the end of the email

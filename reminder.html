@@ -145,20 +145,12 @@
 
   <script>
     // Handle logout
-    async function handleLogout(event) {
+    function handleLogout(event) {
       event.preventDefault();
       
-      try {
-        if (window.firebaseAuthFunctions && window.firebaseAuthFunctions.signOut) {
-          await window.firebaseAuthFunctions.signOut(window.firebaseAuth);
-          console.log('User signed out successfully');
-        }
-      } catch (error) {
-        console.error('Error signing out:', error);
-      }
-      
-      // Redirect to login page
-      window.location.href = 'login.html';
+      // Redirect to login page without signing out
+      // This allows user to go back and still be logged in
+      window.location.href = 'login.html?logout=true';
     }
 
     // Check if user is logged in
