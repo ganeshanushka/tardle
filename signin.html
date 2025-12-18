@@ -216,7 +216,9 @@
     editEmailBtn.addEventListener('click', function() {
       // Send user back to the email entry page with email pre-filled
       const currentEmail = emailInput.value;
-      window.location.href = `login.html?email=${encodeURIComponent(currentEmail)}`;
+      // Preserve return URL if present
+      const returnParam = returnUrl ? `&return=${encodeURIComponent(returnUrl)}` : '';
+      window.location.href = `login.html?email=${encodeURIComponent(currentEmail)}${returnParam}`;
     });
   }
 
