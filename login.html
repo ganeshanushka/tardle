@@ -147,12 +147,21 @@
     loginForm.addEventListener('submit', async function(e) {
       e.preventDefault();
       
+      // Get email from input (works whether pre-filled or manually entered)
       const email = emailInput.value.trim();
       
       // Validate email format
       if (!email || !email.includes('@')) {
         alert('Please enter a valid email address');
+        emailInput.focus();
         return;
+      }
+      
+      // Disable submit button to prevent double submission
+      const continueBtn = document.getElementById('continueBtn');
+      if (continueBtn) {
+        continueBtn.disabled = true;
+        continueBtn.value = 'Checking...';
       }
       
       // Check if email exists using fetchSignInMethodsForEmail (doesn't create account)
@@ -232,6 +241,11 @@
         }
       } catch (error) {
         console.error('Error checking email:', error);
+        // Re-enable button on error
+        if (continueBtn) {
+          continueBtn.disabled = false;
+          continueBtn.value = 'Continue';
+        }
         // On error, default to signup (safer than assuming account exists)
         const returnParam = returnUrl ? `&return=${encodeURIComponent(returnUrl)}` : '';
         window.location.replace(`signup.html?email=${encodeURIComponent(email)}${returnParam}`);
