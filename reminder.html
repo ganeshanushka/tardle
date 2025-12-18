@@ -192,6 +192,27 @@
       loginStatus.innerHTML = '<a href="login.html?return=reminder.html" class="signup-button">Sign up</a>';
     }
 
+    // Prevent browser back/forward navigation
+    (function() {
+      // Replace current history entry so there's nothing to go back to
+      history.replaceState(null, null, location.href);
+      
+      // Push a new state to the history
+      history.pushState(null, null, location.href);
+      
+      // Listen for popstate event (back/forward button)
+      window.addEventListener('popstate', function(event) {
+        // Push the state back to prevent navigation
+        history.pushState(null, null, location.href);
+      });
+      
+      // Also prevent navigation on beforeunload
+      window.addEventListener('beforeunload', function(event) {
+        // This doesn't prevent navigation but can show a warning
+        // However, we'll just let it proceed
+      });
+    })();
+
     // Wait for Firebase to load, then check auth state
     window.addEventListener('load', function() {
       if (window.firebaseAuthFunctions && window.firebaseAuth) {
