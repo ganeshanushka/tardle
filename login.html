@@ -199,10 +199,14 @@
               if (errorMsg.includes('user-not-found') || errorMsg.includes('no user record') || errorMsg.includes('there is no user')) {
                 emailExists = false;
                 console.log('Account does NOT exist (error message indicates user-not-found)');
-              } else {
-                // Default to assuming account exists for unknown errors (safer)
+              } else if (errorMsg.includes('wrong-password') || errorMsg.includes('password') || errorMsg.includes('invalid credential')) {
+                // Error suggests account exists but wrong password
                 emailExists = true;
-                console.log('Account EXISTS (unknown error, defaulting to exists)');
+                console.log('Account EXISTS (error message suggests wrong password)');
+              } else {
+                // Default to signup for unknown errors (safer - let user create account)
+                emailExists = false;
+                console.log('Account does NOT exist (unknown error, defaulting to signup)');
               }
             }
           }
