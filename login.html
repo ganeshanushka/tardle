@@ -140,18 +140,59 @@
         });
         
         // Check if email exists without creating an account
-        const signInMethods = await window.firebaseAuthFunctions.fetchSignInMethodsForEmail(window.firebaseAuth, email);
+        let emailExists = false;
         
-        console.log('Sign in methods for', email, ':', signInMethods);
+        try {
+          const signInMethods = await window.firebaseAuthFunctions.fetchSignInMethodsForEmail(window.firebaseAuth, email);
+          console.log('Sign in methods for', email, ':', signInMethods);
+          
+          // If email has sign-in methods, it means an account exists
+          if (signInMethods && Array.isArray(signInMethods) && signInMethods.length > 0) {
+            emailExists = true;
+          }
+        } catch (fetchError) {
+          console.log('fetchSignInMethodsForEmail failed, trying fallback method:', fetchError);
+          
+          // Fallback: Try to sign in with dummy password to check if account exists
+          // This will give us "user-not-found" if no account, or "wrong-password"/"invalid-credential" if account exists
+          try {
+            await window.firebaseAuthFunctions.signInWithEmailAndPassword(window.firebaseAuth, email, 'dummyPassword123456');
+            // If we get here, somehow the dummy password worked (very unlikely)
+            emailExists = true;
+          } catch (signInError) {
+            console.log('Fallback sign-in error:', signInError.code, signInError.message);
+            // Check error codes - Firebase v10 uses different codes
+            if (signInError.code === 'auth/user-not-found') {
+              // User doesn't exist
+              emailExists = false;
+            } else if (signInError.code === 'auth/wrong-password' || 
+                       signInError.code === 'auth/invalid-credential' ||
+                       signInError.code === 'auth/invalid-email') {
+              // User exists but wrong password/invalid credential - account exists!
+              // Note: invalid-credential can mean wrong password OR user not found, but we'll assume account exists
+              emailExists = true;
+            } else {
+              // Unknown error - check message for clues
+              const errorMsg = signInError.message ? signInError.message.toLowerCase() : '';
+              if (errorMsg.includes('user-not-found') || errorMsg.includes('no user record')) {
+                emailExists = false;
+              } else if (errorMsg.includes('wrong-password') || errorMsg.includes('invalid credential') || errorMsg.includes('password')) {
+                emailExists = true;
+              } else {
+                // Unknown error - default to signup to be safe
+                console.error('Unknown error checking email:', signInError);
+                emailExists = false;
+              }
+            }
+          }
+        }
         
-        // If email has sign-in methods, it means an account exists
-        if (signInMethods && Array.isArray(signInMethods) && signInMethods.length > 0) {
+        // Route based on whether email has an account
+        if (emailExists) {
           console.log('Email has account - redirecting to signin page');
-          // Email EXISTS - redirect to signin page
           window.location.replace(`signin.html?email=${encodeURIComponent(email)}`);
         } else {
           console.log('Email does not have account - redirecting to signup page');
-          // Email doesn't exist - go to signup page
           window.location.replace(`signup.html?email=${encodeURIComponent(email)}`);
         }
       } catch (error) {
