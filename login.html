@@ -140,63 +140,46 @@
         });
         
         // Check if email exists in Firebase
+        // Use createUserWithEmailAndPassword - it gives us a clear error if email exists
         let emailExists = false;
         
-        // Method 1: Try fetchSignInMethodsForEmail first (doesn't create accounts)
         try {
-          const signInMethods = await window.firebaseAuthFunctions.fetchSignInMethodsForEmail(window.firebaseAuth, email);
-          console.log('fetchSignInMethodsForEmail result:', signInMethods);
+          const dummyPassword = 'DummyCheck123!@#';
+          await window.firebaseAuthFunctions.createUserWithEmailAndPassword(window.firebaseAuth, email, dummyPassword);
           
-          if (signInMethods && Array.isArray(signInMethods) && signInMethods.length > 0) {
-            // Account exists
-            emailExists = true;
-            console.log('✓ Account EXISTS (found via fetchSignInMethodsForEmail)');
-          } else {
-            // No sign-in methods = account doesn't exist
-            emailExists = false;
-            console.log('✗ Account does NOT exist (no sign-in methods)');
+          // If we get here, account was created (didn't exist before)
+          emailExists = false;
+          console.log('✗ Account does NOT exist (created during check - will delete)');
+          
+          // Delete the account we just created
+          const user = window.firebaseAuth.currentUser;
+          if (user) {
+            try {
+              await user.delete();
+              console.log('✓ Deleted accidentally created account');
+            } catch (deleteError) {
+              console.error('Failed to delete account:', deleteError);
+            }
           }
-        } catch (fetchError) {
-          console.log('fetchSignInMethodsForEmail failed, using createUser fallback:', fetchError);
+        } catch (createError) {
+          console.log('Create account check error code:', createError.code);
+          console.log('Create account check error message:', createError.message);
           
-          // Method 2: Fallback - try to create account (will fail if email exists)
-          try {
-            const dummyPassword = 'DummyCheck123!@#';
-            await window.firebaseAuthFunctions.createUserWithEmailAndPassword(window.firebaseAuth, email, dummyPassword);
-            
-            // If we get here, account was created (didn't exist before)
+          const errorCode = createError.code;
+          const errorMsg = (createError.message || '').toLowerCase();
+          
+          // Check if email is already in use - this is the most reliable indicator
+          if (errorCode === 'auth/email-already-in-use' || 
+              errorCode === 'auth/emailAlreadyInUse' ||
+              errorMsg.includes('already in use') ||
+              errorMsg.includes('email already exists')) {
+            // Account exists!
+            emailExists = true;
+            console.log('✓ Account EXISTS (email-already-in-use)');
+          } else {
+            // Any other error - assume account doesn't exist
             emailExists = false;
-            console.log('✗ Account does NOT exist (created during check - will delete)');
-            
-            // Delete the account we just created
-            const user = window.firebaseAuth.currentUser;
-            if (user) {
-              try {
-                await user.delete();
-                console.log('✓ Deleted accidentally created account');
-              } catch (deleteError) {
-                console.error('Failed to delete account:', deleteError);
-              }
-            }
-          } catch (createError) {
-            console.log('Create account check error code:', createError.code);
-            console.log('Create account check error message:', createError.message);
-            
-            const errorCode = createError.code;
-            const errorMsg = (createError.message || '').toLowerCase();
-            
-            // Check if email is already in use
-            if (errorCode === 'auth/email-already-in-use' || 
-                errorCode === 'auth/emailAlreadyInUse' ||
-                errorMsg.includes('already in use')) {
-              // Account exists!
-              emailExists = true;
-              console.log('✓ Account EXISTS (email-already-in-use)');
-            } else {
-              // Any other error - assume account doesn't exist
-              emailExists = false;
-              console.log('✗ Account does NOT exist (error: ' + errorCode + ')');
-            }
+            console.log('✗ Account does NOT exist (error: ' + errorCode + ')');
           }
         }
         
