@@ -905,6 +905,30 @@ function showStatsPopup() {
         
         popup.classList.remove('hidden');
         popup.style.display = 'flex'; // Set inline style to show
+        
+        // Trigger flip animation for leaderboard letter boxes
+        setTimeout(() => {
+            const allLetterBoxes = popup.querySelectorAll('.leaderboard-letter-box');
+            const flipDelay = 50; // Delay between each flip (in milliseconds)
+            const flipDuration = 800; // Duration of each flip animation (in milliseconds)
+            
+            allLetterBoxes.forEach((box, index) => {
+                setTimeout(() => {
+                    // Add flip animation
+                    box.classList.add('flip');
+                    
+                    // Reveal the color at the midpoint of the flip (when it's rotated 90 degrees)
+                    setTimeout(() => {
+                        box.classList.add('revealed');
+                    }, flipDuration / 2); // Half of the flip duration (400ms)
+                    
+                    // Remove flip class after animation completes
+                    setTimeout(() => {
+                        box.classList.remove('flip');
+                    }, flipDuration);
+                }, index * flipDelay);
+            });
+        }, 150); // Wait 0.15 seconds after popup appears
     }
 }
 

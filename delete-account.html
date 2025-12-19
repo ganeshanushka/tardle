@@ -228,48 +228,40 @@
   let currentUser = null;
   let userEmail = '';
 
-  // Wait for Firebase to load
-  let authStateChecked = false;
+  // Wait for Firebase to load and restore auth state
+  let userFound = false;
+  let redirectScheduled = false;
+  
   const checkFirebase = setInterval(() => {
     if (window.firebaseAuthFunctions && window.firebaseAuth) {
       clearInterval(checkFirebase);
       
-      // First, check currentUser directly (might be available immediately)
-      const immediateUser = window.firebaseAuth.currentUser;
-      if (immediateUser) {
-        currentUser = immediateUser;
-        userEmail = immediateUser.email || '';
-        document.getElementById('userEmail').textContent = userEmail;
-        authStateChecked = true;
-      } else {
-        // Give Firebase a moment to restore the session before redirecting
-        setTimeout(() => {
-          const delayedUser = window.firebaseAuth.currentUser;
-          if (delayedUser) {
-            currentUser = delayedUser;
-            userEmail = delayedUser.email || '';
-            document.getElementById('userEmail').textContent = userEmail;
-            authStateChecked = true;
-          } else if (!authStateChecked) {
-            // Still no user after delay - redirect to login with return URL
-            window.location.href = 'login.html?return=' + encodeURIComponent('delete-account.html');
-          }
-        }, 1000);
-      }
-      
-      // Set up listener for auth state changes (for future logins/logouts)
+      // Set up listener for auth state changes
       window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, (user) => {
         if (user) {
+          // User is logged in
+          userFound = true;
           currentUser = user;
           userEmail = user.email || '';
           document.getElementById('userEmail').textContent = userEmail;
-          authStateChecked = true;
-        } else if (authStateChecked) {
-          // Only redirect if we've already checked and confirmed no user
-          // (This handles logout while on the page)
-          window.location.href = 'login.html?return=' + encodeURIComponent('delete-account.html');
+          
+          // Cancel any pending redirect
+          if (redirectScheduled) {
+            redirectScheduled = false;
+          }
         }
       });
+      
+      // Wait for Firebase to restore the session before checking
+      // Give it time to call onAuthStateChanged
+      setTimeout(() => {
+        // Check one more time if user was found
+        if (!userFound && !window.firebaseAuth.currentUser && !redirectScheduled) {
+          // No user found after waiting - redirect to login
+          redirectScheduled = true;
+          window.location.href = 'login.html?return=' + encodeURIComponent('delete-account.html');
+        }
+      }, 1500); // Wait 1.5 seconds for Firebase to restore session
     }
   }, 100);
 
