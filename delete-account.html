@@ -253,7 +253,7 @@
 
   <div class="button-container">
     <button class="delete-button" id="deleteButton" disabled>Delete account</button>
-    <a href="play.html" class="return-link">Return to account</a>
+    <a href="account-details.html" class="return-link">Return to account</a>
   </div>
 </div>
 
@@ -383,23 +383,37 @@
     successMessage.classList.remove('show');
 
     try {
-      // Wait for Firebase functions to be available
-      await new Promise((resolve) => {
-        if (window.firebaseAuthFunctions && window.firebaseFirestoreFunctions && window.firebaseAuth) {
-          resolve();
-        } else {
-          const checkInterval = setInterval(() => {
-            if (window.firebaseAuthFunctions && window.firebaseFirestoreFunctions && window.firebaseAuth) {
-              clearInterval(checkInterval);
-              resolve();
-            }
-          }, 100);
-        }
-      });
+      console.log('Starting account deletion process...');
+      
+      // Wait for Firebase functions to be available (with timeout)
+      await Promise.race([
+        new Promise((resolve) => {
+          if (window.firebaseAuthFunctions && window.firebaseFirestoreFunctions && window.firebaseAuth) {
+            resolve();
+          } else {
+            const checkInterval = setInterval(() => {
+              if (window.firebaseAuthFunctions && window.firebaseFirestoreFunctions && window.firebaseAuth) {
+                clearInterval(checkInterval);
+                resolve();
+              }
+            }, 100);
+          }
+        }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Firebase functions timeout')), 10000))
+      ]);
+
+      console.log('Firebase functions available, proceeding with deletion...');
+
+      // Refresh currentUser to ensure we have the latest auth state
+      currentUser = window.firebaseAuth.currentUser;
+      if (!currentUser) {
+        throw new Error('User session expired. Please log in again and try again.');
+      }
 
       // Delete user document from Firestore first
       if (currentUser && window.firebaseFirestoreFunctions && window.firebaseDb) {
         try {
+          console.log('Deleting user document from Firestore...');
           const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
           await window.firebaseFirestoreFunctions.deleteDoc(userDocRef);
           console.log('User document deleted from Firestore');
@@ -412,7 +426,15 @@
       // Delete user from Firebase Auth
       // deleteUser is a method on the User object, not a standalone function
       if (currentUser && currentUser.delete) {
-        await currentUser.delete();
+        console.log('Deleting user from Firebase Auth...');
+        
+        // Add timeout to prevent hanging
+        const deletePromise = currentUser.delete();
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Account deletion timed out. This may require re-authentication. Please try logging out and logging back in, then try again.')), 30000)
+        );
+        
+        await Promise.race([deletePromise, timeoutPromise]);
         console.log('User account deleted from Firebase Auth');
         
         // Show success message and redirect
@@ -427,10 +449,23 @@
       }
     } catch (error) {
       console.error('Error deleting account:', error);
-      errorMessage.textContent = error.message || 'An error occurred while deleting your account. Please try again.';
+      console.error('Error code:', error.code);
+      console.error('Error message:', error.message);
+      
+      let errorMsg = error.message || 'An error occurred while deleting your account. Please try again.';
+      
+      // Handle specific Firebase errors
+      if (error.code === 'auth/requires-recent-login') {
+        errorMsg = 'For security reasons, you need to log in again before deleting your account. Please log out and log back in, then try again.';
+      } else if (error.message && error.message.includes('timeout')) {
+        errorMsg = error.message;
+      }
+      
+      errorMessage.textContent = errorMsg;
       errorMessage.classList.add('show');
       deleteButton.disabled = false;
       deleteButton.textContent = 'Delete account';
+      deleteButton.classList.remove('enabled');
     }
   });
 </script>
