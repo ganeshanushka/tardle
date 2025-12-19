@@ -29,21 +29,22 @@
 
   .header-tile-grid {
     display: flex;
-    gap: 4px;
+    gap: 3px;
     margin-bottom: 20px;
     perspective: 1000px;
+    flex-wrap: wrap;
   }
 
   .header-tile {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     display: flex;
     justify-content: center;
     align-items: center;
     border: 2px solid #333333;
     border-radius: 4px;
     font-weight: bold;
-    font-size: 1.5em;
+    font-size: 1.3em;
     color: #000000;
     font-family: Arial, sans-serif;
     background-color: #ffffff;
@@ -251,18 +252,26 @@
     const headerTilesContainer = document.getElementById('headerTiles');
     if (!headerTilesContainer) return;
 
-    // Create tiles - one for each letter in "DELETE" (6 tiles)
-    const tileCount = 6;
+    // Create tiles spelling "DELETE YOUR ACCOUNT"
+    const text = "DELETE YOUR ACCOUNT";
+    const letters = text.split('');
     const colorClasses = ['correct', 'present', 'absent'];
     
-    for (let i = 0; i < tileCount; i++) {
-      const tile = document.createElement('div');
-      // Randomly assign a color class
-      const randomColor = colorClasses[Math.floor(Math.random() * colorClasses.length)];
-      tile.className = `header-tile ${randomColor}`;
-      tile.textContent = '?'; // Placeholder text
-      headerTilesContainer.appendChild(tile);
-    }
+    letters.forEach((letter) => {
+      if (letter === ' ') {
+        // Add a spacer for spaces
+        const spacer = document.createElement('div');
+        spacer.style.width = '8px';
+        headerTilesContainer.appendChild(spacer);
+      } else {
+        const tile = document.createElement('div');
+        // Randomly assign a color class
+        const randomColor = colorClasses[Math.floor(Math.random() * colorClasses.length)];
+        tile.className = `header-tile ${randomColor}`;
+        tile.textContent = letter; // Show letter from start
+        headerTilesContainer.appendChild(tile);
+      }
+    });
 
     // Trigger flip animation after a short delay
     setTimeout(() => {
@@ -278,7 +287,6 @@
           // Reveal the color at the midpoint of the flip
           setTimeout(() => {
             tile.classList.add('revealed');
-            tile.textContent = ''; // Remove placeholder after reveal
           }, flipDuration / 2); // Half of the flip duration (400ms)
           
           // Remove flip class after animation completes
