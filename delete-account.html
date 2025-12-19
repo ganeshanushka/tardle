@@ -66,35 +66,6 @@
     margin-bottom: 30px;
   }
 
-  .feedback-section {
-    margin-bottom: 30px;
-  }
-
-  .feedback-label {
-    font-size: 16px;
-    margin-bottom: 10px;
-    display: block;
-    color: #1a1a1a;
-  }
-
-  .feedback-textarea {
-    width: 100%;
-    min-height: 120px;
-    padding: 12px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-family: 'PT Serif', sans-serif;
-    font-size: 16px;
-    resize: vertical;
-    box-sizing: border-box;
-  }
-
-  .char-count {
-    font-size: 14px;
-    color: #666;
-    margin-top: 5px;
-  }
-
   .checkbox-container {
     margin-bottom: 30px;
     display: flex;
@@ -198,17 +169,6 @@
     After your account has been deleted, you will no longer be able to log in to Tardle using this account. You will also stop receiving any emails to the email address associated with this account.
   </div>
 
-  <div class="feedback-section">
-    <label class="feedback-label" for="feedback">Tell us why you are deleting your account. (optional)</label>
-    <textarea 
-      id="feedback" 
-      class="feedback-textarea" 
-      maxlength="400" 
-      placeholder=""
-    ></textarea>
-    <div class="char-count"><span id="charCount">400</span> characters left</div>
-  </div>
-
   <div class="checkbox-container">
     <input type="checkbox" id="confirmCheckbox">
     <label for="confirmCheckbox">I confirm I want to delete my Tardle account.</label>
@@ -264,15 +224,6 @@
       }, 1500); // Wait 1.5 seconds for Firebase to restore session
     }
   }, 100);
-
-  // Character count for feedback
-  const feedbackTextarea = document.getElementById('feedback');
-  const charCount = document.getElementById('charCount');
-  
-  feedbackTextarea.addEventListener('input', function() {
-    const remaining = 400 - this.value.length;
-    charCount.textContent = remaining;
-  });
 
   // Enable/disable delete button based on checkbox
   const confirmCheckbox = document.getElementById('confirmCheckbox');

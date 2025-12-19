@@ -546,8 +546,7 @@
   pointer-events: none;
 }
 
-  #gameOverPopup,
-  #statsPopup {
+  #gameOverPopup {
     position: fixed;
     top: 0;
     left: 0;
@@ -557,6 +556,25 @@
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+
+  /* Statistics Modal - match How to Play Modal */
+  #statsPopup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10001;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* Use translucent overlay so the game background is visible */
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  #statsPopup.hidden {
+    display: none !important;
   }
 
   /* Settings Modal */
@@ -1025,6 +1043,102 @@
     margin-bottom: 8px;
   }
 
+  /* Statistics Modal - dark theme: use translucent overlay to show game background */
+  :root.dark-mode #statsPopup {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  :root.dark-mode #statsPopup .popup-content {
+    background-color: var(--bg-primary); /* Same as screen background */
+    color: #ffffff; /* White text */
+    border-radius: 0;
+    max-width: 550px; /* Slightly larger to fit all content */
+    width: min(550px, 90vw);
+    height: min(550px, 90vw); /* Make it square */
+    max-height: min(550px, 90vw, 90vh);
+    aspect-ratio: 1 / 1; /* Ensure square shape */
+    overflow: hidden; /* No scrollbar */
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    position: relative;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    padding: 1cm; /* 1cm margin on all sides */
+    margin: auto;
+    box-sizing: border-box;
+    /* Reset font-size to browser default (16px) so em units match standalone page */
+    font-size: 16px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  :root.dark-mode #statsPopup .stats-modal-header {
+    margin-bottom: 12px;
+    padding-bottom: 0;
+    border-bottom: none;
+    flex-shrink: 0;
+  }
+
+  :root.dark-mode #statsPopup .stats-modal-header h1 {
+    /* Match standalone how-to-play heading */
+    font-family: 'PT Serif', sans-serif;
+    font-size: 1.8em;
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 0 0 0.25em 0;
+    color: #ffffff; /* White text */
+  }
+
+  :root.dark-mode #statsPopup .stats-close-btn {
+    color: #ffffff; /* White text */
+    font-size: 28px;
+  }
+
+  :root.dark-mode #statsPopup .stats-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    font-family: 'PT Serif', sans-serif;
+  }
+
+  :root.dark-mode #statsPopup .stats-content .stats-divider {
+    border-top: 1px solid #3a3a3c; /* Dark border */
+  }
+
+  :root.dark-mode #statsPopup .stats-content .stat-number {
+    color: #ffffff; /* White text */
+  }
+
+  :root.dark-mode #statsPopup .stats-content .stat-label {
+    color: #ffffff; /* White text */
+  }
+
+  :root.dark-mode #statsPopup .stats-content .leaderboard-title {
+    color: #ffffff; /* White text */
+  }
+
+  :root.dark-mode #statsPopup .stats-content .leaderboard-header {
+    color: #ffffff; /* White text */
+    border-bottom: 1px solid #3a3a3c; /* Dark border */
+  }
+
+  :root.dark-mode #statsPopup .stats-content .leaderboard-row {
+    border-bottom: 1px solid #3a3a3c; /* Dark border */
+  }
+
+  :root.dark-mode #statsPopup .stats-content .leaderboard-rank {
+    color: #ffffff; /* White text */
+  }
+
+  :root.dark-mode #statsPopup .stats-content .leaderboard-points {
+    color: #ffffff; /* White text */
+  }
+
+  :root.dark-mode #statsPopup .stats-content .leaderboard-letter-box {
+    background-color: var(--bg-secondary); /* Dark secondary background */
+    border-color: #3a3a3c; /* Dark border */
+    color: #ffffff; /* White text */
+  }
+
   /* High Contrast Mode modal - dark theme */
   :root.dark-mode #highContrastModal .help-modal-content {
     background-color: #121213;
@@ -1330,109 +1444,162 @@
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Statistics popup - white background design */
+/* Statistics Modal Content - match help modal exactly */
 #statsPopup .popup-content {
-    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
-    position: relative;
-    background-color: white;
+    /* Match standalone how-to-play.html exactly */
+    background-color: #ffffff;
     color: #000000;
-    padding: 20px;
     border-radius: 0;
-    z-index: 1000;
-    max-width: 90%;
-    width: min(450px, 90vw);
-    max-height: 90vh;
-    overflow-y: auto;
-    border: none;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-}
+    max-width: 550px; /* Slightly larger to fit all content */
+    width: min(550px, 90vw);
+    height: min(550px, 90vw); /* Make it square */
+    max-height: min(550px, 90vw, 90vh);
+    aspect-ratio: 1 / 1; /* Ensure square shape */
+    overflow: hidden; /* No scrollbar */
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    position: relative;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    padding: 1cm; /* 1cm margin on all sides */
+    margin: auto;
+    box-sizing: border-box;
+    /* Reset font-size to browser default (16px) so em units match standalone page */
+    font-size: 16px;
+    display: flex;
+    flex-direction: column;
+  }
 
-#statsPopup .popup-content .stats-title {
-    font-size: 20px;
+  #statsPopup .stats-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    padding-bottom: 0;
+    border-bottom: none;
+    flex-shrink: 0;
+  }
+
+  #statsPopup .stats-modal-header h1 {
+    /* Match standalone how-to-play heading */
+    font-family: 'PT Serif', sans-serif;
+    font-size: 1.8em;
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 0 0 0.25em 0;
+    color: #000000;
+  }
+
+  #statsPopup .stats-close-btn {
+    /* Match standalone how-to-play.html close button */
+    font-size: 28px;
     font-weight: bold;
     color: #000000;
-    margin: 0 0 16px 0;
-    text-align: left;
-}
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    line-height: 1;
+    transition: opacity 0.2s ease;
+  }
 
-#statsPopup .popup-content .stats-divider {
+  #statsPopup .stats-close-btn:hover {
+    opacity: 0.7;
+  }
+
+  #statsPopup .stats-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    font-family: 'PT Serif', sans-serif;
+  }
+
+#statsPopup .stats-content .stats-divider {
     height: 1px;
     background-color: #d3d6da;
-    margin: 16px 0;
+    margin: 12px 0;
+    border: none;
+    border-top: 1px solid #d3d6da;
 }
 
-#statsPopup .popup-content .stats-grid {
+#statsPopup .stats-content .stats-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    margin: 16px 0;
+    gap: 12px;
+    margin: 12px 0;
 }
 
-#statsPopup .popup-content .stat-item {
+#statsPopup .stats-content .stat-item {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
 }
 
-#statsPopup .popup-content .stat-number {
-    font-size: 36px;
+#statsPopup .stats-content .stat-number {
+    font-size: 2em;
     font-weight: bold;
     color: #000000;
-    line-height: 1;
+    line-height: 1.2;
     margin-bottom: 4px;
+    font-family: 'PT Serif', sans-serif;
 }
 
-#statsPopup .popup-content .stat-label {
-    font-size: 12px;
+#statsPopup .stats-content .stat-label {
+    font-size: 0.9em;
     color: #000000;
     text-align: center;
     line-height: 1.2;
+    font-family: 'PT Serif', sans-serif;
 }
 
 /* Leaderboard section */
-#statsPopup .popup-content .leaderboard-title {
-    font-size: 18px;
+#statsPopup .stats-content .leaderboard-title {
+    font-size: 1.3em;
     font-weight: bold;
     color: #000000;
-    margin: 20px 0 12px 0;
+    margin: 16px 0 10px 0;
     text-align: left;
+    font-family: 'PT Serif', sans-serif;
 }
 
-#statsPopup .popup-content .leaderboard-table {
+#statsPopup .stats-content .leaderboard-table {
     width: 100%;
-    margin: 12px 0;
+    margin: 10px 0;
     border-collapse: collapse;
-    font-size: 12px;
+    font-size: 0.9em;
+    font-family: 'PT Serif', sans-serif;
 }
 
-#statsPopup .popup-content .leaderboard-header {
-    font-size: 11px;
+#statsPopup .stats-content .leaderboard-header {
+    font-size: 0.85em;
     font-weight: bold;
     color: #000000;
     text-align: left;
     padding: 6px 4px;
     border-bottom: 1px solid #d3d6da;
+    font-family: 'PT Serif', sans-serif;
 }
 
-#statsPopup .popup-content .leaderboard-row {
+#statsPopup .stats-content .leaderboard-row {
     border-bottom: 1px solid #e0e0e0;
 }
 
-#statsPopup .popup-content .leaderboard-cell {
+#statsPopup .stats-content .leaderboard-cell {
     padding: 8px 4px;
     vertical-align: middle;
+    font-family: 'PT Serif', sans-serif;
 }
 
-#statsPopup .popup-content .leaderboard-rank {
-    font-size: 14px;
+#statsPopup .stats-content .leaderboard-rank {
+    font-size: 1em;
     font-weight: bold;
     color: #000000;
     width: 40px;
     text-align: center;
+    font-family: 'PT Serif', sans-serif;
 }
 
-#statsPopup .popup-content .leaderboard-username {
+#statsPopup .stats-content .leaderboard-username {
     display: flex;
     gap: 2px;
     align-items: center;
@@ -1441,7 +1608,7 @@
     perspective: 1000px; /* For 3D flip effect */
 }
 
-#statsPopup .popup-content .leaderboard-letter-box {
+#statsPopup .stats-content .leaderboard-letter-box {
     background-color: #ffffff;
     color: #000000;
     width: 24px;
@@ -1450,15 +1617,16 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
+    font-size: 0.75em;
     font-weight: bold;
     border: 2px solid #d3d6da;
     flex-shrink: 0;
     transition: background-color 0s, color 0s, border-color 0s;
+    font-family: Arial, sans-serif;
 }
 
 /* Flip animation for leaderboard letter boxes */
-#statsPopup .popup-content .leaderboard-letter-box.flip {
+#statsPopup .stats-content .leaderboard-letter-box.flip {
     animation: leaderboardFlip 0.8s ease-in-out;
 }
 
@@ -1469,19 +1637,20 @@
 }
 
 /* Revealed state: show the Carolina blue color */
-#statsPopup .popup-content .leaderboard-letter-box.revealed {
+#statsPopup .stats-content .leaderboard-letter-box.revealed {
     background-color: #7BAFD4;
     color: white;
     border-color: transparent;
 }
 
-#statsPopup .popup-content .leaderboard-points {
-    font-size: 14px;
+#statsPopup .stats-content .leaderboard-points {
+    font-size: 1em;
     font-weight: bold;
     color: #000000;
     text-align: right;
     width: 60px;
     white-space: nowrap;
+    font-family: 'PT Serif', sans-serif;
 }
 
 /* Standard close button for popups - consistent across all pages */
@@ -1500,37 +1669,10 @@
     line-height: 1;
     transition: opacity 0.2s ease;
   }
-
-/* Statistics popup close button - blue border with black X */
-#statsPopup .popup-content .close-btn {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    width: 24px;
-    height: 24px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    border: 2px solid #7BAFD4;
-    background: white;
-    padding: 0;
-    color: #000000;
-    line-height: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: opacity 0.2s ease;
-    border-radius: 0;
-}
   
   #gameOverPopup .popup-content .close-btn:hover,
   .close-btn:hover {
     opacity: 0.7;
-  }
-
-  #statsPopup .popup-content .close-btn:hover {
-    opacity: 0.7;
-    background-color: #f5f5f5;
   }
 
   /* Login prompt modal */
@@ -1794,61 +1936,64 @@
 
           <div id="statsPopup" class="hidden">
             <div class="popup-content">
-              <h2 class="stats-title">Statistics</h2>
-              <span onclick="closeStatsPopup()" class="close-btn">×</span>
-              <div class="stats-divider"></div>
-              <div class="stats-grid">
-                <div class="stat-item">
-                  <div class="stat-number" id="gamesPlayed">0</div>
-                  <div class="stat-label">Played</div>
-                </div>
-                <div class="stat-item">
-                  <div class="stat-number" id="winPercentage">0</div>
-                  <div class="stat-label">Win %</div>
-                </div>
-                <div class="stat-item">
-                  <div class="stat-number" id="currentStreak">0</div>
-                  <div class="stat-label">Current Streak</div>
-                </div>
-                <div class="stat-item">
-                  <div class="stat-number" id="maxStreak">0</div>
-                  <div class="stat-label">Max Streak</div>
-                </div>
+              <div class="stats-modal-header">
+                <h1>Statistics</h1>
+                <button class="stats-close-btn" onclick="closeStatsPopup()">×</button>
               </div>
-              <div class="stats-divider"></div>
-              <h3 class="leaderboard-title">Leaderboard</h3>
-              <table class="leaderboard-table">
-                <thead>
-                  <tr>
-                    <th class="leaderboard-header leaderboard-rank">Rank</th>
-                    <th class="leaderboard-header">Username</th>
-                    <th class="leaderboard-header leaderboard-points">Points</th>
-                  </tr>
-                </thead>
-                <tbody id="leaderboardBody">
-                  <tr class="leaderboard-row">
-                    <td class="leaderboard-cell leaderboard-rank">1</td>
-                    <td class="leaderboard-cell">
-                      <div class="leaderboard-username" id="leaderboardUser1"></div>
-                    </td>
-                    <td class="leaderboard-cell leaderboard-points" id="leaderboardPoints1">0</td>
-                  </tr>
-                  <tr class="leaderboard-row">
-                    <td class="leaderboard-cell leaderboard-rank">2</td>
-                    <td class="leaderboard-cell">
-                      <div class="leaderboard-username" id="leaderboardUser2"></div>
-                    </td>
-                    <td class="leaderboard-cell leaderboard-points" id="leaderboardPoints2">0</td>
-                  </tr>
-                  <tr class="leaderboard-row">
-                    <td class="leaderboard-cell leaderboard-rank">3</td>
-                    <td class="leaderboard-cell">
-                      <div class="leaderboard-username" id="leaderboardUser3"></div>
-                    </td>
-                    <td class="leaderboard-cell leaderboard-points" id="leaderboardPoints3">0</td>
-                  </tr>
-                </tbody>
-              </table>
+              <div class="stats-content">
+                <div class="stats-grid">
+                  <div class="stat-item">
+                    <div class="stat-number" id="gamesPlayed">0</div>
+                    <div class="stat-label">Played</div>
+                  </div>
+                  <div class="stat-item">
+                    <div class="stat-number" id="winPercentage">0</div>
+                    <div class="stat-label">Win %</div>
+                  </div>
+                  <div class="stat-item">
+                    <div class="stat-number" id="currentStreak">0</div>
+                    <div class="stat-label">Current Streak</div>
+                  </div>
+                  <div class="stat-item">
+                    <div class="stat-number" id="maxStreak">0</div>
+                    <div class="stat-label">Max Streak</div>
+                  </div>
+                </div>
+                <hr class="stats-divider">
+                <h2 class="leaderboard-title">Leaderboard</h2>
+                <table class="leaderboard-table">
+                  <thead>
+                    <tr>
+                      <th class="leaderboard-header leaderboard-rank">Rank</th>
+                      <th class="leaderboard-header">Username</th>
+                      <th class="leaderboard-header leaderboard-points">Points</th>
+                    </tr>
+                  </thead>
+                  <tbody id="leaderboardBody">
+                    <tr class="leaderboard-row">
+                      <td class="leaderboard-cell leaderboard-rank">1</td>
+                      <td class="leaderboard-cell">
+                        <div class="leaderboard-username" id="leaderboardUser1"></div>
+                      </td>
+                      <td class="leaderboard-cell leaderboard-points" id="leaderboardPoints1">0</td>
+                    </tr>
+                    <tr class="leaderboard-row">
+                      <td class="leaderboard-cell leaderboard-rank">2</td>
+                      <td class="leaderboard-cell">
+                        <div class="leaderboard-username" id="leaderboardUser2"></div>
+                      </td>
+                      <td class="leaderboard-cell leaderboard-points" id="leaderboardPoints2">0</td>
+                    </tr>
+                    <tr class="leaderboard-row">
+                      <td class="leaderboard-cell leaderboard-rank">3</td>
+                      <td class="leaderboard-cell">
+                        <div class="leaderboard-username" id="leaderboardUser3"></div>
+                      </td>
+                      <td class="leaderboard-cell leaderboard-points" id="leaderboardPoints3">0</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
 
@@ -2260,6 +2405,15 @@
               const helpModalContent = helpModal.querySelector('.help-modal-content');
               if (helpModalContent && !helpModalContent.contains(event.target) && !event.target.closest('.help-icon')) {
                 closeHelpModal();
+              }
+            }
+
+            // Close stats popup when clicking outside
+            const statsPopup = document.getElementById('statsPopup');
+            if (statsPopup && !statsPopup.classList.contains('hidden')) {
+              const statsPopupContent = statsPopup.querySelector('.popup-content');
+              if (statsPopupContent && !statsPopupContent.contains(event.target) && !event.target.closest('.stats-icon') && !event.target.closest('.podium-icon')) {
+                closeStatsPopup();
               }
             }
 

@@ -908,7 +908,7 @@ function showStatsPopup() {
         
         // Trigger flip animation for leaderboard letter boxes
         setTimeout(() => {
-            const allLetterBoxes = popup.querySelectorAll('.leaderboard-letter-box');
+            const allLetterBoxes = popup.querySelectorAll('.stats-content .leaderboard-letter-box');
             const flipDelay = 50; // Delay between each flip (in milliseconds)
             const flipDuration = 800; // Duration of each flip animation (in milliseconds)
             
