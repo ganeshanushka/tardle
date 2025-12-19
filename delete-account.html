@@ -13,15 +13,10 @@
     margin: 0;
     padding: 40px 20px;
     color: #1a1a1a;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
   }
 
   .container {
-    max-width: 800px;
-    width: 100%;
+    max-width: 600px;
     margin: 0 auto;
   }
 
@@ -37,15 +32,11 @@
     gap: 3px;
     margin-bottom: 20px;
     perspective: 1000px;
-    flex-wrap: nowrap;
-    overflow-x: auto;
   }
 
   .header-tile {
     width: 36px;
     height: 36px;
-    min-width: 36px;
-    flex-shrink: 0;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -174,22 +165,16 @@
     border-radius: 4px;
     cursor: pointer;
     font-family: 'PT Serif', sans-serif;
-    transition: background-color 0.2s ease, color 0.2s ease;
   }
 
-  .delete-button:hover:not(:disabled) {
-    background-color: #6a9fc0;
+  .delete-button:hover {
+    background-color: #d0d0d0;
   }
 
   .delete-button:disabled {
     background-color: #f0f0f0;
     color: #999;
     cursor: not-allowed;
-  }
-
-  .delete-button.enabled {
-    background-color: #7BAFD4;
-    color: white;
   }
 
   .return-link {
@@ -361,13 +346,7 @@
   const deleteButton = document.getElementById('deleteButton');
   
   confirmCheckbox.addEventListener('change', function() {
-    if (this.checked) {
-      deleteButton.disabled = false;
-      deleteButton.classList.add('enabled');
-    } else {
-      deleteButton.disabled = true;
-      deleteButton.classList.remove('enabled');
-    }
+    deleteButton.disabled = !this.checked;
   });
 
   // Handle delete account
