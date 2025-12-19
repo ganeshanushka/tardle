@@ -183,12 +183,8 @@
   <h1>Create an account</h1>
   <form id="signupForm">
     <div class="input-group">
-      <label for="firstName">First name</label>
-      <input type="text" id="firstName" name="firstName" required>
-    </div>
-    <div class="input-group">
-      <label for="lastName">Last name</label>
-      <input type="text" id="lastName" name="lastName" required>
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" required>
     </div>
     <div class="input-group">
       <label for="email">Email</label>
@@ -272,22 +268,15 @@
   document.getElementById('signupForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     
-    const firstName = document.getElementById('firstName').value.trim();
-    const lastName = document.getElementById('lastName').value.trim();
+    const username = document.getElementById('username').value.trim();
     const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
     const errorMessage = document.getElementById('errorMessage');
     errorMessage.style.display = 'none';
     
     // Validate all required fields are filled
-    if (!firstName) {
-      errorMessage.textContent = 'Please enter your first name.';
-      errorMessage.style.display = 'block';
-      return;
-    }
-    
-    if (!lastName) {
-      errorMessage.textContent = 'Please enter your last name.';
+    if (!username) {
+      errorMessage.textContent = 'Please enter your username.';
       errorMessage.style.display = 'block';
       return;
     }
@@ -330,8 +319,7 @@
       const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', user.uid);
       await window.firebaseFirestoreFunctions.setDoc(userDocRef, {
         email: email,
-        firstName: firstName,
-        lastName: lastName,
+        username: username,
         gamesPlayed: 0,
         currentStreak: 0,
         maxStreak: 0,
