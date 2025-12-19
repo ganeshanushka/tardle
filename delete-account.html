@@ -185,6 +185,75 @@
     cursor: not-allowed;
   }
 
+  .delete-button.loading {
+    position: relative;
+    color: transparent;
+  }
+
+  .delete-button.loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid #ffffff;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  .delete-button.enabled.loading::after {
+    border-color: #ffffff;
+    border-top-color: transparent;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .success-screen {
+    display: none;
+    text-align: left;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .success-screen.show {
+    display: block;
+  }
+
+  .success-screen h1 {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    margin-top: 0;
+    color: #1a1a1a;
+    font-family: 'PT Serif', sans-serif;
+  }
+
+  .success-screen p {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    color: #1a1a1a;
+    font-family: 'PT Serif', sans-serif;
+  }
+
+  .success-screen .email-bold {
+    font-weight: bold;
+  }
+
+  .delete-form {
+    display: block;
+  }
+
+  .delete-form.hidden {
+    display: none;
+  }
+
   .delete-button.enabled {
     background-color: #7BAFD4;
     color: white;
@@ -227,34 +296,43 @@
 </head>
 <body>
 <div class="container">
-  <div class="header-tile-grid" id="headerTiles"></div>
-  
-  <div class="account-info">
-    Delete the Tardle account for:<br>
-    <strong id="userEmail"></strong>
+  <div class="delete-form" id="deleteForm">
+    <div class="header-tile-grid" id="headerTiles"></div>
+    
+    <div class="account-info">
+      Delete the Tardle account for:<br>
+      <strong id="userEmail"></strong>
+    </div>
+
+    <div class="consequences">
+      <p>Are you sure? This is like skipping that 8 am you signed up for—you can, but do you really want to?</p>
+    </div>
+
+    <div class="section-title">What to expect</div>
+    <div class="section-content">
+      <p>After your account has been deleted, you will no longer be able to log in to Tardle using this account. You will also stop receiving any emails to the email address associated with this account.</p>
+      <p class="warning">This action is permanent—like that "C" on your transcript you swore wouldn't happen.</p>
+    </div>
+
+    <div class="checkbox-container">
+      <input type="checkbox" id="confirmCheckbox">
+      <label for="confirmCheckbox">I confirm I want to delete my Tardle account.</label>
+    </div>
+
+    <div class="error-message" id="errorMessage"></div>
+    <div class="success-message" id="successMessage"></div>
+
+    <div class="button-container">
+      <button class="delete-button" id="deleteButton" disabled>Delete account</button>
+      <a href="account-details.html" class="return-link">Return to account</a>
+    </div>
   </div>
 
-  <div class="consequences">
-    <p>Are you sure? This is like skipping that 8 am you signed up for—you can, but do you really want to?</p>
-  </div>
-
-  <div class="section-title">What to expect</div>
-  <div class="section-content">
-    <p>After your account has been deleted, you will no longer be able to log in to Tardle using this account. You will also stop receiving any emails to the email address associated with this account.</p>
-    <p class="warning">This action is permanent—like that "C" on your transcript you swore wouldn't happen.</p>
-  </div>
-
-  <div class="checkbox-container">
-    <input type="checkbox" id="confirmCheckbox">
-    <label for="confirmCheckbox">I confirm I want to delete my Tardle account.</label>
-  </div>
-
-  <div class="error-message" id="errorMessage"></div>
-  <div class="success-message" id="successMessage"></div>
-
-  <div class="button-container">
-    <button class="delete-button" id="deleteButton" disabled>Delete account</button>
-    <a href="account-details.html" class="return-link">Return to account</a>
+  <div class="success-screen" id="successScreen">
+    <h1>Your Tardle account is being deleted.</h1>
+    <p>We are deleting the Tardle account for <span class="email-bold" id="successEmail"></span>.</p>
+    <p>This action may take a few minutes. You will be logged out immediately and on all other devices.</p>
+    <p>No further action is needed. You may close this window.</p>
   </div>
 </div>
 
@@ -376,10 +454,13 @@
 
     // Disable button and show loading state
     deleteButton.disabled = true;
+    deleteButton.classList.add('loading');
     deleteButton.textContent = 'Deleting...';
     
     const errorMessage = document.getElementById('errorMessage');
     const successMessage = document.getElementById('successMessage');
+    const deleteForm = document.getElementById('deleteForm');
+    const successScreen = document.getElementById('successScreen');
     errorMessage.classList.remove('show');
     successMessage.classList.remove('show');
 
@@ -438,13 +519,15 @@
         await Promise.race([deletePromise, timeoutPromise]);
         console.log('User account deleted from Firebase Auth');
         
-        // Show success message and redirect
-        successMessage.textContent = 'Account deleted successfully. Redirecting...';
-        successMessage.classList.add('show');
+        // Hide the form and show success screen
+        deleteForm.classList.add('hidden');
+        successScreen.classList.add('show');
         
-        setTimeout(() => {
-          window.location.href = 'index.html';
-        }, 2000);
+        // Set the email in the success screen
+        const successEmailEl = document.getElementById('successEmail');
+        if (successEmailEl) {
+          successEmailEl.textContent = userEmail;
+        }
       } else {
         throw new Error('Unable to delete account. Please try logging out and logging back in, then try again.');
       }
@@ -465,6 +548,7 @@
       errorMessage.textContent = errorMsg;
       errorMessage.classList.add('show');
       deleteButton.disabled = false;
+      deleteButton.classList.remove('loading');
       deleteButton.textContent = 'Delete account';
       deleteButton.classList.remove('enabled');
     }
