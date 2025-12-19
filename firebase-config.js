@@ -12,7 +12,7 @@ const firebaseConfig = {
 // Import Firebase functions
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, fetchSignInMethodsForEmail, signOut } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, serverTimestamp, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -38,6 +38,9 @@ window.firebaseFirestoreFunctions = {
   updateDoc,
   deleteDoc,
   collection,
-  serverTimestamp
+  serverTimestamp,
+  getDocs,
+  query,
+  where
 };
 

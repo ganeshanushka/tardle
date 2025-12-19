@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unsubscribe - Tardle</title>
+  <style>
+    body {
+      font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      background-color: #7BAFD4;
+    }
+    .container {
+      background-color: white;
+      padding: 40px;
+      border-radius: 8px;
+      max-width: 500px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+    h1 {
+      color: #1a1a1a;
+      margin-bottom: 20px;
+    }
+    .message {
+      color: #666;
+      margin: 20px 0;
+      line-height: 1.6;
+    }
+    .success {
+      color: #4caf50;
+      font-weight: bold;
+    }
+    .error {
+      color: #f44336;
+    }
+    a {
+      color: #7BAFD4;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Unsubscribe from Daily Reminders</h1>
+    <div id="message" class="message">Processing your request...</div>
+    <div id="backLink" style="display: none; margin-top: 20px;">
+      <a href="play.html">Back to Game</a>
+    </div>
+  </div>
+
+  <!-- Firebase Config -->
+  <script type="module" src="firebase-config.js"></script>
+
+  <script>
+    // Get email from URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const email = urlParams.get('email');
+    const messageDiv = document.getElementById('message');
+    const backLink = document.getElementById('backLink');
+
+    async function unsubscribeEmail() {
+      if (!email) {
+        messageDiv.textContent = 'No email address provided.';
+        messageDiv.className = 'message error';
+        backLink.style.display = 'block';
+        return;
+      }
+
+      try {
+        // Wait for Firebase to load
+        await new Promise((resolve) => {
+          if (window.firebaseAuthFunctions && window.firebaseFirestoreFunctions) {
+            resolve();
+          } else {
+            const checkInterval = setInterval(() => {
+              if (window.firebaseAuthFunctions && window.firebaseFirestoreFunctions) {
+                clearInterval(checkInterval);
+                resolve();
+              }
+            }, 100);
+          }
+        });
+
+        // Find user by email and update subscription status
+        const usersRef = window.firebaseFirestoreFunctions.collection(window.firebaseDb, 'users');
+        const q = window.firebaseFirestoreFunctions.query(usersRef, window.firebaseFirestoreFunctions.where('email', '==', email));
+        const snapshot = await window.firebaseFirestoreFunctions.getDocs(q);
+        
+        if (snapshot.empty) {
+          messageDiv.textContent = 'Email address not found in our system.';
+          messageDiv.className = 'message error';
+          backLink.style.display = 'block';
+        } else {
+          // Update subscription status for the found user
+          const userDoc = snapshot.docs[0];
+          const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', userDoc.id);
+          await window.firebaseFirestoreFunctions.updateDoc(userDocRef, {
+            emailSubscribed: false,
+            unsubscribedAt: window.firebaseFirestoreFunctions.serverTimestamp()
+          });
+          
+          messageDiv.textContent = `You have been unsubscribed from daily reminder emails. We're sorry to see you go!`;
+          messageDiv.className = 'message success';
+          backLink.style.display = 'block';
+        }
+      } catch (error) {
+        console.error('Error unsubscribing:', error);
+        messageDiv.textContent = 'An error occurred. Please try again later.';
+        messageDiv.className = 'message error';
+        backLink.style.display = 'block';
+      }
+    }
+
+    // Run on page load
+    window.addEventListener('load', unsubscribeEmail);
+  </script>
+</body>
+</html>
+
