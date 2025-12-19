@@ -170,16 +170,22 @@
     border-radius: 4px;
     cursor: pointer;
     font-family: 'PT Serif', sans-serif;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 
-  .delete-button:hover {
-    background-color: #d0d0d0;
+  .delete-button:hover:not(:disabled) {
+    background-color: #6a9fc0;
   }
 
   .delete-button:disabled {
     background-color: #f0f0f0;
     color: #999;
     cursor: not-allowed;
+  }
+
+  .delete-button.enabled {
+    background-color: #7BAFD4;
+    color: white;
   }
 
   .return-link {
@@ -351,7 +357,13 @@
   const deleteButton = document.getElementById('deleteButton');
   
   confirmCheckbox.addEventListener('change', function() {
-    deleteButton.disabled = !this.checked;
+    if (this.checked) {
+      deleteButton.disabled = false;
+      deleteButton.classList.add('enabled');
+    } else {
+      deleteButton.disabled = true;
+      deleteButton.classList.remove('enabled');
+    }
   });
 
   // Handle delete account
