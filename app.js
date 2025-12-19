@@ -854,6 +854,14 @@ function showStatsPopup() {
     const currentStreakEl = document.getElementById('currentStreak');
     const maxStreakEl = document.getElementById('maxStreak');
     
+    // Leaderboard elements
+    const leaderboardUser1 = document.getElementById('leaderboardUser1');
+    const leaderboardUser2 = document.getElementById('leaderboardUser2');
+    const leaderboardUser3 = document.getElementById('leaderboardUser3');
+    const leaderboardPoints1 = document.getElementById('leaderboardPoints1');
+    const leaderboardPoints2 = document.getElementById('leaderboardPoints2');
+    const leaderboardPoints3 = document.getElementById('leaderboardPoints3');
+    
     if (popup && gamesPlayedEl && winPercentageEl && currentStreakEl && maxStreakEl) {
         // Calculate win percentage
         const winPercentage = gamesPlayed > 0 ? Math.round((gamesWon / gamesPlayed) * 100) : 0;
@@ -862,6 +870,38 @@ function showStatsPopup() {
         winPercentageEl.innerText = winPercentage;
         currentStreakEl.innerText = currentStreak;
         maxStreakEl.innerText = maxStreak;
+        
+        // Dummy leaderboard data
+        const leaderboardData = [
+            { username: 'TarHeelFan99', points: 1250 },
+            { username: 'CarolinaBlue42', points: 980 },
+            { username: 'UNCChampion', points: 750 }
+        ];
+        
+        // Populate leaderboard with dummy data
+        function renderUsername(element, username) {
+            if (element) {
+                element.innerHTML = ''; // Clear existing content
+                for (let i = 0; i < username.length; i++) {
+                    const letterBox = document.createElement('div');
+                    letterBox.className = 'leaderboard-letter-box';
+                    letterBox.textContent = username[i].toUpperCase();
+                    element.appendChild(letterBox);
+                }
+            }
+        }
+        
+        if (leaderboardUser1 && leaderboardUser2 && leaderboardUser3) {
+            renderUsername(leaderboardUser1, leaderboardData[0].username);
+            renderUsername(leaderboardUser2, leaderboardData[1].username);
+            renderUsername(leaderboardUser3, leaderboardData[2].username);
+        }
+        
+        if (leaderboardPoints1 && leaderboardPoints2 && leaderboardPoints3) {
+            leaderboardPoints1.innerText = leaderboardData[0].points;
+            leaderboardPoints2.innerText = leaderboardData[1].points;
+            leaderboardPoints3.innerText = leaderboardData[2].points;
+        }
         
         popup.classList.remove('hidden');
         popup.style.display = 'flex'; // Set inline style to show
