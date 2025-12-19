@@ -1,6 +1,8 @@
 {
   "projects": {
-    "default": "tardle-c0c26"
-  }
+    "default": "tardle-c0c26",
+    "fefault": "tardle-c0c26"
+  },
+  "targets": {},
+  "etags": {}
 }
-

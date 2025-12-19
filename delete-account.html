@@ -282,6 +282,48 @@
     display: block;
   }
 
+  .password-prompt {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f5f5f5;
+    border-left: 4px solid #7BAFD4;
+    border-radius: 4px;
+  }
+
+  .password-prompt label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+    font-size: 16px;
+  }
+
+  .password-prompt input {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-family: 'PT Serif', sans-serif;
+  }
+
+  .password-prompt button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background-color: #7BAFD4;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    font-family: 'PT Serif', sans-serif;
+  }
+
+  .password-prompt button:hover {
+    background-color: #6a9fc0;
+  }
+
   .success-message {
     color: #2e7d32;
     font-size: 14px;
@@ -321,6 +363,12 @@
 
     <div class="error-message" id="errorMessage"></div>
     <div class="success-message" id="successMessage"></div>
+
+    <div class="password-prompt" id="passwordPrompt" style="display: none;">
+      <label for="passwordInput">For security, please enter your password to confirm account deletion:</label>
+      <input type="password" id="passwordInput" placeholder="Enter your password">
+      <button id="confirmPasswordBtn">Confirm and Delete</button>
+    </div>
 
     <div class="button-container">
       <button class="delete-button" id="deleteButton" disabled>Delete account</button>
@@ -510,23 +558,96 @@
       if (currentUser && currentUser.delete) {
         console.log('Deleting user from Firebase Auth...');
         
-        // Add timeout to prevent hanging
-        const deletePromise = currentUser.delete();
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Account deletion timed out. This may require re-authentication. Please try logging out and logging back in, then try again.')), 30000)
-        );
-        
-        await Promise.race([deletePromise, timeoutPromise]);
-        console.log('User account deleted from Firebase Auth');
-        
-        // Hide the form and show success screen
-        deleteForm.classList.add('hidden');
-        successScreen.classList.add('show');
-        
-        // Set the email in the success screen
-        const successEmailEl = document.getElementById('successEmail');
-        if (successEmailEl) {
-          successEmailEl.textContent = userEmail;
+        try {
+          // Try to delete directly first
+          const deletePromise = currentUser.delete();
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Account deletion timed out.')), 30000)
+          );
+          
+          await Promise.race([deletePromise, timeoutPromise]);
+          console.log('User account deleted from Firebase Auth');
+          
+          // Hide the form and show success screen
+          deleteForm.classList.add('hidden');
+          successScreen.classList.add('show');
+          
+          // Set the email in the success screen
+          const successEmailEl = document.getElementById('successEmail');
+          if (successEmailEl) {
+            successEmailEl.textContent = userEmail;
+          }
+        } catch (deleteError) {
+          // If deletion fails due to requires-recent-login, prompt for password
+          if (deleteError.code === 'auth/requires-recent-login') {
+            console.log('Re-authentication required, prompting for password...');
+            // Show password prompt
+            const passwordPrompt = document.getElementById('passwordPrompt');
+            const passwordInput = document.getElementById('passwordInput');
+            const confirmPasswordBtn = document.getElementById('confirmPasswordBtn');
+            
+            passwordPrompt.style.display = 'block';
+            passwordInput.focus();
+            
+            // Handle password confirmation
+            const handlePasswordConfirm = async () => {
+              const password = passwordInput.value;
+              if (!password) {
+                errorMessage.textContent = 'Please enter your password.';
+                errorMessage.classList.add('show');
+                return;
+              }
+
+              try {
+                // Re-authenticate user
+                const credential = window.firebaseAuthFunctions.EmailAuthProvider.credential(
+                  currentUser.email,
+                  password
+                );
+                await window.firebaseAuthFunctions.reauthenticateWithCredential(currentUser, credential);
+                console.log('User re-authenticated successfully');
+
+                // Now try to delete again
+                await currentUser.delete();
+                console.log('User account deleted from Firebase Auth after re-authentication');
+                
+                // Hide the form and show success screen
+                deleteForm.classList.add('hidden');
+                passwordPrompt.style.display = 'none';
+                successScreen.classList.add('show');
+                
+                // Set the email in the success screen
+                const successEmailEl = document.getElementById('successEmail');
+                if (successEmailEl) {
+                  successEmailEl.textContent = userEmail;
+                }
+              } catch (reauthError) {
+                console.error('Re-authentication error:', reauthError);
+                if (reauthError.code === 'auth/wrong-password') {
+                  errorMessage.textContent = 'Incorrect password. Please try again.';
+                } else {
+                  errorMessage.textContent = reauthError.message || 'Re-authentication failed. Please try again.';
+                }
+                errorMessage.classList.add('show');
+                passwordInput.value = '';
+              }
+            };
+
+            confirmPasswordBtn.onclick = handlePasswordConfirm;
+            passwordInput.onkeypress = (e) => {
+              if (e.key === 'Enter') {
+                handlePasswordConfirm();
+              }
+            };
+
+            // Remove loading state but keep button disabled
+            deleteButton.classList.remove('loading');
+            deleteButton.textContent = 'Delete account';
+            return; // Exit early, wait for password confirmation
+          } else {
+            // Re-throw other errors
+            throw deleteError;
+          }
         }
       } else {
         throw new Error('Unable to delete account. Please try logging out and logging back in, then try again.');
