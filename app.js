@@ -106,6 +106,7 @@ let words = [
   let isLoggedIn = false;
   let currentUser = null;
   let gamesPlayed = 1;
+  let gamesWon = 0;
   let currentStreak = 0;
   let maxStreak = 0;
   
@@ -126,6 +127,7 @@ let words = [
             isLoggedIn = false;
             currentUser = null;
             gamesPlayed = 1;
+            gamesWon = 0;
             currentStreak = 0;
             maxStreak = 0;
           }
@@ -152,6 +154,7 @@ let words = [
       if (userDoc.exists()) {
         const data = userDoc.data();
         gamesPlayed = data.gamesPlayed || 0;
+        gamesWon = data.gamesWon || 0;
         currentStreak = data.currentStreak || 0;
         maxStreak = data.maxStreak || 0;
       }
@@ -847,13 +850,19 @@ function closeGameOverPopup() {
 function showStatsPopup() {
     const popup = document.getElementById('statsPopup');
     const gamesPlayedEl = document.getElementById('gamesPlayed');
+    const winPercentageEl = document.getElementById('winPercentage');
     const currentStreakEl = document.getElementById('currentStreak');
     const maxStreakEl = document.getElementById('maxStreak');
     
-    if (popup && gamesPlayedEl && currentStreakEl && maxStreakEl) {
-        gamesPlayedEl.innerText = "Games played: " + gamesPlayed;
-        currentStreakEl.innerText = "Current streak: " + currentStreak;
-        maxStreakEl.innerText = "Max streak: " + maxStreak;
+    if (popup && gamesPlayedEl && winPercentageEl && currentStreakEl && maxStreakEl) {
+        // Calculate win percentage
+        const winPercentage = gamesPlayed > 0 ? Math.round((gamesWon / gamesPlayed) * 100) : 0;
+        
+        gamesPlayedEl.innerText = gamesPlayed;
+        winPercentageEl.innerText = winPercentage;
+        currentStreakEl.innerText = currentStreak;
+        maxStreakEl.innerText = maxStreak;
+        
         popup.classList.remove('hidden');
         popup.style.display = 'flex'; // Set inline style to show
     }
@@ -872,6 +881,7 @@ function closeStatsPopup() {
 async function updateStatsOnWin() {
     if (isLoggedIn && currentUser && window.firebaseFirestoreFunctions) {
         gamesPlayed++;
+        gamesWon++;
         currentStreak++;
         maxStreak = Math.max(maxStreak, currentStreak);
         
@@ -880,12 +890,19 @@ async function updateStatsOnWin() {
             const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
             await window.firebaseFirestoreFunctions.updateDoc(userDocRef, {
                 gamesPlayed: gamesPlayed,
+                gamesWon: gamesWon,
                 currentStreak: currentStreak,
                 maxStreak: maxStreak
             });
         } catch (error) {
             console.error('Error updating stats on win:', error);
         }
+    } else {
+        // Update local stats even if not logged in
+        gamesPlayed++;
+        gamesWon++;
+        currentStreak++;
+        maxStreak = Math.max(maxStreak, currentStreak);
     }
 }
 
@@ -904,5 +921,9 @@ async function updateStatsOnLoss() {
         } catch (error) {
             console.error('Error updating stats on loss:', error);
         }
+    } else {
+        // Update local stats even if not logged in
+        gamesPlayed++;
+        currentStreak = 0;
     }
 }

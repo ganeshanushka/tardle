@@ -1312,9 +1312,8 @@
     color: #000000 !important; /* Black text */
 }
 
-/* Game over and stats popups - original Carolina blue design */
-#gameOverPopup .popup-content,
-#statsPopup .popup-content {
+/* Game over popup - original Carolina blue design */
+#gameOverPopup .popup-content {
     font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
     position: relative;
     background-color: var(--popup-bg);
@@ -1331,10 +1330,67 @@
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Statistics popup - white background design */
+#statsPopup .popup-content {
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    position: relative;
+    background-color: white;
+    color: #000000;
+    padding: 24px;
+    border-radius: 0;
+    z-index: 1000;
+    max-width: 90%;
+    width: min(400px, 85vw);
+    border: none;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+#statsPopup .popup-content .stats-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #000000;
+    margin: 0 0 16px 0;
+    text-align: left;
+}
+
+#statsPopup .popup-content .stats-divider {
+    height: 1px;
+    background-color: #d3d6da;
+    margin: 16px 0;
+}
+
+#statsPopup .popup-content .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin: 16px 0;
+}
+
+#statsPopup .popup-content .stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#statsPopup .popup-content .stat-number {
+    font-size: 36px;
+    font-weight: bold;
+    color: #000000;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+#statsPopup .popup-content .stat-label {
+    font-size: 12px;
+    color: #000000;
+    text-align: center;
+    line-height: 1.2;
+}
+
 /* Standard close button for popups - consistent across all pages */
 .close-btn,
-#gameOverPopup .popup-content .close-btn,
-#statsPopup .popup-content .close-btn {
+#gameOverPopup .popup-content .close-btn {
     position: absolute;
     top: clamp(10px, 1.5vh, 15px);
     right: clamp(15px, 2vw, 20px);
@@ -1348,11 +1404,37 @@
     line-height: 1;
     transition: opacity 0.2s ease;
   }
+
+/* Statistics popup close button - blue border with black X */
+#statsPopup .popup-content .close-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 24px;
+    height: 24px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    border: 2px solid #7BAFD4;
+    background: white;
+    padding: 0;
+    color: #000000;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s ease;
+    border-radius: 0;
+}
   
   #gameOverPopup .popup-content .close-btn:hover,
-  #statsPopup .popup-content .close-btn:hover,
   .close-btn:hover {
     opacity: 0.7;
+  }
+
+  #statsPopup .popup-content .close-btn:hover {
+    opacity: 0.7;
+    background-color: #f5f5f5;
   }
 
   /* Login prompt modal */
@@ -1609,10 +1691,28 @@
 
           <div id="statsPopup" class="hidden">
             <div class="popup-content">
-              <span id="gamesPlayed">Games played: 0</span><br>
-              <span id="currentStreak">Current streak: 0</span><br>
-              <span id="maxStreak">Max streak: 0</span><br>
-              <span onclick="closeStatsPopup()" class="close-btn">X</span>
+              <h2 class="stats-title">Statistics</h2>
+              <span onclick="closeStatsPopup()" class="close-btn">×</span>
+              <div class="stats-divider"></div>
+              <div class="stats-grid">
+                <div class="stat-item">
+                  <div class="stat-number" id="gamesPlayed">0</div>
+                  <div class="stat-label">Played</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-number" id="winPercentage">0</div>
+                  <div class="stat-label">Win %</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-number" id="currentStreak">0</div>
+                  <div class="stat-label">Current Streak</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-number" id="maxStreak">0</div>
+                  <div class="stat-label">Max Streak</div>
+                </div>
+              </div>
+              <div class="stats-divider"></div>
             </div>
           </div>
 
@@ -1872,9 +1972,7 @@
           }
 
           function handlePodiumClick() {
-            // Placeholder for leaderboard/podium functionality
-            console.log('Podium/Leaderboard clicked');
-            // TODO: Implement leaderboard functionality
+            showStatsPopup();
           }
 
           function closeSettingsModal() {
