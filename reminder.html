@@ -109,6 +109,39 @@
     .login-status {
       margin-top: 16px;
     }
+    
+    .subscription-section {
+      margin-top: 24px;
+      padding: 16px;
+      background-color: #f5f5f5;
+      border-radius: 8px;
+    }
+    
+    .subscription-toggle {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    
+    .subscription-toggle input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+    
+    .subscription-toggle label {
+      font-size: 16px;
+      cursor: pointer;
+      font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    }
+    
+    .subscription-status {
+      font-size: 14px;
+      color: #666;
+      margin-top: 8px;
+      font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    }
   </style>
 </head>
 <body>
@@ -137,6 +170,16 @@
     <div class="login-status" id="loginStatus">
       <p class="small">You're logged in. Not you? <a href="login.html">Log out.</a></p>
     </div>
+    
+    <div class="subscription-section" id="subscriptionSection" style="display: none;">
+      <h3 style="font-size: 20px; margin: 0 0 12px 0; font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;">Daily Email Reminders</h3>
+      <div class="subscription-toggle">
+        <input type="checkbox" id="emailSubscriptionToggle">
+        <label for="emailSubscriptionToggle">Subscribe to daily reminder emails</label>
+      </div>
+      <div class="subscription-status" id="subscriptionStatus"></div>
+    </div>
+    
     <p class="muted"><a href="play.html">Back to game page</a></p>
   </div>
 
@@ -162,21 +205,97 @@
       }
 
       if (window.firebaseAuthFunctions.onAuthStateChanged) {
-        window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, (user) => {
+        window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, async (user) => {
           const loginStatus = document.getElementById('loginStatus');
+          const subscriptionSection = document.getElementById('subscriptionSection');
+          
           if (user) {
             // User is logged in - show login status with email
             const userEmail = user.email || 'your account';
             loginStatus.innerHTML = '<p class="small" style="margin-bottom: 4px;">You\'re logged in as <strong>' + userEmail + '</strong>.</p><p class="small" style="margin-top: 4px;">Not you? <a href="#" onclick="handleLogout(event)">Log out.</a></p>';
+            
+            // Show subscription section and load subscription status
+            subscriptionSection.style.display = 'block';
+            await loadSubscriptionStatus(user.uid);
+            setupSubscriptionToggle(user.uid);
           } else {
-            // User is not logged in - show signup button
+            // User is not logged in - show signup button and hide subscription section
             showSignupButton();
+            subscriptionSection.style.display = 'none';
           }
         });
       } else {
         // Fallback if onAuthStateChanged not available
         showSignupButton();
       }
+    }
+    
+    // Load subscription status from Firestore
+    async function loadSubscriptionStatus(userId) {
+      try {
+        const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', userId);
+        const userDoc = await window.firebaseFirestoreFunctions.getDoc(userDocRef);
+        
+        const subscriptionToggle = document.getElementById('emailSubscriptionToggle');
+        const subscriptionStatus = document.getElementById('subscriptionStatus');
+        
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          const isSubscribed = userData.emailSubscribed === true;
+          
+          subscriptionToggle.checked = isSubscribed;
+          
+          if (isSubscribed) {
+            subscriptionStatus.textContent = '✓ You are subscribed to daily reminder emails.';
+            subscriptionStatus.style.color = '#4caf50';
+          } else {
+            subscriptionStatus.textContent = 'You are not subscribed to daily reminder emails.';
+            subscriptionStatus.style.color = '#666';
+          }
+        } else {
+          // User document doesn't exist yet, default to not subscribed
+          subscriptionToggle.checked = false;
+          subscriptionStatus.textContent = 'You are not subscribed to daily reminder emails.';
+          subscriptionStatus.style.color = '#666';
+        }
+      } catch (error) {
+        console.error('Error loading subscription status:', error);
+      }
+    }
+    
+    // Setup subscription toggle handler
+    function setupSubscriptionToggle(userId) {
+      const subscriptionToggle = document.getElementById('emailSubscriptionToggle');
+      const subscriptionStatus = document.getElementById('subscriptionStatus');
+      
+      subscriptionToggle.addEventListener('change', async function() {
+        const isSubscribed = subscriptionToggle.checked;
+        
+        try {
+          // Update subscription status in Firestore
+          const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', userId);
+          await window.firebaseFirestoreFunctions.updateDoc(userDocRef, {
+            emailSubscribed: isSubscribed,
+            subscriptionUpdatedAt: window.firebaseFirestoreFunctions.serverTimestamp()
+          });
+          
+          // Update status message
+          if (isSubscribed) {
+            subscriptionStatus.textContent = '✓ You are now subscribed to daily reminder emails.';
+            subscriptionStatus.style.color = '#4caf50';
+          } else {
+            subscriptionStatus.textContent = 'You have unsubscribed from daily reminder emails.';
+            subscriptionStatus.style.color = '#666';
+          }
+          
+          console.log('Subscription status updated:', isSubscribed);
+        } catch (error) {
+          console.error('Error updating subscription status:', error);
+          // Revert toggle on error
+          subscriptionToggle.checked = !isSubscribed;
+          alert('Failed to update subscription. Please try again.');
+        }
+      });
     }
 
     function showSignupButton() {
