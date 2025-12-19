@@ -35,25 +35,49 @@ cd functions
 npm install resend
 cd ..
 
-# 6. Set your Resend API key (paste your key when prompted)
-firebase functions:secrets:set RESEND_API_KEY
+# 6. Create .env file with your Resend API key
+cd functions
+echo "RESEND_API_KEY=your_resend_api_key_here" > .env
+# Then edit .env and replace 'your_resend_api_key_here' with your actual key
+cd ..
 ```
 
-### Step 2: Update Function Code
+**Important:** Create `functions/.env` file with:
+```
+RESEND_API_KEY=re_your_actual_api_key_here
+```
+
+### Step 2: Create .env File
+
+Create `functions/.env` file:
+```bash
+cd functions
+nano .env  # or use your preferred editor
+```
+
+Add your Resend API key:
+```
+RESEND_API_KEY=re_your_actual_api_key_here
+```
+
+Save and exit.
+
+### Step 3: Update Function Code (Optional)
 
 The function code is already created in `functions/index.js` ✅
 
-**Just update these 2 lines with your actual domain:**
-- Line 62: Change `onboarding@resend.dev` to your verified email (or keep it for now)
-- Line 118: Change `tardle-c0c26.web.app` to your actual domain
+**Optional updates:**
+- Line 56: Change `onboarding@resend.dev` to your verified email (or keep it for now)
+- Line 112: Change `tardle-c0c26.web.app` to your actual domain
+- Line 48-52: Uncomment to filter for UNC emails only (`@unc.edu`)
 
-### Step 3: Deploy
+### Step 4: Deploy
 
 ```bash
 firebase deploy --only functions
 ```
 
-### Step 4: Test
+### Step 5: Test
 
 1. Go to your app → `reminder.html`
 2. Log in
