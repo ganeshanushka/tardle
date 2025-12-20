@@ -171,6 +171,8 @@
     cursor: pointer;
     font-family: 'PT Serif', sans-serif;
     transition: background-color 0.2s ease, color 0.2s ease;
+    min-width: 150px; /* Maintain button size when loading */
+    box-sizing: border-box;
   }
 
   .delete-button:hover:not(:disabled) {
@@ -186,6 +188,7 @@
   .delete-button.loading {
     position: relative;
     color: transparent;
+    min-width: 150px; /* Maintain button size when loading */
   }
 
   .delete-button.loading::after {
