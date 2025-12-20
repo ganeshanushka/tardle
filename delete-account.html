@@ -305,22 +305,6 @@
     font-family: 'PT Serif', sans-serif;
   }
 
-  .password-prompt button {
-    margin-top: 10px;
-    padding: 10px 20px;
-    background-color: #7BAFD4;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: bold;
-    font-family: 'PT Serif', sans-serif;
-  }
-
-  .password-prompt button:hover {
-    background-color: #6a9fc0;
-  }
 
   .success-message {
     color: #2e7d32;
@@ -365,7 +349,6 @@
     <div class="password-prompt" id="passwordPrompt" style="display: none;">
       <label for="passwordInput">For security, please enter your password to confirm account deletion:</label>
       <input type="password" id="passwordInput" placeholder="Enter your password">
-      <button id="confirmPasswordBtn">Confirm and Delete</button>
     </div>
 
     <div class="button-container">
@@ -543,111 +526,71 @@
       console.log('TEST: Button click detected!', e);
     }, { once: true });
 
-    // Handle delete account
-    deleteButton.addEventListener('click', async function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      
-      console.log('Delete button clicked');
-      console.log('Checkbox checked:', confirmCheckbox.checked);
-      console.log('Current user:', currentUser);
-      
-      if (!confirmCheckbox.checked) {
-        console.log('Checkbox not checked, returning');
-        return;
-      }
-      
-      if (!currentUser) {
-        console.log('No current user, refreshing...');
-        // Try to refresh currentUser
-        currentUser = window.firebaseAuth ? window.firebaseAuth.currentUser : null;
-        if (!currentUser) {
-          console.error('No user found. Please log in again.');
-          const errorMessage = document.getElementById('errorMessage');
-          if (errorMessage) {
-            errorMessage.textContent = 'You must be logged in to delete your account. Please log in and try again.';
-            errorMessage.classList.add('show');
-          }
-          return;
-        }
-      }
-
-      // Show password prompt first
-      const passwordPrompt = document.getElementById('passwordPrompt');
+    // Handle password confirmation
+    const handlePasswordConfirm = async () => {
       const passwordInput = document.getElementById('passwordInput');
-      const confirmPasswordBtn = document.getElementById('confirmPasswordBtn');
+      const passwordPrompt = document.getElementById('passwordPrompt');
+      const password = passwordInput.value;
       const errorMessage = document.getElementById('errorMessage');
-      const successMessage = document.getElementById('successMessage');
       const deleteForm = document.getElementById('deleteForm');
       const successScreen = document.getElementById('successScreen');
       
-      errorMessage.classList.remove('show');
-      successMessage.classList.remove('show');
-      
-      // Show password prompt
-      passwordPrompt.style.display = 'block';
-      passwordInput.focus();
-      
-      // Handle password confirmation
-      const handlePasswordConfirm = async () => {
-        const password = passwordInput.value;
-        if (!password) {
-          errorMessage.textContent = 'Please enter your password.';
-          errorMessage.classList.add('show');
-          return;
+      if (!password) {
+        errorMessage.textContent = 'Please enter your password.';
+        errorMessage.classList.add('show');
+        return;
+      }
+
+      // Disable button and show loading state
+      deleteButton.disabled = true;
+      deleteButton.classList.add('loading');
+      passwordInput.disabled = true;
+
+      try {
+        console.log('Starting account deletion process...');
+        console.log('Checking Firebase availability...');
+        console.log('window.firebaseAuth:', window.firebaseAuth);
+        console.log('window.firebaseAuthFunctions:', window.firebaseAuthFunctions);
+        console.log('window.firebaseFirestoreFunctions:', window.firebaseFirestoreFunctions);
+        
+        // Wait for Firebase functions to be available (with timeout)
+        let firebaseReady = false;
+        const maxWaitTime = 15000; // Increased to 15 seconds
+        const checkInterval = 100;
+        const startTime = Date.now();
+        
+        while (!firebaseReady && (Date.now() - startTime) < maxWaitTime) {
+          if (window.firebaseAuthFunctions && window.firebaseFirestoreFunctions && window.firebaseAuth) {
+            firebaseReady = true;
+            console.log('Firebase functions are available!');
+            break;
+          }
+          await new Promise(resolve => setTimeout(resolve, checkInterval));
+        }
+        
+        if (!firebaseReady) {
+          console.error('Firebase functions timeout after', maxWaitTime, 'ms');
+          console.error('window.firebaseAuth:', window.firebaseAuth);
+          console.error('window.firebaseAuthFunctions:', window.firebaseAuthFunctions);
+          console.error('window.firebaseFirestoreFunctions:', window.firebaseFirestoreFunctions);
+          throw new Error('Firebase functions failed to load. Please refresh the page and try again.');
         }
 
-        // Disable button and show loading state
-        deleteButton.disabled = true;
-        deleteButton.classList.add('loading');
-        confirmPasswordBtn.disabled = true;
-        passwordInput.disabled = true;
+        console.log('Firebase functions available, proceeding with deletion...');
 
-        try {
-          console.log('Starting account deletion process...');
-          console.log('Checking Firebase availability...');
-          console.log('window.firebaseAuth:', window.firebaseAuth);
-          console.log('window.firebaseAuthFunctions:', window.firebaseAuthFunctions);
-          console.log('window.firebaseFirestoreFunctions:', window.firebaseFirestoreFunctions);
-          
-          // Wait for Firebase functions to be available (with timeout)
-          let firebaseReady = false;
-          const maxWaitTime = 15000; // Increased to 15 seconds
-          const checkInterval = 100;
-          const startTime = Date.now();
-          
-          while (!firebaseReady && (Date.now() - startTime) < maxWaitTime) {
-            if (window.firebaseAuthFunctions && window.firebaseFirestoreFunctions && window.firebaseAuth) {
-              firebaseReady = true;
-              console.log('Firebase functions are available!');
-              break;
-            }
-            await new Promise(resolve => setTimeout(resolve, checkInterval));
-          }
-          
-          if (!firebaseReady) {
-            console.error('Firebase functions timeout after', maxWaitTime, 'ms');
-            console.error('window.firebaseAuth:', window.firebaseAuth);
-            console.error('window.firebaseAuthFunctions:', window.firebaseAuthFunctions);
-            console.error('window.firebaseFirestoreFunctions:', window.firebaseFirestoreFunctions);
-            throw new Error('Firebase functions failed to load. Please refresh the page and try again.');
-          }
+        // Re-authenticate user first with password
+        const credential = window.firebaseAuthFunctions.EmailAuthProvider.credential(
+          currentUser.email,
+          password
+        );
+        await window.firebaseAuthFunctions.reauthenticateWithCredential(currentUser, credential);
+        console.log('User re-authenticated successfully');
 
-          console.log('Firebase functions available, proceeding with deletion...');
-
-          // Re-authenticate user first with password
-          const credential = window.firebaseAuthFunctions.EmailAuthProvider.credential(
-            currentUser.email,
-            password
-          );
-          await window.firebaseAuthFunctions.reauthenticateWithCredential(currentUser, credential);
-          console.log('User re-authenticated successfully');
-
-          // Refresh currentUser after re-authentication
-          currentUser = window.firebaseAuth.currentUser;
-          if (!currentUser) {
-            throw new Error('User session expired. Please log in again and try again.');
-          }
+        // Refresh currentUser after re-authentication
+        currentUser = window.firebaseAuth.currentUser;
+        if (!currentUser) {
+          throw new Error('User session expired. Please log in again and try again.');
+        }
 
         // Delete user document from Firestore first (with timeout)
         // Note: We continue with Auth deletion even if Firestore deletion fails or is cancelled
@@ -770,16 +713,69 @@
           errorMessage.classList.add('show');
           deleteButton.disabled = false;
           deleteButton.classList.remove('loading');
-          confirmPasswordBtn.disabled = false;
+          // Keep button text as "Confirm and delete" since password prompt is still visible
           passwordInput.disabled = false;
           passwordInput.value = ''; // Clear password field
           deleteButton.classList.remove('enabled');
-          confirmCheckbox.checked = false; // Reset checkbox
+          // Don't reset checkbox - keep it checked
         }
       };
 
-      // Set up password confirmation button
-      confirmPasswordBtn.onclick = handlePasswordConfirm;
+    // Handle delete account button click
+    deleteButton.addEventListener('click', async function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      console.log('Delete button clicked');
+      console.log('Checkbox checked:', confirmCheckbox.checked);
+      console.log('Current user:', currentUser);
+      
+      if (!confirmCheckbox.checked) {
+        console.log('Checkbox not checked, returning');
+        return;
+      }
+      
+      if (!currentUser) {
+        console.log('No current user, refreshing...');
+        // Try to refresh currentUser
+        currentUser = window.firebaseAuth ? window.firebaseAuth.currentUser : null;
+        if (!currentUser) {
+          console.error('No user found. Please log in again.');
+          const errorMessage = document.getElementById('errorMessage');
+          if (errorMessage) {
+            errorMessage.textContent = 'You must be logged in to delete your account. Please log in and try again.';
+            errorMessage.classList.add('show');
+          }
+          return;
+        }
+      }
+
+      const passwordPrompt = document.getElementById('passwordPrompt');
+      const passwordInput = document.getElementById('passwordInput');
+      const errorMessage = document.getElementById('errorMessage');
+      const successMessage = document.getElementById('successMessage');
+      
+      // Check if password prompt is already visible (check both inline style and computed style)
+      const isPromptVisible = passwordPrompt.style.display === 'block' || 
+                              window.getComputedStyle(passwordPrompt).display === 'block';
+      
+      if (isPromptVisible && passwordInput.value) {
+        // Password prompt is visible and password is entered, handle password confirmation
+        handlePasswordConfirm();
+        return;
+      }
+
+      // Show password prompt and update button text
+      errorMessage.classList.remove('show');
+      successMessage.classList.remove('show');
+      passwordPrompt.style.display = 'block';
+      // Change button text immediately
+      deleteButton.textContent = 'Confirm and delete';
+      deleteButton.disabled = false; // Enable button so user can click it
+      passwordInput.value = ''; // Clear any previous password
+      passwordInput.focus();
+      
+      // Set up Enter key handler for password input
       passwordInput.onkeypress = (e) => {
         if (e.key === 'Enter') {
           handlePasswordConfirm();
