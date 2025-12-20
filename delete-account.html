@@ -744,8 +744,11 @@
           let errorMsg = error.message || 'An error occurred while deleting your account. Please try again.';
           
           // Handle specific Firebase errors
-          if (error.code === 'auth/wrong-password') {
-            errorMsg = 'Incorrect password. Please try again.';
+          if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+            errorMsg = 'Wrong password. Try again.';
+            // Clear password field on wrong password
+            passwordInput.value = '';
+            passwordInput.focus();
           } else if (error.code === 'cancelled' || error.message?.includes('cancelled') || error.message?.includes('FIRESTORE') || error.name === 'FirebaseError') {
             // If it's a cancellation error from Firestore, we should have already continued with Auth deletion
             // But if we're here, it means something went wrong - try Auth deletion as fallback
