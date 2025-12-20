@@ -154,10 +154,41 @@
     border: none;
     padding: 0.7em;
     font-weight: bold;
+    position: relative;
+    min-width: 150px;
+    box-sizing: border-box;
   }
 
   .input-group input[type="submit"]:hover {
     background-color: #6a9fc0;
+  }
+
+  .input-group input[type="submit"]:disabled {
+    cursor: not-allowed;
+    opacity: 0.8;
+  }
+
+  .input-group input[type="submit"].loading {
+    color: transparent;
+  }
+
+  .input-group input[type="submit"].loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid #ffffff;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
   }
 
   .error-message {
@@ -272,6 +303,7 @@
     const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
     const errorMessage = document.getElementById('errorMessage');
+    const submitButton = document.querySelector('input[type="submit"]');
     errorMessage.style.display = 'none';
     
     // Validate all required fields are filled
@@ -294,6 +326,13 @@
       errorMessage.textContent = 'Password must be at least 6 characters long.';
       errorMessage.style.display = 'block';
       return;
+    }
+    
+    // Show loading state on button
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.classList.add('loading');
+      submitButton.value = ''; // Clear text to show only spinner
     }
     
     try {
@@ -368,7 +407,7 @@
       // Add a small additional delay to ensure session is fully propagated
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Redirect to return URL if provided, otherwise to play page (game)
+      // Redirect to return URL if provided, otherwise to play page (homepage/game)
       const redirectUrl = returnUrl || 'play.html';
       console.log('Redirecting to:', redirectUrl);
       window.location.href = redirectUrl;
@@ -404,6 +443,13 @@
       
       errorMessage.textContent = errorMsg;
       errorMessage.style.display = 'block';
+      
+      // Remove loading state on error
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.classList.remove('loading');
+        submitButton.value = 'Create account';
+      }
     }
   });
 </script>
