@@ -572,55 +572,82 @@
         }
       }
 
-      // Disable button and show loading state
-      deleteButton.disabled = true;
-      deleteButton.classList.add('loading');
-      deleteButton.textContent = 'Deleting...';
-      
+      // Show password prompt first
+      const passwordPrompt = document.getElementById('passwordPrompt');
+      const passwordInput = document.getElementById('passwordInput');
+      const confirmPasswordBtn = document.getElementById('confirmPasswordBtn');
       const errorMessage = document.getElementById('errorMessage');
       const successMessage = document.getElementById('successMessage');
       const deleteForm = document.getElementById('deleteForm');
       const successScreen = document.getElementById('successScreen');
+      
       errorMessage.classList.remove('show');
       successMessage.classList.remove('show');
+      
+      // Show password prompt
+      passwordPrompt.style.display = 'block';
+      passwordInput.focus();
+      
+      // Handle password confirmation
+      const handlePasswordConfirm = async () => {
+        const password = passwordInput.value;
+        if (!password) {
+          errorMessage.textContent = 'Please enter your password.';
+          errorMessage.classList.add('show');
+          return;
+        }
 
-      try {
-        console.log('Starting account deletion process...');
-        console.log('Checking Firebase availability...');
-        console.log('window.firebaseAuth:', window.firebaseAuth);
-        console.log('window.firebaseAuthFunctions:', window.firebaseAuthFunctions);
-        console.log('window.firebaseFirestoreFunctions:', window.firebaseFirestoreFunctions);
-        
-        // Wait for Firebase functions to be available (with timeout)
-        let firebaseReady = false;
-        const maxWaitTime = 15000; // Increased to 15 seconds
-        const checkInterval = 100;
-        const startTime = Date.now();
-        
-        while (!firebaseReady && (Date.now() - startTime) < maxWaitTime) {
-          if (window.firebaseAuthFunctions && window.firebaseFirestoreFunctions && window.firebaseAuth) {
-            firebaseReady = true;
-            console.log('Firebase functions are available!');
-            break;
+        // Disable button and show loading state
+        deleteButton.disabled = true;
+        deleteButton.classList.add('loading');
+        confirmPasswordBtn.disabled = true;
+        passwordInput.disabled = true;
+
+        try {
+          console.log('Starting account deletion process...');
+          console.log('Checking Firebase availability...');
+          console.log('window.firebaseAuth:', window.firebaseAuth);
+          console.log('window.firebaseAuthFunctions:', window.firebaseAuthFunctions);
+          console.log('window.firebaseFirestoreFunctions:', window.firebaseFirestoreFunctions);
+          
+          // Wait for Firebase functions to be available (with timeout)
+          let firebaseReady = false;
+          const maxWaitTime = 15000; // Increased to 15 seconds
+          const checkInterval = 100;
+          const startTime = Date.now();
+          
+          while (!firebaseReady && (Date.now() - startTime) < maxWaitTime) {
+            if (window.firebaseAuthFunctions && window.firebaseFirestoreFunctions && window.firebaseAuth) {
+              firebaseReady = true;
+              console.log('Firebase functions are available!');
+              break;
+            }
+            await new Promise(resolve => setTimeout(resolve, checkInterval));
           }
-          await new Promise(resolve => setTimeout(resolve, checkInterval));
-        }
-        
-        if (!firebaseReady) {
-          console.error('Firebase functions timeout after', maxWaitTime, 'ms');
-          console.error('window.firebaseAuth:', window.firebaseAuth);
-          console.error('window.firebaseAuthFunctions:', window.firebaseAuthFunctions);
-          console.error('window.firebaseFirestoreFunctions:', window.firebaseFirestoreFunctions);
-          throw new Error('Firebase functions failed to load. Please refresh the page and try again.');
-        }
+          
+          if (!firebaseReady) {
+            console.error('Firebase functions timeout after', maxWaitTime, 'ms');
+            console.error('window.firebaseAuth:', window.firebaseAuth);
+            console.error('window.firebaseAuthFunctions:', window.firebaseAuthFunctions);
+            console.error('window.firebaseFirestoreFunctions:', window.firebaseFirestoreFunctions);
+            throw new Error('Firebase functions failed to load. Please refresh the page and try again.');
+          }
 
-        console.log('Firebase functions available, proceeding with deletion...');
+          console.log('Firebase functions available, proceeding with deletion...');
 
-        // Refresh currentUser to ensure we have the latest auth state
-        currentUser = window.firebaseAuth.currentUser;
-        if (!currentUser) {
-          throw new Error('User session expired. Please log in again and try again.');
-        }
+          // Re-authenticate user first with password
+          const credential = window.firebaseAuthFunctions.EmailAuthProvider.credential(
+            currentUser.email,
+            password
+          );
+          await window.firebaseAuthFunctions.reauthenticateWithCredential(currentUser, credential);
+          console.log('User re-authenticated successfully');
+
+          // Refresh currentUser after re-authentication
+          currentUser = window.firebaseAuth.currentUser;
+          if (!currentUser) {
+            throw new Error('User session expired. Please log in again and try again.');
+          }
 
         // Delete user document from Firestore first (with timeout)
         // Note: We continue with Auth deletion even if Firestore deletion fails or is cancelled
@@ -686,6 +713,7 @@
             
             // Hide the form and show success screen
             deleteForm.classList.add('hidden');
+            passwordPrompt.style.display = 'none';
             successScreen.classList.add('show');
             
             // Set the email in the success screen
@@ -694,125 +722,69 @@
               successEmailEl.textContent = userEmail;
             }
           } catch (deleteError) {
-            // If deletion fails due to requires-recent-login, prompt for password
-            if (deleteError.code === 'auth/requires-recent-login') {
-              console.log('Re-authentication required, prompting for password...');
-              // Show password prompt
-              const passwordPrompt = document.getElementById('passwordPrompt');
-              const passwordInput = document.getElementById('passwordInput');
-              const confirmPasswordBtn = document.getElementById('confirmPasswordBtn');
-              
-              passwordPrompt.style.display = 'block';
-              passwordInput.focus();
-              
-              // Handle password confirmation
-              const handlePasswordConfirm = async () => {
-                const password = passwordInput.value;
-                if (!password) {
-                  errorMessage.textContent = 'Please enter your password.';
-                  errorMessage.classList.add('show');
-                  return;
-                }
-
-                try {
-                  // Re-authenticate user
-                  const credential = window.firebaseAuthFunctions.EmailAuthProvider.credential(
-                    currentUser.email,
-                    password
-                  );
-                  await window.firebaseAuthFunctions.reauthenticateWithCredential(currentUser, credential);
-                  console.log('User re-authenticated successfully');
-
-                  // Now try to delete again
-                  await currentUser.delete();
-                  console.log('User account deleted from Firebase Auth after re-authentication');
-                  
-                  // Hide the form and show success screen
-                  deleteForm.classList.add('hidden');
-                  passwordPrompt.style.display = 'none';
-                  successScreen.classList.add('show');
-                  
-                  // Set the email in the success screen
-                  const successEmailEl = document.getElementById('successEmail');
-                  if (successEmailEl) {
-                    successEmailEl.textContent = userEmail;
-                  }
-                } catch (reauthError) {
-                  console.error('Re-authentication error:', reauthError);
-                  if (reauthError.code === 'auth/wrong-password') {
-                    errorMessage.textContent = 'Incorrect password. Please try again.';
-                  } else {
-                    errorMessage.textContent = reauthError.message || 'Re-authentication failed. Please try again.';
-                  }
-                  errorMessage.classList.add('show');
-                  passwordInput.value = '';
-                }
-              };
-
-              confirmPasswordBtn.onclick = handlePasswordConfirm;
-              passwordInput.onkeypress = (e) => {
-                if (e.key === 'Enter') {
-                  handlePasswordConfirm();
-                }
-              };
-
-              // Remove loading state but keep button disabled
-              deleteButton.classList.remove('loading');
-              deleteButton.textContent = 'Delete account';
-              return; // Exit early, wait for password confirmation
-            } else {
-              // Re-throw other errors
-              throw deleteError;
-            }
+            // Re-throw the error to be handled in outer catch
+            throw deleteError;
           }
         } else {
           throw new Error('Unable to delete account. Please try logging out and logging back in, then try again.');
         }
-      } catch (error) {
-        console.error('Error deleting account:', error);
-        console.error('Error code:', error.code);
-        console.error('Error message:', error.message);
-        console.error('Error name:', error.name);
-        
-        let errorMsg = error.message || 'An error occurred while deleting your account. Please try again.';
-        
-        // Handle specific Firebase errors
-        if (error.code === 'auth/requires-recent-login') {
-          errorMsg = 'For security reasons, you need to log in again before deleting your account. Please log out and log back in, then try again.';
-        } else if (error.code === 'cancelled' || error.message?.includes('cancelled') || error.message?.includes('FIRESTORE') || error.name === 'FirebaseError') {
-          // If it's a cancellation error from Firestore, we should have already continued with Auth deletion
-          // But if we're here, it means something went wrong - try Auth deletion as fallback
-          console.log('Detected cancellation/Firestore error in outer catch, attempting Auth deletion as fallback...');
-          if (currentUser && currentUser.delete) {
-            try {
-              await currentUser.delete();
-              console.log('User account deleted from Firebase Auth (fallback after Firestore cancellation)');
-              deleteForm.classList.add('hidden');
-              successScreen.classList.add('show');
-              const successEmailEl = document.getElementById('successEmail');
-              if (successEmailEl) {
-                successEmailEl.textContent = userEmail;
+        } catch (error) {
+          console.error('Error deleting account:', error);
+          console.error('Error code:', error.code);
+          console.error('Error message:', error.message);
+          console.error('Error name:', error.name);
+          
+          let errorMsg = error.message || 'An error occurred while deleting your account. Please try again.';
+          
+          // Handle specific Firebase errors
+          if (error.code === 'auth/wrong-password') {
+            errorMsg = 'Incorrect password. Please try again.';
+          } else if (error.code === 'cancelled' || error.message?.includes('cancelled') || error.message?.includes('FIRESTORE') || error.name === 'FirebaseError') {
+            // If it's a cancellation error from Firestore, we should have already continued with Auth deletion
+            // But if we're here, it means something went wrong - try Auth deletion as fallback
+            console.log('Detected cancellation/Firestore error in outer catch, attempting Auth deletion as fallback...');
+            if (currentUser && currentUser.delete) {
+              try {
+                await currentUser.delete();
+                console.log('User account deleted from Firebase Auth (fallback after Firestore cancellation)');
+                deleteForm.classList.add('hidden');
+                passwordPrompt.style.display = 'none';
+                successScreen.classList.add('show');
+                const successEmailEl = document.getElementById('successEmail');
+                if (successEmailEl) {
+                  successEmailEl.textContent = userEmail;
+                }
+                return; // Success, exit early
+              } catch (authError) {
+                console.error('Auth deletion also failed:', authError);
+                errorMsg = 'Account deletion encountered an error. The Firestore data may not have been deleted, but we attempted to delete your authentication account. Please contact support if you need assistance.';
               }
-              return; // Success, exit early
-            } catch (authError) {
-              console.error('Auth deletion also failed:', authError);
-              errorMsg = 'Account deletion encountered an error. The Firestore data may not have been deleted, but we attempted to delete your authentication account. Please contact support if you need assistance.';
+            } else {
+              errorMsg = 'The deletion operation encountered an error. Please try again or contact support.';
             }
-          } else {
-            errorMsg = 'The deletion operation encountered an error. Please try again or contact support.';
+          } else if (error.message && error.message.includes('timeout')) {
+            errorMsg = error.message;
           }
-        } else if (error.message && error.message.includes('timeout')) {
-          errorMsg = error.message;
+          
+          errorMessage.textContent = errorMsg;
+          errorMessage.classList.add('show');
+          deleteButton.disabled = false;
+          deleteButton.classList.remove('loading');
+          confirmPasswordBtn.disabled = false;
+          passwordInput.disabled = false;
+          passwordInput.value = ''; // Clear password field
+          deleteButton.classList.remove('enabled');
+          confirmCheckbox.checked = false; // Reset checkbox
         }
-        
-        errorMessage.textContent = errorMsg;
-        errorMessage.classList.add('show');
-        deleteButton.disabled = false;
-        deleteButton.classList.remove('loading');
-        deleteButton.textContent = 'Delete account';
-        deleteButton.classList.remove('enabled');
-        confirmCheckbox.checked = false; // Reset checkbox
-      }
+      };
+
+      // Set up password confirmation button
+      confirmPasswordBtn.onclick = handlePasswordConfirm;
+      passwordInput.onkeypress = (e) => {
+        if (e.key === 'Enter') {
+          handlePasswordConfirm();
+        }
+      };
     });
   }
 
