@@ -331,8 +331,31 @@
       
       console.log('User account created:', user.email);
       
-      // Redirect to return URL if provided, otherwise to home page
-      const redirectUrl = returnUrl || 'index.html';
+      // Wait for Firebase Auth session to be fully established
+      // This ensures the user is properly authenticated before redirecting
+      // Check auth state up to 3 seconds to ensure session is ready
+      let authReady = false;
+      const maxWaitTime = 3000;
+      const checkInterval = 100;
+      const startTime = Date.now();
+      
+      while (!authReady && (Date.now() - startTime) < maxWaitTime) {
+        const currentUser = window.firebaseAuth.currentUser;
+        if (currentUser && currentUser.uid === user.uid) {
+          authReady = true;
+          console.log('Auth session confirmed, user is logged in');
+          break;
+        }
+        await new Promise(resolve => setTimeout(resolve, checkInterval));
+      }
+      
+      if (!authReady) {
+        console.warn('Auth session not fully ready, but proceeding with redirect');
+      }
+      
+      // Redirect to return URL if provided, otherwise to play page (game)
+      const redirectUrl = returnUrl || 'play.html';
+      console.log('Redirecting to:', redirectUrl);
       window.location.href = redirectUrl;
     } catch (error) {
       console.error('Sign up error:', error);
