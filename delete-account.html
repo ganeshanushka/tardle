@@ -4,8 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Delete your account</title>
-<!-- Firebase Config -->
-<script type="module" src="firebase-config.js"></script>
 <style>
   body {
     font-family: 'PT Serif', sans-serif;
@@ -483,6 +481,19 @@
     }
   }, 100);
 
+  // Check if Firebase is loaded
+  function checkFirebaseLoaded() {
+    const hasAuth = !!window.firebaseAuth;
+    const hasAuthFunctions = !!window.firebaseAuthFunctions;
+    const hasFirestoreFunctions = !!window.firebaseFirestoreFunctions;
+    console.log('Firebase check:', {
+      firebaseAuth: hasAuth,
+      firebaseAuthFunctions: hasAuthFunctions,
+      firebaseFirestoreFunctions: hasFirestoreFunctions
+    });
+    return hasAuth && hasAuthFunctions && hasFirestoreFunctions;
+  }
+
   // Setup delete button and checkbox when DOM is ready
   function setupDeleteButton() {
     const confirmCheckbox = document.getElementById('confirmCheckbox');
@@ -496,9 +507,7 @@
     }
     
     console.log('Delete button and checkbox found, setting up event listeners');
-    console.log('Button element:', deleteButton);
-    console.log('Button disabled state:', deleteButton.disabled);
-    console.log('Button onclick:', deleteButton.onclick);
+    console.log('Firebase loaded:', checkFirebaseLoaded());
     
     // Test if button is clickable
     deleteButton.style.pointerEvents = 'auto';
@@ -508,10 +517,20 @@
     confirmCheckbox.addEventListener('change', function() {
       console.log('Checkbox changed:', this.checked);
       if (this.checked) {
+        // Check Firebase before enabling
+        if (!checkFirebaseLoaded()) {
+          console.warn('Firebase not loaded yet, waiting...');
+          const errorMessage = document.getElementById('errorMessage');
+          if (errorMessage) {
+            errorMessage.textContent = 'Firebase is still loading. Please wait a moment and try again.';
+            errorMessage.classList.add('show');
+          }
+          this.checked = false; // Uncheck the checkbox
+          return;
+        }
         deleteButton.disabled = false;
         deleteButton.classList.add('enabled');
         console.log('Delete button enabled');
-        console.log('Button disabled after enabling:', deleteButton.disabled);
       } else {
         deleteButton.disabled = true;
         deleteButton.classList.remove('enabled');
@@ -567,23 +586,33 @@
 
       try {
         console.log('Starting account deletion process...');
+        console.log('Checking Firebase availability...');
+        console.log('window.firebaseAuth:', window.firebaseAuth);
+        console.log('window.firebaseAuthFunctions:', window.firebaseAuthFunctions);
+        console.log('window.firebaseFirestoreFunctions:', window.firebaseFirestoreFunctions);
         
         // Wait for Firebase functions to be available (with timeout)
-        await Promise.race([
-          new Promise((resolve) => {
-            if (window.firebaseAuthFunctions && window.firebaseFirestoreFunctions && window.firebaseAuth) {
-              resolve();
-            } else {
-              const checkInterval = setInterval(() => {
-                if (window.firebaseAuthFunctions && window.firebaseFirestoreFunctions && window.firebaseAuth) {
-                  clearInterval(checkInterval);
-                  resolve();
-                }
-              }, 100);
-            }
-          }),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('Firebase functions timeout')), 10000))
-        ]);
+        let firebaseReady = false;
+        const maxWaitTime = 15000; // Increased to 15 seconds
+        const checkInterval = 100;
+        const startTime = Date.now();
+        
+        while (!firebaseReady && (Date.now() - startTime) < maxWaitTime) {
+          if (window.firebaseAuthFunctions && window.firebaseFirestoreFunctions && window.firebaseAuth) {
+            firebaseReady = true;
+            console.log('Firebase functions are available!');
+            break;
+          }
+          await new Promise(resolve => setTimeout(resolve, checkInterval));
+        }
+        
+        if (!firebaseReady) {
+          console.error('Firebase functions timeout after', maxWaitTime, 'ms');
+          console.error('window.firebaseAuth:', window.firebaseAuth);
+          console.error('window.firebaseAuthFunctions:', window.firebaseAuthFunctions);
+          console.error('window.firebaseFirestoreFunctions:', window.firebaseFirestoreFunctions);
+          throw new Error('Firebase functions failed to load. Please refresh the page and try again.');
+        }
 
         console.log('Firebase functions available, proceeding with deletion...');
 
@@ -747,6 +776,9 @@
   
   initDeleteButton();
 </script>
+
+<!-- Firebase Config - Load at end of body to ensure DOM is ready -->
+<script type="module" src="firebase-config.js"></script>
 
 </body>
 </html>
