@@ -2499,52 +2499,76 @@
 
           // Check if user is logged in after page fully loads
           function checkLoginOnPageLoad() {
-            // Wait for page to load, then check auth after 0.5 seconds
+            // Wait for page to load, then check auth after a longer delay to allow Firebase to restore session
             window.addEventListener('load', function() {
+              // Give Firebase more time to restore the session, especially after signup
               setTimeout(function() {
                 // Wait for Firebase to initialize
                 const checkFirebase = setInterval(() => {
                   if (window.firebaseAuth) {
                     clearInterval(checkFirebase);
                     
-                    // Check auth state
+                    let userFound = false;
+                    let checkCount = 0;
+                    const maxChecks = 20; // Check up to 2 seconds (20 * 100ms)
+                    
+                    // Check auth state with multiple attempts to catch session restoration
+                    const checkAuth = () => {
+                      checkCount++;
+                      const currentUser = window.firebaseAuth.currentUser;
+                      
+                      if (currentUser) {
+                        userFound = true;
+                        // User is logged in, update button to "LOG OUT"
+                        const logoutButton = document.getElementById('logoutButton');
+                        if (logoutButton) {
+                          logoutButton.textContent = 'LOG OUT';
+                        }
+                        return; // User found, stop checking
+                      }
+                      
+                      // If we've checked enough times and still no user, show login prompt
+                      if (checkCount >= maxChecks && !userFound) {
+                        showLoginPrompt();
+                        const logoutButton = document.getElementById('logoutButton');
+                        if (logoutButton) {
+                          logoutButton.textContent = 'LOG IN';
+                        }
+                        return;
+                      }
+                      
+                      // Continue checking if we haven't found user yet
+                      if (!userFound && checkCount < maxChecks) {
+                        setTimeout(checkAuth, 100);
+                      }
+                    };
+                    
+                    // Also set up onAuthStateChanged listener for real-time updates
                     if (window.firebaseAuthFunctions && window.firebaseAuthFunctions.onAuthStateChanged) {
-                      // Use onAuthStateChanged to check auth state
                       window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, (user) => {
                         const logoutButton = document.getElementById('logoutButton');
-                        if (!user) {
-                          // User is not logged in, show prompt
+                        if (user) {
+                          userFound = true;
+                          // User is logged in, update button to "LOG OUT"
+                          if (logoutButton) {
+                            logoutButton.textContent = 'LOG OUT';
+                          }
+                        } else if (!userFound && checkCount >= maxChecks) {
+                          // Only show prompt if we've waited long enough
                           showLoginPrompt();
                           // Update button to "LOG IN"
                           if (logoutButton) {
                             logoutButton.textContent = 'LOG IN';
                           }
-                        } else {
-                          // User is logged in, update button to "LOG OUT"
-                          if (logoutButton) {
-                            logoutButton.textContent = 'LOG OUT';
-                          }
                         }
                       });
-                    } else {
-                      // Fallback: check currentUser directly
-                      const logoutButton = document.getElementById('logoutButton');
-                      if (!window.firebaseAuth.currentUser) {
-                        showLoginPrompt();
-                        // Update button to "LOG IN"
-                        if (logoutButton) {
-                          logoutButton.textContent = 'LOG IN';
-                        }
-                      } else {
-                        // Update button to "LOG OUT"
-                        if (logoutButton) {
-                          logoutButton.textContent = 'LOG OUT';
-                        }
-                      }
                     }
+                    
+                    // Start checking auth state
+                    checkAuth();
                   }
                 }, 50);
-              }, 200); // 0.2 seconds after page loads
+              }, 1000); // Wait 1 second after page loads to give Firebase time to restore session
             });
           }
 
