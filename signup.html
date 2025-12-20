@@ -170,6 +170,7 @@
 
   .input-group input[type="submit"].loading {
     color: transparent;
+    min-width: 150px; /* Maintain button size when loading */
   }
 
   .input-group input[type="submit"].loading::after {
@@ -407,8 +408,8 @@
       // Add a small additional delay to ensure session is fully propagated
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Redirect to return URL if provided, otherwise to play page (homepage/game)
-      const redirectUrl = returnUrl || 'play.html';
+      // Redirect to return URL if provided, otherwise to homepage
+      const redirectUrl = returnUrl || 'index.html';
       console.log('Redirecting to:', redirectUrl);
       window.location.href = redirectUrl;
     } catch (error) {
