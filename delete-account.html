@@ -543,6 +543,7 @@
 
       // Disable button and show loading state
       deleteButton.disabled = true;
+      deleteButton.textContent = ''; // Clear text so only loading spinner shows
       deleteButton.classList.add('loading');
       passwordInput.disabled = true;
 
@@ -713,7 +714,7 @@
           errorMessage.classList.add('show');
           deleteButton.disabled = false;
           deleteButton.classList.remove('loading');
-          // Keep button text as "Confirm and delete" since password prompt is still visible
+          deleteButton.textContent = 'Confirm and delete'; // Restore text since password prompt is still visible
           passwordInput.disabled = false;
           passwordInput.value = ''; // Clear password field
           deleteButton.classList.remove('enabled');
