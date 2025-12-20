@@ -642,13 +642,34 @@
 
         console.log('Firebase functions available, proceeding with deletion...');
 
-        // Re-authenticate user first with password
-        const credential = window.firebaseAuthFunctions.EmailAuthProvider.credential(
-          currentUser.email,
-          password
-        );
-        await window.firebaseAuthFunctions.reauthenticateWithCredential(currentUser, credential);
-        console.log('User re-authenticated successfully');
+        // Re-authenticate user first with password - this MUST succeed before deletion
+        try {
+          const credential = window.firebaseAuthFunctions.EmailAuthProvider.credential(
+            currentUser.email,
+            password
+          );
+          await window.firebaseAuthFunctions.reauthenticateWithCredential(currentUser, credential);
+          console.log('User re-authenticated successfully');
+        } catch (reauthError) {
+          console.error('Re-authentication failed:', reauthError);
+          console.error('Re-auth error code:', reauthError.code);
+          
+          // If password is wrong, show error and stop deletion
+          if (reauthError.code === 'auth/wrong-password' || reauthError.code === 'auth/invalid-credential') {
+            errorMessage.textContent = 'Wrong password. Try again.';
+            errorMessage.classList.add('show');
+            deleteButton.disabled = false;
+            deleteButton.classList.remove('loading');
+            deleteButton.textContent = 'Confirm and delete';
+            passwordInput.disabled = false;
+            passwordInput.value = ''; // Clear password field
+            passwordInput.focus();
+            return; // Stop here - do NOT proceed with deletion
+          }
+          
+          // For other re-auth errors, throw to be handled by outer catch
+          throw reauthError;
+        }
 
         // Refresh currentUser after re-authentication
         currentUser = window.firebaseAuth.currentUser;
