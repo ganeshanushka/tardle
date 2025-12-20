@@ -331,27 +331,42 @@
       
       console.log('User account created:', user.email);
       
-      // Wait for Firebase Auth session to be fully established
+      // Wait for Firebase Auth session to be fully established using onAuthStateChanged
       // This ensures the user is properly authenticated before redirecting
-      // Check auth state up to 3 seconds to ensure session is ready
       let authReady = false;
-      const maxWaitTime = 3000;
-      const checkInterval = 100;
+      const maxWaitTime = 5000; // Increased to 5 seconds
       const startTime = Date.now();
       
-      while (!authReady && (Date.now() - startTime) < maxWaitTime) {
-        const currentUser = window.firebaseAuth.currentUser;
-        if (currentUser && currentUser.uid === user.uid) {
+      // Wait for onAuthStateChanged to confirm the user is logged in
+      await new Promise((resolve) => {
+        const timeout = setTimeout(() => {
+          console.warn('Auth state change timeout, proceeding with redirect');
+          resolve();
+        }, maxWaitTime);
+        
+        // Set up auth state listener
+        const unsubscribe = window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, (authUser) => {
+          if (authUser && authUser.uid === user.uid) {
+            authReady = true;
+            console.log('Auth session confirmed via onAuthStateChanged, user is logged in');
+            clearTimeout(timeout);
+            unsubscribe();
+            resolve();
+          }
+        });
+        
+        // Also check currentUser immediately in case it's already set
+        if (window.firebaseAuth.currentUser && window.firebaseAuth.currentUser.uid === user.uid) {
           authReady = true;
-          console.log('Auth session confirmed, user is logged in');
-          break;
+          console.log('Auth session confirmed via currentUser, user is logged in');
+          clearTimeout(timeout);
+          unsubscribe();
+          resolve();
         }
-        await new Promise(resolve => setTimeout(resolve, checkInterval));
-      }
+      });
       
-      if (!authReady) {
-        console.warn('Auth session not fully ready, but proceeding with redirect');
-      }
+      // Add a small additional delay to ensure session is fully propagated
+      await new Promise(resolve => setTimeout(resolve, 500));
       
       // Redirect to return URL if provided, otherwise to play page (game)
       const redirectUrl = returnUrl || 'play.html';
