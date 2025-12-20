@@ -643,32 +643,51 @@
         console.log('Firebase functions available, proceeding with deletion...');
 
         // Re-authenticate user first with password - this MUST succeed before deletion
+        // This is a security requirement - we MUST verify the password before allowing deletion
+        let reauthSuccessful = false;
         try {
+          console.log('Attempting to re-authenticate with password...');
           const credential = window.firebaseAuthFunctions.EmailAuthProvider.credential(
             currentUser.email,
             password
           );
+          
+          // Re-authenticate - this will throw an error if password is wrong
           await window.firebaseAuthFunctions.reauthenticateWithCredential(currentUser, credential);
-          console.log('User re-authenticated successfully');
+          reauthSuccessful = true;
+          console.log('User re-authenticated successfully - password verified');
         } catch (reauthError) {
-          console.error('Re-authentication failed:', reauthError);
+          console.error('Re-authentication FAILED:', reauthError);
           console.error('Re-auth error code:', reauthError.code);
+          console.error('Re-auth error message:', reauthError.message);
           
-          // If password is wrong, show error and stop deletion
-          if (reauthError.code === 'auth/wrong-password' || reauthError.code === 'auth/invalid-credential') {
-            errorMessage.textContent = 'Wrong password. Try again.';
-            errorMessage.classList.add('show');
-            deleteButton.disabled = false;
-            deleteButton.classList.remove('loading');
-            deleteButton.textContent = 'Confirm and delete';
-            passwordInput.disabled = false;
-            passwordInput.value = ''; // Clear password field
-            passwordInput.focus();
-            return; // Stop here - do NOT proceed with deletion
-          }
+          // ANY re-authentication error means password is wrong or invalid
+          // Stop deletion immediately - do NOT proceed
+          errorMessage.textContent = 'Wrong password. Try again.';
+          errorMessage.classList.add('show');
+          deleteButton.disabled = false;
+          deleteButton.classList.remove('loading');
+          deleteButton.textContent = 'Confirm and delete';
+          passwordInput.disabled = false;
+          passwordInput.value = ''; // Clear password field
+          passwordInput.focus();
           
-          // For other re-auth errors, throw to be handled by outer catch
-          throw reauthError;
+          // CRITICAL: Return early to prevent any deletion
+          return;
+        }
+        
+        // Double-check that re-authentication actually succeeded
+        if (!reauthSuccessful) {
+          console.error('Re-authentication did not succeed - stopping deletion');
+          errorMessage.textContent = 'Password verification failed. Please try again.';
+          errorMessage.classList.add('show');
+          deleteButton.disabled = false;
+          deleteButton.classList.remove('loading');
+          deleteButton.textContent = 'Confirm and delete';
+          passwordInput.disabled = false;
+          passwordInput.value = '';
+          passwordInput.focus();
+          return;
         }
 
         // Refresh currentUser after re-authentication
