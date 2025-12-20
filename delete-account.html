@@ -377,9 +377,9 @@
   </div>
 
   <div class="success-screen" id="successScreen">
-    <h1>Your Tardle account is being deleted.</h1>
-    <p>We are deleting the Tardle account for <span class="email-bold" id="successEmail"></span>.</p>
-    <p>This action may take a few minutes. You will be logged out immediately and on all other devices.</p>
+    <h1>Your Tardle account has been deleted.</h1>
+    <p>We have deleted the Tardle account for <span class="email-bold" id="successEmail"></span>.</p>
+    <p>You have been logged out immediately and on all other devices.</p>
     <p>No further action is needed. You may close this window.</p>
   </div>
 </div>
@@ -458,7 +458,10 @@
           userFound = true;
           currentUser = user;
           userEmail = user.email || '';
-          document.getElementById('userEmail').textContent = userEmail;
+          const userEmailEl = document.getElementById('userEmail');
+          if (userEmailEl) {
+            userEmailEl.textContent = userEmail;
+          }
           
           // Cancel any pending redirect
           if (redirectScheduled) {
@@ -480,200 +483,217 @@
     }
   }, 100);
 
-  // Enable/disable delete button based on checkbox
-  const confirmCheckbox = document.getElementById('confirmCheckbox');
-  const deleteButton = document.getElementById('deleteButton');
-  
-  confirmCheckbox.addEventListener('change', function() {
-    if (this.checked) {
-      deleteButton.disabled = false;
-      deleteButton.classList.add('enabled');
-    } else {
-      deleteButton.disabled = true;
-      deleteButton.classList.remove('enabled');
-    }
-  });
-
-  // Handle delete account
-  deleteButton.addEventListener('click', async function() {
-    if (!confirmCheckbox.checked || !currentUser) {
+  // Setup delete button and checkbox when DOM is ready
+  function setupDeleteButton() {
+    const confirmCheckbox = document.getElementById('confirmCheckbox');
+    const deleteButton = document.getElementById('deleteButton');
+    
+    if (!confirmCheckbox || !deleteButton) {
+      console.error('Delete button or checkbox not found');
       return;
     }
-
-    // Disable button and show loading state
-    deleteButton.disabled = true;
-    deleteButton.classList.add('loading');
-    deleteButton.textContent = 'Deleting...';
     
-    const errorMessage = document.getElementById('errorMessage');
-    const successMessage = document.getElementById('successMessage');
-    const deleteForm = document.getElementById('deleteForm');
-    const successScreen = document.getElementById('successScreen');
-    errorMessage.classList.remove('show');
-    successMessage.classList.remove('show');
-
-    try {
-      console.log('Starting account deletion process...');
-      
-      // Wait for Firebase functions to be available (with timeout)
-      await Promise.race([
-        new Promise((resolve) => {
-          if (window.firebaseAuthFunctions && window.firebaseFirestoreFunctions && window.firebaseAuth) {
-            resolve();
-          } else {
-            const checkInterval = setInterval(() => {
-              if (window.firebaseAuthFunctions && window.firebaseFirestoreFunctions && window.firebaseAuth) {
-                clearInterval(checkInterval);
-                resolve();
-              }
-            }, 100);
-          }
-        }),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Firebase functions timeout')), 10000))
-      ]);
-
-      console.log('Firebase functions available, proceeding with deletion...');
-
-      // Refresh currentUser to ensure we have the latest auth state
-      currentUser = window.firebaseAuth.currentUser;
-      if (!currentUser) {
-        throw new Error('User session expired. Please log in again and try again.');
-      }
-
-      // Delete user document from Firestore first
-      if (currentUser && window.firebaseFirestoreFunctions && window.firebaseDb) {
-        try {
-          console.log('Deleting user document from Firestore...');
-          const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
-          await window.firebaseFirestoreFunctions.deleteDoc(userDocRef);
-          console.log('User document deleted from Firestore');
-        } catch (firestoreError) {
-          console.error('Error deleting Firestore document:', firestoreError);
-          // Continue with auth deletion even if Firestore deletion fails
-        }
-      }
-
-      // Delete user from Firebase Auth
-      // deleteUser is a method on the User object, not a standalone function
-      if (currentUser && currentUser.delete) {
-        console.log('Deleting user from Firebase Auth...');
-        
-        try {
-          // Try to delete directly first
-          const deletePromise = currentUser.delete();
-          const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Account deletion timed out.')), 30000)
-          );
-          
-          await Promise.race([deletePromise, timeoutPromise]);
-          console.log('User account deleted from Firebase Auth');
-          
-          // Hide the form and show success screen
-          deleteForm.classList.add('hidden');
-          successScreen.classList.add('show');
-          
-          // Set the email in the success screen
-          const successEmailEl = document.getElementById('successEmail');
-          if (successEmailEl) {
-            successEmailEl.textContent = userEmail;
-          }
-        } catch (deleteError) {
-          // If deletion fails due to requires-recent-login, prompt for password
-          if (deleteError.code === 'auth/requires-recent-login') {
-            console.log('Re-authentication required, prompting for password...');
-            // Show password prompt
-            const passwordPrompt = document.getElementById('passwordPrompt');
-            const passwordInput = document.getElementById('passwordInput');
-            const confirmPasswordBtn = document.getElementById('confirmPasswordBtn');
-            
-            passwordPrompt.style.display = 'block';
-            passwordInput.focus();
-            
-            // Handle password confirmation
-            const handlePasswordConfirm = async () => {
-              const password = passwordInput.value;
-              if (!password) {
-                errorMessage.textContent = 'Please enter your password.';
-                errorMessage.classList.add('show');
-                return;
-              }
-
-              try {
-                // Re-authenticate user
-                const credential = window.firebaseAuthFunctions.EmailAuthProvider.credential(
-                  currentUser.email,
-                  password
-                );
-                await window.firebaseAuthFunctions.reauthenticateWithCredential(currentUser, credential);
-                console.log('User re-authenticated successfully');
-
-                // Now try to delete again
-                await currentUser.delete();
-                console.log('User account deleted from Firebase Auth after re-authentication');
-                
-                // Hide the form and show success screen
-                deleteForm.classList.add('hidden');
-                passwordPrompt.style.display = 'none';
-                successScreen.classList.add('show');
-                
-                // Set the email in the success screen
-                const successEmailEl = document.getElementById('successEmail');
-                if (successEmailEl) {
-                  successEmailEl.textContent = userEmail;
-                }
-              } catch (reauthError) {
-                console.error('Re-authentication error:', reauthError);
-                if (reauthError.code === 'auth/wrong-password') {
-                  errorMessage.textContent = 'Incorrect password. Please try again.';
-                } else {
-                  errorMessage.textContent = reauthError.message || 'Re-authentication failed. Please try again.';
-                }
-                errorMessage.classList.add('show');
-                passwordInput.value = '';
-              }
-            };
-
-            confirmPasswordBtn.onclick = handlePasswordConfirm;
-            passwordInput.onkeypress = (e) => {
-              if (e.key === 'Enter') {
-                handlePasswordConfirm();
-              }
-            };
-
-            // Remove loading state but keep button disabled
-            deleteButton.classList.remove('loading');
-            deleteButton.textContent = 'Delete account';
-            return; // Exit early, wait for password confirmation
-          } else {
-            // Re-throw other errors
-            throw deleteError;
-          }
-        }
+    // Enable/disable delete button based on checkbox
+    confirmCheckbox.addEventListener('change', function() {
+      if (this.checked) {
+        deleteButton.disabled = false;
+        deleteButton.classList.add('enabled');
       } else {
-        throw new Error('Unable to delete account. Please try logging out and logging back in, then try again.');
+        deleteButton.disabled = true;
+        deleteButton.classList.remove('enabled');
       }
-    } catch (error) {
-      console.error('Error deleting account:', error);
-      console.error('Error code:', error.code);
-      console.error('Error message:', error.message);
-      
-      let errorMsg = error.message || 'An error occurred while deleting your account. Please try again.';
-      
-      // Handle specific Firebase errors
-      if (error.code === 'auth/requires-recent-login') {
-        errorMsg = 'For security reasons, you need to log in again before deleting your account. Please log out and log back in, then try again.';
-      } else if (error.message && error.message.includes('timeout')) {
-        errorMsg = error.message;
+    });
+
+    // Handle delete account
+    deleteButton.addEventListener('click', async function() {
+      if (!confirmCheckbox.checked || !currentUser) {
+        return;
       }
+
+      // Disable button and show loading state
+      deleteButton.disabled = true;
+      deleteButton.classList.add('loading');
+      deleteButton.textContent = 'Deleting...';
       
-      errorMessage.textContent = errorMsg;
-      errorMessage.classList.add('show');
-      deleteButton.disabled = false;
-      deleteButton.classList.remove('loading');
-      deleteButton.textContent = 'Delete account';
-      deleteButton.classList.remove('enabled');
-    }
-  });
+      const errorMessage = document.getElementById('errorMessage');
+      const successMessage = document.getElementById('successMessage');
+      const deleteForm = document.getElementById('deleteForm');
+      const successScreen = document.getElementById('successScreen');
+      errorMessage.classList.remove('show');
+      successMessage.classList.remove('show');
+
+      try {
+        console.log('Starting account deletion process...');
+        
+        // Wait for Firebase functions to be available (with timeout)
+        await Promise.race([
+          new Promise((resolve) => {
+            if (window.firebaseAuthFunctions && window.firebaseFirestoreFunctions && window.firebaseAuth) {
+              resolve();
+            } else {
+              const checkInterval = setInterval(() => {
+                if (window.firebaseAuthFunctions && window.firebaseFirestoreFunctions && window.firebaseAuth) {
+                  clearInterval(checkInterval);
+                  resolve();
+                }
+              }, 100);
+            }
+          }),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Firebase functions timeout')), 10000))
+        ]);
+
+        console.log('Firebase functions available, proceeding with deletion...');
+
+        // Refresh currentUser to ensure we have the latest auth state
+        currentUser = window.firebaseAuth.currentUser;
+        if (!currentUser) {
+          throw new Error('User session expired. Please log in again and try again.');
+        }
+
+        // Delete user document from Firestore first
+        if (currentUser && window.firebaseFirestoreFunctions && window.firebaseDb) {
+          try {
+            console.log('Deleting user document from Firestore...');
+            const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
+            await window.firebaseFirestoreFunctions.deleteDoc(userDocRef);
+            console.log('User document deleted from Firestore');
+          } catch (firestoreError) {
+            console.error('Error deleting Firestore document:', firestoreError);
+            // Continue with auth deletion even if Firestore deletion fails
+          }
+        }
+
+        // Delete user from Firebase Auth
+        // deleteUser is a method on the User object, not a standalone function
+        if (currentUser && currentUser.delete) {
+          console.log('Deleting user from Firebase Auth...');
+          
+          try {
+            // Try to delete directly first
+            const deletePromise = currentUser.delete();
+            const timeoutPromise = new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('Account deletion timed out.')), 30000)
+            );
+            
+            await Promise.race([deletePromise, timeoutPromise]);
+            console.log('User account deleted from Firebase Auth');
+            
+            // Hide the form and show success screen
+            deleteForm.classList.add('hidden');
+            successScreen.classList.add('show');
+            
+            // Set the email in the success screen
+            const successEmailEl = document.getElementById('successEmail');
+            if (successEmailEl) {
+              successEmailEl.textContent = userEmail;
+            }
+          } catch (deleteError) {
+            // If deletion fails due to requires-recent-login, prompt for password
+            if (deleteError.code === 'auth/requires-recent-login') {
+              console.log('Re-authentication required, prompting for password...');
+              // Show password prompt
+              const passwordPrompt = document.getElementById('passwordPrompt');
+              const passwordInput = document.getElementById('passwordInput');
+              const confirmPasswordBtn = document.getElementById('confirmPasswordBtn');
+              
+              passwordPrompt.style.display = 'block';
+              passwordInput.focus();
+              
+              // Handle password confirmation
+              const handlePasswordConfirm = async () => {
+                const password = passwordInput.value;
+                if (!password) {
+                  errorMessage.textContent = 'Please enter your password.';
+                  errorMessage.classList.add('show');
+                  return;
+                }
+
+                try {
+                  // Re-authenticate user
+                  const credential = window.firebaseAuthFunctions.EmailAuthProvider.credential(
+                    currentUser.email,
+                    password
+                  );
+                  await window.firebaseAuthFunctions.reauthenticateWithCredential(currentUser, credential);
+                  console.log('User re-authenticated successfully');
+
+                  // Now try to delete again
+                  await currentUser.delete();
+                  console.log('User account deleted from Firebase Auth after re-authentication');
+                  
+                  // Hide the form and show success screen
+                  deleteForm.classList.add('hidden');
+                  passwordPrompt.style.display = 'none';
+                  successScreen.classList.add('show');
+                  
+                  // Set the email in the success screen
+                  const successEmailEl = document.getElementById('successEmail');
+                  if (successEmailEl) {
+                    successEmailEl.textContent = userEmail;
+                  }
+                } catch (reauthError) {
+                  console.error('Re-authentication error:', reauthError);
+                  if (reauthError.code === 'auth/wrong-password') {
+                    errorMessage.textContent = 'Incorrect password. Please try again.';
+                  } else {
+                    errorMessage.textContent = reauthError.message || 'Re-authentication failed. Please try again.';
+                  }
+                  errorMessage.classList.add('show');
+                  passwordInput.value = '';
+                }
+              };
+
+              confirmPasswordBtn.onclick = handlePasswordConfirm;
+              passwordInput.onkeypress = (e) => {
+                if (e.key === 'Enter') {
+                  handlePasswordConfirm();
+                }
+              };
+
+              // Remove loading state but keep button disabled
+              deleteButton.classList.remove('loading');
+              deleteButton.textContent = 'Delete account';
+              return; // Exit early, wait for password confirmation
+            } else {
+              // Re-throw other errors
+              throw deleteError;
+            }
+          }
+        } else {
+          throw new Error('Unable to delete account. Please try logging out and logging back in, then try again.');
+        }
+      } catch (error) {
+        console.error('Error deleting account:', error);
+        console.error('Error code:', error.code);
+        console.error('Error message:', error.message);
+        
+        let errorMsg = error.message || 'An error occurred while deleting your account. Please try again.';
+        
+        // Handle specific Firebase errors
+        if (error.code === 'auth/requires-recent-login') {
+          errorMsg = 'For security reasons, you need to log in again before deleting your account. Please log out and log back in, then try again.';
+        } else if (error.message && error.message.includes('timeout')) {
+          errorMsg = error.message;
+        }
+        
+        errorMessage.textContent = errorMsg;
+        errorMessage.classList.add('show');
+        deleteButton.disabled = false;
+        deleteButton.classList.remove('loading');
+        deleteButton.textContent = 'Delete account';
+        deleteButton.classList.remove('enabled');
+        confirmCheckbox.checked = false; // Reset checkbox
+      }
+    });
+  }
+
+  // Initialize delete button setup when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupDeleteButton);
+  } else {
+    // DOM is already ready
+    setupDeleteButton();
+  }
 </script>
 
 </body>
