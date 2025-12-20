@@ -371,7 +371,7 @@
     </div>
 
     <div class="button-container">
-      <button class="delete-button" id="deleteButton" disabled>Delete account</button>
+      <button type="button" class="delete-button" id="deleteButton" disabled>Delete account</button>
       <a href="account-details.html" class="return-link">Return to account</a>
     </div>
   </div>
@@ -490,24 +490,67 @@
     
     if (!confirmCheckbox || !deleteButton) {
       console.error('Delete button or checkbox not found');
+      console.error('Checkbox element:', confirmCheckbox);
+      console.error('Delete button element:', deleteButton);
       return;
     }
     
+    console.log('Delete button and checkbox found, setting up event listeners');
+    console.log('Button element:', deleteButton);
+    console.log('Button disabled state:', deleteButton.disabled);
+    console.log('Button onclick:', deleteButton.onclick);
+    
+    // Test if button is clickable
+    deleteButton.style.pointerEvents = 'auto';
+    deleteButton.style.cursor = 'pointer';
+    
     // Enable/disable delete button based on checkbox
     confirmCheckbox.addEventListener('change', function() {
+      console.log('Checkbox changed:', this.checked);
       if (this.checked) {
         deleteButton.disabled = false;
         deleteButton.classList.add('enabled');
+        console.log('Delete button enabled');
+        console.log('Button disabled after enabling:', deleteButton.disabled);
       } else {
         deleteButton.disabled = true;
         deleteButton.classList.remove('enabled');
+        console.log('Delete button disabled');
       }
     });
+    
+    // Also add a test click handler to verify the button works
+    deleteButton.addEventListener('click', function(e) {
+      console.log('TEST: Button click detected!', e);
+    }, { once: true });
 
     // Handle delete account
-    deleteButton.addEventListener('click', async function() {
-      if (!confirmCheckbox.checked || !currentUser) {
+    deleteButton.addEventListener('click', async function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      console.log('Delete button clicked');
+      console.log('Checkbox checked:', confirmCheckbox.checked);
+      console.log('Current user:', currentUser);
+      
+      if (!confirmCheckbox.checked) {
+        console.log('Checkbox not checked, returning');
         return;
+      }
+      
+      if (!currentUser) {
+        console.log('No current user, refreshing...');
+        // Try to refresh currentUser
+        currentUser = window.firebaseAuth ? window.firebaseAuth.currentUser : null;
+        if (!currentUser) {
+          console.error('No user found. Please log in again.');
+          const errorMessage = document.getElementById('errorMessage');
+          if (errorMessage) {
+            errorMessage.textContent = 'You must be logged in to delete your account. Please log in and try again.';
+            errorMessage.classList.add('show');
+          }
+          return;
+        }
       }
 
       // Disable button and show loading state
@@ -688,12 +731,21 @@
   }
 
   // Initialize delete button setup when DOM is ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', setupDeleteButton);
-  } else {
-    // DOM is already ready
-    setupDeleteButton();
+  function initDeleteButton() {
+    console.log('Initializing delete button setup, DOM ready state:', document.readyState);
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOMContentLoaded fired, setting up delete button');
+        setupDeleteButton();
+      });
+    } else {
+      // DOM is already ready
+      console.log('DOM already ready, setting up delete button immediately');
+      setupDeleteButton();
+    }
   }
+  
+  initDeleteButton();
 </script>
 
 </body>
