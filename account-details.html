@@ -8,24 +8,186 @@
     body {
       margin: 0;
       font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
-      background: #f7f7f7;
+      background: #7BAFD4;
       color: #1a1a1b;
       padding: 32px 24px;
       line-height: 1.6;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      padding: 32px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
     h1 {
       margin-top: 0;
       color: #1a1a1b;
+      font-size: 2em;
+    }
+    .account-section {
+      margin-bottom: 32px;
+    }
+    .section-title {
+      font-size: 0.875em;
+      font-weight: bold;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+    }
+    .account-info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #e5e5e5;
+    }
+    .account-info-row:last-child {
+      border-bottom: none;
+    }
+    .account-info-label {
+      font-weight: 500;
+      color: #1a1a1b;
+    }
+    .account-info-value {
+      color: #666;
+      font-family: monospace;
+    }
+    .account-number {
+      font-size: 1.1em;
+      font-weight: 600;
+      color: #1a1a1b;
+    }
+    .loading {
+      color: #666;
+      font-style: italic;
+    }
+    .error-message {
+      color: #d32f2f;
+      margin-top: 16px;
     }
     a {
       color: #7BAFD4;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    .back-link {
+      display: inline-block;
+      margin-top: 24px;
     }
   </style>
 </head>
 <body>
-  <h1>Account Details</h1>
-  <p>This is a placeholder page for your account details.</p>
-  <p><a href="play.html">Back to Tardle</a></p>
+  <div class="container">
+    <h1>Account Details</h1>
+    
+    <div class="account-section">
+      <div class="section-title">Account Information</div>
+      <div id="accountInfo">
+        <div class="account-info-row">
+          <span class="account-info-label">Account number</span>
+          <span class="account-info-value account-number loading" id="accountNumber">Loading...</span>
+        </div>
+        <div class="account-info-row">
+          <span class="account-info-label">Email address</span>
+          <span class="account-info-value loading" id="userEmail">Loading...</span>
+        </div>
+        <div class="account-info-row">
+          <span class="account-info-label">Username</span>
+          <span class="account-info-value loading" id="username">Loading...</span>
+        </div>
+      </div>
+      <div id="errorMessage" class="error-message" style="display: none;"></div>
+    </div>
+    
+    <a href="play.html" class="back-link">← Back to Tardle</a>
+  </div>
+
+  <!-- Firebase Config -->
+  <script type="module" src="firebase-config.js"></script>
+
+  <script>
+    async function loadAccountDetails() {
+      try {
+        // Wait for Firebase to be loaded
+        await new Promise((resolve) => {
+          if (window.firebaseAuth && window.firebaseAuthFunctions && window.firebaseFirestoreFunctions) {
+            resolve();
+          } else {
+            const checkInterval = setInterval(() => {
+              if (window.firebaseAuth && window.firebaseAuthFunctions && window.firebaseFirestoreFunctions) {
+                clearInterval(checkInterval);
+                resolve();
+              }
+            }, 100);
+          }
+        });
+
+        // Check if user is logged in
+        const currentUser = window.firebaseAuth.currentUser;
+        if (!currentUser) {
+          // User not logged in, redirect to login
+          window.location.href = 'login.html';
+          return;
+        }
+
+        // Load user data from Firestore
+        const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
+        const userDoc = await window.firebaseFirestoreFunctions.getDoc(userDocRef);
+
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          
+          // Display account number
+          const accountNumberEl = document.getElementById('accountNumber');
+          if (userData.accountNumber) {
+            accountNumberEl.textContent = userData.accountNumber;
+            accountNumberEl.classList.remove('loading');
+          } else {
+            accountNumberEl.textContent = 'Not assigned';
+            accountNumberEl.classList.remove('loading');
+            accountNumberEl.style.color = '#999';
+          }
+
+          // Display email
+          const emailEl = document.getElementById('userEmail');
+          emailEl.textContent = userData.email || currentUser.email || 'Not available';
+          emailEl.classList.remove('loading');
+
+          // Display username
+          const usernameEl = document.getElementById('username');
+          usernameEl.textContent = userData.username || currentUser.email?.split('@')[0] || 'Not available';
+          usernameEl.classList.remove('loading');
+        } else {
+          // User document doesn't exist
+          document.getElementById('errorMessage').textContent = 'Account information not found.';
+          document.getElementById('errorMessage').style.display = 'block';
+          
+          // Show what we can from auth
+          const emailEl = document.getElementById('userEmail');
+          emailEl.textContent = currentUser.email || 'Not available';
+          emailEl.classList.remove('loading');
+          
+          const accountNumberEl = document.getElementById('accountNumber');
+          accountNumberEl.textContent = 'Not assigned';
+          accountNumberEl.classList.remove('loading');
+          accountNumberEl.style.color = '#999';
+        }
+      } catch (error) {
+        console.error('Error loading account details:', error);
+        document.getElementById('errorMessage').textContent = 'Error loading account details. Please try again.';
+        document.getElementById('errorMessage').style.display = 'block';
+      }
+    }
+
+    // Load account details when page loads
+    document.addEventListener('DOMContentLoaded', loadAccountDetails);
+  </script>
 </body>
 </html>
 

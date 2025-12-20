@@ -356,47 +356,96 @@
       
       // User created successfully, now create user document in Firestore
       const user = userCredential.user;
-      
+
+      // Generate a unique account number
+      async function generateUniqueAccountNumber() {
+        const maxRetries = 10;
+        let attempts = 0;
+        
+        while (attempts < maxRetries) {
+          // Generate a random 9-digit number (100000000 to 999999999)
+          const accountNumber = Math.floor(100000000 + Math.random() * 900000000);
+          
+          try {
+            // Check if this account number already exists
+            const usersRef = window.firebaseFirestoreFunctions.collection(window.firebaseDb, 'users');
+            const q = window.firebaseFirestoreFunctions.query(
+              usersRef,
+              window.firebaseFirestoreFunctions.where('accountNumber', '==', accountNumber)
+            );
+            const querySnapshot = await window.firebaseFirestoreFunctions.getDocs(q);
+            
+            if (querySnapshot.empty) {
+              // Account number is unique
+              console.log('Generated unique account number:', accountNumber);
+              return accountNumber;
+            } else {
+              // Account number exists, try again
+              console.log('Account number', accountNumber, 'already exists, generating new one...');
+              attempts++;
+            }
+          } catch (error) {
+            console.error('Error checking account number uniqueness:', error);
+            // On error, return the generated number anyway (better than failing)
+            return accountNumber;
+          }
+        }
+        
+        // If we couldn't find a unique number after max retries, use timestamp-based fallback
+        const fallbackNumber = Math.floor(Date.now() % 900000000) + 100000000;
+        console.warn('Could not generate unique account number after', maxRetries, 'attempts. Using fallback:', fallbackNumber);
+        return fallbackNumber;
+      }
+
       // Create user stats document in Firestore
-      const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', user.uid);
-      await window.firebaseFirestoreFunctions.setDoc(userDocRef, {
-        email: email,
-        username: username,
-        gamesPlayed: 0,
-        currentStreak: 0,
-        maxStreak: 0,
-        emailSubscribed: false, // Default to not subscribed
-        createdAt: window.firebaseFirestoreFunctions.serverTimestamp()
-      });
+      // Wrap in try-catch so Firestore errors don't prevent redirect
+      try {
+        // Generate unique account number
+        const accountNumber = await generateUniqueAccountNumber();
+        
+        const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', user.uid);
+        await window.firebaseFirestoreFunctions.setDoc(userDocRef, {
+          email: email,
+          username: username,
+          accountNumber: accountNumber,
+          gamesPlayed: 0,
+          currentStreak: 0,
+          maxStreak: 0,
+          emailSubscribed: false, // Default to not subscribed
+          createdAt: window.firebaseFirestoreFunctions.serverTimestamp()
+        });
+        console.log('User Firestore document created successfully with account number:', accountNumber);
+      } catch (firestoreError) {
+        // Log Firestore error but don't prevent redirect - auth account was created successfully
+        console.error('Error creating Firestore document (non-critical):', firestoreError);
+        console.warn('User auth account created, but Firestore document creation failed. User can still log in.');
+      }
       
-      console.log('User account created:', user.email);
+      console.log('User account created and logged in:', user.email);
       
-      // Wait for Firebase Auth session to be fully established using onAuthStateChanged
+      // createUserWithEmailAndPassword automatically logs the user in
+      // Wait for auth state to be confirmed via onAuthStateChanged before redirecting
+      const redirectUrl = returnUrl || 'index.html';
+      
+      // Use onAuthStateChanged to wait for auth state to be fully established
       // This ensures the user is properly authenticated before redirecting
-      let authReady = false;
-      const maxWaitTime = 5000; // Increased to 5 seconds
-      const startTime = Date.now();
-      
-      // Wait for onAuthStateChanged to confirm the user is logged in
       let authConfirmed = false;
       await new Promise((resolve) => {
         let resolved = false;
         const timeout = setTimeout(() => {
           if (!resolved) {
-            console.warn('Auth state change timeout, proceeding with redirect anyway');
+            console.warn('Auth state confirmation timeout after 3s, redirecting anyway...');
             resolved = true;
-            authConfirmed = true;
             resolve();
           }
-        }, maxWaitTime);
+        }, 3000); // 3 second max wait
         
         // Set up auth state listener
         const unsubscribe = window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, (authUser) => {
           console.log('onAuthStateChanged fired, user:', authUser ? authUser.uid : 'null');
           if (authUser && authUser.uid === user.uid && !resolved) {
-            authReady = true;
+            console.log('Auth state confirmed - user is logged in');
             authConfirmed = true;
-            console.log('Auth session confirmed via onAuthStateChanged, user is logged in');
             resolved = true;
             clearTimeout(timeout);
             unsubscribe();
@@ -408,9 +457,8 @@
         const currentUser = window.firebaseAuth.currentUser;
         console.log('Checking currentUser immediately:', currentUser ? currentUser.uid : 'null');
         if (currentUser && currentUser.uid === user.uid && !resolved) {
-          authReady = true;
+          console.log('Current user already set, auth confirmed');
           authConfirmed = true;
-          console.log('Auth session confirmed via currentUser, user is logged in');
           resolved = true;
           clearTimeout(timeout);
           unsubscribe();
@@ -420,12 +468,11 @@
       
       console.log('Auth confirmation complete, authConfirmed:', authConfirmed);
       
-      // Add a small additional delay to ensure session is fully propagated
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Small delay to ensure everything is settled
+      await new Promise(resolve => setTimeout(resolve, 300));
       
-      // Redirect to return URL if provided, otherwise to homepage
-      const redirectUrl = returnUrl || 'index.html';
-      console.log('About to redirect to:', redirectUrl);
+      // Redirect to homepage - this should ALWAYS happen
+      console.log('Redirecting to:', redirectUrl);
       console.log('Current URL:', window.location.href);
       
       // Force redirect - use replace to prevent back button issues

@@ -286,16 +286,33 @@
       window.location.href = redirectUrl;
     } catch (error) {
       console.error('Sign in error:', error);
+      console.error('Error code:', error.code);
       // Show error message
       errorMessage.style.display = 'block';
       if (error.code === 'auth/user-not-found') {
         errorMessage.textContent = 'No account found with this email address.';
-      } else if (error.code === 'auth/wrong-password') {
-        errorMessage.textContent = 'Incorrect password. Please try again.';
+      } else if (error.code === 'auth/wrong-password' || 
+                 error.code === 'auth/invalid-credential' || 
+                 error.code === 'auth/invalid-login-credentials') {
+        // Match the error message from delete account page
+        errorMessage.textContent = 'Wrong password. Try again.';
+        // Clear password field on wrong password
+        const passwordInput = document.getElementById('password');
+        if (passwordInput) {
+          passwordInput.value = '';
+          passwordInput.focus();
+        }
       } else if (error.code === 'auth/invalid-email') {
         errorMessage.textContent = 'Invalid email address. Please enter a valid email.';
       } else {
-        errorMessage.textContent = error.message || 'Incorrect password. Please try again.';
+        // For any other error, show a generic message
+        errorMessage.textContent = 'Wrong password. Try again.';
+        // Clear password field
+        const passwordInput = document.getElementById('password');
+        if (passwordInput) {
+          passwordInput.value = '';
+          passwordInput.focus();
+        }
       }
     }
   });
