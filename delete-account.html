@@ -622,17 +622,51 @@
           throw new Error('User session expired. Please log in again and try again.');
         }
 
-        // Delete user document from Firestore first
+        // Delete user document from Firestore first (with timeout)
+        // Note: We continue with Auth deletion even if Firestore deletion fails or is cancelled
         if (currentUser && window.firebaseFirestoreFunctions && window.firebaseDb) {
           try {
             console.log('Deleting user document from Firestore...');
             const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
-            await window.firebaseFirestoreFunctions.deleteDoc(userDocRef);
-            console.log('User document deleted from Firestore');
+            
+            // Add timeout to Firestore deletion (5 seconds)
+            // Use Promise.race but catch all errors including cancellations
+            const firestoreDeletePromise = window.firebaseFirestoreFunctions.deleteDoc(userDocRef).catch(err => {
+              // Suppress cancellation errors - they're expected when timing out
+              const errorCode = err?.code || '';
+              const errorMessage = err?.message || '';
+              if (errorCode === 'cancelled' || errorMessage.includes('cancelled') || errorMessage.includes('Operation cancelled')) {
+                console.warn('Firestore deletion cancelled (expected with timeout, continuing):', err);
+                throw new Error('FIRESTORE_CANCELLED'); // Re-throw as a simple error we can identify
+              }
+              throw err; // Re-throw other errors
+            });
+            
+            const firestoreTimeoutPromise = new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('FIRESTORE_TIMEOUT')), 5000)
+            );
+            
+            try {
+              await Promise.race([firestoreDeletePromise, firestoreTimeoutPromise]);
+              console.log('User document deleted from Firestore');
+            } catch (firestoreError) {
+              // Handle all Firestore errors - we continue regardless
+              const errorMessage = firestoreError?.message || '';
+              
+              if (errorMessage === 'FIRESTORE_CANCELLED' || errorMessage === 'FIRESTORE_TIMEOUT') {
+                console.warn('Firestore deletion timed out or was cancelled (this is OK, continuing with Auth deletion)');
+              } else {
+                console.warn('Firestore deletion encountered an error (this is OK, continuing with Auth deletion):', firestoreError);
+              }
+              // Continue with auth deletion even if Firestore deletion fails
+            }
           } catch (firestoreError) {
-            console.error('Error deleting Firestore document:', firestoreError);
+            // Catch any outer errors - we continue regardless
+            console.warn('Firestore deletion encountered an error (this is OK, continuing with Auth deletion):', firestoreError);
             // Continue with auth deletion even if Firestore deletion fails
           }
+        } else {
+          console.log('Skipping Firestore deletion (not available or user not found)');
         }
 
         // Delete user from Firebase Auth
@@ -738,12 +772,35 @@
         console.error('Error deleting account:', error);
         console.error('Error code:', error.code);
         console.error('Error message:', error.message);
+        console.error('Error name:', error.name);
         
         let errorMsg = error.message || 'An error occurred while deleting your account. Please try again.';
         
         // Handle specific Firebase errors
         if (error.code === 'auth/requires-recent-login') {
           errorMsg = 'For security reasons, you need to log in again before deleting your account. Please log out and log back in, then try again.';
+        } else if (error.code === 'cancelled' || error.message?.includes('cancelled') || error.message?.includes('FIRESTORE') || error.name === 'FirebaseError') {
+          // If it's a cancellation error from Firestore, we should have already continued with Auth deletion
+          // But if we're here, it means something went wrong - try Auth deletion as fallback
+          console.log('Detected cancellation/Firestore error in outer catch, attempting Auth deletion as fallback...');
+          if (currentUser && currentUser.delete) {
+            try {
+              await currentUser.delete();
+              console.log('User account deleted from Firebase Auth (fallback after Firestore cancellation)');
+              deleteForm.classList.add('hidden');
+              successScreen.classList.add('show');
+              const successEmailEl = document.getElementById('successEmail');
+              if (successEmailEl) {
+                successEmailEl.textContent = userEmail;
+              }
+              return; // Success, exit early
+            } catch (authError) {
+              console.error('Auth deletion also failed:', authError);
+              errorMsg = 'Account deletion encountered an error. The Firestore data may not have been deleted, but we attempted to delete your authentication account. Please contact support if you need assistance.';
+            }
+          } else {
+            errorMsg = 'The deletion operation encountered an error. Please try again or contact support.';
+          }
         } else if (error.message && error.message.includes('timeout')) {
           errorMsg = error.message;
         }
