@@ -378,17 +378,26 @@
       const startTime = Date.now();
       
       // Wait for onAuthStateChanged to confirm the user is logged in
+      let authConfirmed = false;
       await new Promise((resolve) => {
+        let resolved = false;
         const timeout = setTimeout(() => {
-          console.warn('Auth state change timeout, proceeding with redirect');
-          resolve();
+          if (!resolved) {
+            console.warn('Auth state change timeout, proceeding with redirect anyway');
+            resolved = true;
+            authConfirmed = true;
+            resolve();
+          }
         }, maxWaitTime);
         
         // Set up auth state listener
         const unsubscribe = window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, (authUser) => {
-          if (authUser && authUser.uid === user.uid) {
+          console.log('onAuthStateChanged fired, user:', authUser ? authUser.uid : 'null');
+          if (authUser && authUser.uid === user.uid && !resolved) {
             authReady = true;
+            authConfirmed = true;
             console.log('Auth session confirmed via onAuthStateChanged, user is logged in');
+            resolved = true;
             clearTimeout(timeout);
             unsubscribe();
             resolve();
@@ -396,22 +405,31 @@
         });
         
         // Also check currentUser immediately in case it's already set
-        if (window.firebaseAuth.currentUser && window.firebaseAuth.currentUser.uid === user.uid) {
+        const currentUser = window.firebaseAuth.currentUser;
+        console.log('Checking currentUser immediately:', currentUser ? currentUser.uid : 'null');
+        if (currentUser && currentUser.uid === user.uid && !resolved) {
           authReady = true;
+          authConfirmed = true;
           console.log('Auth session confirmed via currentUser, user is logged in');
+          resolved = true;
           clearTimeout(timeout);
           unsubscribe();
           resolve();
         }
       });
       
+      console.log('Auth confirmation complete, authConfirmed:', authConfirmed);
+      
       // Add a small additional delay to ensure session is fully propagated
       await new Promise(resolve => setTimeout(resolve, 500));
       
       // Redirect to return URL if provided, otherwise to homepage
       const redirectUrl = returnUrl || 'index.html';
-      console.log('Redirecting to:', redirectUrl);
-      window.location.href = redirectUrl;
+      console.log('About to redirect to:', redirectUrl);
+      console.log('Current URL:', window.location.href);
+      
+      // Force redirect - use replace to prevent back button issues
+      window.location.replace(redirectUrl);
     } catch (error) {
       console.error('Sign up error:', error);
       console.error('Error code:', error.code);
@@ -451,6 +469,10 @@
         submitButton.classList.remove('loading');
         submitButton.value = 'Create account';
       }
+      
+      // Log error details for debugging
+      console.error('Full error object:', error);
+      console.error('Error stack:', error.stack);
     }
   });
 </script>
