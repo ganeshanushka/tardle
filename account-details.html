@@ -5,113 +5,313 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Account Details</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+    
     body {
       margin: 0;
-      font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
-      background: #7BAFD4;
+      font-family: 'PT Serif', 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+      background: #f7f7f7;
       color: #1a1a1b;
-      padding: 32px 24px;
       line-height: 1.6;
       min-height: 100vh;
     }
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
+    
+    .page-container {
+      display: flex;
+      min-height: 100vh;
+    }
+    
+    /* Left Sidebar */
+    .sidebar {
+      width: 240px;
       background: white;
-      padding: 32px;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border-right: 1px solid #e5e5e5;
+      padding: 32px 24px;
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
     }
-    h1 {
-      margin-top: 0;
+    
+    .sidebar-nav {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .sidebar-nav-item {
+      margin-bottom: 8px;
+    }
+    
+    .sidebar-nav-link {
+      display: block;
+      padding: 12px 16px;
       color: #1a1a1b;
-      font-size: 2em;
+      text-decoration: none;
+      font-size: 15px;
+      position: relative;
+      border-radius: 4px;
     }
-    .account-section {
-      margin-bottom: 32px;
-    }
-    .section-title {
-      font-size: 0.875em;
+    
+    .sidebar-nav-link.active {
       font-weight: bold;
+      background: #f7f7f7;
+    }
+    
+    .sidebar-nav-link.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: #7BAFD4;
+    }
+    
+    .sidebar-divider {
+      height: 1px;
+      background: #e5e5e5;
+      margin: 24px 0;
+    }
+    
+    .sidebar-help {
+      padding: 12px 16px;
+      color: #1a1a1b;
+      text-decoration: none;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .sidebar-help:hover {
+      text-decoration: underline;
+    }
+    
+    /* Main Content */
+    .main-content {
+      margin-left: 240px;
+      flex: 1;
+      padding: 32px 48px;
+      max-width: 800px;
+    }
+    
+    .greeting {
+      margin-bottom: 8px;
+    }
+    
+    .greeting h1 {
+      font-size: 32px;
+      font-weight: bold;
+      margin: 0 0 8px 0;
+      color: #1a1a1b;
+    }
+    
+    .tagline {
+      font-size: 15px;
       color: #666;
+      margin-bottom: 40px;
+    }
+    
+    .section {
+      margin-bottom: 48px;
+    }
+    
+    .section-title {
+      font-size: 13px;
+      font-weight: bold;
+      color: #1a1a1b;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e5e5e5;
     }
-    .account-info-row {
+    
+    .info-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 16px 0;
+      border-bottom: 1px solid #e5e5e5;
+    }
+    
+    .info-item:last-child {
+      border-bottom: none;
+    }
+    
+    .info-label {
+      font-size: 15px;
+      color: #1a1a1b;
+      font-weight: 500;
+      min-width: 180px;
+    }
+    
+    .info-value-container {
+      flex: 1;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 12px 0;
-      border-bottom: 1px solid #e5e5e5;
     }
-    .account-info-row:last-child {
-      border-bottom: none;
-    }
-    .account-info-label {
-      font-weight: 500;
+    
+    .info-value {
+      font-size: 15px;
       color: #1a1a1b;
-    }
-    .account-info-value {
-      color: #666;
       font-family: monospace;
     }
-    .account-number {
-      font-size: 1.1em;
-      font-weight: 600;
-      color: #1a1a1b;
-    }
-    .loading {
-      color: #666;
+    
+    .info-value.loading {
+      color: #999;
       font-style: italic;
     }
+    
+    .info-value.account-number {
+      font-family: monospace;
+      font-weight: 600;
+    }
+    
+    .info-action {
+      font-size: 15px;
+      color: #7BAFD4;
+      text-decoration: underline;
+      cursor: pointer;
+      margin-left: 16px;
+    }
+    
+    .info-action:hover {
+      color: #5a9bc4;
+    }
+    
     .error-message {
       color: #d32f2f;
       margin-top: 16px;
+      font-size: 14px;
     }
-    a {
-      color: #7BAFD4;
-      text-decoration: none;
-    }
-    a:hover {
-      text-decoration: underline;
-    }
-    .back-link {
-      display: inline-block;
-      margin-top: 24px;
+    
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 200px;
+      }
+      
+      .main-content {
+        margin-left: 200px;
+        padding: 24px;
+      }
+      
+      .info-item {
+        flex-direction: column;
+      }
+      
+      .info-label {
+        margin-bottom: 8px;
+        min-width: auto;
+      }
+      
+      .info-value-container {
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Account Details</h1>
-    
-    <div class="account-section">
-      <div class="section-title">Account Information</div>
-      <div id="accountInfo">
-        <div class="account-info-row">
-          <span class="account-info-label">Account number</span>
-          <span class="account-info-value account-number loading" id="accountNumber">Loading...</span>
+  <div class="page-container">
+    <!-- Left Sidebar -->
+    <aside class="sidebar">
+      <nav>
+        <ul class="sidebar-nav">
+          <li class="sidebar-nav-item">
+            <a href="#" class="sidebar-nav-link active">Account</a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="#" class="sidebar-nav-link">Email and settings</a>
+          </li>
+        </ul>
+      </nav>
+      <div class="sidebar-divider"></div>
+      <a href="#" class="sidebar-help">
+        <span>?</span>
+        <span>Help</span>
+      </a>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="greeting">
+        <h1 id="greetingText">Good evening, <span id="userName">Loading...</span>.</h1>
+        <p class="tagline" id="taglineText">You've been playing Tardle since <span id="memberSince">2025</span>.</p>
+      </div>
+
+      <!-- Account Information Section -->
+      <div class="section">
+        <h2 class="section-title">Account information</h2>
+        <div id="accountInfo">
+          <div class="info-item">
+            <div class="info-label">Account number</div>
+            <div class="info-value-container">
+              <div class="info-value account-number loading" id="accountNumber">Loading...</div>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Email address</div>
+            <div class="info-value-container">
+              <div class="info-value loading" id="userEmail">Loading...</div>
+              <a href="#" class="info-action" id="updateEmailLink">Update</a>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Password</div>
+            <div class="info-value-container">
+              <div class="info-value">••••••••</div>
+              <a href="#" class="info-action" id="updatePasswordLink">Update</a>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Connected accounts</div>
+            <div class="info-value-container">
+              <div class="info-value">None</div>
+              <a href="#" class="info-action" id="manageAccountsLink">Manage</a>
+            </div>
+          </div>
         </div>
-        <div class="account-info-row">
-          <span class="account-info-label">Email address</span>
-          <span class="account-info-value loading" id="userEmail">Loading...</span>
-        </div>
-        <div class="account-info-row">
-          <span class="account-info-label">Username</span>
-          <span class="account-info-value loading" id="username">Loading...</span>
+        <div id="errorMessage" class="error-message" style="display: none;"></div>
+      </div>
+
+      <!-- Your Profile Section -->
+      <div class="section">
+        <h2 class="section-title">Your profile</h2>
+        <div id="profileInfo">
+          <div class="info-item">
+            <div class="info-label">Name</div>
+            <div class="info-value-container">
+              <div class="info-value loading" id="displayName">Loading...</div>
+              <a href="#" class="info-action" id="updateNameLink">Update</a>
+            </div>
+          </div>
         </div>
       </div>
-      <div id="errorMessage" class="error-message" style="display: none;"></div>
-    </div>
-    
-    <a href="play.html" class="back-link">← Back to Tardle</a>
+    </main>
   </div>
 
   <!-- Firebase Config -->
   <script type="module" src="firebase-config.js"></script>
 
   <script>
+    // Get time-based greeting
+    function getGreeting() {
+      const hour = new Date().getHours();
+      if (hour < 12) return 'Good morning';
+      if (hour < 17) return 'Good afternoon';
+      return 'Good evening';
+    }
+
+    // Update greeting text
+    function updateGreeting(username) {
+      const greetingEl = document.getElementById('greetingText');
+      const greeting = getGreeting();
+      greetingEl.innerHTML = `${greeting}, <span id="userName">${username}</span>.`;
+    }
+
     async function loadAccountDetails() {
       try {
         // Wait for Firebase to be loaded
@@ -155,7 +355,6 @@
                 resolve();
               } else if (!authUser && !resolved) {
                 // Check if we've waited long enough (at least 1 second)
-                const checkTime = Date.now();
                 setTimeout(() => {
                   if (!resolved && !window.firebaseAuth.currentUser) {
                     resolved = true;
@@ -193,6 +392,18 @@
         if (userDoc.exists()) {
           const userData = userDoc.data();
           
+          // Get username for greeting
+          const username = userData.username || currentUser.email?.split('@')[0] || 'User';
+          updateGreeting(username);
+          
+          // Get member since year from createdAt
+          let memberSince = '2025';
+          if (userData.createdAt) {
+            const createdAt = userData.createdAt.toDate ? userData.createdAt.toDate() : new Date(userData.createdAt);
+            memberSince = createdAt.getFullYear().toString();
+          }
+          document.getElementById('memberSince').textContent = memberSince;
+          
           // Display account number
           const accountNumberEl = document.getElementById('accountNumber');
           if (userData.accountNumber) {
@@ -209,16 +420,19 @@
           emailEl.textContent = userData.email || currentUser.email || 'Not available';
           emailEl.classList.remove('loading');
 
-          // Display username
-          const usernameEl = document.getElementById('username');
-          usernameEl.textContent = userData.username || currentUser.email?.split('@')[0] || 'Not available';
-          usernameEl.classList.remove('loading');
+          // Display name (username)
+          const nameEl = document.getElementById('displayName');
+          nameEl.textContent = userData.username || currentUser.email?.split('@')[0] || 'Not set';
+          nameEl.classList.remove('loading');
         } else {
           // User document doesn't exist
           document.getElementById('errorMessage').textContent = 'Account information not found.';
           document.getElementById('errorMessage').style.display = 'block';
           
           // Show what we can from auth
+          const username = currentUser.email?.split('@')[0] || 'User';
+          updateGreeting(username);
+          
           const emailEl = document.getElementById('userEmail');
           emailEl.textContent = currentUser.email || 'Not available';
           emailEl.classList.remove('loading');
@@ -227,6 +441,10 @@
           accountNumberEl.textContent = 'Not assigned';
           accountNumberEl.classList.remove('loading');
           accountNumberEl.style.color = '#999';
+          
+          const nameEl = document.getElementById('displayName');
+          nameEl.textContent = username;
+          nameEl.classList.remove('loading');
         }
       } catch (error) {
         console.error('Error loading account details:', error);
@@ -235,9 +453,31 @@
       }
     }
 
+    // Placeholder handlers for update links
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('updateEmailLink')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        alert('Email update functionality coming soon!');
+      });
+      
+      document.getElementById('updatePasswordLink')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        alert('Password update functionality coming soon!');
+      });
+      
+      document.getElementById('manageAccountsLink')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        alert('Connected accounts management coming soon!');
+      });
+      
+      document.getElementById('updateNameLink')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        alert('Name update functionality coming soon!');
+      });
+    });
+
     // Load account details when page loads
     document.addEventListener('DOMContentLoaded', loadAccountDetails);
   </script>
 </body>
 </html>
-
