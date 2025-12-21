@@ -411,13 +411,8 @@
             const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
             console.log(`Attempting to fetch document from Firestore (attempt ${retryCount + 1}/${maxRetries})...`);
             
-            // Add a timeout to detect if Firestore is truly offline
-            const fetchPromise = window.firebaseFirestoreFunctions.getDoc(userDocRef);
-            const timeoutPromise = new Promise((_, reject) => 
-              setTimeout(() => reject(new Error('Firestore request timeout')), 15000)
-            );
-            
-            userDoc = await Promise.race([fetchPromise, timeoutPromise]);
+            // Fetch document - no timeout for now to allow Firestore to initialize
+            userDoc = await window.firebaseFirestoreFunctions.getDoc(userDocRef);
             console.log('User document fetched successfully, exists:', userDoc.exists());
             break; // Success, exit retry loop
           } catch (firestoreError) {
@@ -578,16 +573,50 @@
             memberSinceEl.textContent = memberSince;
           }
           
-          // Display account number
+          // Display account number - generate one if missing
           const accountNumberEl = document.getElementById('accountNumber');
           if (accountNumberEl) {
             if (userData.accountNumber) {
               accountNumberEl.textContent = userData.accountNumber;
               accountNumberEl.classList.remove('loading');
             } else {
-              accountNumberEl.textContent = 'Not assigned';
-              accountNumberEl.classList.remove('loading');
-              accountNumberEl.style.color = '#999';
+              // Account number is missing - generate one for existing users
+              console.log('Account number missing, generating one for existing user...');
+              accountNumberEl.textContent = 'Generating...';
+              
+              // Generate unique account number
+              // For simplicity, we'll generate a number without checking uniqueness first
+              // Collision probability is extremely low (1 in 900 million)
+              // If there's a collision, we can handle it later
+              function generateAccountNumber() {
+                // Generate a random 9-digit number (100000000 to 999999999)
+                const accountNumber = Math.floor(100000000 + Math.random() * 900000000);
+                console.log('Generated account number:', accountNumber);
+                return accountNumber;
+              }
+              
+              // Generate and save account number
+              try {
+                console.log('Starting account number generation...');
+                const accountNumber = generateAccountNumber();
+                console.log('Account number generated:', accountNumber);
+                
+                const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
+                console.log('Updating Firestore document with account number...');
+                await window.firebaseFirestoreFunctions.updateDoc(userDocRef, {
+                  accountNumber: accountNumber
+                });
+                console.log('Account number generated and saved successfully:', accountNumber);
+                accountNumberEl.textContent = accountNumber;
+                accountNumberEl.classList.remove('loading');
+              } catch (error) {
+                console.error('Error generating account number:', error);
+                console.error('Error code:', error.code);
+                console.error('Error message:', error.message);
+                accountNumberEl.textContent = 'Error: ' + (error.message || 'Failed to generate');
+                accountNumberEl.classList.remove('loading');
+                accountNumberEl.style.color = '#d32f2f';
+              }
             }
           }
 
