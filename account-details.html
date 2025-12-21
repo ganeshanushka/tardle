@@ -259,14 +259,14 @@
           <div class="info-item">
             <div class="info-label">Password</div>
             <div class="info-value-container">
-              <div class="info-value">••••••••</div>
+              <div class="info-value loading" id="passwordStatus">Loading...</div>
               <a href="#" class="info-action" id="updatePasswordLink">Update</a>
             </div>
           </div>
           <div class="info-item">
             <div class="info-label">Connected accounts</div>
             <div class="info-value-container">
-              <div class="info-value">None</div>
+              <div class="info-value loading" id="connectedAccounts">Loading...</div>
               <a href="#" class="info-action" id="manageAccountsLink">Manage</a>
             </div>
           </div>
@@ -419,6 +419,49 @@
           emailEl.textContent = userData.email || currentUser.email || 'Not available';
           emailEl.classList.remove('loading');
 
+          // Display password status - check if user has email/password provider
+
+          const passwordEl = document.getElementById('passwordStatus');
+          if (currentUser.providerData && currentUser.providerData.length > 0) {
+            const hasPasswordProvider = currentUser.providerData.some(provider => provider.providerId === 'password');
+            if (hasPasswordProvider) {
+              passwordEl.textContent = '••••••••';
+            } else {
+              passwordEl.textContent = 'None';
+              passwordEl.style.color = '#999';
+            }
+          } else {
+            passwordEl.textContent = 'None';
+            passwordEl.style.color = '#999';
+          }
+          passwordEl.classList.remove('loading');
+
+          // Display connected accounts - check providerData for OAuth providers
+          const connectedAccountsEl = document.querySelector('.info-item:nth-of-type(4) .info-value');
+          if (currentUser.providerData && currentUser.providerData.length > 0) {
+            const oauthProviders = currentUser.providerData
+              .filter(provider => provider.providerId !== 'password')
+              .map(provider => {
+                // Map provider IDs to readable names
+                if (provider.providerId === 'google.com') return 'Google';
+                if (provider.providerId === 'facebook.com') return 'Facebook';
+                if (provider.providerId === 'twitter.com') return 'Twitter';
+                if (provider.providerId === 'github.com') return 'GitHub';
+                return provider.providerId;
+              });
+            
+            if (oauthProviders.length > 0) {
+              connectedAccountsEl.textContent = oauthProviders.join(', ');
+            } else {
+              connectedAccountsEl.textContent = 'None';
+              connectedAccountsEl.style.color = '#999';
+            }
+          } else {
+            connectedAccountsEl.textContent = 'None';
+            connectedAccountsEl.style.color = '#999';
+          }
+          connectedAccountsEl.classList.remove('loading');
+
           // Display name (username)
           const nameEl = document.getElementById('displayName');
           nameEl.textContent = userData.username || currentUser.email?.split('@')[0] || 'Not set';
@@ -440,6 +483,48 @@
           accountNumberEl.textContent = 'Not assigned';
           accountNumberEl.classList.remove('loading');
           accountNumberEl.style.color = '#999';
+          
+          // Display password status - check if user has email/password provider
+          const passwordEl = document.getElementById('passwordStatus');
+          if (currentUser.providerData && currentUser.providerData.length > 0) {
+            const hasPasswordProvider = currentUser.providerData.some(provider => provider.providerId === 'password');
+            if (hasPasswordProvider) {
+              passwordEl.textContent = '••••••••';
+            } else {
+              passwordEl.textContent = 'None';
+              passwordEl.style.color = '#999';
+            }
+          } else {
+            passwordEl.textContent = 'None';
+            passwordEl.style.color = '#999';
+          }
+          passwordEl.classList.remove('loading');
+
+          // Display connected accounts - check providerData for OAuth providers
+          const connectedAccountsEl = document.getElementById('connectedAccounts');
+          if (currentUser.providerData && currentUser.providerData.length > 0) {
+            const oauthProviders = currentUser.providerData
+              .filter(provider => provider.providerId !== 'password')
+              .map(provider => {
+                // Map provider IDs to readable names
+                if (provider.providerId === 'google.com') return 'Google';
+                if (provider.providerId === 'facebook.com') return 'Facebook';
+                if (provider.providerId === 'twitter.com') return 'Twitter';
+                if (provider.providerId === 'github.com') return 'GitHub';
+                return provider.providerId;
+              });
+            
+            if (oauthProviders.length > 0) {
+              connectedAccountsEl.textContent = oauthProviders.join(', ');
+            } else {
+              connectedAccountsEl.textContent = 'None';
+              connectedAccountsEl.style.color = '#999';
+            }
+          } else {
+            connectedAccountsEl.textContent = 'None';
+            connectedAccountsEl.style.color = '#999';
+          }
+          connectedAccountsEl.classList.remove('loading');
           
           const nameEl = document.getElementById('displayName');
           nameEl.textContent = username;
