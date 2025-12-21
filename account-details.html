@@ -383,11 +383,15 @@
         }
 
         // Load user data from Firestore
+        console.log('Loading user data for UID:', currentUser.uid);
         const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
         const userDoc = await window.firebaseFirestoreFunctions.getDoc(userDocRef);
+        
+        console.log('User document exists:', userDoc.exists());
 
         if (userDoc.exists()) {
           const userData = userDoc.data();
+          console.log('User data loaded:', userData);
           
           // Get username for greeting
           const username = userData.username || currentUser.email?.split('@')[0] || 'User';
@@ -396,76 +400,93 @@
           // Get member since date from createdAt
           let memberSince = '2025';
           if (userData.createdAt) {
-            const createdAt = userData.createdAt.toDate ? userData.createdAt.toDate() : new Date(userData.createdAt);
-            // Format as "Month Day, Year" (e.g., "January 15, 2025")
-            const options = { year: 'numeric', month: 'long', day: 'numeric' };
-            memberSince = createdAt.toLocaleDateString('en-US', options);
+            try {
+              const createdAt = userData.createdAt.toDate ? userData.createdAt.toDate() : new Date(userData.createdAt);
+              // Format as "Month Day, Year" (e.g., "January 15, 2025")
+              const options = { year: 'numeric', month: 'long', day: 'numeric' };
+              memberSince = createdAt.toLocaleDateString('en-US', options);
+            } catch (dateError) {
+              console.error('Error parsing date:', dateError);
+            }
           }
-          document.getElementById('memberSince').textContent = memberSince;
+          const memberSinceEl = document.getElementById('memberSince');
+          if (memberSinceEl) {
+            memberSinceEl.textContent = memberSince;
+          }
           
           // Display account number
           const accountNumberEl = document.getElementById('accountNumber');
-          if (userData.accountNumber) {
-            accountNumberEl.textContent = userData.accountNumber;
-            accountNumberEl.classList.remove('loading');
-          } else {
-            accountNumberEl.textContent = 'Not assigned';
-            accountNumberEl.classList.remove('loading');
-            accountNumberEl.style.color = '#999';
+          if (accountNumberEl) {
+            if (userData.accountNumber) {
+              accountNumberEl.textContent = userData.accountNumber;
+              accountNumberEl.classList.remove('loading');
+            } else {
+              accountNumberEl.textContent = 'Not assigned';
+              accountNumberEl.classList.remove('loading');
+              accountNumberEl.style.color = '#999';
+            }
           }
 
           // Display email
           const emailEl = document.getElementById('userEmail');
-          emailEl.textContent = userData.email || currentUser.email || 'Not available';
-          emailEl.classList.remove('loading');
+          if (emailEl) {
+            emailEl.textContent = userData.email || currentUser.email || 'Not available';
+            emailEl.classList.remove('loading');
+          }
 
           // Display password status - check if user has email/password provider
 
           const passwordEl = document.getElementById('passwordStatus');
-          if (currentUser.providerData && currentUser.providerData.length > 0) {
-            const hasPasswordProvider = currentUser.providerData.some(provider => provider.providerId === 'password');
-            if (hasPasswordProvider) {
-              passwordEl.textContent = '••••••••';
+          if (passwordEl) {
+            if (currentUser.providerData && currentUser.providerData.length > 0) {
+              const hasPasswordProvider = currentUser.providerData.some(provider => provider.providerId === 'password');
+              if (hasPasswordProvider) {
+                passwordEl.textContent = '••••••••';
+              } else {
+                passwordEl.textContent = 'None';
+                passwordEl.style.color = '#999';
+              }
             } else {
               passwordEl.textContent = 'None';
               passwordEl.style.color = '#999';
             }
-          } else {
-            passwordEl.textContent = 'None';
-            passwordEl.style.color = '#999';
+            passwordEl.classList.remove('loading');
           }
-          passwordEl.classList.remove('loading');
 
           // Display connected accounts - check providerData for OAuth providers
-          const connectedAccountsEl = document.querySelector('.info-item:nth-of-type(4) .info-value');
-          if (currentUser.providerData && currentUser.providerData.length > 0) {
-            const oauthProviders = currentUser.providerData
-              .filter(provider => provider.providerId !== 'password')
-              .map(provider => {
-                // Map provider IDs to readable names
-                if (provider.providerId === 'google.com') return 'Google';
-                if (provider.providerId === 'facebook.com') return 'Facebook';
-                if (provider.providerId === 'twitter.com') return 'Twitter';
-                if (provider.providerId === 'github.com') return 'GitHub';
-                return provider.providerId;
-              });
-            
-            if (oauthProviders.length > 0) {
-              connectedAccountsEl.textContent = oauthProviders.join(', ');
+          const connectedAccountsEl = document.getElementById('connectedAccounts');
+          if (connectedAccountsEl) {
+            if (currentUser.providerData && currentUser.providerData.length > 0) {
+              const oauthProviders = currentUser.providerData
+                .filter(provider => provider.providerId !== 'password')
+                .map(provider => {
+                  // Map provider IDs to readable names
+                  if (provider.providerId === 'google.com') return 'Google';
+                  if (provider.providerId === 'facebook.com') return 'Facebook';
+                  if (provider.providerId === 'twitter.com') return 'Twitter';
+                  if (provider.providerId === 'github.com') return 'GitHub';
+                  return provider.providerId;
+                });
+              
+              if (oauthProviders.length > 0) {
+                connectedAccountsEl.textContent = oauthProviders.join(', ');
+              } else {
+                connectedAccountsEl.textContent = 'None';
+                connectedAccountsEl.style.color = '#999';
+              }
             } else {
               connectedAccountsEl.textContent = 'None';
               connectedAccountsEl.style.color = '#999';
             }
-          } else {
-            connectedAccountsEl.textContent = 'None';
-            connectedAccountsEl.style.color = '#999';
+            connectedAccountsEl.classList.remove('loading');
           }
-          connectedAccountsEl.classList.remove('loading');
 
           // Display name (username)
           const nameEl = document.getElementById('displayName');
-          nameEl.textContent = userData.username || currentUser.email?.split('@')[0] || 'Not set';
-          nameEl.classList.remove('loading');
+          if (nameEl) {
+            nameEl.textContent = userData.username || currentUser.email?.split('@')[0] || 'Not set';
+            nameEl.classList.remove('loading');
+          }
         } else {
           // User document doesn't exist
           document.getElementById('errorMessage').textContent = 'Account information not found.';
@@ -532,8 +553,12 @@
         }
       } catch (error) {
         console.error('Error loading account details:', error);
-        document.getElementById('errorMessage').textContent = 'Error loading account details. Please try again.';
-        document.getElementById('errorMessage').style.display = 'block';
+        console.error('Error stack:', error.stack);
+        const errorMessageEl = document.getElementById('errorMessage');
+        if (errorMessageEl) {
+          errorMessageEl.textContent = 'Error loading account details: ' + (error.message || 'Unknown error');
+          errorMessageEl.style.display = 'block';
+        }
       }
     }
 
@@ -561,7 +586,13 @@
     });
 
     // Load account details when page loads
-    document.addEventListener('DOMContentLoaded', loadAccountDetails);
+    // Use both DOMContentLoaded and window.onload to ensure page is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadAccountDetails);
+    } else {
+      // DOM already loaded, call immediately
+      loadAccountDetails();
+    }
   </script>
 </body>
 </html>
