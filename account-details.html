@@ -236,7 +236,7 @@
     <main class="main-content">
       <div class="greeting">
         <h1 id="greetingText">Good evening, <span id="userName">Loading...</span>.</h1>
-        <p class="tagline" id="taglineText">You've been playing Tardle since <span id="memberSince">2025</span>.</p>
+        <p class="tagline" id="taglineText">You've been playing Tardle since <span id="memberSince">January 1, 2025</span>.</p>
       </div>
 
       <!-- Account Information Section -->
@@ -393,11 +393,13 @@
           const username = userData.username || currentUser.email?.split('@')[0] || 'User';
           updateGreeting(username);
           
-          // Get member since year from createdAt
+          // Get member since date from createdAt
           let memberSince = '2025';
           if (userData.createdAt) {
             const createdAt = userData.createdAt.toDate ? userData.createdAt.toDate() : new Date(userData.createdAt);
-            memberSince = createdAt.getFullYear().toString();
+            // Format as "Month Day, Year" (e.g., "January 15, 2025")
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            memberSince = createdAt.toLocaleDateString('en-US', options);
           }
           document.getElementById('memberSince').textContent = memberSince;
           
