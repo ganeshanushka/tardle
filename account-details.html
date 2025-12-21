@@ -659,46 +659,167 @@
             nameEl.classList.remove('loading');
           }
         } else {
-          // User document doesn't exist
-          document.getElementById('errorMessage').textContent = 'Account information not found.';
-          document.getElementById('errorMessage').style.display = 'block';
+          // User document doesn't exist - create it now
+          console.log('User document does not exist, creating it now...');
           
-          // Show what we can from auth
           const username = currentUser.email?.split('@')[0] || 'User';
           updateGreeting(username);
           
-          const emailEl = document.getElementById('userEmail');
-          emailEl.textContent = currentUser.email || 'Not available';
-          emailEl.classList.remove('loading');
-          
+          // Show loading state
           const accountNumberEl = document.getElementById('accountNumber');
-          accountNumberEl.textContent = 'Not assigned';
-          accountNumberEl.classList.remove('loading');
-          accountNumberEl.style.color = '#999';
-          
-          // Display username
-          const usernameDisplayEl = document.getElementById('usernameDisplay');
-          if (usernameDisplayEl) {
-            usernameDisplayEl.textContent = username;
-            usernameDisplayEl.classList.remove('loading');
+          if (accountNumberEl) {
+            accountNumberEl.textContent = 'Creating account...';
+            accountNumberEl.classList.add('loading');
           }
-
-          // Display password status - check if user has email/password provider
-          const passwordEl = document.getElementById('passwordStatus');
-          if (passwordEl) {
-            if (currentUser.providerData && currentUser.providerData.length > 0) {
-              const hasPasswordProvider = currentUser.providerData.some(provider => provider.providerId === 'password');
-              if (hasPasswordProvider) {
-                passwordEl.textContent = '••••••••';
+          
+          try {
+            // Generate account number
+            function generateAccountNumber() {
+              const accountNumber = Math.floor(100000000 + Math.random() * 900000000);
+              console.log('Generated account number:', accountNumber);
+              return accountNumber;
+            }
+            
+            const accountNumber = generateAccountNumber();
+            
+            // Create user document in Firestore
+            const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
+            await window.firebaseFirestoreFunctions.setDoc(userDocRef, {
+              email: currentUser.email || '',
+              username: username,
+              accountNumber: accountNumber,
+              gamesPlayed: 0,
+              currentStreak: 0,
+              maxStreak: 0,
+              emailSubscribed: false,
+              createdAt: window.firebaseFirestoreFunctions.serverTimestamp()
+            });
+            
+            console.log('User document created successfully with account number:', accountNumber);
+            
+            // Now fetch the newly created document to display all data
+            const newUserDoc = await window.firebaseFirestoreFunctions.getDoc(userDocRef);
+            if (newUserDoc.exists()) {
+              const userData = newUserDoc.data();
+              console.log('Newly created user data:', userData);
+              
+              // Display account number
+              if (accountNumberEl) {
+                accountNumberEl.textContent = accountNumber;
+                accountNumberEl.classList.remove('loading');
+              }
+              
+              // Display email
+              const emailEl = document.getElementById('userEmail');
+              if (emailEl) {
+                emailEl.textContent = userData.email || currentUser.email || 'Not available';
+                emailEl.classList.remove('loading');
+              }
+              
+              // Display username
+              const usernameDisplayEl = document.getElementById('usernameDisplay');
+              if (usernameDisplayEl) {
+                usernameDisplayEl.textContent = userData.username || username;
+                usernameDisplayEl.classList.remove('loading');
+              }
+              
+              // Display password status
+              const passwordEl = document.getElementById('passwordStatus');
+              if (passwordEl) {
+                if (currentUser.providerData && currentUser.providerData.length > 0) {
+                  const hasPasswordProvider = currentUser.providerData.some(provider => provider.providerId === 'password');
+                  passwordEl.textContent = hasPasswordProvider ? '••••••••' : 'None';
+                  if (!hasPasswordProvider) passwordEl.style.color = '#999';
+                } else {
+                  passwordEl.textContent = 'None';
+                  passwordEl.style.color = '#999';
+                }
+                passwordEl.classList.remove('loading');
+              }
+              
+              // Display member since date
+              let memberSince = null;
+              let createdAtDate = null;
+              
+              if (userData.createdAt) {
+                try {
+                  if (userData.createdAt.toDate) {
+                    createdAtDate = userData.createdAt.toDate();
+                  } else if (userData.createdAt.seconds) {
+                    createdAtDate = new Date(userData.createdAt.seconds * 1000);
+                  } else {
+                    createdAtDate = new Date(userData.createdAt);
+                  }
+                } catch (dateError) {
+                  console.error('Error parsing createdAt:', dateError);
+                }
+              }
+              
+              if (!createdAtDate && currentUser.metadata && currentUser.metadata.creationTime) {
+                createdAtDate = new Date(currentUser.metadata.creationTime);
+              }
+              
+              if (createdAtDate && !isNaN(createdAtDate.getTime())) {
+                const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                memberSince = createdAtDate.toLocaleDateString('en-US', options);
+              } else {
+                memberSince = 'Unknown';
+              }
+              
+              const memberSinceEl = document.getElementById('memberSince');
+              if (memberSinceEl && memberSince) {
+                memberSinceEl.textContent = memberSince;
+              }
+              
+              // Clear any error messages
+              const errorMessageEl = document.getElementById('errorMessage');
+              if (errorMessageEl) {
+                errorMessageEl.style.display = 'none';
+              }
+            }
+          } catch (createError) {
+            console.error('Error creating user document:', createError);
+            console.error('Error code:', createError.code);
+            console.error('Error message:', createError.message);
+            
+            // Show error but still display what we can from auth
+            const errorMessageEl = document.getElementById('errorMessage');
+            if (errorMessageEl) {
+              errorMessageEl.textContent = 'Error creating account. Please try refreshing the page.';
+              errorMessageEl.style.display = 'block';
+            }
+            
+            if (accountNumberEl) {
+              accountNumberEl.textContent = 'Error creating account';
+              accountNumberEl.classList.remove('loading');
+              accountNumberEl.style.color = '#d32f2f';
+            }
+            
+            // Still show basic info from auth
+            const emailEl = document.getElementById('userEmail');
+            if (emailEl) {
+              emailEl.textContent = currentUser.email || 'Not available';
+              emailEl.classList.remove('loading');
+            }
+            
+            const usernameDisplayEl = document.getElementById('usernameDisplay');
+            if (usernameDisplayEl) {
+              usernameDisplayEl.textContent = username;
+              usernameDisplayEl.classList.remove('loading');
+            }
+            
+            const passwordEl = document.getElementById('passwordStatus');
+            if (passwordEl) {
+              if (currentUser.providerData && currentUser.providerData.length > 0) {
+                const hasPasswordProvider = currentUser.providerData.some(provider => provider.providerId === 'password');
+                passwordEl.textContent = hasPasswordProvider ? '••••••••' : 'None';
+                if (!hasPasswordProvider) passwordEl.style.color = '#999';
               } else {
                 passwordEl.textContent = 'None';
                 passwordEl.style.color = '#999';
               }
-            } else {
-              passwordEl.textContent = 'None';
-              passwordEl.style.color = '#999';
+              passwordEl.classList.remove('loading');
             }
-            passwordEl.classList.remove('loading');
           }
           
           const nameEl = document.getElementById('displayName');
