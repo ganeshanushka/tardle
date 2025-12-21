@@ -1849,7 +1849,7 @@
         
         <div class="side-panel-section">
           <div class="side-panel-section-title">PROFILE</div>
-          <a href="account-details.html" class="side-panel-link">Account details</a>
+          <a href="#" class="side-panel-link" onclick="handleAccountDetailsClick(event)">Account details</a>
         </div>
         
         <div class="side-panel-buttons">
@@ -2190,6 +2190,29 @@
                 } else {
                   // User is not logged in - go to login page with return URL
                   window.location.href = 'login.html?return=' + encodeURIComponent('delete-account.html');
+                }
+              } else {
+                // Firebase not loaded yet, wait a bit and try again
+                setTimeout(checkAuth, 100);
+              }
+            };
+            
+            checkAuth();
+          }
+
+          function handleAccountDetailsClick(event) {
+            event.preventDefault(); // Prevent default link behavior
+            
+            // Wait for Firebase to be available, then check auth state
+            const checkAuth = () => {
+              if (window.firebaseAuth && window.firebaseAuthFunctions) {
+                // Check if user is logged in
+                if (window.firebaseAuth.currentUser) {
+                  // User is logged in - go directly to account details page
+                  window.location.href = 'account-details.html';
+                } else {
+                  // User is not logged in - go to login page with return URL
+                  window.location.href = 'login.html?return=' + encodeURIComponent('account-details.html');
                 }
               } else {
                 // Firebase not loaded yet, wait a bit and try again
