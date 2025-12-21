@@ -409,8 +409,11 @@
           updateGreeting(username);
           
           // Get member since date from createdAt or Firebase Auth metadata
-          let memberSince = '2025';
+          let memberSince = null;
           let createdAtDate = null;
+          
+          console.log('Checking for createdAt in userData:', userData.createdAt);
+          console.log('Checking currentUser.metadata:', currentUser.metadata);
           
           // Try to get date from Firestore createdAt field
           if (userData.createdAt) {
@@ -418,20 +421,25 @@
               // Handle Firestore Timestamp
               if (userData.createdAt.toDate) {
                 createdAtDate = userData.createdAt.toDate();
+                console.log('Found Firestore Timestamp, converted to:', createdAtDate);
               } else if (userData.createdAt.seconds) {
                 // Handle timestamp with seconds
                 createdAtDate = new Date(userData.createdAt.seconds * 1000);
+                console.log('Found timestamp with seconds, converted to:', createdAtDate);
               } else if (userData.createdAt._seconds) {
                 // Handle timestamp with _seconds (older format)
                 createdAtDate = new Date(userData.createdAt._seconds * 1000);
+                console.log('Found timestamp with _seconds, converted to:', createdAtDate);
               } else {
                 // Try to parse as regular date
                 createdAtDate = new Date(userData.createdAt);
+                console.log('Parsed as regular date:', createdAtDate);
               }
-              console.log('Parsed createdAt from Firestore:', createdAtDate);
             } catch (dateError) {
               console.error('Error parsing Firestore createdAt:', dateError, userData.createdAt);
             }
+          } else {
+            console.log('No createdAt field in Firestore userData');
           }
           
           // Fallback to Firebase Auth metadata if Firestore date is not available
@@ -442,6 +450,8 @@
             } catch (dateError) {
               console.error('Error parsing Auth metadata creationTime:', dateError);
             }
+          } else if (!createdAtDate) {
+            console.log('No creationTime in Firebase Auth metadata');
           }
           
           // Format the date
@@ -450,11 +460,17 @@
             memberSince = createdAtDate.toLocaleDateString('en-US', options);
             console.log('Formatted member since date:', memberSince);
           } else {
-            console.warn('Could not determine account creation date, using fallback');
+            console.warn('Could not determine account creation date - createdAt missing or invalid');
+            // Check if createdAt field is missing in Firestore
+            if (!userData.createdAt) {
+              memberSince = 'createdAt field is missing';
+            } else {
+              memberSince = 'Unknown';
+            }
           }
           
           const memberSinceEl = document.getElementById('memberSince');
-          if (memberSinceEl) {
+          if (memberSinceEl && memberSince) {
             memberSinceEl.textContent = memberSince;
           }
           
