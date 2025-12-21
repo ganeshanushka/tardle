@@ -128,10 +128,60 @@
           }
         });
 
-        // Check if user is logged in
-        const currentUser = window.firebaseAuth.currentUser;
+        // Check if user is logged in - wait for auth state to be restored
+        let currentUser = window.firebaseAuth.currentUser;
+        
+        // If currentUser is not immediately available, wait for auth state to be restored
         if (!currentUser) {
-          // User not logged in, redirect to login
+          console.log('Waiting for Firebase Auth session to restore...');
+          await new Promise((resolve) => {
+            let resolved = false;
+            const timeout = setTimeout(() => {
+              if (!resolved) {
+                console.warn('Auth state check timeout after 3s');
+                resolved = true;
+                resolve();
+              }
+            }, 3000); // 3 second max wait
+            
+            // Set up auth state listener
+            const unsubscribe = window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, (authUser) => {
+              console.log('onAuthStateChanged fired, user:', authUser ? authUser.uid : 'null');
+              if (authUser && !resolved) {
+                currentUser = authUser;
+                resolved = true;
+                clearTimeout(timeout);
+                unsubscribe();
+                resolve();
+              } else if (!authUser && !resolved) {
+                // Check if we've waited long enough (at least 1 second)
+                const checkTime = Date.now();
+                setTimeout(() => {
+                  if (!resolved && !window.firebaseAuth.currentUser) {
+                    resolved = true;
+                    clearTimeout(timeout);
+                    unsubscribe();
+                    resolve();
+                  }
+                }, 1000);
+              }
+            });
+            
+            // Also check currentUser immediately in case it's already set
+            const immediateUser = window.firebaseAuth.currentUser;
+            if (immediateUser && !resolved) {
+              currentUser = immediateUser;
+              resolved = true;
+              clearTimeout(timeout);
+              unsubscribe();
+              resolve();
+            }
+          });
+        }
+        
+        // Final check - if still no user, redirect to login
+        if (!currentUser) {
+          console.log('No user found after waiting, redirecting to login...');
           window.location.href = 'login.html';
           return;
         }
