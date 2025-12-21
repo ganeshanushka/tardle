@@ -395,10 +395,64 @@
 
         // Load user data from Firestore
         console.log('Loading user data for UID:', currentUser.uid);
-        const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
-        const userDoc = await window.firebaseFirestoreFunctions.getDoc(userDocRef);
-        
-        console.log('User document exists:', userDoc.exists());
+        let userDoc;
+        try {
+          const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
+          userDoc = await window.firebaseFirestoreFunctions.getDoc(userDocRef);
+          console.log('User document exists:', userDoc.exists());
+        } catch (firestoreError) {
+          console.error('Firestore error:', firestoreError);
+          // Check if it's an offline error
+          if (firestoreError.message && firestoreError.message.includes('offline')) {
+            // Show user-friendly offline message
+            const errorMessageEl = document.getElementById('errorMessage');
+            if (errorMessageEl) {
+              errorMessageEl.textContent = 'Unable to load account details. Please check your internet connection and try again.';
+              errorMessageEl.style.display = 'block';
+            }
+            // Still try to show what we can from Firebase Auth
+            const username = currentUser.email?.split('@')[0] || 'User';
+            updateGreeting(username);
+            
+            const emailEl = document.getElementById('userEmail');
+            if (emailEl) {
+              emailEl.textContent = currentUser.email || 'Not available';
+              emailEl.classList.remove('loading');
+            }
+            
+            // Show basic info from Auth
+            const accountNumberEl = document.getElementById('accountNumber');
+            if (accountNumberEl) {
+              accountNumberEl.textContent = 'Unable to load';
+              accountNumberEl.classList.remove('loading');
+              accountNumberEl.style.color = '#999';
+            }
+            
+            const usernameDisplayEl = document.getElementById('usernameDisplay');
+            if (usernameDisplayEl) {
+              usernameDisplayEl.textContent = username;
+              usernameDisplayEl.classList.remove('loading');
+            }
+            
+            const passwordEl = document.getElementById('passwordStatus');
+            if (passwordEl) {
+              if (currentUser.providerData && currentUser.providerData.length > 0) {
+                const hasPasswordProvider = currentUser.providerData.some(provider => provider.providerId === 'password');
+                passwordEl.textContent = hasPasswordProvider ? '••••••••' : 'None';
+                if (!hasPasswordProvider) passwordEl.style.color = '#999';
+              } else {
+                passwordEl.textContent = 'None';
+                passwordEl.style.color = '#999';
+              }
+              passwordEl.classList.remove('loading');
+            }
+            
+            return; // Exit early since we can't load Firestore data
+          } else {
+            // Re-throw other errors to be handled by outer catch
+            throw firestoreError;
+          }
+        }
 
         if (userDoc.exists()) {
           const userData = userDoc.data();
@@ -577,7 +631,14 @@
         console.error('Error stack:', error.stack);
         const errorMessageEl = document.getElementById('errorMessage');
         if (errorMessageEl) {
-          errorMessageEl.textContent = 'Error loading account details: ' + (error.message || 'Unknown error');
+          // Provide more user-friendly error messages
+          let errorMsg = 'Error loading account details. Please try again.';
+          if (error.message && error.message.includes('offline')) {
+            errorMsg = 'Unable to load account details. Please check your internet connection and try again.';
+          } else if (error.message) {
+            errorMsg = 'Error loading account details: ' + error.message;
+          }
+          errorMessageEl.textContent = errorMsg;
           errorMessageEl.style.display = 'block';
         }
       }
