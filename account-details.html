@@ -428,20 +428,6 @@
         <div id="errorMessage" class="error-message" style="display: none;"></div>
       </div>
 
-      <!-- Your Profile Section -->
-      <div class="section">
-        <h2 class="section-title">Your profile</h2>
-        <div id="profileInfo">
-          <div class="info-item">
-            <div class="info-label">Name</div>
-            <div class="info-value-container">
-              <div class="info-value loading" id="displayName">Loading...</div>
-              <a href="#" class="info-action" id="updateNameLink">Update</a>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- Subscription Section -->
       <div class="subscription-section">
         <hr class="subscription-divider">
@@ -855,12 +841,6 @@
             passwordEl.classList.remove('loading');
           }
 
-          // Display name (username)
-          const nameEl = document.getElementById('displayName');
-          if (nameEl) {
-            nameEl.textContent = userData.username || currentUser.email?.split('@')[0] || 'Not set';
-            nameEl.classList.remove('loading');
-          }
         } else {
           // User document doesn't exist - create it now
           console.log('User document does not exist, creating it now...');
