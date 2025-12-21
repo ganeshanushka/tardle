@@ -12,7 +12,7 @@
     body {
       margin: 0;
       font-family: 'PT Serif', 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
-      background: #7BAFD4;
+      background: #f7f7f7;
       color: #1a1a1b;
       line-height: 1.6;
       min-height: 100vh;
@@ -27,12 +27,11 @@
     .sidebar {
       width: 240px;
       background: white;
-      border-right: 2px solid #7BAFD4;
+      border-right: 1px solid #e5e5e5;
       padding: 32px 24px;
       position: fixed;
       height: 100vh;
       overflow-y: auto;
-      box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
     }
     
     .sidebar-nav {
@@ -96,11 +95,6 @@
       flex: 1;
       padding: 32px 48px;
       max-width: 800px;
-      background: white;
-      margin-top: 0;
-      margin-bottom: 0;
-      min-height: 100vh;
-      box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
     }
     
     .greeting {
@@ -111,7 +105,7 @@
       font-size: 32px;
       font-weight: bold;
       margin: 0 0 8px 0;
-      color: #1a1a1b;
+      color: #001A57;
     }
     
     .tagline {
@@ -181,11 +175,10 @@
       text-decoration: underline;
       cursor: pointer;
       margin-left: 16px;
-      font-weight: 500;
     }
     
     .info-action:hover {
-      color: #001A57;
+      color: #5a9bc4;
     }
     
     .error-message {
@@ -239,20 +232,22 @@
     }
     
     .subscription-button {
-      background: white;
-      border: 1px solid #000;
-      color: #000;
+      background: #7BAFD4;
+      border: 2px solid #001A57;
+      color: white;
       padding: 10px 20px;
       font-size: 15px;
       cursor: pointer;
       text-decoration: none;
       display: inline-block;
       white-space: nowrap;
-      transition: background-color 0.2s, color 0.2s;
+      transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+      font-weight: 500;
     }
     
     .subscription-button:hover {
-      background: #000;
+      background: #001A57;
+      border-color: #001A57;
       color: white;
     }
     
