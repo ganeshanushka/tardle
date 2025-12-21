@@ -189,6 +189,68 @@
       font-size: 14px;
     }
     
+    /* Subscription Section */
+    .subscription-section {
+      margin: 48px 0;
+      padding: 0;
+    }
+    
+    .subscription-divider {
+      height: 1px;
+      background: #000;
+      border: none;
+      margin: 0;
+    }
+    
+    .subscription-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px 0;
+      gap: 24px;
+    }
+    
+    .subscription-text {
+      flex: 1;
+    }
+    
+    .subscription-title {
+      font-size: 24px;
+      font-weight: bold;
+      color: #000;
+      margin: 0 0 8px 0;
+    }
+    
+    .subscription-description {
+      font-size: 15px;
+      color: #000;
+      margin: 0 0 4px 0;
+    }
+    
+    .subscription-subdescription {
+      font-size: 14px;
+      color: #666;
+      margin: 0;
+    }
+    
+    .subscription-button {
+      background: white;
+      border: 1px solid #000;
+      color: #000;
+      padding: 10px 20px;
+      font-size: 15px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      white-space: nowrap;
+      transition: background-color 0.2s, color 0.2s;
+    }
+    
+    .subscription-button:hover {
+      background: #000;
+      color: white;
+    }
+    
     @media (max-width: 768px) {
       .sidebar {
         width: 200px;
@@ -210,6 +272,15 @@
       
       .info-value-container {
         width: 100%;
+      }
+      
+      .subscription-content {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .subscription-button {
+        margin-top: 16px;
       }
     }
   </style>
@@ -286,6 +357,20 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- Subscription Section -->
+      <div class="subscription-section">
+        <hr class="subscription-divider">
+        <div class="subscription-content">
+          <div class="subscription-text">
+            <h3 class="subscription-title">Become a subscriber</h3>
+            <p class="subscription-description">Gain full access to news, recipes, puzzles and more</p>
+            <p class="subscription-subdescription">Enjoy everything The Times offers, in one subscription.</p>
+          </div>
+          <a href="#" class="subscription-button">Learn more</a>
+        </div>
+        <hr class="subscription-divider">
       </div>
     </main>
   </div>
