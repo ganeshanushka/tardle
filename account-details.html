@@ -305,7 +305,12 @@
     // Update greeting text
     function updateGreeting(username) {
       const greetingEl = document.getElementById('greetingText');
+      if (!greetingEl) {
+        console.error('Greeting element not found!');
+        return;
+      }
       const greeting = getGreeting();
+      console.log('Updating greeting with username:', username);
       greetingEl.innerHTML = `${greeting}, <span id="userName">${username}</span>.`;
     }
 
@@ -381,6 +386,12 @@
           window.location.href = 'login.html';
           return;
         }
+
+        console.log('Current user found:', currentUser.uid, currentUser.email);
+        
+        // Update greeting immediately with email-based username as fallback
+        const fallbackUsername = currentUser.email?.split('@')[0] || 'User';
+        updateGreeting(fallbackUsername);
 
         // Load user data from Firestore
         console.log('Loading user data for UID:', currentUser.uid);
