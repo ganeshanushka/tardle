@@ -12,7 +12,7 @@
     body {
       margin: 0;
       font-family: 'PT Serif', 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
-      background: #f7f7f7;
+      background: #7BAFD4;
       color: #1a1a1b;
       line-height: 1.6;
       min-height: 100vh;
@@ -27,11 +27,12 @@
     .sidebar {
       width: 240px;
       background: white;
-      border-right: 1px solid #e5e5e5;
+      border-right: 2px solid #7BAFD4;
       padding: 32px 24px;
       position: fixed;
       height: 100vh;
       overflow-y: auto;
+      box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
     }
     
     .sidebar-nav {
@@ -95,6 +96,11 @@
       flex: 1;
       padding: 32px 48px;
       max-width: 800px;
+      background: white;
+      margin-top: 0;
+      margin-bottom: 0;
+      min-height: 100vh;
+      box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
     }
     
     .greeting {
@@ -175,10 +181,11 @@
       text-decoration: underline;
       cursor: pointer;
       margin-left: 16px;
+      font-weight: 500;
     }
     
     .info-action:hover {
-      color: #5a9bc4;
+      color: #001A57;
     }
     
     .error-message {
@@ -1044,10 +1051,6 @@
         alert('Password update functionality coming soon!');
       });
       
-      document.getElementById('updateNameLink')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        alert('Name update functionality coming soon!');
-      });
     });
 
     // Load account details when page loads
