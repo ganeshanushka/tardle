@@ -506,6 +506,7 @@
         if (userDoc.exists()) {
           const userData = userDoc.data();
           console.log('User data loaded:', userData);
+          console.log('Account number in userData:', userData.accountNumber);
           
           // Get username for greeting
           const username = userData.username || currentUser.email?.split('@')[0] || 'User';
