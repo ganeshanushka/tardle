@@ -393,67 +393,116 @@
         const fallbackUsername = currentUser.email?.split('@')[0] || 'User';
         updateGreeting(fallbackUsername);
 
-        // Load user data from Firestore
+        // Check if Firestore is available
+        if (!window.firebaseDb) {
+          console.error('Firestore database not initialized');
+          throw new Error('Firestore database not available');
+        }
+        
+        // Load user data from Firestore with retry logic
         console.log('Loading user data for UID:', currentUser.uid);
+        console.log('Firestore database:', window.firebaseDb);
         let userDoc;
-        try {
-          const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
-          userDoc = await window.firebaseFirestoreFunctions.getDoc(userDocRef);
-          console.log('User document exists:', userDoc.exists());
-        } catch (firestoreError) {
-          console.error('Firestore error:', firestoreError);
-          // Check if it's an offline error
-          if (firestoreError.message && firestoreError.message.includes('offline')) {
-            // Show user-friendly offline message
-            const errorMessageEl = document.getElementById('errorMessage');
-            if (errorMessageEl) {
-              errorMessageEl.textContent = 'Unable to load account details. Please check your internet connection and try again.';
-              errorMessageEl.style.display = 'block';
-            }
-            // Still try to show what we can from Firebase Auth
-            const username = currentUser.email?.split('@')[0] || 'User';
-            updateGreeting(username);
+        let retryCount = 0;
+        const maxRetries = 3;
+        
+        while (retryCount < maxRetries) {
+          try {
+            const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
+            console.log(`Attempting to fetch document from Firestore (attempt ${retryCount + 1}/${maxRetries})...`);
             
-            const emailEl = document.getElementById('userEmail');
-            if (emailEl) {
-              emailEl.textContent = currentUser.email || 'Not available';
-              emailEl.classList.remove('loading');
-            }
+            // Add a timeout to detect if Firestore is truly offline
+            const fetchPromise = window.firebaseFirestoreFunctions.getDoc(userDocRef);
+            const timeoutPromise = new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('Firestore request timeout')), 15000)
+            );
             
-            // Show basic info from Auth
-            const accountNumberEl = document.getElementById('accountNumber');
-            if (accountNumberEl) {
-              accountNumberEl.textContent = 'Unable to load';
-              accountNumberEl.classList.remove('loading');
-              accountNumberEl.style.color = '#999';
-            }
+            userDoc = await Promise.race([fetchPromise, timeoutPromise]);
+            console.log('User document fetched successfully, exists:', userDoc.exists());
+            break; // Success, exit retry loop
+          } catch (firestoreError) {
+            retryCount++;
+            console.error(`Firestore error (attempt ${retryCount}/${maxRetries}):`, firestoreError);
+            console.error('Error code:', firestoreError.code);
+            console.error('Error message:', firestoreError.message);
             
-            const usernameDisplayEl = document.getElementById('usernameDisplay');
-            if (usernameDisplayEl) {
-              usernameDisplayEl.textContent = username;
-              usernameDisplayEl.classList.remove('loading');
-            }
-            
-            const passwordEl = document.getElementById('passwordStatus');
-            if (passwordEl) {
-              if (currentUser.providerData && currentUser.providerData.length > 0) {
-                const hasPasswordProvider = currentUser.providerData.some(provider => provider.providerId === 'password');
-                passwordEl.textContent = hasPasswordProvider ? '••••••••' : 'None';
-                if (!hasPasswordProvider) passwordEl.style.color = '#999';
+            if (retryCount >= maxRetries) {
+              // Final attempt failed, handle error
+              console.error('All retry attempts failed. Error details:', firestoreError);
+              
+              // Check if it's an offline error or network-related
+              const isOfflineError = firestoreError.message && (
+                firestoreError.message.includes('offline') ||
+                firestoreError.message.includes('Failed to get document') ||
+                firestoreError.code === 'unavailable' ||
+                firestoreError.code === 'deadline-exceeded' ||
+                firestoreError.message.includes('timeout')
+              );
+              
+              if (isOfflineError) {
+                // Show user-friendly offline message
+                const errorMessageEl = document.getElementById('errorMessage');
+                if (errorMessageEl) {
+                  errorMessageEl.textContent = 'Unable to load account details. Please check your internet connection and try again.';
+                  errorMessageEl.style.display = 'block';
+                }
+                // Still try to show what we can from Firebase Auth
+                const username = currentUser.email?.split('@')[0] || 'User';
+                updateGreeting(username);
+                
+                const emailEl = document.getElementById('userEmail');
+                if (emailEl) {
+                  emailEl.textContent = currentUser.email || 'Not available';
+                  emailEl.classList.remove('loading');
+                }
+                
+                // Show basic info from Auth
+                const accountNumberEl = document.getElementById('accountNumber');
+                if (accountNumberEl) {
+                  accountNumberEl.textContent = 'Unable to load';
+                  accountNumberEl.classList.remove('loading');
+                  accountNumberEl.style.color = '#999';
+                }
+                
+                const usernameDisplayEl = document.getElementById('usernameDisplay');
+                if (usernameDisplayEl) {
+                  usernameDisplayEl.textContent = username;
+                  usernameDisplayEl.classList.remove('loading');
+                }
+                
+                const passwordEl = document.getElementById('passwordStatus');
+                if (passwordEl) {
+                  if (currentUser.providerData && currentUser.providerData.length > 0) {
+                    const hasPasswordProvider = currentUser.providerData.some(provider => provider.providerId === 'password');
+                    passwordEl.textContent = hasPasswordProvider ? '••••••••' : 'None';
+                    if (!hasPasswordProvider) passwordEl.style.color = '#999';
+                  } else {
+                    passwordEl.textContent = 'None';
+                    passwordEl.style.color = '#999';
+                  }
+                  passwordEl.classList.remove('loading');
+                }
+                
+                return; // Exit early since we can't load Firestore data
               } else {
-                passwordEl.textContent = 'None';
-                passwordEl.style.color = '#999';
+                // Re-throw other errors to be handled by outer catch
+                throw firestoreError;
               }
-              passwordEl.classList.remove('loading');
             }
             
-            return; // Exit early since we can't load Firestore data
-          } else {
-            // Re-throw other errors to be handled by outer catch
-            throw firestoreError;
+            // Wait before retrying (exponential backoff)
+            const waitTime = Math.min(1000 * Math.pow(2, retryCount - 1), 5000);
+            console.log(`Retrying in ${waitTime}ms...`);
+            await new Promise(resolve => setTimeout(resolve, waitTime));
           }
         }
-
+        
+        // If we get here, we need to check if userDoc was set
+        if (!userDoc) {
+          throw new Error('Failed to fetch user document after retries');
+        }
+        
+        // Process the document
         if (userDoc.exists()) {
           const userData = userDoc.data();
           console.log('User data loaded:', userData);
