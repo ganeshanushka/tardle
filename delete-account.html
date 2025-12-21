@@ -291,6 +291,11 @@
     border-radius: 4px;
   }
 
+  .password-prompt .error-message {
+    margin-top: 8px;
+    margin-bottom: 0;
+  }
+
   .password-prompt label {
     display: block;
     font-weight: bold;
@@ -377,7 +382,6 @@
       <label for="confirmCheckbox">I confirm I want to delete my Tardle account.</label>
     </div>
 
-    <div class="error-message" id="errorMessage"></div>
     <div class="success-message" id="successMessage"></div>
 
     <div class="password-prompt" id="passwordPrompt" style="display: none;">
@@ -391,6 +395,7 @@
           </svg>
         </button>
       </div>
+      <div class="error-message" id="errorMessage"></div>
     </div>
 
     <div class="button-container">
