@@ -408,18 +408,51 @@
           const username = userData.username || currentUser.email?.split('@')[0] || 'User';
           updateGreeting(username);
           
-          // Get member since date from createdAt
+          // Get member since date from createdAt or Firebase Auth metadata
           let memberSince = '2025';
+          let createdAtDate = null;
+          
+          // Try to get date from Firestore createdAt field
           if (userData.createdAt) {
             try {
-              const createdAt = userData.createdAt.toDate ? userData.createdAt.toDate() : new Date(userData.createdAt);
-              // Format as "Month Day, Year" (e.g., "January 15, 2025")
-              const options = { year: 'numeric', month: 'long', day: 'numeric' };
-              memberSince = createdAt.toLocaleDateString('en-US', options);
+              // Handle Firestore Timestamp
+              if (userData.createdAt.toDate) {
+                createdAtDate = userData.createdAt.toDate();
+              } else if (userData.createdAt.seconds) {
+                // Handle timestamp with seconds
+                createdAtDate = new Date(userData.createdAt.seconds * 1000);
+              } else if (userData.createdAt._seconds) {
+                // Handle timestamp with _seconds (older format)
+                createdAtDate = new Date(userData.createdAt._seconds * 1000);
+              } else {
+                // Try to parse as regular date
+                createdAtDate = new Date(userData.createdAt);
+              }
+              console.log('Parsed createdAt from Firestore:', createdAtDate);
             } catch (dateError) {
-              console.error('Error parsing date:', dateError);
+              console.error('Error parsing Firestore createdAt:', dateError, userData.createdAt);
             }
           }
+          
+          // Fallback to Firebase Auth metadata if Firestore date is not available
+          if (!createdAtDate && currentUser.metadata && currentUser.metadata.creationTime) {
+            try {
+              createdAtDate = new Date(currentUser.metadata.creationTime);
+              console.log('Using Firebase Auth creationTime:', createdAtDate);
+            } catch (dateError) {
+              console.error('Error parsing Auth metadata creationTime:', dateError);
+            }
+          }
+          
+          // Format the date
+          if (createdAtDate && !isNaN(createdAtDate.getTime())) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            memberSince = createdAtDate.toLocaleDateString('en-US', options);
+            console.log('Formatted member since date:', memberSince);
+          } else {
+            console.warn('Could not determine account creation date, using fallback');
+          }
+          
           const memberSinceEl = document.getElementById('memberSince');
           if (memberSinceEl) {
             memberSinceEl.textContent = memberSince;
