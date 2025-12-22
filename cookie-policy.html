@@ -1,31 +1,204 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cookie Policy</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
-      background: #f7f7f7;
-      color: #1a1a1b;
-      padding: 32px 24px;
-      line-height: 1.6;
-    }
-    h1 {
-      margin-top: 0;
-      color: #1a1a1b;
-    }
-    a {
-      color: #7BAFD4;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cookie Policy</title>
+<style>
+  body {
+    font-family: 'PT Serif', sans-serif;
+    background-color: white;
+    margin: 0;
+    padding: 0;
+    color: #1a1a1a;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .container {
+    max-width: 600px;
+    width: 100%;
+    margin: 60px auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+  }
+
+  h1 {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #1a1a1a;
+  }
+
+  .header-tile-grid {
+    display: flex;
+    gap: 3px;
+    margin-bottom: 20px;
+    perspective: 1000px;
+  }
+
+  .header-tile {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #333333;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 1.3em;
+    color: #000000;
+    font-family: Arial, sans-serif;
+    background-color: #ffffff;
+    transition: background-color 0s, color 0s, border-color 0s;
+  }
+
+  /* Flip animation for header tiles */
+  .header-tile.flip {
+    animation: headerTileFlip 0.8s ease-in-out;
+  }
+
+  @keyframes headerTileFlip {
+    0% { transform: rotateX(0); }
+    50% { transform: rotateX(-90deg); }
+    100% { transform: rotateX(0); }
+  }
+
+  /* Initial state: tiles start as white */
+  .header-tile.correct,
+  .header-tile.present,
+  .header-tile.absent {
+    background-color: #ffffff;
+    color: #000000;
+    border-color: #d3d6da;
+  }
+
+  /* Revealed state: tiles show their colors */
+  .header-tile.correct.revealed {
+    background-color: #7BAFD4;
+    color: white;
+    border-color: transparent;
+  }
+
+  .header-tile.present.revealed {
+    background-color: #c9b458;
+    color: white;
+    border-color: transparent;
+  }
+
+  .header-tile.absent.revealed {
+    background-color: #001A57;
+    color: white;
+    border-color: transparent;
+  }
+
+  .section-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    color: #1a1a1a;
+  }
+
+  .section-content {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 30px;
+  }
+
+  .section-content p {
+    margin-bottom: 15px;
+  }
+
+  .return-link {
+    color: #333;
+    text-decoration: none;
+    font-size: 16px;
+    padding: 12px 0;
+    display: inline-block;
+  }
+
+  .return-link:hover {
+    text-decoration: underline;
+  }
+
+  a {
+    color: #7BAFD4;
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+</style>
 </head>
 <body>
-  <h1>Cookie Policy</h1>
-  <p>This is a placeholder page for the Tardle Cookie Policy.</p>
-  <p><a href="play.html">Back to Tardle</a></p>
+<div class="container">
+  <div class="header-tile-grid" id="headerTiles"></div>
+  
+  <div class="section-content">
+    <p>This is a placeholder page for the Tardle Cookie Policy.</p>
+  </div>
+
+  <a href="account-details.html" class="return-link">Return to account</a>
+</div>
+
+<script>
+  // Create header tiles and animate them
+  function initHeaderTiles() {
+    const headerTilesContainer = document.getElementById('headerTiles');
+    if (!headerTilesContainer) return;
+
+    // Create tiles spelling "COOKIE POLICY"
+    const text = "COOKIE POLICY";
+    const letters = text.split('');
+    const colorClasses = ['correct', 'present', 'absent'];
+    
+    letters.forEach((letter) => {
+      if (letter === ' ') {
+        // Add a spacer for spaces
+        const spacer = document.createElement('div');
+        spacer.style.width = '8px';
+        headerTilesContainer.appendChild(spacer);
+      } else {
+        const tile = document.createElement('div');
+        // Randomly assign a color class
+        const randomColor = colorClasses[Math.floor(Math.random() * colorClasses.length)];
+        tile.className = `header-tile ${randomColor}`;
+        tile.textContent = letter; // Show letter from start
+        headerTilesContainer.appendChild(tile);
+      }
+    });
+
+    // Trigger flip animation after a short delay
+    setTimeout(() => {
+      const tiles = headerTilesContainer.querySelectorAll('.header-tile');
+      const flipDelay = 100; // Delay between each flip
+      const flipDuration = 800; // Duration of flip animation
+
+      tiles.forEach((tile, index) => {
+        setTimeout(() => {
+          // Add flip animation
+          tile.classList.add('flip');
+          
+          // Reveal the color at the midpoint of the flip
+          setTimeout(() => {
+            tile.classList.add('revealed');
+          }, flipDuration / 2); // Half of the flip duration (400ms)
+          
+          // Remove flip class after animation completes
+          setTimeout(() => {
+            tile.classList.remove('flip');
+          }, flipDuration);
+        }, index * flipDelay);
+      });
+    }, 150); // Wait 0.15 seconds after page loads
+  }
+
+  // Initialize header tiles when page loads
+  document.addEventListener('DOMContentLoaded', initHeaderTiles);
+</script>
+
 </body>
 </html>
-
