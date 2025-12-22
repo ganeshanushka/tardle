@@ -2737,7 +2737,7 @@
           function checkLoginOnPageLoad() {
             // Wait for page to load, then check auth after a longer delay to allow Firebase to restore session
             window.addEventListener('load', function() {
-              // Give Firebase more time to restore the session, especially after signup
+              // Give Firebase time to restore the session
               setTimeout(function() {
                 // Wait for Firebase to initialize
                 const checkFirebase = setInterval(() => {
@@ -2746,7 +2746,7 @@
                     
                     let userFound = false;
                     let checkCount = 0;
-                    const maxChecks = 20; // Check up to 2 seconds (20 * 100ms)
+                    const maxChecks = 10; // Check up to 0.5 seconds (10 * 50ms)
                     
                     // Check auth state with multiple attempts to catch session restoration
                     const checkAuth = () => {
@@ -2777,7 +2777,7 @@
                       
                       // Continue checking if we haven't found user yet
                       if (!userFound && checkCount < maxChecks) {
-                        setTimeout(checkAuth, 100);
+                        setTimeout(checkAuth, 50);
                       }
                     };
                     
@@ -2808,7 +2808,7 @@
                     checkAuth();
                   }
                 }, 50);
-              }, 1000); // Wait 1 second after page loads to give Firebase time to restore session
+              }, 500); // Wait 0.5 seconds after page loads to give Firebase time to restore session
             });
           }
 
