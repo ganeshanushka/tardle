@@ -220,6 +220,15 @@
     color: white;
   }
 
+  /* Profile section styling - black text on white background */
+  #profileSection .side-panel-section-title {
+    color: #000;
+  }
+
+  #profileSection .side-panel-link {
+    color: #000;
+  }
+
   .side-panel-divider {
     height: 1px;
     background-color: rgba(255, 255, 255, 0.3);
@@ -2060,12 +2069,12 @@
         
         <div class="side-panel-divider"></div>
         
-        <div class="side-panel-section">
+        <div class="side-panel-section" id="profileSection" style="display: none;">
           <div class="side-panel-section-title">PROFILE</div>
           <a href="#" class="side-panel-link" onclick="handleAccountDetailsClick(event)">Account details</a>
         </div>
         
-        <div class="side-panel-buttons">
+        <div class="side-panel-buttons" id="logoutButtonContainer" style="display: none;">
           <button class="side-panel-button logout-button" id="logoutButton" onclick="handleLogout()">LOG OUT</button>
         </div>
       </div>
@@ -2707,6 +2716,8 @@
                   const greetingElement = document.getElementById('sidePanelGreeting');
                   const greetingNameElement = document.getElementById('userGreetingName');
                   const logoutButton = document.getElementById('logoutButton');
+                  const logoutButtonContainer = document.getElementById('logoutButtonContainer');
+                  const profileSection = document.getElementById('profileSection');
                   
                   if (user && user.email) {
                     // Extract username from email (part before @)
@@ -2715,7 +2726,13 @@
                       greetingNameElement.textContent = username;
                       greetingElement.style.display = 'block';
                     }
-                    // User is logged in - show "LOG OUT"
+                    // User is logged in - show PROFILE section and "LOG OUT" button
+                    if (profileSection) {
+                      profileSection.style.display = 'block';
+                    }
+                    if (logoutButtonContainer) {
+                      logoutButtonContainer.style.display = 'flex';
+                    }
                     if (logoutButton) {
                       logoutButton.textContent = 'LOG OUT';
                     }
@@ -2723,7 +2740,13 @@
                     if (greetingElement) {
                       greetingElement.style.display = 'none';
                     }
-                    // User is not logged in - show "LOG IN"
+                    // User is not logged in - hide PROFILE section and "LOG OUT" button
+                    if (profileSection) {
+                      profileSection.style.display = 'none';
+                    }
+                    if (logoutButtonContainer) {
+                      logoutButtonContainer.style.display = 'none';
+                    }
                     if (logoutButton) {
                       logoutButton.textContent = 'LOG IN';
                     }
@@ -2777,10 +2800,19 @@
                     if (window.firebaseAuthFunctions && window.firebaseAuthFunctions.onAuthStateChanged) {
                       window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, (user) => {
                         const logoutButton = document.getElementById('logoutButton');
+                        const logoutButtonContainer = document.getElementById('logoutButtonContainer');
+                        const profileSection = document.getElementById('profileSection');
+                        
                         if (user) {
                           userFound = true;
                           loginPromptShown = false; // Cancel login prompt if user logs in
-                          // User is logged in, update button to "LOG OUT" and show How to Play popup after 150ms
+                          // User is logged in - show PROFILE section and "LOG OUT" button
+                          if (profileSection) {
+                            profileSection.style.display = 'block';
+                          }
+                          if (logoutButtonContainer) {
+                            logoutButtonContainer.style.display = 'flex';
+                          }
                           if (logoutButton) {
                             logoutButton.textContent = 'LOG OUT';
                           }
@@ -2788,18 +2820,27 @@
                           setTimeout(() => {
                             handleHelpClick();
                           }, 150);
-                        } else if (!userFound && !loginPromptShown) {
-                          // User is not logged in - show login prompt after 150ms
-                          setTimeout(() => {
-                            if (!userFound && !loginPromptShown) {
-                              showLoginPrompt();
-                              loginPromptShown = true;
-                              // Update button to "LOG IN"
-                              if (logoutButton) {
-                                logoutButton.textContent = 'LOG IN';
+                        } else {
+                          // User is not logged in - hide PROFILE section and "LOG OUT" button
+                          if (profileSection) {
+                            profileSection.style.display = 'none';
+                          }
+                          if (logoutButtonContainer) {
+                            logoutButtonContainer.style.display = 'none';
+                          }
+                          if (!userFound && !loginPromptShown) {
+                            // Show login prompt after 150ms
+                            setTimeout(() => {
+                              if (!userFound && !loginPromptShown) {
+                                showLoginPrompt();
+                                loginPromptShown = true;
+                                // Update button to "LOG IN"
+                                if (logoutButton) {
+                                  logoutButton.textContent = 'LOG IN';
+                                }
                               }
-                            }
-                          }, 150);
+                            }, 150);
+                          }
                         }
                       });
                     }
