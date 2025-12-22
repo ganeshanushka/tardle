@@ -1806,6 +1806,151 @@
     color: white !important;
   }
 
+  /* How to Play Modal */
+  #howToPlayModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+  }
+
+  #howToPlayModal.show {
+    display: flex;
+  }
+
+  .how-to-play-content {
+    background-color: white;
+    border-radius: 8px;
+    padding: 30px 40px 40px 40px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    box-sizing: border-box;
+  }
+
+  .how-to-play-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #000;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    line-height: 1;
+    transition: opacity 0.2s ease;
+  }
+
+  .how-to-play-close:hover {
+    opacity: 0.7;
+  }
+
+  .how-to-play-title {
+    font-family: 'PT Serif', sans-serif;
+    font-size: 32px;
+    font-weight: bold;
+    color: #000;
+    margin: 0 0 15px 0;
+    line-height: 1.2;
+  }
+
+  .how-to-play-text {
+    font-family: 'PT Serif', sans-serif;
+    font-size: 18px;
+    color: #000;
+    margin: 0 0 20px 0;
+    line-height: 1.4;
+  }
+
+  .how-to-play-list {
+    font-family: 'PT Serif', sans-serif;
+    font-size: 16px;
+    color: #000;
+    margin: 0 0 25px 0;
+    padding-left: 20px;
+    line-height: 1.6;
+  }
+
+  .how-to-play-list li {
+    margin-bottom: 8px;
+  }
+
+  .how-to-play-examples-title {
+    font-family: 'PT Serif', sans-serif;
+    font-size: 20px;
+    font-weight: bold;
+    color: #000;
+    margin: 25px 0 15px 0;
+  }
+
+  .how-to-play-example {
+    margin: 15px 0;
+    padding: 10px;
+    background-color: #ffffff;
+    border-radius: 8px;
+  }
+
+  .how-to-play-word-grid {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 10px;
+  }
+
+  .how-to-play-cell {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #333;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 20px;
+    font-family: Arial, sans-serif;
+    background-color: white;
+    color: #000;
+  }
+
+  .how-to-play-cell.correct {
+    background-color: #7BAFD4;
+    color: white;
+    border-color: #7BAFD4;
+  }
+
+  .how-to-play-cell.present {
+    background-color: #c9b458;
+    color: white;
+    border-color: #c9b458;
+  }
+
+  .how-to-play-cell.absent {
+    background-color: #001A57;
+    color: white;
+    border-color: #001A57;
+  }
+
+  .how-to-play-example-text {
+    font-family: 'PT Serif', sans-serif;
+    font-size: 14px;
+    color: #333;
+    margin: 5px 0 0 0;
+  }
+
+  .how-to-play-example-text b {
+    font-weight: bold;
+  }
+
 </style>
 </head>
 
@@ -1817,6 +1962,49 @@
       <h2 class="login-prompt-heading">Make a Tardle account if you hate Duke!</h2>
       <p class="login-prompt-text">(It's free, and you'll never lose a streak again)</p>
       <a href="login.html" class="login-prompt-button">Log in or create an account</a>
+    </div>
+  </div>
+
+  <!-- How to Play Modal -->
+  <div id="howToPlayModal">
+    <div class="how-to-play-content">
+      <button class="how-to-play-close" onclick="closeHowToPlay()">×</button>
+      <h1 class="how-to-play-title">How To Play</h1>
+      <p class="how-to-play-text">Guess the carolina word in 6 tries.</p>
+      <ul class="how-to-play-list">
+        <li>Each guess must be a valid word with the same number of letters as boxes.</li>
+        <li>The color of the tiles will change to show how close your guess was to the word.</li>
+      </ul>
+      <h2 class="how-to-play-examples-title">Examples</h2>
+      <div class="how-to-play-example">
+        <div class="how-to-play-word-grid">
+          <div class="how-to-play-cell correct">M</div>
+          <div class="how-to-play-cell">A</div>
+          <div class="how-to-play-cell">W</div>
+        </div>
+        <p class="how-to-play-example-text"><b>M</b> is in the word and in the correct spot.</p>
+      </div>
+      <div class="how-to-play-example">
+        <div class="how-to-play-word-grid">
+          <div class="how-to-play-cell">D</div>
+          <div class="how-to-play-cell present">A</div>
+          <div class="how-to-play-cell">V</div>
+          <div class="how-to-play-cell">I</div>
+          <div class="how-to-play-cell">S</div>
+        </div>
+        <p class="how-to-play-example-text"><b>A</b> is in the word but in the wrong spot.</p>
+      </div>
+      <div class="how-to-play-example">
+        <div class="how-to-play-word-grid">
+          <div class="how-to-play-cell">L</div>
+          <div class="how-to-play-cell">E</div>
+          <div class="how-to-play-cell absent">N</div>
+          <div class="how-to-play-cell">O</div>
+          <div class="how-to-play-cell">I</div>
+          <div class="how-to-play-cell">R</div>
+        </div>
+        <p class="how-to-play-example-text"><b>N</b> is not in the word in any spot.</p>
+      </div>
     </div>
   </div>
 
@@ -2599,16 +2787,53 @@
           updateUserGreeting();
           checkLoginOnPageLoad();
 
+          // Show How to Play modal on page load (only once per session)
+          function showHowToPlay() {
+            // Check if user has already seen the modal this session
+            if (!sessionStorage.getItem('howToPlayShown')) {
+              const modal = document.getElementById('howToPlayModal');
+              if (modal) {
+                modal.style.display = 'flex';
+                setTimeout(() => {
+                  modal.classList.add('show');
+                }, 10);
+                sessionStorage.setItem('howToPlayShown', 'true');
+              }
+            }
+          }
+
+          function closeHowToPlay() {
+            const modal = document.getElementById('howToPlayModal');
+            if (modal) {
+              modal.classList.remove('show');
+              setTimeout(() => {
+                modal.style.display = 'none';
+              }, 300);
+            }
+          }
+
           // Close modal when clicking outside
           document.addEventListener('DOMContentLoaded', function() {
-            const modal = document.getElementById('loginPromptModal');
-            if (modal) {
-              modal.addEventListener('click', function(e) {
-                if (e.target === modal) {
+            const loginModal = document.getElementById('loginPromptModal');
+            if (loginModal) {
+              loginModal.addEventListener('click', function(e) {
+                if (e.target === loginModal) {
                   closeLoginPrompt();
                 }
               });
             }
+
+            const howToPlayModal = document.getElementById('howToPlayModal');
+            if (howToPlayModal) {
+              howToPlayModal.addEventListener('click', function(e) {
+                if (e.target === howToPlayModal) {
+                  closeHowToPlay();
+                }
+              });
+            }
+
+            // Show How to Play modal on page load
+            showHowToPlay();
           });
         </script>
         
