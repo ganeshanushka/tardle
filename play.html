@@ -220,14 +220,6 @@
     color: white;
   }
 
-  /* Profile section styling - black text on white background */
-  #profileSection .side-panel-section-title {
-    color: #000;
-  }
-
-  #profileSection .side-panel-link {
-    color: #000;
-  }
 
   .side-panel-divider {
     height: 1px;
@@ -256,8 +248,18 @@
     left: clamp(20px, 4vw, 30px);
     right: clamp(20px, 4vw, 30px);
     display: flex;
+    flex-direction: column;
     gap: clamp(12px, 2vw, 15px);
     max-width: 290px;
+  }
+
+  /* Profile section inside buttons container */
+  #logoutButtonContainer .side-panel-section {
+    margin-bottom: 0;
+  }
+
+  #logoutButtonContainer .side-panel-section-title {
+    margin-bottom: clamp(10px, 1.5vh, 12px);
   }
 
   /* Hide buttons when panel is closed */
@@ -2069,12 +2071,11 @@
         
         <div class="side-panel-divider"></div>
         
-        <div class="side-panel-section" id="profileSection" style="display: none;">
-          <div class="side-panel-section-title">PROFILE</div>
-          <a href="#" class="side-panel-link" onclick="handleAccountDetailsClick(event)">Account details</a>
-        </div>
-        
         <div class="side-panel-buttons" id="logoutButtonContainer">
+          <div class="side-panel-section" id="profileSection" style="display: none;">
+            <div class="side-panel-section-title">PROFILE</div>
+            <a href="#" class="side-panel-link" onclick="handleAccountDetailsClick(event)">Account details</a>
+          </div>
           <button class="side-panel-button logout-button" id="logoutButton" onclick="handleLogout()">LOG OUT</button>
         </div>
       </div>
