@@ -2755,11 +2755,13 @@
                       
                       if (currentUser) {
                         userFound = true;
-                        // User is logged in, update button to "LOG OUT"
+                        // User is logged in, update button to "LOG OUT" and show How to Play popup
                         const logoutButton = document.getElementById('logoutButton');
                         if (logoutButton) {
                           logoutButton.textContent = 'LOG OUT';
                         }
+                        // Show How to Play popup for logged in users
+                        showHowToPlay();
                         return; // User found, stop checking
                       }
                       
@@ -2785,10 +2787,12 @@
                         const logoutButton = document.getElementById('logoutButton');
                         if (user) {
                           userFound = true;
-                          // User is logged in, update button to "LOG OUT"
+                          // User is logged in, update button to "LOG OUT" and show How to Play popup
                           if (logoutButton) {
                             logoutButton.textContent = 'LOG OUT';
                           }
+                          // Show How to Play popup for logged in users
+                          showHowToPlay();
                         } else if (!userFound && checkCount >= maxChecks) {
                           // Only show prompt if we've waited long enough
                           showLoginPrompt();
@@ -2810,32 +2814,7 @@
 
           // Initialize greeting and check when page loads
           updateUserGreeting();
-          
-          // Check auth state and show appropriate popup
-          function checkAuthAndShowPopup() {
-            // Wait for Firebase to initialize
-            const checkFirebase = setInterval(() => {
-              if (window.firebaseAuth && window.firebaseAuthFunctions) {
-                clearInterval(checkFirebase);
-                
-                // Wait a bit for auth state to restore
-                setTimeout(() => {
-                  const currentUser = window.firebaseAuth.currentUser;
-                  
-                  if (currentUser) {
-                    // User is logged in - show How to Play popup
-                    showHowToPlay();
-                  } else {
-                    // User is NOT logged in - show login prompt
-                    showLoginPrompt();
-                  }
-                }, 500);
-              }
-            }, 100);
-          }
-          
           checkLoginOnPageLoad();
-          checkAuthAndShowPopup();
 
           // Show How to Play modal on page load (for logged in users)
           function showHowToPlay() {
