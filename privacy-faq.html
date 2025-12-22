@@ -111,6 +111,29 @@
     margin-bottom: 15px;
   }
 
+  .last-updated {
+    font-size: 14px;
+    font-style: italic;
+    color: #666;
+    margin-bottom: 30px;
+  }
+
+  .section-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    color: #1a1a1a;
+    padding-top: 30px;
+    border-top: 1px solid #e5e5e5;
+  }
+
+  .section-title:first-of-type {
+    border-top: none;
+    padding-top: 0;
+    margin-top: 0;
+  }
+
   .return-link {
     color: #333;
     text-decoration: none;
@@ -137,8 +160,33 @@
 <div class="container">
   <div class="header-tile-grid" id="headerTiles"></div>
   
+  <div class="last-updated">Last Updated on December 22, 2025</div>
+  
+  <div class="section-title" id="account-required">Do I have to create an account to play?</div>
   <div class="section-content">
-    <p>This is a placeholder page for frequently asked questions about privacy.</p>
+    <p>No. You can play the game without signing up. Some features (like saved progress or streaks) may require an account.</p>
+  </div>
+
+  <div class="section-title" id="sell-data">Do you sell my data?</div>
+  <div class="section-content">
+    <p>No. We do not sell or rent your personal information.</p>
+  </div>
+
+  <div class="section-title" id="tracking">Do you track me across other websites?</div>
+  <div class="section-content">
+    <p>No. We do not use tracking cookies or advertising technologies.</p>
+  </div>
+
+  <div class="section-title" id="email-collection">Why do you collect email addresses?</div>
+  <div class="section-content">
+    <p>Email addresses are collected only if you choose to provide one, and are used to:</p>
+    <p>• Save your progress</p>
+    <p>• Send optional reminder or update emails</p>
+  </div>
+
+  <div class="section-title" id="data-access">Who can see my data?</div>
+  <div class="section-content">
+    <p>Your data is only accessible to the game's systems and service providers needed to operate the game (such as Firebase).</p>
   </div>
 
   <a href="account-details.html" class="return-link">Return to account</a>
