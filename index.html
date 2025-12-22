@@ -225,7 +225,7 @@
   <p class="subtitle">Get 6 chances to guess a word<br>only a true tarheel would know.</p>
  
 <div class="button-container">
-  <a href="how-to-play.html" class="button">How to play</a>
+  <a href="how-to-play.html" class="button" id="howToPlayButton">How to play</a>
   <a href="login.html" class="button" id="loginButton">Log in</a>
   <a href="play.html" class="button play-button" id="playButton">Play</a>
 </div>
@@ -266,12 +266,24 @@
         window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, (user) => {
           isUserLoggedIn = !!user;
           const loginButton = document.getElementById('loginButton');
-          if (user && loginButton) {
-            // User is logged in - hide the login button
-            loginButton.style.display = 'none';
-          } else if (loginButton) {
-            // User is not logged in - show the login button
-            loginButton.style.display = '';
+          const howToPlayButton = document.getElementById('howToPlayButton');
+          
+          if (user) {
+            // User is logged in - hide the login button and "How to play" button
+            if (loginButton) {
+              loginButton.style.display = 'none';
+            }
+            if (howToPlayButton) {
+              howToPlayButton.style.display = 'none';
+            }
+          } else {
+            // User is not logged in - show the login button and "How to play" button
+            if (loginButton) {
+              loginButton.style.display = '';
+            }
+            if (howToPlayButton) {
+              howToPlayButton.style.display = '';
+            }
           }
         });
       }
