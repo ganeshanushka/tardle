@@ -2745,41 +2745,32 @@
                     clearInterval(checkFirebase);
                     
                     let userFound = false;
-                    let checkCount = 0;
-                    const maxChecks = 5; // Check up to 0.25 seconds (5 * 50ms) - reduced for faster popup
+                    let loginPromptShown = false;
                     
-                    // Check auth state with multiple attempts to catch session restoration
-                    const checkAuth = () => {
-                      checkCount++;
-                      const currentUser = window.firebaseAuth.currentUser;
-                      
-                      if (currentUser) {
-                        userFound = true;
-                        // User is logged in, update button to "LOG OUT" and show How to Play popup (same as question mark)
-                        const logoutButton = document.getElementById('logoutButton');
-                        if (logoutButton) {
-                          logoutButton.textContent = 'LOG OUT';
+                    // Check auth state immediately
+                    const currentUser = window.firebaseAuth.currentUser;
+                    if (currentUser) {
+                      userFound = true;
+                      // User is logged in, update button to "LOG OUT" and show How to Play popup (same as question mark)
+                      const logoutButton = document.getElementById('logoutButton');
+                      if (logoutButton) {
+                        logoutButton.textContent = 'LOG OUT';
+                      }
+                      // Show the same popup that appears when clicking the question mark button
+                      handleHelpClick();
+                    } else {
+                      // User is not logged in - show login prompt after 1 second
+                      setTimeout(() => {
+                        if (!userFound && !loginPromptShown) {
+                          showLoginPrompt();
+                          loginPromptShown = true;
+                          const logoutButton = document.getElementById('logoutButton');
+                          if (logoutButton) {
+                            logoutButton.textContent = 'LOG IN';
+                          }
                         }
-                        // Show the same popup that appears when clicking the question mark button
-                        handleHelpClick();
-                        return; // User found, stop checking
-                      }
-                      
-                      // If we've checked enough times and still no user, show login prompt
-                      if (checkCount >= maxChecks && !userFound) {
-                        showLoginPrompt();
-                        const logoutButton = document.getElementById('logoutButton');
-                        if (logoutButton) {
-                          logoutButton.textContent = 'LOG IN';
-                        }
-                        return;
-                      }
-                      
-                      // Continue checking if we haven't found user yet
-                      if (!userFound && checkCount < maxChecks) {
-                        setTimeout(checkAuth, 50);
-                      }
-                    };
+                      }, 1000);
+                    }
                     
                     // Also set up onAuthStateChanged listener for real-time updates
                     if (window.firebaseAuthFunctions && window.firebaseAuthFunctions.onAuthStateChanged) {
@@ -2787,25 +2778,28 @@
                         const logoutButton = document.getElementById('logoutButton');
                         if (user) {
                           userFound = true;
+                          loginPromptShown = false; // Cancel login prompt if user logs in
                           // User is logged in, update button to "LOG OUT" and show How to Play popup (same as question mark)
                           if (logoutButton) {
                             logoutButton.textContent = 'LOG OUT';
                           }
                           // Show the same popup that appears when clicking the question mark button
                           handleHelpClick();
-                        } else if (!userFound && checkCount >= 5) {
-                          // Show prompt after reduced checks for faster appearance
-                          showLoginPrompt();
-                          // Update button to "LOG IN"
-                          if (logoutButton) {
-                            logoutButton.textContent = 'LOG IN';
-                          }
+                        } else if (!userFound && !loginPromptShown) {
+                          // User is not logged in - show login prompt after 1 second
+                          setTimeout(() => {
+                            if (!userFound && !loginPromptShown) {
+                              showLoginPrompt();
+                              loginPromptShown = true;
+                              // Update button to "LOG IN"
+                              if (logoutButton) {
+                                logoutButton.textContent = 'LOG IN';
+                              }
+                            }
+                          }, 1000);
                         }
                       });
                     }
-                    
-                    // Start checking auth state
-                    checkAuth();
                   }
                 }, 50);
               }, 500); // Wait 0.5 seconds after page loads to give Firebase time to restore session
