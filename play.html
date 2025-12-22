@@ -2074,7 +2074,7 @@
           <a href="#" class="side-panel-link" onclick="handleAccountDetailsClick(event)">Account details</a>
         </div>
         
-        <div class="side-panel-buttons" id="logoutButtonContainer" style="display: none;">
+        <div class="side-panel-buttons" id="logoutButtonContainer">
           <button class="side-panel-button logout-button" id="logoutButton" onclick="handleLogout()">LOG OUT</button>
         </div>
       </div>
@@ -2369,6 +2369,7 @@
           function toggleMenu() {
             const sidePanel = document.getElementById('sidePanel');
             const overlay = document.getElementById('panelOverlay');
+            const logoutButtonContainer = document.getElementById('logoutButtonContainer');
             
             if (sidePanel.classList.contains('open')) {
               sidePanel.classList.remove('open');
@@ -2376,6 +2377,10 @@
             } else {
               sidePanel.classList.add('open');
               overlay.classList.add('show');
+              // Ensure logout button container is visible when panel opens
+              if (logoutButtonContainer) {
+                logoutButtonContainer.style.display = 'flex';
+              }
             }
           }
 
@@ -2731,7 +2736,13 @@
                       profileSection.style.display = 'block';
                     }
                     if (logoutButtonContainer) {
-                      logoutButtonContainer.style.display = 'flex';
+                      // Only show if panel is open, otherwise CSS will handle it
+                      const sidePanel = document.getElementById('sidePanel');
+                      if (sidePanel && sidePanel.classList.contains('open')) {
+                        logoutButtonContainer.style.display = 'flex';
+                      } else {
+                        logoutButtonContainer.style.display = '';
+                      }
                     }
                     if (logoutButton) {
                       logoutButton.textContent = 'LOG OUT';
@@ -2740,12 +2751,18 @@
                     if (greetingElement) {
                       greetingElement.style.display = 'none';
                     }
-                    // User is not logged in - hide PROFILE section and "LOG OUT" button
+                    // User is not logged in - hide PROFILE section
                     if (profileSection) {
                       profileSection.style.display = 'none';
                     }
+                    // Keep logout button container visible but change text to LOG IN
                     if (logoutButtonContainer) {
-                      logoutButtonContainer.style.display = 'none';
+                      const sidePanel = document.getElementById('sidePanel');
+                      if (sidePanel && sidePanel.classList.contains('open')) {
+                        logoutButtonContainer.style.display = 'flex';
+                      } else {
+                        logoutButtonContainer.style.display = '';
+                      }
                     }
                     if (logoutButton) {
                       logoutButton.textContent = 'LOG IN';
@@ -2784,7 +2801,12 @@
                           profileSection.style.display = 'block';
                         }
                         if (logoutButtonContainer) {
-                          logoutButtonContainer.style.display = 'flex';
+                          const sidePanel = document.getElementById('sidePanel');
+                          if (sidePanel && sidePanel.classList.contains('open')) {
+                            logoutButtonContainer.style.display = 'flex';
+                          } else {
+                            logoutButtonContainer.style.display = '';
+                          }
                         }
                         if (logoutButton) {
                           logoutButton.textContent = 'LOG OUT';
@@ -2801,8 +2823,14 @@
                         if (profileSection) {
                           profileSection.style.display = 'none';
                         }
+                        // Keep logout button container visible but change text to LOG IN
                         if (logoutButtonContainer) {
-                          logoutButtonContainer.style.display = 'none';
+                          const sidePanel = document.getElementById('sidePanel');
+                          if (sidePanel && sidePanel.classList.contains('open')) {
+                            logoutButtonContainer.style.display = 'flex';
+                          } else {
+                            logoutButtonContainer.style.display = '';
+                          }
                         }
                         if (!userFound && !loginPromptShown) {
                           setTimeout(() => {
