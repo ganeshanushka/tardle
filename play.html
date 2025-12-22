@@ -2747,20 +2747,20 @@
                     let userFound = false;
                     let loginPromptShown = false;
                     
-                    // Check auth state immediately
-                    const currentUser = window.firebaseAuth.currentUser;
-                    if (currentUser) {
-                      userFound = true;
-                      // User is logged in, update button to "LOG OUT" and show How to Play popup (same as question mark)
-                      const logoutButton = document.getElementById('logoutButton');
-                      if (logoutButton) {
-                        logoutButton.textContent = 'LOG OUT';
-                      }
-                      // Show the same popup that appears when clicking the question mark button
-                      handleHelpClick();
-                    } else {
-                      // User is not logged in - show login prompt after 150ms
-                      setTimeout(() => {
+                    // Check auth state after 150ms delay
+                    setTimeout(() => {
+                      const currentUser = window.firebaseAuth.currentUser;
+                      if (currentUser) {
+                        userFound = true;
+                        // User is logged in, update button to "LOG OUT" and show How to Play popup (same as question mark)
+                        const logoutButton = document.getElementById('logoutButton');
+                        if (logoutButton) {
+                          logoutButton.textContent = 'LOG OUT';
+                        }
+                        // Show the same popup that appears when clicking the question mark button
+                        handleHelpClick();
+                      } else {
+                        // User is not logged in - show login prompt after 150ms
                         if (!userFound && !loginPromptShown) {
                           showLoginPrompt();
                           loginPromptShown = true;
@@ -2769,7 +2769,8 @@
                             logoutButton.textContent = 'LOG IN';
                           }
                         }
-                      }, 150);
+                      }
+                    }, 150);
                     }
                     
                     // Also set up onAuthStateChanged listener for real-time updates
@@ -2779,12 +2780,14 @@
                         if (user) {
                           userFound = true;
                           loginPromptShown = false; // Cancel login prompt if user logs in
-                          // User is logged in, update button to "LOG OUT" and show How to Play popup (same as question mark)
+                          // User is logged in, update button to "LOG OUT" and show How to Play popup after 150ms
                           if (logoutButton) {
                             logoutButton.textContent = 'LOG OUT';
                           }
-                          // Show the same popup that appears when clicking the question mark button
-                          handleHelpClick();
+                          // Show the same popup that appears when clicking the question mark button after 150ms
+                          setTimeout(() => {
+                            handleHelpClick();
+                          }, 150);
                         } else if (!userFound && !loginPromptShown) {
                           // User is not logged in - show login prompt after 150ms
                           setTimeout(() => {
@@ -2802,7 +2805,7 @@
                     }
                   }
                 }, 50);
-              }, 500); // Wait 0.5 seconds after page loads to give Firebase time to restore session
+              }, 0); // Check immediately after page loads
             });
           }
 
