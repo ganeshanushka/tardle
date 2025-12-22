@@ -2746,7 +2746,7 @@
                     
                     let userFound = false;
                     let checkCount = 0;
-                    const maxChecks = 10; // Check up to 0.5 seconds (10 * 50ms)
+                    const maxChecks = 5; // Check up to 0.25 seconds (5 * 50ms) - reduced for faster popup
                     
                     // Check auth state with multiple attempts to catch session restoration
                     const checkAuth = () => {
@@ -2793,8 +2793,8 @@
                           }
                           // Show the same popup that appears when clicking the question mark button
                           handleHelpClick();
-                        } else if (!userFound && checkCount >= maxChecks) {
-                          // Only show prompt if we've waited long enough
+                        } else if (!userFound && checkCount >= 5) {
+                          // Show prompt after reduced checks for faster appearance
                           showLoginPrompt();
                           // Update button to "LOG IN"
                           if (logoutButton) {
