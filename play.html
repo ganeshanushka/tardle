@@ -2806,20 +2806,16 @@
           updateUserGreeting();
           checkLoginOnPageLoad();
 
-          // Show How to Play modal on page load (only once per session)
+          // Show How to Play modal on page load (every time)
           function showHowToPlay() {
-            // Check if user has already seen the modal this session
-            if (!sessionStorage.getItem('howToPlayShown')) {
-              const modal = document.getElementById('howToPlayModal');
-              if (modal) {
-                modal.style.display = 'flex';
-                setTimeout(() => {
-                  modal.classList.add('show');
-                  // Start tile flip animations after modal is shown
-                  animateHowToPlayTiles();
-                }, 10);
-                sessionStorage.setItem('howToPlayShown', 'true');
-              }
+            const modal = document.getElementById('howToPlayModal');
+            if (modal) {
+              modal.style.display = 'flex';
+              setTimeout(() => {
+                modal.classList.add('show');
+                // Start tile flip animations after modal is shown
+                animateHowToPlayTiles();
+              }, 10);
             }
           }
 
