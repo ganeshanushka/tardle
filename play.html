@@ -1827,24 +1827,22 @@
   .how-to-play-content {
     background-color: white;
     border-radius: 8px;
-    padding: 30px 40px 40px 40px;
+    padding: 20px 30px;
     max-width: 600px;
     width: 90%;
     max-height: 90vh;
     overflow-y: auto;
     position: relative;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
     box-sizing: border-box;
   }
 
   .how-to-play-close {
-    position: absolute;
-    top: 15px;
-    right: 15px;
+    float: right;
+    cursor: pointer;
     font-size: 28px;
     font-weight: bold;
     color: #000;
-    cursor: pointer;
     background: none;
     border: none;
     padding: 0;
@@ -1858,26 +1856,27 @@
 
   .how-to-play-title {
     font-family: 'PT Serif', sans-serif;
-    font-size: 32px;
-    font-weight: bold;
     color: #000;
-    margin: 0 0 15px 0;
     line-height: 1.2;
+    margin-bottom: 0.25em;
+    font-size: 2em;
+    margin-top: 0;
   }
 
   .how-to-play-text {
     font-family: 'PT Serif', sans-serif;
-    font-size: 18px;
     color: #000;
-    margin: 0 0 20px 0;
-    line-height: 1.4;
+    line-height: 1.1;
+    margin-top: 0;
+    font-size: 1.5em;
+    margin-bottom: 15px;
   }
 
   .how-to-play-list {
     font-family: 'PT Serif', sans-serif;
-    font-size: 16px;
+    font-size: 1em;
     color: #000;
-    margin: 0 0 25px 0;
+    margin: 0 0 20px 0;
     padding-left: 20px;
     line-height: 1.6;
   }
@@ -1888,23 +1887,31 @@
 
   .how-to-play-examples-title {
     font-family: 'PT Serif', sans-serif;
-    font-size: 20px;
+    font-size: 1.2em;
     font-weight: bold;
     color: #000;
-    margin: 25px 0 15px 0;
+    margin: 20px 0 10px 0;
   }
 
   .how-to-play-example {
-    margin: 15px 0;
-    padding: 10px;
+    font-family: Arial, sans-serif;
     background-color: #ffffff;
-    border-radius: 8px;
+    border-radius: 10px;
+    padding: 6px;
+    margin: 10px 0;
+  }
+
+  .how-to-play-example p {
+    margin: 2px 0;
+    color: #333;
+    font-size: 1em;
   }
 
   .how-to-play-word-grid {
     display: flex;
     gap: 4px;
     margin-bottom: 10px;
+    perspective: 1000px;
   }
 
   .how-to-play-cell {
@@ -1916,35 +1923,43 @@
     border: 2px solid #333;
     border-radius: 4px;
     font-weight: bold;
-    font-size: 20px;
+    font-size: 1.5em;
     font-family: Arial, sans-serif;
     background-color: white;
     color: #000;
+    transform-style: preserve-3d;
+  }
+
+  .how-to-play-cell.flip {
+    animation: howToPlayFlip 0.8s ease-in-out;
+  }
+
+  @keyframes howToPlayFlip {
+    0% { transform: rotateX(0); }
+    50% { transform: rotateX(-90deg); }
+    100% { transform: rotateX(0); }
   }
 
   .how-to-play-cell.correct {
     background-color: #7BAFD4;
     color: white;
-    border-color: #7BAFD4;
   }
 
   .how-to-play-cell.present {
     background-color: #c9b458;
     color: white;
-    border-color: #c9b458;
   }
 
   .how-to-play-cell.absent {
     background-color: #001A57;
     color: white;
-    border-color: #001A57;
   }
 
   .how-to-play-example-text {
-    font-family: 'PT Serif', sans-serif;
-    font-size: 14px;
+    font-family: Arial, sans-serif;
+    margin: 2px 0;
     color: #333;
-    margin: 5px 0 0 0;
+    font-size: 1em;
   }
 
   .how-to-play-example-text b {
@@ -2000,17 +2015,17 @@
       </ul>
       <h2 class="how-to-play-examples-title">Examples</h2>
       <div class="how-to-play-example">
-        <div class="how-to-play-word-grid">
-          <div class="how-to-play-cell correct">M</div>
+        <div class="how-to-play-word-grid" id="example1-grid">
+          <div class="how-to-play-cell" data-color="correct">M</div>
           <div class="how-to-play-cell">A</div>
           <div class="how-to-play-cell">W</div>
         </div>
         <p class="how-to-play-example-text"><b>M</b> is in the word and in the correct spot.</p>
       </div>
       <div class="how-to-play-example">
-        <div class="how-to-play-word-grid">
+        <div class="how-to-play-word-grid" id="example2-grid">
           <div class="how-to-play-cell">D</div>
-          <div class="how-to-play-cell present">A</div>
+          <div class="how-to-play-cell" data-color="present">A</div>
           <div class="how-to-play-cell">V</div>
           <div class="how-to-play-cell">I</div>
           <div class="how-to-play-cell">S</div>
@@ -2018,10 +2033,10 @@
         <p class="how-to-play-example-text"><b>A</b> is in the word but in the wrong spot.</p>
       </div>
       <div class="how-to-play-example">
-        <div class="how-to-play-word-grid">
+        <div class="how-to-play-word-grid" id="example3-grid">
           <div class="how-to-play-cell">L</div>
           <div class="how-to-play-cell">E</div>
-          <div class="how-to-play-cell absent">N</div>
+          <div class="how-to-play-cell" data-color="absent">N</div>
           <div class="how-to-play-cell">O</div>
           <div class="how-to-play-cell">I</div>
           <div class="how-to-play-cell">R</div>
