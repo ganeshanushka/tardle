@@ -2775,22 +2775,46 @@
                       const currentUser = window.firebaseAuth.currentUser;
                       if (currentUser) {
                         userFound = true;
-                        // User is logged in, update button to "LOG OUT" and show How to Play popup (same as question mark)
+                        // User is logged in - show PROFILE section and "LOG OUT" button
                         const logoutButton = document.getElementById('logoutButton');
+                        const logoutButtonContainer = document.getElementById('logoutButtonContainer');
+                        const profileSection = document.getElementById('profileSection');
+                        
+                        if (profileSection) {
+                          profileSection.style.display = 'block';
+                        }
+                        if (logoutButtonContainer) {
+                          logoutButtonContainer.style.display = 'flex';
+                        }
                         if (logoutButton) {
                           logoutButton.textContent = 'LOG OUT';
                         }
-                        // Show the same popup that appears when clicking the question mark button
-                        handleHelpClick();
+                        // Show the same popup that appears when clicking the question mark button after 150ms
+                        setTimeout(() => {
+                          handleHelpClick();
+                        }, 150);
                       } else {
-                        // User is not logged in - show login prompt after 150ms
+                        // User is not logged in - hide PROFILE section and show login prompt after 150ms
+                        const logoutButtonContainer = document.getElementById('logoutButtonContainer');
+                        const profileSection = document.getElementById('profileSection');
+                        
+                        if (profileSection) {
+                          profileSection.style.display = 'none';
+                        }
+                        if (logoutButtonContainer) {
+                          logoutButtonContainer.style.display = 'none';
+                        }
                         if (!userFound && !loginPromptShown) {
-                          showLoginPrompt();
-                          loginPromptShown = true;
-                          const logoutButton = document.getElementById('logoutButton');
-                          if (logoutButton) {
-                            logoutButton.textContent = 'LOG IN';
-                          }
+                          setTimeout(() => {
+                            if (!userFound && !loginPromptShown) {
+                              showLoginPrompt();
+                              loginPromptShown = true;
+                              const logoutButton = document.getElementById('logoutButton');
+                              if (logoutButton) {
+                                logoutButton.textContent = 'LOG IN';
+                              }
+                            }
+                          }, 150);
                         }
                       }
                     }, 150);
