@@ -7,16 +7,25 @@
 <style>
   body, html {
     height: 100%;
+    width: 100%;
     display: flex;
     justify-content: center;
-    padding-top: 7.5%; 
+    align-items: center;
+    padding-top: 0;
+    margin: 0;
+    overflow: hidden;
     background-color:#7BAFD4; 
     font-family: 'PT Serif', sans-serif; 
     font-weight: bold;
+    position: relative;
   }
 
   .custom-grid-logo {
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
 
   .custom-grid-outline {
@@ -78,10 +87,14 @@
 }
 
 .footer-info {
-  margin-top: 2em; 
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
   font-weight: normal;
   color: white;
   text-align: center;
+  width: 100%;
 }
 
 .footer-info p {
@@ -91,12 +104,12 @@
 }
 
 .footer-disclaimer {
-  font-size: 1em;
+  font-size: 0.75em;
   color: white;
   margin-top: 0.3em;
   text-align: center;
   font-weight: normal;
-  font-style: normal;
+  font-style: italic;
 }
 
 /* Login prompt modal */
