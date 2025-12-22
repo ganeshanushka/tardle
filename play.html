@@ -2873,13 +2873,19 @@
                             handleHelpClick();
                           }, 150);
                         } else {
-                          // User is not logged in - hide PROFILE section and "LOG OUT" button
-                          if (profileSection) {
-                            profileSection.style.display = 'none';
-                          }
-                          if (logoutButtonContainer) {
-                            logoutButtonContainer.style.display = 'none';
-                          }
+                    // User is not logged in - hide PROFILE section
+                    if (profileSection) {
+                      profileSection.style.display = 'none';
+                    }
+                    // Keep logout button container visible but change text to LOG IN
+                    if (logoutButtonContainer) {
+                      const sidePanel = document.getElementById('sidePanel');
+                      if (sidePanel && sidePanel.classList.contains('open')) {
+                        logoutButtonContainer.style.display = 'flex';
+                      } else {
+                        logoutButtonContainer.style.display = '';
+                      }
+                    }
                           if (!userFound && !loginPromptShown) {
                             // Show login prompt after 150ms
                             setTimeout(() => {
