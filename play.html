@@ -2755,13 +2755,13 @@
                       
                       if (currentUser) {
                         userFound = true;
-                        // User is logged in, update button to "LOG OUT" and show How to Play popup
+                        // User is logged in, update button to "LOG OUT" and show How to Play popup (same as question mark)
                         const logoutButton = document.getElementById('logoutButton');
                         if (logoutButton) {
                           logoutButton.textContent = 'LOG OUT';
                         }
-                        // Show How to Play popup for logged in users
-                        showHowToPlay();
+                        // Show the same popup that appears when clicking the question mark button
+                        handleHelpClick();
                         return; // User found, stop checking
                       }
                       
@@ -2787,12 +2787,12 @@
                         const logoutButton = document.getElementById('logoutButton');
                         if (user) {
                           userFound = true;
-                          // User is logged in, update button to "LOG OUT" and show How to Play popup
+                          // User is logged in, update button to "LOG OUT" and show How to Play popup (same as question mark)
                           if (logoutButton) {
                             logoutButton.textContent = 'LOG OUT';
                           }
-                          // Show How to Play popup for logged in users
-                          showHowToPlay();
+                          // Show the same popup that appears when clicking the question mark button
+                          handleHelpClick();
                         } else if (!userFound && checkCount >= maxChecks) {
                           // Only show prompt if we've waited long enough
                           showLoginPrompt();
