@@ -111,6 +111,40 @@
     margin-bottom: 15px;
   }
 
+  .table-of-contents {
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: #f7f7f7;
+    border-radius: 4px;
+  }
+
+  .table-of-contents-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #1a1a1a;
+  }
+
+  .table-of-contents ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .table-of-contents li {
+    margin-bottom: 10px;
+  }
+
+  .table-of-contents a {
+    color: #7BAFD4;
+    text-decoration: none;
+    font-size: 16px;
+  }
+
+  .table-of-contents a:hover {
+    text-decoration: underline;
+  }
+
   .return-link {
     color: #333;
     text-decoration: none;
@@ -137,7 +171,18 @@
 <div class="container">
   <div class="header-tile-grid" id="headerTiles"></div>
   
-  <div class="section-title">What information we collect</div>
+  <div class="table-of-contents">
+    <div class="table-of-contents-title">Table of Contents</div>
+    <ul>
+      <li><a href="#what-we-collect">What information we collect</a></li>
+      <li><a href="#how-we-use">How we use your information</a></li>
+      <li><a href="#data-sharing">Data sharing</a></li>
+      <li><a href="#data-storage">Data storage & security</a></li>
+      <li><a href="#children-privacy">Children's privacy</a></li>
+    </ul>
+  </div>
+  
+  <div class="section-title" id="what-we-collect">What information we collect</div>
   <div class="section-content">
     <p>Depending on how you use the game, we may collect:</p>
     <p>• Email address (only if you choose to sign up)</p>
@@ -146,7 +191,7 @@
     <p>You can play the game without creating an account.</p>
   </div>
 
-  <div class="section-title">How we use your information</div>
+  <div class="section-title" id="how-we-use">How we use your information</div>
   <div class="section-content">
     <p>We use the information we collect to:</p>
     <p>• Save your game progress and preferences</p>
@@ -154,19 +199,19 @@
     <p>• Maintain, improve, and secure the game</p>
   </div>
 
-  <div class="section-title">Data sharing</div>
+  <div class="section-title" id="data-sharing">Data sharing</div>
   <div class="section-content">
     <p>We do not sell or rent your personal information.</p>
     <p>Your data may be processed by trusted service providers (such as Google Firebase) solely to operate and maintain the game.</p>
   </div>
 
-  <div class="section-title">Data storage & security</div>
+  <div class="section-title" id="data-storage">Data storage & security</div>
   <div class="section-content">
     <p>Data is stored securely using Google Firebase.</p>
     <p>We take reasonable steps to protect your information, but no system is completely secure.</p>
   </div>
 
-  <div class="section-title">Children's privacy</div>
+  <div class="section-title" id="children-privacy">Children's privacy</div>
   <div class="section-content">
     <p>This game is not intended for children under the age of 13.</p>
     <p>We do not knowingly collect personal information from children.</p>
