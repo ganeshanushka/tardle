@@ -195,6 +195,182 @@
 .login-prompt-button:hover {
   background-color: #f5f5f5;
 }
+
+/* How to Play Modal */
+#howToPlayModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 2001;
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+
+#howToPlayModal.show {
+  display: flex;
+}
+
+.how-to-play-content {
+  background-color: white;
+  border-radius: 8px;
+  padding: 30px 40px 40px 40px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  box-sizing: border-box;
+}
+
+.how-to-play-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #7BAFD4;
+  cursor: pointer;
+  background: white;
+  border: none;
+  padding: 5px 10px;
+  line-height: 1;
+  border-radius: 4px;
+  transition: opacity 0.2s ease;
+}
+
+.how-to-play-close:hover {
+  opacity: 0.7;
+}
+
+.how-to-play-title {
+  font-family: 'PT Serif', sans-serif;
+  font-size: 32px;
+  font-weight: bold;
+  color: #000;
+  margin: 0 0 15px 0;
+}
+
+.how-to-play-text {
+  font-family: 'PT Serif', sans-serif;
+  font-size: 18px;
+  color: #000;
+  margin: 0 0 20px 0;
+  line-height: 1.4;
+}
+
+.how-to-play-list {
+  font-family: 'PT Serif', sans-serif;
+  font-size: 16px;
+  color: #000;
+  margin: 0 0 25px 0;
+  padding-left: 20px;
+  line-height: 1.6;
+}
+
+.how-to-play-list li {
+  margin-bottom: 8px;
+}
+
+.how-to-play-examples-title {
+  font-family: 'PT Serif', sans-serif;
+  font-size: 20px;
+  font-weight: bold;
+  color: #000;
+  margin: 25px 0 15px 0;
+}
+
+.how-to-play-example {
+  margin: 15px 0;
+  padding: 10px;
+  background-color: #ffffff;
+  border-radius: 8px;
+}
+
+.how-to-play-word-grid {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.how-to-play-cell {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid #333;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.how-to-play-cell.correct {
+  background-color: #7BAFD4;
+  color: white;
+  border-color: #7BAFD4;
+}
+
+.how-to-play-cell.present {
+  background-color: #c9b458;
+  color: white;
+  border-color: #c9b458;
+}
+
+.how-to-play-cell.absent {
+  background-color: #787c7e;
+  color: white;
+  border-color: #787c7e;
+}
+
+.how-to-play-example-text {
+  font-family: 'PT Serif', sans-serif;
+  font-size: 14px;
+  color: #333;
+  margin: 5px 0 0 0;
+}
+
+.how-to-play-example-text b {
+  font-weight: bold;
+}
+
+.how-to-play-footer {
+  font-family: 'PT Serif', sans-serif;
+  font-size: 14px;
+  color: #000;
+  margin-top: 25px;
+  line-height: 1.5;
+}
+
+.how-to-play-footer a {
+  color: #7BAFD4;
+  text-decoration: underline;
+}
+
+.how-to-play-button {
+  width: 100%;
+  padding: 14px 24px;
+  background-color: #7BAFD4;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-family: 'PT Serif', sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-top: 20px;
+}
+
+.how-to-play-button:hover {
+  background-color: #6a9fc0;
+}
 </style>
 </head>
 
@@ -234,6 +410,54 @@
     <h2 class="login-prompt-heading">Make a Tardle account if you hate Duke!</h2>
     <p class="login-prompt-text">(It's free, and you'll never lose a streak again)</p>
     <a href="login.html" class="login-prompt-button">Log in or create an account</a>
+  </div>
+</div>
+
+<!-- How to Play Modal -->
+<div id="howToPlayModal">
+  <div class="how-to-play-content">
+    <button class="how-to-play-close" onclick="closeHowToPlay()">×</button>
+    <h1 class="how-to-play-title">How To Play</h1>
+    <p class="how-to-play-text">Guess the Wordle in 6 tries.</p>
+    <ul class="how-to-play-list">
+      <li>Each guess must be a valid 5-letter word.</li>
+      <li>The color of the tiles will change to show how close your guess was to the word.</li>
+    </ul>
+    <h2 class="how-to-play-examples-title">Examples</h2>
+    <div class="how-to-play-example">
+      <div class="how-to-play-word-grid">
+        <div class="how-to-play-cell correct">W</div>
+        <div class="how-to-play-cell">O</div>
+        <div class="how-to-play-cell">R</div>
+        <div class="how-to-play-cell">D</div>
+        <div class="how-to-play-cell">Y</div>
+      </div>
+      <p class="how-to-play-example-text"><b>W</b> is in the word and in the correct spot.</p>
+    </div>
+    <div class="how-to-play-example">
+      <div class="how-to-play-word-grid">
+        <div class="how-to-play-cell">L</div>
+        <div class="how-to-play-cell present">I</div>
+        <div class="how-to-play-cell">G</div>
+        <div class="how-to-play-cell">H</div>
+        <div class="how-to-play-cell">T</div>
+      </div>
+      <p class="how-to-play-example-text"><b>I</b> is in the word but in the wrong spot.</p>
+    </div>
+    <div class="how-to-play-example">
+      <div class="how-to-play-word-grid">
+        <div class="how-to-play-cell">R</div>
+        <div class="how-to-play-cell">O</div>
+        <div class="how-to-play-cell">G</div>
+        <div class="how-to-play-cell absent">U</div>
+        <div class="how-to-play-cell">E</div>
+      </div>
+      <p class="how-to-play-example-text"><b>U</b> is not in the word in any spot.</p>
+    </div>
+    <p class="how-to-play-footer">
+      A new puzzle is released daily at midnight. If you haven't already, you can <a href="reminder.html">sign up</a> for our daily reminder email.
+    </p>
+    <button class="how-to-play-button" onclick="continueToPlay()">Got it!</button>
   </div>
 </div>
 <div class="footer-info">
@@ -311,9 +535,36 @@
   
   // Handle Play button click
   function handlePlayClick(e) {
-    // Always allow navigation to play.html first
-    // The popup will be shown on play.html if user is not logged in
-    // Don't prevent default - let the link work normally
+    e.preventDefault();
+    showHowToPlay();
+  }
+  
+  function showHowToPlay() {
+    const modal = document.getElementById('howToPlayModal');
+    if (modal) {
+      modal.style.display = 'flex';
+      setTimeout(() => {
+        modal.classList.add('show');
+      }, 10);
+    }
+  }
+  
+  function closeHowToPlay() {
+    const modal = document.getElementById('howToPlayModal');
+    if (modal) {
+      modal.classList.remove('show');
+      setTimeout(() => {
+        modal.style.display = 'none';
+      }, 300);
+    }
+  }
+  
+  function continueToPlay() {
+    closeHowToPlay();
+    // Navigate to play.html after a brief delay to allow modal to close
+    setTimeout(() => {
+      window.location.href = 'play.html';
+    }, 300);
   }
   
   // Attach click handler to Play button
@@ -324,11 +575,21 @@
     }
     
     // Close modal when clicking outside
-    const modal = document.getElementById('loginPromptModal');
-    if (modal) {
-      modal.addEventListener('click', function(e) {
-        if (e.target === modal) {
+    const loginModal = document.getElementById('loginPromptModal');
+    if (loginModal) {
+      loginModal.addEventListener('click', function(e) {
+        if (e.target === loginModal) {
           closeLoginPrompt();
+        }
+      });
+    }
+    
+    // Close How to Play modal when clicking outside
+    const howToPlayModal = document.getElementById('howToPlayModal');
+    if (howToPlayModal) {
+      howToPlayModal.addEventListener('click', function(e) {
+        if (e.target === howToPlayModal) {
+          closeHowToPlay();
         }
       });
     }
