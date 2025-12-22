@@ -2072,6 +2072,8 @@
           <div class="side-panel-greeting-text">Hello, <span id="userGreetingName"></span></div>
         </div>
         
+        <div class="side-panel-divider" id="privacySettingsDivider" style="display: none;"></div>
+        
         <div class="side-panel-section">
           <div class="side-panel-section-title">PRIVACY SETTINGS</div>
           <a href="privacy-policy.html" class="side-panel-link">Privacy & Cookie Policy</a>
@@ -2817,6 +2819,10 @@
                         if (profileDivider) {
                           profileDivider.style.display = 'block';
                         }
+                        const privacySettingsDivider = document.getElementById('privacySettingsDivider');
+                        if (privacySettingsDivider) {
+                          privacySettingsDivider.style.display = 'none';
+                        }
                         if (logoutButtonContainer) {
                           const sidePanel = document.getElementById('sidePanel');
                           if (sidePanel && sidePanel.classList.contains('open')) {
@@ -2901,6 +2907,10 @@
                           const profileDivider = document.getElementById('profileDivider');
                           if (profileDivider) {
                             profileDivider.style.display = 'none';
+                          }
+                          const privacySettingsDivider = document.getElementById('privacySettingsDivider');
+                          if (privacySettingsDivider) {
+                            privacySettingsDivider.style.display = 'block';
                           }
                           // Keep logout button container visible but change text to LOG IN
                           if (logoutButtonContainer) {
