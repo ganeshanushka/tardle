@@ -2810,9 +2810,34 @@
 
           // Initialize greeting and check when page loads
           updateUserGreeting();
+          
+          // Check auth state and show appropriate popup
+          function checkAuthAndShowPopup() {
+            // Wait for Firebase to initialize
+            const checkFirebase = setInterval(() => {
+              if (window.firebaseAuth && window.firebaseAuthFunctions) {
+                clearInterval(checkFirebase);
+                
+                // Wait a bit for auth state to restore
+                setTimeout(() => {
+                  const currentUser = window.firebaseAuth.currentUser;
+                  
+                  if (currentUser) {
+                    // User is logged in - show How to Play popup
+                    showHowToPlay();
+                  } else {
+                    // User is NOT logged in - show login prompt
+                    showLoginPrompt();
+                  }
+                }, 500);
+              }
+            }, 100);
+          }
+          
           checkLoginOnPageLoad();
+          checkAuthAndShowPopup();
 
-          // Show How to Play modal on page load (every time)
+          // Show How to Play modal on page load (for logged in users)
           function showHowToPlay() {
             const modal = document.getElementById('howToPlayModal');
             if (modal) {
@@ -2918,9 +2943,6 @@
                 }
               });
             }
-
-            // Show How to Play modal on page load
-            showHowToPlay();
           });
         </script>
         
