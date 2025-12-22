@@ -2863,7 +2863,12 @@
                             profileSection.style.display = 'block';
                           }
                           if (logoutButtonContainer) {
-                            logoutButtonContainer.style.display = 'flex';
+                            const sidePanel = document.getElementById('sidePanel');
+                            if (sidePanel && sidePanel.classList.contains('open')) {
+                              logoutButtonContainer.style.display = 'flex';
+                            } else {
+                              logoutButtonContainer.style.display = '';
+                            }
                           }
                           if (logoutButton) {
                             logoutButton.textContent = 'LOG OUT';
@@ -2873,19 +2878,19 @@
                             handleHelpClick();
                           }, 150);
                         } else {
-                    // User is not logged in - hide PROFILE section
-                    if (profileSection) {
-                      profileSection.style.display = 'none';
-                    }
-                    // Keep logout button container visible but change text to LOG IN
-                    if (logoutButtonContainer) {
-                      const sidePanel = document.getElementById('sidePanel');
-                      if (sidePanel && sidePanel.classList.contains('open')) {
-                        logoutButtonContainer.style.display = 'flex';
-                      } else {
-                        logoutButtonContainer.style.display = '';
-                      }
-                    }
+                          // User is not logged in - hide PROFILE section
+                          if (profileSection) {
+                            profileSection.style.display = 'none';
+                          }
+                          // Keep logout button container visible but change text to LOG IN
+                          if (logoutButtonContainer) {
+                            const sidePanel = document.getElementById('sidePanel');
+                            if (sidePanel && sidePanel.classList.contains('open')) {
+                              logoutButtonContainer.style.display = 'flex';
+                            } else {
+                              logoutButtonContainer.style.display = '';
+                            }
+                          }
                           if (!userFound && !loginPromptShown) {
                             // Show login prompt after 150ms
                             setTimeout(() => {
