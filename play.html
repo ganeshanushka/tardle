@@ -2759,7 +2759,7 @@
                       // Show the same popup that appears when clicking the question mark button
                       handleHelpClick();
                     } else {
-                      // User is not logged in - show login prompt after 200ms
+                      // User is not logged in - show login prompt after 150ms
                       setTimeout(() => {
                         if (!userFound && !loginPromptShown) {
                           showLoginPrompt();
@@ -2769,7 +2769,7 @@
                             logoutButton.textContent = 'LOG IN';
                           }
                         }
-                      }, 200);
+                      }, 150);
                     }
                     
                     // Also set up onAuthStateChanged listener for real-time updates
@@ -2786,7 +2786,7 @@
                           // Show the same popup that appears when clicking the question mark button
                           handleHelpClick();
                         } else if (!userFound && !loginPromptShown) {
-                          // User is not logged in - show login prompt after 200ms
+                          // User is not logged in - show login prompt after 150ms
                           setTimeout(() => {
                             if (!userFound && !loginPromptShown) {
                               showLoginPrompt();
@@ -2796,7 +2796,7 @@
                                 logoutButton.textContent = 'LOG IN';
                               }
                             }
-                          }, 200);
+                          }, 150);
                         }
                       });
                     }
