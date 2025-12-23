@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Change email</title>
+<style>
+  body {
+    font-family: 'PT Serif', sans-serif;
+    background-color: white;
+    margin: 0;
+    padding: 0;
+    color: #1a1a1a;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .container {
+    max-width: 600px;
+    width: 100%;
+    margin: 60px auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+  }
+
+  h1 {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #1a1a1a;
+  }
+
+  .intro-text {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    color: #1a1a1a;
+  }
+
+  .intro-text strong {
+    font-weight: bold;
+  }
+
+  .form-group {
+    margin-bottom: 24px;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #1a1a1a;
+  }
+
+  .form-group input {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-family: 'PT Serif', sans-serif;
+  }
+
+  .form-group input:focus {
+    outline: none;
+    border-color: #7BAFD4;
+  }
+
+  .button-container {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin-top: 30px;
+  }
+
+  .save-button {
+    background-color: #000;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'PT Serif', sans-serif;
+    transition: background-color 0.2s ease;
+  }
+
+  .save-button:hover {
+    background-color: #333;
+  }
+
+  .save-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+
+  .return-link {
+    color: #333;
+    text-decoration: underline;
+    font-size: 16px;
+  }
+
+  .return-link:hover {
+    color: #000;
+  }
+
+  .forgot-password-link {
+    color: #333;
+    text-decoration: underline;
+    font-size: 16px;
+    margin-left: auto;
+  }
+
+  .forgot-password-link:hover {
+    color: #000;
+  }
+
+  .error-message {
+    color: #d32f2f;
+    font-size: 14px;
+    margin-top: 10px;
+    display: none;
+  }
+
+  .error-message.show {
+    display: block;
+  }
+
+  .success-message {
+    color: #2e7d32;
+    font-size: 14px;
+    margin-top: 10px;
+    display: none;
+  }
+
+  .success-message.show {
+    display: block;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Change email</h1>
+  
+  <div class="intro-text">
+    You're currently logged in with <strong id="currentEmail">Loading...</strong>. By clicking "Save" below, you consent to continue receiving at your new email address any newsletters and promotions we have been sending to your current email address, along with account updates, notifications and all other emails.
+  </div>
+
+  <form id="changeEmailForm">
+    <div class="form-group">
+      <label for="newEmail">New email</label>
+      <input type="email" id="newEmail" name="newEmail" placeholder="Enter email" required>
+    </div>
+
+    <div class="form-group">
+      <label for="password">Your password</label>
+      <input type="password" id="password" name="password" placeholder="Enter password" required>
+    </div>
+
+    <div class="error-message" id="errorMessage"></div>
+    <div class="success-message" id="successMessage"></div>
+
+    <div class="button-container">
+      <button type="submit" class="save-button" id="saveButton">Save</button>
+      <a href="account-details.html" class="return-link">Return to account</a>
+      <a href="#" class="forgot-password-link" id="forgotPasswordLink">Forgot password</a>
+    </div>
+  </form>
+</div>
+
+<!-- Firebase Config -->
+<script type="module" src="firebase-config.js"></script>
+
+<script>
+  // Get current user email and display it
+  let currentUser = null;
+  let userEmail = '';
+
+  // Wait for Firebase to load
+  const checkFirebase = setInterval(() => {
+    if (window.firebaseAuth && window.firebaseAuthFunctions) {
+      clearInterval(checkFirebase);
+      
+      // Set up listener for auth state changes
+      window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, (user) => {
+        if (user) {
+          currentUser = user;
+          userEmail = user.email || '';
+          const currentEmailEl = document.getElementById('currentEmail');
+          if (currentEmailEl) {
+            currentEmailEl.textContent = userEmail;
+          }
+        } else {
+          // User is not logged in - redirect to login
+          window.location.href = 'login.html?return=' + encodeURIComponent('change-email.html');
+        }
+      });
+      
+      // Wait for Firebase to restore the session
+      setTimeout(() => {
+        if (!window.firebaseAuth.currentUser) {
+          window.location.href = 'login.html?return=' + encodeURIComponent('change-email.html');
+        }
+      }, 1500);
+    }
+  }, 100);
+
+  // Handle form submission
+  document.getElementById('changeEmailForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const newEmail = document.getElementById('newEmail').value;
+    const password = document.getElementById('password').value;
+    const errorMessage = document.getElementById('errorMessage');
+    const successMessage = document.getElementById('successMessage');
+    const saveButton = document.getElementById('saveButton');
+    
+    // Clear previous messages
+    errorMessage.classList.remove('show');
+    successMessage.classList.remove('show');
+    
+    if (!newEmail || !password) {
+      errorMessage.textContent = 'Please fill in all fields.';
+      errorMessage.classList.add('show');
+      return;
+    }
+    
+    if (!currentUser) {
+      errorMessage.textContent = 'You must be logged in to change your email.';
+      errorMessage.classList.add('show');
+      return;
+    }
+    
+    // Disable button and show loading state
+    saveButton.disabled = true;
+    saveButton.textContent = 'Saving...';
+    
+    try {
+      // Re-authenticate user first
+      const credential = window.firebaseAuthFunctions.EmailAuthProvider.credential(
+        currentUser.email,
+        password
+      );
+      
+      await window.firebaseAuthFunctions.reauthenticateWithCredential(currentUser, credential);
+      
+      // Update email
+      await window.firebaseAuthFunctions.updateEmail(currentUser, newEmail);
+      
+      // Update email in Firestore if document exists
+      if (window.firebaseDb && window.firebaseFirestoreFunctions) {
+        try {
+          const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
+          await window.firebaseFirestoreFunctions.updateDoc(userDocRef, {
+            email: newEmail
+          });
+        } catch (firestoreError) {
+          console.warn('Could not update email in Firestore:', firestoreError);
+          // Continue even if Firestore update fails
+        }
+      }
+      
+      // Show success message
+      successMessage.textContent = 'Email updated successfully!';
+      successMessage.classList.add('show');
+      
+      // Redirect to account details after a short delay
+      setTimeout(() => {
+        window.location.href = 'account-details.html';
+      }, 1500);
+      
+    } catch (error) {
+      console.error('Error changing email:', error);
+      
+      let errorMsg = 'An error occurred while changing your email. Please try again.';
+      
+      if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+        errorMsg = 'Wrong password. Try again.';
+      } else if (error.code === 'auth/email-already-in-use') {
+        errorMsg = 'This email is already in use by another account.';
+      } else if (error.code === 'auth/invalid-email') {
+        errorMsg = 'Please enter a valid email address.';
+      } else if (error.code === 'auth/requires-recent-login') {
+        errorMsg = 'For security reasons, please log out and log back in, then try again.';
+      } else if (error.message) {
+        errorMsg = error.message;
+      }
+      
+      errorMessage.textContent = errorMsg;
+      errorMessage.classList.add('show');
+      
+      // Clear password field
+      document.getElementById('password').value = '';
+      document.getElementById('password').focus();
+    } finally {
+      saveButton.disabled = false;
+      saveButton.textContent = 'Save';
+    }
+  });
+
+  // Handle forgot password link
+  document.getElementById('forgotPasswordLink').addEventListener('click', function(e) {
+    e.preventDefault();
+    // TODO: Implement forgot password functionality
+    alert('Forgot password functionality coming soon!');
+  });
+</script>
+
+</body>
+</html>
