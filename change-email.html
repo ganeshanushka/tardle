@@ -381,7 +381,9 @@
       passwordInput.classList.remove('error');
       
       // Handle password-related errors
-      if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+      if (error.code === 'auth/wrong-password' || 
+          error.code === 'auth/invalid-credential' || 
+          error.code === 'auth/invalid-login-credentials') {
         passwordErrorText.textContent = 'This password doesn\'t match our records.';
         passwordError.classList.add('show');
         passwordInput.classList.add('error');
