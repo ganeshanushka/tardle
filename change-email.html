@@ -188,7 +188,7 @@
       <input type="email" id="newEmail" name="newEmail" placeholder="Enter email">
       <div class="error-message" id="emailError">
         <div class="error-icon"></div>
-        <span id="emailErrorText">The email address you entered is already associated with this account. Please enter a different email address.</span>
+        <span id="emailErrorText"></span>
       </div>
     </div>
 
@@ -273,6 +273,8 @@
     successMessage.classList.remove('show');
     newEmailInput.classList.remove('error');
     passwordInput.classList.remove('error');
+    // Clear error text content
+    emailErrorText.textContent = '';
     
     if (!currentUser) {
       errorMessage.textContent = 'You must be logged in to change your email.';
