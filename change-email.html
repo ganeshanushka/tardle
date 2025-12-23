@@ -284,13 +284,6 @@
       return;
     }
     
-    // Check if email is verified (Firebase often requires this)
-    if (currentUser.emailVerified === false) {
-      errorMessage.textContent = 'Please verify your email address before changing it. Check your inbox for a verification email.';
-      errorMessage.classList.add('show');
-      return;
-    }
-    
     // Check if email is missing
     if (!newEmail || newEmail.trim() === '') {
       emailErrorText.textContent = 'Please enter a new email address.';
