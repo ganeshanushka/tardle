@@ -139,10 +139,39 @@
     font-size: 14px;
     margin-top: 10px;
     display: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
 
   .error-message.show {
-    display: block;
+    display: flex;
+  }
+
+  .error-icon {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: #d32f2f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .error-icon::before {
+    content: '!';
+    color: white;
+    font-weight: bold;
+    font-size: 12px;
+  }
+
+  .form-group .error-message {
+    margin-top: 8px;
+  }
+
+  .form-group input.error {
+    border-color: #d32f2f;
   }
 
   .success-message {
@@ -173,6 +202,10 @@
     <div class="form-group">
       <label for="newEmail">New email</label>
       <input type="email" id="newEmail" name="newEmail" placeholder="Enter email" required>
+      <div class="error-message" id="emailError">
+        <div class="error-icon"></div>
+        <span>The email address you entered is already associated with this account. Please enter a different email address.</span>
+      </div>
     </div>
 
     <div class="form-group">
@@ -257,12 +290,16 @@
     const newEmail = document.getElementById('newEmail').value;
     const password = document.getElementById('password').value;
     const errorMessage = document.getElementById('errorMessage');
+    const emailError = document.getElementById('emailError');
     const successMessage = document.getElementById('successMessage');
     const saveButton = document.getElementById('saveButton');
+    const newEmailInput = document.getElementById('newEmail');
     
     // Clear previous messages
     errorMessage.classList.remove('show');
+    emailError.classList.remove('show');
     successMessage.classList.remove('show');
+    newEmailInput.classList.remove('error');
     
     if (!newEmail || !password) {
       errorMessage.textContent = 'Please fill in all fields.';
@@ -273,6 +310,14 @@
     if (!currentUser) {
       errorMessage.textContent = 'You must be logged in to change your email.';
       errorMessage.classList.add('show');
+      return;
+    }
+    
+    // Check if new email is the same as current email
+    if (newEmail.toLowerCase() === userEmail.toLowerCase()) {
+      emailError.classList.add('show');
+      newEmailInput.classList.add('error');
+      newEmailInput.focus();
       return;
     }
     
