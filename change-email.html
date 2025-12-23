@@ -197,7 +197,7 @@
       <input type="password" id="password" name="password" placeholder="Enter password">
       <div class="error-message password-error" id="passwordError">
         <div class="error-icon"></div>
-        <span>Please enter a password.</span>
+        <span id="passwordErrorText">Please enter a password.</span>
       </div>
     </div>
 
@@ -261,6 +261,7 @@
     const emailError = document.getElementById('emailError');
     const emailErrorText = document.getElementById('emailErrorText');
     const passwordError = document.getElementById('passwordError');
+    const passwordErrorText = document.getElementById('passwordErrorText');
     const successMessage = document.getElementById('successMessage');
     const saveButton = document.getElementById('saveButton');
     const newEmailInput = document.getElementById('newEmail');
@@ -275,6 +276,7 @@
     passwordInput.classList.remove('error');
     // Clear error text content
     emailErrorText.textContent = '';
+    passwordErrorText.textContent = '';
     
     if (!currentUser) {
       errorMessage.textContent = 'You must be logged in to change your email.';
@@ -301,6 +303,15 @@
       return;
     }
     
+    // Check email length (NYT standard: 64 characters max)
+    if (newEmail.length > 64) {
+      emailErrorText.textContent = 'Email address is too long. Please enter an email address that is 64 characters or less.';
+      emailError.classList.add('show');
+      newEmailInput.classList.add('error');
+      newEmailInput.focus();
+      return;
+    }
+    
     // Check if new email is the same as current email
     if (newEmail.toLowerCase() === userEmail.toLowerCase()) {
       emailErrorText.textContent = 'The email address you entered is already associated with this account. Please enter a different email address.';
@@ -312,6 +323,7 @@
     
     // Check if password is missing
     if (!password || password.trim() === '') {
+      passwordErrorText.textContent = 'Please enter a password.';
       passwordError.classList.add('show');
       passwordInput.classList.add('error');
       passwordInput.focus();
@@ -359,26 +371,89 @@
     } catch (error) {
       console.error('Error changing email:', error);
       
-      let errorMsg = 'An error occurred while changing your email. Please try again.';
+      // Clear previous error messages
+      emailError.classList.remove('show');
+      passwordError.classList.remove('show');
+      errorMessage.classList.remove('show');
+      newEmailInput.classList.remove('error');
+      passwordInput.classList.remove('error');
       
+      // Handle password-related errors
       if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-        errorMsg = 'Wrong password. Try again.';
-      } else if (error.code === 'auth/email-already-in-use') {
-        errorMsg = 'This email is already in use by another account.';
-      } else if (error.code === 'auth/invalid-email') {
-        errorMsg = 'Please enter a valid email address.';
-      } else if (error.code === 'auth/requires-recent-login') {
-        errorMsg = 'For security reasons, please log out and log back in, then try again.';
-      } else if (error.message) {
-        errorMsg = error.message;
+        passwordErrorText.textContent = 'Wrong password. Try again.';
+        passwordError.classList.add('show');
+        passwordInput.classList.add('error');
+        passwordInput.value = '';
+        passwordInput.focus();
+        return;
       }
       
+      // Handle email-related errors
+      if (error.code === 'auth/email-already-in-use') {
+        emailErrorText.textContent = 'This email is already in use by another account.';
+        emailError.classList.add('show');
+        newEmailInput.classList.add('error');
+        newEmailInput.focus();
+        return;
+      }
+      
+      if (error.code === 'auth/invalid-email') {
+        emailErrorText.textContent = 'Please enter a valid email address.';
+        emailError.classList.add('show');
+        newEmailInput.classList.add('error');
+        newEmailInput.focus();
+        return;
+      }
+      
+      if (error.code === 'auth/weak-password') {
+        passwordErrorText.textContent = 'Password is too weak. Please use a stronger password.';
+        passwordError.classList.add('show');
+        passwordInput.classList.add('error');
+        passwordInput.focus();
+        return;
+      }
+      
+      if (error.code === 'auth/requires-recent-login') {
+        errorMessage.textContent = 'For security reasons, please log out and log back in, then try again.';
+        errorMessage.classList.add('show');
+        return;
+      }
+      
+      if (error.code === 'auth/network-request-failed') {
+        errorMessage.textContent = 'Network error. Please check your connection and try again.';
+        errorMessage.classList.add('show');
+        return;
+      }
+      
+      if (error.code === 'auth/too-many-requests') {
+        errorMessage.textContent = 'Too many attempts. Please try again later.';
+        errorMessage.classList.add('show');
+        return;
+      }
+      
+      if (error.code === 'auth/user-disabled') {
+        errorMessage.textContent = 'This account has been disabled. Please contact support.';
+        errorMessage.classList.add('show');
+        return;
+      }
+      
+      if (error.code === 'auth/operation-not-allowed') {
+        errorMessage.textContent = 'Email change is not allowed. Please contact support.';
+        errorMessage.classList.add('show');
+        return;
+      }
+      
+      // Generic error message
+      let errorMsg = 'An error occurred while changing your email. Please try again.';
+      if (error.message) {
+        errorMsg = error.message;
+      }
       errorMessage.textContent = errorMsg;
       errorMessage.classList.add('show');
       
       // Clear password field
-      document.getElementById('password').value = '';
-      document.getElementById('password').focus();
+      passwordInput.value = '';
+      passwordInput.focus();
     } finally {
       saveButton.disabled = false;
       saveButton.textContent = 'Save';
