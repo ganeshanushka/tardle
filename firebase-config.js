@@ -11,7 +11,7 @@ const firebaseConfig = {
 
 // Import Firebase functions
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, fetchSignInMethodsForEmail, signOut, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, fetchSignInMethodsForEmail, signOut, reauthenticateWithCredential, EmailAuthProvider, updateEmail } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, serverTimestamp, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
 
 // Initialize Firebase
@@ -31,7 +31,8 @@ window.firebaseAuthFunctions = {
   fetchSignInMethodsForEmail,
   signOut,
   reauthenticateWithCredential,
-  EmailAuthProvider
+  EmailAuthProvider,
+  updateEmail
 };
 window.firebaseFirestoreFunctions = {
   doc,
