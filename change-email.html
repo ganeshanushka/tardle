@@ -203,7 +203,7 @@
       <input type="email" id="newEmail" name="newEmail" placeholder="Enter email" required>
       <div class="error-message" id="emailError">
         <div class="error-icon"></div>
-        <span>The email address you entered is already associated with this account. Please enter a different email address.</span>
+        <span id="emailErrorText">The email address you entered is already associated with this account. Please enter a different email address.</span>
       </div>
     </div>
 
@@ -290,6 +290,7 @@
     const password = document.getElementById('password').value;
     const errorMessage = document.getElementById('errorMessage');
     const emailError = document.getElementById('emailError');
+    const emailErrorText = document.getElementById('emailErrorText');
     const successMessage = document.getElementById('successMessage');
     const saveButton = document.getElementById('saveButton');
     const newEmailInput = document.getElementById('newEmail');
@@ -312,8 +313,19 @@
       return;
     }
     
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newEmail)) {
+      emailErrorText.textContent = 'Please enter a valid email address.';
+      emailError.classList.add('show');
+      newEmailInput.classList.add('error');
+      newEmailInput.focus();
+      return;
+    }
+    
     // Check if new email is the same as current email
     if (newEmail.toLowerCase() === userEmail.toLowerCase()) {
+      emailErrorText.textContent = 'The email address you entered is already associated with this account. Please enter a different email address.';
       emailError.classList.add('show');
       newEmailInput.classList.add('error');
       newEmailInput.focus();
