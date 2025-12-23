@@ -173,6 +173,10 @@
     border-color: #d32f2f;
   }
 
+  .password-error {
+    margin-top: 8px;
+  }
+
   .success-message {
     color: #2e7d32;
     font-size: 14px;
@@ -210,6 +214,10 @@
     <div class="form-group">
       <label for="password">Your password</label>
       <input type="password" id="password" name="password" placeholder="Enter password" required>
+      <div class="error-message password-error" id="passwordError">
+        <div class="error-icon"></div>
+        <span>Please enter a password.</span>
+      </div>
     </div>
 
     <div class="error-message" id="errorMessage"></div>
@@ -291,21 +299,19 @@
     const errorMessage = document.getElementById('errorMessage');
     const emailError = document.getElementById('emailError');
     const emailErrorText = document.getElementById('emailErrorText');
+    const passwordError = document.getElementById('passwordError');
     const successMessage = document.getElementById('successMessage');
     const saveButton = document.getElementById('saveButton');
     const newEmailInput = document.getElementById('newEmail');
+    const passwordInput = document.getElementById('password');
     
     // Clear previous messages
     errorMessage.classList.remove('show');
     emailError.classList.remove('show');
+    passwordError.classList.remove('show');
     successMessage.classList.remove('show');
     newEmailInput.classList.remove('error');
-    
-    if (!newEmail || !password) {
-      errorMessage.textContent = 'Please fill in all fields.';
-      errorMessage.classList.add('show');
-      return;
-    }
+    passwordInput.classList.remove('error');
     
     if (!currentUser) {
       errorMessage.textContent = 'You must be logged in to change your email.';
@@ -313,9 +319,9 @@
       return;
     }
     
-    // Validate email format
+    // Validate email format first
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(newEmail)) {
+    if (newEmail && !emailRegex.test(newEmail)) {
       emailErrorText.textContent = 'Please enter a valid email address.';
       emailError.classList.add('show');
       newEmailInput.classList.add('error');
@@ -324,10 +330,26 @@
     }
     
     // Check if new email is the same as current email
-    if (newEmail.toLowerCase() === userEmail.toLowerCase()) {
+    if (newEmail && newEmail.toLowerCase() === userEmail.toLowerCase()) {
       emailErrorText.textContent = 'The email address you entered is already associated with this account. Please enter a different email address.';
       emailError.classList.add('show');
       newEmailInput.classList.add('error');
+      newEmailInput.focus();
+      return;
+    }
+    
+    // Check if password is missing
+    if (!password) {
+      passwordError.classList.add('show');
+      passwordInput.classList.add('error');
+      passwordInput.focus();
+      return;
+    }
+    
+    // Check if email is missing
+    if (!newEmail) {
+      errorMessage.textContent = 'Please enter a new email address.';
+      errorMessage.classList.add('show');
       newEmailInput.focus();
       return;
     }
