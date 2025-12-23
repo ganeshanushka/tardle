@@ -343,13 +343,19 @@
       
       await window.firebaseAuthFunctions.reauthenticateWithCredential(currentUser, credential);
       
+      // Get the refreshed user object after re-authentication
+      const refreshedUser = window.firebaseAuth.currentUser;
+      if (!refreshedUser) {
+        throw new Error('User session expired. Please log in again.');
+      }
+      
       // Update email
-      await window.firebaseAuthFunctions.updateEmail(currentUser, newEmail);
+      await window.firebaseAuthFunctions.updateEmail(refreshedUser, newEmail);
       
       // Update email in Firestore if document exists
       if (window.firebaseDb && window.firebaseFirestoreFunctions) {
         try {
-          const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
+          const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', refreshedUser.uid);
           await window.firebaseFirestoreFunctions.updateDoc(userDocRef, {
             email: newEmail
           });
@@ -442,7 +448,10 @@
       }
       
       if (error.code === 'auth/operation-not-allowed') {
-        errorMessage.textContent = 'Email change is not allowed. Please verify your email address first, or contact support if the issue persists.';
+        console.error('Operation not allowed - Full error:', error);
+        console.error('Error code:', error.code);
+        console.error('Error message:', error.message);
+        errorMessage.textContent = 'Email change is not allowed. This may be due to account security settings. Please try logging out and back in, or contact support if the issue persists.';
         errorMessage.classList.add('show');
         return;
       }
