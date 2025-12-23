@@ -247,16 +247,27 @@
     text-decoration: underline;
   }
 
-  .return-link {
-    color: #333;
-    text-decoration: none;
-    font-size: 16px;
-    padding: 12px 0;
-    display: inline-block;
+  .action-buttons {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
   }
 
-  .return-link:hover {
-    text-decoration: underline;
+  .policy-button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #7BAFD4;
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 500;
+    border: none;
+  }
+
+  .policy-button:hover {
+    background-color: #6a9bc0;
   }
 
   a {
@@ -348,7 +359,10 @@
       <p>We do not knowingly collect personal information from children.</p>
     </div>
 
-    <a href="account-details.html" class="return-link">Return to account</a>
+    <div class="action-buttons">
+      <a href="account-details.html" class="policy-button">Return to account</a>
+      <a href="play.html" class="policy-button">Return to game grid</a>
+    </div>
   </div>
 </div>
 
