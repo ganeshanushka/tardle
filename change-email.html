@@ -287,12 +287,30 @@
     // Check if email is verified (Firebase often requires this)
     if (currentUser.emailVerified === false) {
       try {
+        console.log('Email not verified. Attempting to send verification email to:', userEmail);
         // Send verification email
-        await window.firebaseAuthFunctions.sendEmailVerification(currentUser);
-        errorMessage.textContent = 'Please verify your email address before changing it. A verification email has been sent to ' + userEmail + '. Check your inbox and click the verification link, then try again.';
+        await window.firebaseAuthFunctions.sendEmailVerification(currentUser, {
+          url: window.location.origin + '/account-details.html',
+          handleCodeInApp: false
+        });
+        console.log('Verification email sent successfully');
+        errorMessage.textContent = 'Please verify your email address before changing it. A verification email has been sent to ' + userEmail + '. Check your inbox (and spam folder) and click the verification link, then refresh this page and try again.';
+        errorMessage.style.color = '#2e7d32'; // Green color for success message
       } catch (verifyError) {
         console.error('Error sending verification email:', verifyError);
-        errorMessage.textContent = 'Please verify your email address before changing it. We were unable to send a verification email. Please check your inbox for a previous verification email, or contact support.';
+        console.error('Error code:', verifyError.code);
+        console.error('Error message:', verifyError.message);
+        
+        let errorMsg = 'Please verify your email address before changing it. ';
+        if (verifyError.code === 'auth/too-many-requests') {
+          errorMsg += 'Too many verification emails sent. Please wait a few minutes and try again, or check your inbox for a previous verification email.';
+        } else if (verifyError.message) {
+          errorMsg += 'Unable to send verification email: ' + verifyError.message + '. Please check your inbox for a previous verification email, or contact support.';
+        } else {
+          errorMsg += 'We were unable to send a verification email. Please check your inbox for a previous verification email, or contact support.';
+        }
+        errorMessage.textContent = errorMsg;
+        errorMessage.style.color = '#d32f2f'; // Red color for error
       }
       errorMessage.classList.add('show');
       return;
