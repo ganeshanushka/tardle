@@ -199,6 +199,42 @@
     display: none;
   }
 
+  .password-requirements {
+    margin-top: 10px;
+    font-size: 0.85em;
+  }
+
+  .requirement {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+    color: #666;
+  }
+
+  .requirement-icon {
+    margin-right: 8px;
+    font-weight: bold;
+    color: #d32f2f;
+    width: 16px;
+    display: inline-block;
+    text-align: center;
+  }
+
+  .requirement.met .requirement-icon {
+    color: #2e7d32;
+  }
+
+  .requirement.met .requirement-icon::before {
+    content: '✓';
+  }
+
+  .requirement:not(.met) .requirement-icon::before {
+    content: '✗';
+  }
+
+  .requirement.met {
+    color: #2e7d32;
+  }
 
   .terms {
     font-size: 0.75em;
@@ -228,7 +264,7 @@
     <div class="input-group">
       <label for="password">Password</label>
       <div class="password-wrapper">
-        <input type="password" id="password" name="password" required minlength="6">
+        <input type="password" id="password" name="password" required maxlength="128">
         <button type="button" class="password-toggle" id="passwordToggle" aria-label="Toggle password visibility">
           <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
@@ -236,8 +272,30 @@
           </svg>
         </button>
       </div>
+      <div class="password-requirements" id="passwordRequirements">
+        <div class="requirement" id="req-length">
+          <span class="requirement-icon">✗</span>
+          <span>At least 8 characters</span>
+        </div>
+        <div class="requirement" id="req-uppercase">
+          <span class="requirement-icon">✗</span>
+          <span>One uppercase letter (A-Z)</span>
+        </div>
+        <div class="requirement" id="req-lowercase">
+          <span class="requirement-icon">✗</span>
+          <span>One lowercase letter (a-z)</span>
+        </div>
+        <div class="requirement" id="req-number">
+          <span class="requirement-icon">✗</span>
+          <span>One number (0-9)</span>
+        </div>
+        <div class="requirement" id="req-special">
+          <span class="requirement-icon">✗</span>
+          <span>One special character (!@#$%^&*()_+-=[]{}|;:,.<>?)</span>
+        </div>
+      </div>
     </div>
-    <div class="error-message" id="errorMessage">Password must be at least 6 characters long.</div>
+    <div class="error-message" id="errorMessage"></div>
     <div class="input-group">
       <input type="submit" value="Create account">
     </div>
@@ -297,6 +355,33 @@
     }
   });
 
+  // Password validation function
+  function validatePassword(password) {
+    const requirements = {
+      length: password.length >= 8,
+      uppercase: /[A-Z]/.test(password),
+      lowercase: /[a-z]/.test(password),
+      number: /[0-9]/.test(password),
+      special: /[!@#$%^&*()_+\-=\[\]{}|;:,.<>?]/.test(password)
+    };
+    
+    // Update requirement indicators
+    document.getElementById('req-length').classList.toggle('met', requirements.length);
+    document.getElementById('req-uppercase').classList.toggle('met', requirements.uppercase);
+    document.getElementById('req-lowercase').classList.toggle('met', requirements.lowercase);
+    document.getElementById('req-number').classList.toggle('met', requirements.number);
+    document.getElementById('req-special').classList.toggle('met', requirements.special);
+    
+    // Return true if all requirements are met
+    return Object.values(requirements).every(req => req === true);
+  }
+
+  // Real-time password validation
+  passwordInput.addEventListener('input', function() {
+    const password = passwordInput.value;
+    validatePassword(password);
+  });
+
   document.getElementById('signupForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     
@@ -322,9 +407,21 @@
       return;
     }
     
-    // Validate password length
-    if (!password || password.length < 6) {
-      errorMessage.textContent = 'Password must be at least 6 characters long.';
+    // Validate password requirements
+    if (!password) {
+      errorMessage.textContent = 'Please enter a password.';
+      errorMessage.style.display = 'block';
+      return;
+    }
+    
+    if (password.length > 128) {
+      errorMessage.textContent = 'Password must be 128 characters or less.';
+      errorMessage.style.display = 'block';
+      return;
+    }
+    
+    if (!validatePassword(password)) {
+      errorMessage.textContent = 'Password does not meet all requirements. Please check the requirements above.';
       errorMessage.style.display = 'block';
       return;
     }
@@ -396,7 +493,7 @@
         console.warn('Could not generate unique account number after', maxRetries, 'attempts. Using fallback:', fallbackNumber);
         return fallbackNumber;
       }
-
+      
       // Create user stats document in Firestore
       // Wrap in try-catch so Firestore errors don't prevent redirect
       // Use Promise.race to ensure we don't wait too long for account number generation
@@ -408,17 +505,17 @@
           // Generate unique account number
           const accountNumber = await generateUniqueAccountNumber();
           
-          const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', user.uid);
-          await window.firebaseFirestoreFunctions.setDoc(userDocRef, {
-            email: email,
-            username: username,
+      const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', user.uid);
+      await window.firebaseFirestoreFunctions.setDoc(userDocRef, {
+        email: email,
+        username: username,
             accountNumber: accountNumber,
-            gamesPlayed: 0,
-            currentStreak: 0,
-            maxStreak: 0,
-            emailSubscribed: false, // Default to not subscribed
-            createdAt: window.firebaseFirestoreFunctions.serverTimestamp()
-          });
+        gamesPlayed: 0,
+        currentStreak: 0,
+        maxStreak: 0,
+        emailSubscribed: false, // Default to not subscribed
+        createdAt: window.firebaseFirestoreFunctions.serverTimestamp()
+      });
           console.log('User Firestore document created successfully with account number:', accountNumber);
         } catch (firestoreError) {
           // Log Firestore error but don't prevent redirect - auth account was created successfully
