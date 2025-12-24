@@ -568,9 +568,11 @@
         console.error('Error message:', emailError.message);
         console.error('Full error:', emailError);
         // Show code in console for debugging if email fails
+        console.warn('═══════════════════════════════════════');
         console.warn('VERIFICATION CODE (for testing):', verificationCode);
+        console.warn('═══════════════════════════════════════');
         // Continue even if email fails - user can request resend
-        alert('Warning: Could not send verification email. Check console for verification code. You can also request a new code on the verification page.');
+        alert('Warning: Could not send verification email.\n\nYour verification code is: ' + verificationCode + '\n\n(Also check the browser console for details)\n\nYou can also request a new code on the verification page.');
       }
       
       // createUserWithEmailAndPassword automatically logs the user in
