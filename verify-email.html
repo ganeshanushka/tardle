@@ -183,6 +183,9 @@
           document.getElementById('emailDisplay').textContent = userEmail;
           
           console.log('Verification page loaded for user:', userEmail);
+          console.log('Email verified status:', user.emailVerified);
+          console.log('User creation time:', user.metadata.creationTime);
+          console.log('Last sign-in time:', user.metadata.lastSignInTime);
           
           // Check if already verified
           if (user.emailVerified) {
@@ -192,6 +195,22 @@
               window.location.href = 'index.html';
             }, 2000);
             return;
+          }
+          
+          // If not verified, try sending verification email automatically
+          console.log('Email not verified. Attempting to send verification email...');
+          try {
+            await window.firebaseAuthFunctions.sendEmailVerification(user, {
+              url: window.location.origin + '/verify-email.html',
+              handleCodeInApp: false
+            });
+            console.log('✓ Verification email sent from verification page');
+            document.getElementById('successMessage').textContent = 'Verification email sent! Please check your inbox.';
+            document.getElementById('successMessage').classList.add('show');
+          } catch (autoSendError) {
+            console.error('✗ Could not auto-send verification email:', autoSendError);
+            console.error('Error code:', autoSendError.code);
+            console.error('Error message:', autoSendError.message);
           }
           
           // Check for email verification link in URL (Firebase adds actionCode and oobCode)

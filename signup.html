@@ -532,16 +532,29 @@
       // Send verification email using Firebase Auth (free, built-in)
       try {
         console.log('Sending verification email to:', email);
-        await window.firebaseAuthFunctions.sendEmailVerification(user, {
+        console.log('Redirect URL:', window.location.origin + '/verify-email.html');
+        const actionCodeSettings = {
           url: window.location.origin + '/verify-email.html',
           handleCodeInApp: false
-        });
-        console.log('Verification email sent successfully');
+        };
+        console.log('Action code settings:', actionCodeSettings);
+        await window.firebaseAuthFunctions.sendEmailVerification(user, actionCodeSettings);
+        console.log('✓ Verification email sent successfully');
+        console.log('Check your inbox at:', email);
       } catch (emailError) {
-        console.error('Error sending verification email:', emailError);
+        console.error('✗ Error sending verification email:', emailError);
         console.error('Error code:', emailError.code);
         console.error('Error message:', emailError.message);
-        // Continue anyway - user can request resend on verification page
+        console.error('Full error:', emailError);
+        
+        // Show user-friendly error
+        if (emailError.code === 'auth/too-many-requests') {
+          alert('Too many verification emails sent. Please wait a few minutes and try again from the verification page.');
+        } else if (emailError.code === 'auth/missing-continue-uri') {
+          alert('Email verification is not properly configured. Please contact support.');
+        } else {
+          alert('Could not send verification email. Error: ' + (emailError.message || emailError.code || 'Unknown error') + '\n\nYou can request a new email on the verification page.');
+        }
       }
       
       // createUserWithEmailAndPassword automatically logs the user in
