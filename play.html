@@ -3173,7 +3173,18 @@
               const homeButton = document.createElement('button');
               homeButton.textContent = 'Back to Homepage';
               homeButton.style.cssText = 'padding: 10px 20px; background: #666; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;';
-              homeButton.onclick = () => window.location.href = 'index.html';
+              homeButton.onclick = async () => {
+                // Log out first so they see the homepage as not logged in
+                if (window.firebaseAuthFunctions && window.firebaseAuthFunctions.signOut) {
+                  try {
+                    await window.firebaseAuthFunctions.signOut(window.firebaseAuth);
+                    console.log('Logged out, redirecting to homepage');
+                  } catch (error) {
+                    console.error('Error logging out:', error);
+                  }
+                }
+                window.location.href = 'index.html';
+              };
               
               const logoutButton = document.createElement('button');
               logoutButton.textContent = 'Log Out';
