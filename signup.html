@@ -444,90 +444,12 @@
       // Create user account with Firebase Auth
       const userCredential = await window.firebaseAuthFunctions.createUserWithEmailAndPassword(window.firebaseAuth, email, password);
       
-      // User created successfully, now create user document in Firestore
+      // User created successfully
       const user = userCredential.user;
-
-      // Generate a unique account number
-      async function generateUniqueAccountNumber() {
-        const maxRetries = 10;
-        let attempts = 0;
-        
-        while (attempts < maxRetries) {
-          // Generate a random 9-digit number (100000000 to 999999999)
-          const accountNumber = Math.floor(100000000 + Math.random() * 900000000);
-          
-          try {
-            // Check if this account number already exists
-            const usersRef = window.firebaseFirestoreFunctions.collection(window.firebaseDb, 'users');
-            const q = window.firebaseFirestoreFunctions.query(
-              usersRef,
-              window.firebaseFirestoreFunctions.where('accountNumber', '==', accountNumber)
-            );
-            const querySnapshot = await window.firebaseFirestoreFunctions.getDocs(q);
-            
-            if (querySnapshot.empty) {
-              // Account number is unique
-              console.log('Generated unique account number:', accountNumber);
-              return accountNumber;
-            } else {
-              // Account number exists, try again
-              console.log('Account number', accountNumber, 'already exists, generating new one...');
-              attempts++;
-            }
-          } catch (error) {
-            console.error('Error checking account number uniqueness:', error);
-            // On error, return the generated number anyway (better than failing)
-            return accountNumber;
-          }
-        }
-        
-        // If we couldn't find a unique number after max retries, use timestamp-based fallback
-        const fallbackNumber = Math.floor(Date.now() % 900000000) + 100000000;
-        console.warn('Could not generate unique account number after', maxRetries, 'attempts. Using fallback:', fallbackNumber);
-        return fallbackNumber;
-      }
-      
-      // Create user stats document in Firestore
-      // Wrap in try-catch so Firestore errors don't prevent redirect
-      // Use Promise.race to ensure we don't wait too long for account number generation
-      const redirectUrl = returnUrl || 'index.html';
-      
-      // Start Firestore document creation (but don't wait for it to complete)
-      const firestorePromise = (async () => {
-        try {
-          // Generate unique account number
-          const accountNumber = await generateUniqueAccountNumber();
-          
-      const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', user.uid);
-      await window.firebaseFirestoreFunctions.setDoc(userDocRef, {
-        email: email,
-        username: username,
-            accountNumber: accountNumber,
-        gamesPlayed: 0,
-        currentStreak: 0,
-        maxStreak: 0,
-        emailSubscribed: false, // Default to not subscribed
-        createdAt: window.firebaseFirestoreFunctions.serverTimestamp()
-      });
-          console.log('User Firestore document created successfully with account number:', accountNumber);
-        } catch (firestoreError) {
-          // Log Firestore error but don't prevent redirect - auth account was created successfully
-          console.error('Error creating Firestore document (non-critical):', firestoreError);
-          console.warn('User auth account created, but Firestore document creation failed. User can still log in.');
-        }
-      })();
-      
-      // Wait for Firestore with a timeout - don't wait more than 2 seconds
-      try {
-        await Promise.race([
-          firestorePromise,
-          new Promise(resolve => setTimeout(resolve, 2000))
-        ]);
-      } catch (error) {
-        console.error('Error in Firestore creation:', error);
-      }
-      
       console.log('User account created and logged in:', user.email);
+      
+      // NOTE: Firestore document will be created AFTER email verification
+      // This ensures we only store user data once they verify their email
       
       // Send verification email using Firebase Auth (free, built-in)
       try {

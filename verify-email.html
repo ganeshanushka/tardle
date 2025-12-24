@@ -188,6 +188,74 @@
   let userEmail = '';
   let resendTimer = 60; // 60 seconds cooldown
   let resendInterval = null;
+  
+  // Function to create Firestore user document after verification
+  async function createUserDocument(user) {
+    try {
+      // Check if document already exists
+      const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', user.uid);
+      const userDoc = await window.firebaseFirestoreFunctions.getDoc(userDocRef);
+      
+      if (userDoc.exists()) {
+        console.log('User document already exists, skipping creation');
+        return;
+      }
+      
+      // Generate unique account number
+      async function generateUniqueAccountNumber() {
+        const maxRetries = 10;
+        let attempts = 0;
+        
+        while (attempts < maxRetries) {
+          const accountNumber = Math.floor(100000000 + Math.random() * 900000000);
+          
+          try {
+            const usersRef = window.firebaseFirestoreFunctions.collection(window.firebaseDb, 'users');
+            const q = window.firebaseFirestoreFunctions.query(
+              usersRef,
+              window.firebaseFirestoreFunctions.where('accountNumber', '==', accountNumber)
+            );
+            const querySnapshot = await window.firebaseFirestoreFunctions.getDocs(q);
+            
+            if (querySnapshot.empty) {
+              console.log('Generated unique account number:', accountNumber);
+              return accountNumber;
+            } else {
+              attempts++;
+            }
+          } catch (error) {
+            console.error('Error checking account number uniqueness:', error);
+            return accountNumber;
+          }
+        }
+        
+        const fallbackNumber = Math.floor(Date.now() % 900000000) + 100000000;
+        console.warn('Could not generate unique account number after', maxRetries, 'attempts. Using fallback:', fallbackNumber);
+        return fallbackNumber;
+      }
+      
+      const accountNumber = await generateUniqueAccountNumber();
+      const username = user.email?.split('@')[0] || 'User';
+      
+      // Create user document in Firestore
+      await window.firebaseFirestoreFunctions.setDoc(userDocRef, {
+        email: user.email || '',
+        username: username,
+        accountNumber: accountNumber,
+        gamesPlayed: 0,
+        currentStreak: 0,
+        maxStreak: 0,
+        emailSubscribed: false,
+        createdAt: window.firebaseFirestoreFunctions.serverTimestamp(),
+        verifiedAt: window.firebaseFirestoreFunctions.serverTimestamp()
+      });
+      
+      console.log('✓ User Firestore document created successfully with account number:', accountNumber);
+    } catch (error) {
+      console.error('Error creating Firestore document:', error);
+      // Don't throw - verification is still successful even if Firestore creation fails
+    }
+  }
 
   // Wait for Firebase to load
   const checkFirebase = setInterval(() => {
@@ -218,6 +286,8 @@
           // Check if already verified (this happens when Firebase redirects after verification)
           if (user.emailVerified) {
             console.log('✓ User email is already verified');
+            // Create Firestore document if it doesn't exist
+            await createUserDocument(user);
             document.getElementById('successMessage').textContent = 'Your email has been verified! Redirecting...';
             document.getElementById('successMessage').classList.add('show');
             setTimeout(() => {
@@ -308,6 +378,8 @@
               console.log('Arrived from Firebase auth handler, checking verification status...');
               await user.reload();
               if (user.emailVerified) {
+                // Create Firestore document now that email is verified
+                await createUserDocument(user);
                 document.getElementById('successMessage').textContent = 'Email verified successfully! Redirecting...';
                 document.getElementById('successMessage').classList.add('show');
                 setTimeout(() => {
