@@ -550,19 +550,27 @@
       // Send verification code email via Cloud Function
       try {
         if (window.firebaseFunctions && window.firebaseFunctionsInstance) {
+          console.log('Attempting to send verification email to:', email);
           const sendVerificationCode = window.firebaseFunctions.httpsCallable(window.firebaseFunctionsInstance, 'sendVerificationCode');
-          await sendVerificationCode({
+          const result = await sendVerificationCode({
             email: email,
             code: verificationCode,
             username: username
           });
-          console.log('Verification code email sent');
+          console.log('Verification code email sent successfully:', result);
         } else {
-          console.warn('Cloud Functions not available, skipping email send');
+          console.error('Cloud Functions not available! Make sure firebase-functions is imported in firebase-config.js');
+          console.warn('Email will not be sent. User can request resend on verification page.');
         }
       } catch (emailError) {
         console.error('Error sending verification email:', emailError);
+        console.error('Error code:', emailError.code);
+        console.error('Error message:', emailError.message);
+        console.error('Full error:', emailError);
+        // Show code in console for debugging if email fails
+        console.warn('VERIFICATION CODE (for testing):', verificationCode);
         // Continue even if email fails - user can request resend
+        alert('Warning: Could not send verification email. Check console for verification code. You can also request a new code on the verification page.');
       }
       
       // createUserWithEmailAndPassword automatically logs the user in
