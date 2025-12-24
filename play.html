@@ -3232,6 +3232,9 @@
               if (gameContainer) {
                 gameContainer.style.pointerEvents = '';
               }
+              // Re-enable body interactions
+              document.body.style.pointerEvents = '';
+              document.body.style.overflow = '';
             }
             
             // Store function on window object
@@ -3265,12 +3268,21 @@
                   
                   if (!currentUser.emailVerified) {
                     console.log('Email not verified - showing overlay with options');
+                    // Block body interactions
+                    document.body.style.pointerEvents = 'none';
+                    document.body.style.overflow = 'hidden';
                     createOverlay(); // Show overlay with navigation options
                     return false;
                   } else {
                     console.log('Email verified - allowing access');
+                    // Re-enable body interactions
+                    document.body.style.pointerEvents = '';
+                    document.body.style.overflow = '';
                     removeOverlay();
                     verificationPassed = true;
+                    if (window.verificationCheck && window.verificationCheck.setVerificationPassed) {
+                      window.verificationCheck.setVerificationPassed(true);
+                    }
                     return true;
                   }
                 } catch (error) {
@@ -3278,6 +3290,9 @@
                   // On error, check current status without reload
                   if (!currentUser.emailVerified) {
                     console.log('Email not verified (from cached status) - showing overlay');
+                    // Block body interactions
+                    document.body.style.pointerEvents = 'none';
+                    document.body.style.overflow = 'hidden';
                     createOverlay(); // Show overlay with navigation options
                     return false;
                   }
@@ -3298,8 +3313,12 @@
               }
             }
             
-            // Create overlay immediately
+            // Create overlay immediately to block all interactions
             createOverlay();
+            
+            // Also block the entire body immediately
+            document.body.style.pointerEvents = 'none';
+            document.body.style.overflow = 'hidden';
             
             // Check verification status as soon as Firebase is available
             // Keep checking continuously until verified or confirmed no user
@@ -3307,20 +3326,26 @@
               if (window.firebaseAuth && window.firebaseAuthFunctions) {
                 const passed = await checkVerification();
                 if (passed) {
+                  // Re-enable body interactions
+                  document.body.style.pointerEvents = '';
+                  document.body.style.overflow = '';
                   clearInterval(checkInterval);
                 } else {
                   // If not passed, check if we should keep overlay up
                   // Wait for auth state to be restored first
-                  // Check authStateRestored from the closure or window object
-                  const isAuthRestored = authStateRestored;
+                  const isAuthRestored = window.verificationCheck ? window.verificationCheck.getAuthStateRestored() : authStateRestored;
                   if (isAuthRestored) {
                     const currentUser = window.firebaseAuth.currentUser;
                     const isVerified = window.verificationCheck ? window.verificationCheck.getVerificationPassed() : verificationPassed;
                     if (currentUser && !isVerified) {
-                      // User is logged in but not verified - show overlay
+                      // User is logged in but not verified - show overlay and block body
+                      document.body.style.pointerEvents = 'none';
+                      document.body.style.overflow = 'hidden';
                       createOverlay();
                     } else if (!currentUser && isAuthRestored) {
                       // No user and auth state restored - allow guest access
+                      document.body.style.pointerEvents = '';
+                      document.body.style.overflow = '';
                       removeOverlay();
                       verificationPassed = true;
                       if (window.verificationCheck && window.verificationCheck.setVerificationPassed) {
@@ -3336,14 +3361,24 @@
             // Stop checking after 5 seconds if still no user (allow guest mode)
             setTimeout(() => {
               const isAuthRestored = window.verificationCheck ? window.verificationCheck.getAuthStateRestored() : authStateRestored;
-              if (!isAuthRestored || !window.firebaseAuth.currentUser) {
+              const currentUser = window.firebaseAuth ? window.firebaseAuth.currentUser : null;
+              if (!isAuthRestored || !currentUser) {
                 console.log('Auth state check timeout - allowing guest access');
+                // Re-enable body interactions
+                document.body.style.pointerEvents = '';
+                document.body.style.overflow = '';
                 removeOverlay();
                 verificationPassed = true;
                 if (window.verificationCheck && window.verificationCheck.setVerificationPassed) {
                   window.verificationCheck.setVerificationPassed(true);
                 }
                 clearInterval(checkInterval);
+              } else if (currentUser && !currentUser.emailVerified) {
+                // User exists but not verified - keep blocking
+                console.log('User exists but not verified - keeping overlay');
+                document.body.style.pointerEvents = 'none';
+                document.body.style.overflow = 'hidden';
+                createOverlay();
               }
             }, 5000);
             
