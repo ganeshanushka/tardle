@@ -202,9 +202,18 @@
           document.getElementById('emailDisplay').textContent = userEmail;
           
           console.log('Verification page loaded for user:', userEmail);
-          console.log('Email verified status:', user.emailVerified);
+          console.log('Email verified status (initial):', user.emailVerified);
           console.log('User creation time:', user.metadata.creationTime);
           console.log('Last sign-in time:', user.metadata.lastSignInTime);
+          
+          // Always reload user data to get the latest verification status (don't trust cached value)
+          try {
+            await user.reload();
+            console.log('Email verified status (after reload):', user.emailVerified);
+          } catch (reloadError) {
+            console.warn('Could not reload user data:', reloadError);
+            // Continue with cached value if reload fails
+          }
           
           // Check if already verified (this happens when Firebase redirects after verification)
           if (user.emailVerified) {
@@ -239,6 +248,8 @@
               handleCodeInApp: false
             });
             console.log('✓ Verification email sent from verification page');
+            // Clear any previous messages first
+            document.getElementById('errorMessage').classList.remove('show');
             document.getElementById('successMessage').textContent = 'Verification email sent! Please check your inbox.';
             document.getElementById('successMessage').classList.add('show');
           } catch (autoSendError) {
@@ -308,19 +319,43 @@
           }
           
           // Periodically check if email is verified (in case user verifies in another tab)
-          const checkInterval = setInterval(async () => {
-            if (currentUser) {
-              await currentUser.reload();
-              if (currentUser.emailVerified) {
+          // Only start this check if email is NOT verified
+          if (!user.emailVerified) {
+            const checkInterval = setInterval(async () => {
+              if (currentUser) {
+                try {
+                  await currentUser.reload();
+                  console.log('Periodic check - emailVerified:', currentUser.emailVerified);
+                  if (currentUser.emailVerified) {
+                    clearInterval(checkInterval);
+                    console.log('✓ Email verified detected in periodic check');
+                    document.getElementById('errorMessage').classList.remove('show');
+                    document.getElementById('successMessage').textContent = 'Email verified successfully! Redirecting...';
+                    document.getElementById('successMessage').classList.add('show');
+                    setTimeout(() => {
+                      window.location.href = 'index.html';
+                    }, 2000);
+                  }
+                } catch (reloadError) {
+                  console.error('Error in periodic verification check:', reloadError);
+                  // Don't clear interval on error, keep checking
+                }
+              } else {
+                // User logged out, stop checking
                 clearInterval(checkInterval);
-                document.getElementById('successMessage').textContent = 'Email verified successfully! Redirecting...';
-                document.getElementById('successMessage').classList.add('show');
-                setTimeout(() => {
-                  window.location.href = 'index.html';
-                }, 2000);
               }
-            }
-          }, 3000); // Check every 3 seconds
+            }, 3000); // Check every 3 seconds
+            
+            // Store interval to clear it later
+            window.verificationCheckInterval = checkInterval;
+            
+            // Clean up interval when page unloads
+            window.addEventListener('beforeunload', () => {
+              if (window.verificationCheckInterval) {
+                clearInterval(window.verificationCheckInterval);
+              }
+            });
+          }
           
           // Store interval to clear it later
           window.verificationCheckInterval = checkInterval;
