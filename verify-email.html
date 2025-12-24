@@ -43,25 +43,20 @@
     margin-bottom: 30px;
   }
 
-  .code-input-container {
-    margin-bottom: 20px;
+  .instructions {
+    margin-bottom: 30px;
+    color: #666;
+    line-height: 1.6;
   }
 
-  .code-input {
-    width: 100%;
-    padding: 15px;
-    font-size: 24px;
-    text-align: center;
-    letter-spacing: 8px;
-    border: 2px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-    font-family: 'PT Serif', monospace;
+  .instructions p {
+    margin: 10px 0;
   }
 
-  .code-input:focus {
-    outline: none;
-    border-color: #7BAFD4;
+  .note {
+    font-size: 14px;
+    color: #999;
+    font-style: italic;
   }
 
   .error-message {
@@ -88,7 +83,14 @@
     display: block;
   }
 
-  .verify-button {
+
+  .resend-section {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+  }
+
+  .resend-button {
     background-color: #7BAFD4;
     color: white;
     border: none;
@@ -99,40 +101,16 @@
     cursor: pointer;
     font-family: 'PT Serif', sans-serif;
     width: 100%;
-    margin-top: 20px;
     transition: background-color 0.2s ease;
   }
 
-  .verify-button:hover {
+  .resend-button:hover {
     background-color: #6a9fc0;
   }
 
-  .verify-button:disabled {
+  .resend-button:disabled {
     background-color: #ccc;
     cursor: not-allowed;
-  }
-
-  .resend-section {
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid #eee;
-  }
-
-  .resend-link {
-    color: #7BAFD4;
-    text-decoration: none;
-    font-size: 14px;
-    cursor: pointer;
-  }
-
-  .resend-link:hover {
-    text-decoration: underline;
-  }
-
-  .resend-link:disabled {
-    color: #ccc;
-    cursor: not-allowed;
-    text-decoration: none;
   }
 
   .resend-timer {
@@ -140,29 +118,46 @@
     font-size: 14px;
     margin-top: 10px;
   }
+
+  .back-link-section {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+  }
+
+  .back-link {
+    color: #7BAFD4;
+    text-decoration: none;
+    font-size: 14px;
+  }
+
+  .back-link:hover {
+    text-decoration: underline;
+  }
 </style>
 </head>
 <body>
 
 <div class="verify-container">
   <h1>Verify your email</h1>
-  <p class="subtitle">We've sent a verification code to</p>
+  <p class="subtitle">We've sent a verification email to</p>
   <div class="email-display" id="emailDisplay">Loading...</div>
   
-  <form id="verifyForm">
-    <div class="code-input-container">
-      <input type="text" id="verificationCode" class="code-input" placeholder="000000" maxlength="6" pattern="[0-9]{6}" autocomplete="off">
-    </div>
-    
-    <div class="error-message" id="errorMessage"></div>
-    <div class="success-message" id="successMessage"></div>
-    
-    <button type="submit" class="verify-button" id="verifyButton">Verify</button>
-  </form>
+  <div class="instructions">
+    <p>Please check your inbox and click the verification link in the email we sent you.</p>
+    <p class="note">If you don't see the email, check your spam folder.</p>
+  </div>
+  
+  <div class="error-message" id="errorMessage"></div>
+  <div class="success-message" id="successMessage"></div>
   
   <div class="resend-section">
-    <a href="#" class="resend-link" id="resendLink">Resend code</a>
+    <button type="button" class="resend-button" id="resendButton">Resend verification email</button>
     <div class="resend-timer" id="resendTimer"></div>
+  </div>
+  
+  <div class="back-link-section">
+    <a href="index.html" class="back-link">← Back to homepage</a>
   </div>
 </div>
 
@@ -191,7 +186,7 @@
           
           // Check if already verified
           if (user.emailVerified) {
-            document.getElementById('successMessage').textContent = 'Your email is already verified!';
+            document.getElementById('successMessage').textContent = 'Your email is already verified! Redirecting...';
             document.getElementById('successMessage').classList.add('show');
             setTimeout(() => {
               window.location.href = 'index.html';
@@ -199,31 +194,55 @@
             return;
           }
           
-          // Check if verification code exists in Firestore (for debugging)
-          try {
-            const verificationDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'verificationCodes', user.uid);
-            const verificationDoc = await window.firebaseFirestoreFunctions.getDoc(verificationDocRef);
-            
-            if (verificationDoc.exists()) {
-              const verificationData = verificationDoc.data();
-              const storedCode = verificationData.code;
-              const expiresAt = verificationData.expiresAt;
-              const timeRemaining = Math.floor((expiresAt - Date.now()) / 1000 / 60);
-              
-              console.log('✓ Verification code found in Firestore');
-              console.log('VERIFICATION CODE (for testing):', storedCode);
-              console.log('Code expires in:', timeRemaining, 'minutes');
-              
-              if (timeRemaining <= 0) {
-                console.warn('⚠ Code has expired');
+          // Check for email verification link in URL (Firebase adds actionCode and oobCode)
+          const urlParams = new URLSearchParams(window.location.search);
+          const actionCode = urlParams.get('oobCode');
+          const mode = urlParams.get('mode');
+          
+          if (actionCode && mode === 'verifyEmail') {
+            // User clicked the verification link - apply the action code
+            try {
+              await window.firebaseAuthFunctions.applyActionCode(window.firebaseAuth, actionCode);
+              // Reload user to get updated verification status
+              await user.reload();
+              if (user.emailVerified) {
+                document.getElementById('successMessage').textContent = 'Email verified successfully! Redirecting...';
+                document.getElementById('successMessage').classList.add('show');
+                setTimeout(() => {
+                  window.location.href = 'index.html';
+                }, 2000);
               }
-            } else {
-              console.warn('⚠ No verification code found in Firestore');
-              console.log('This means the code was not stored during signup, or it was already used.');
+            } catch (linkError) {
+              console.error('Error verifying email link:', linkError);
+              document.getElementById('errorMessage').textContent = 'Invalid or expired verification link. Please request a new verification email.';
+              document.getElementById('errorMessage').classList.add('show');
             }
-          } catch (checkError) {
-            console.error('Error checking verification code:', checkError);
           }
+          
+          // Periodically check if email is verified (in case user verifies in another tab)
+          const checkInterval = setInterval(async () => {
+            if (currentUser) {
+              await currentUser.reload();
+              if (currentUser.emailVerified) {
+                clearInterval(checkInterval);
+                document.getElementById('successMessage').textContent = 'Email verified successfully! Redirecting...';
+                document.getElementById('successMessage').classList.add('show');
+                setTimeout(() => {
+                  window.location.href = 'index.html';
+                }, 2000);
+              }
+            }
+          }, 3000); // Check every 3 seconds
+          
+          // Store interval to clear it later
+          window.verificationCheckInterval = checkInterval;
+          
+          // Clean up interval when page unloads
+          window.addEventListener('beforeunload', () => {
+            if (window.verificationCheckInterval) {
+              clearInterval(window.verificationCheckInterval);
+            }
+          });
         } else {
           // User is not logged in - redirect to login
           window.location.href = 'login.html?return=' + encodeURIComponent('verify-email.html');
@@ -239,164 +258,63 @@
     }
   }, 100);
 
-  // Format code input (only numbers, auto-format)
-  document.getElementById('verificationCode').addEventListener('input', function(e) {
-    // Only allow numbers
-    this.value = this.value.replace(/[^0-9]/g, '');
+  // Handle resend verification email
+  document.getElementById('resendButton').addEventListener('click', async function() {
+    if (!currentUser) {
+      document.getElementById('errorMessage').textContent = 'You must be logged in to resend verification email.';
+      document.getElementById('errorMessage').classList.add('show');
+      return;
+    }
     
-    // Clear error when user types
-    document.getElementById('errorMessage').classList.remove('show');
-  });
-
-  // Handle form submission
-  document.getElementById('verifyForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    const code = document.getElementById('verificationCode').value;
+    const resendButton = this;
+    const resendTimerEl = document.getElementById('resendTimer');
     const errorMessage = document.getElementById('errorMessage');
     const successMessage = document.getElementById('successMessage');
-    const verifyButton = document.getElementById('verifyButton');
     
     // Clear previous messages
     errorMessage.classList.remove('show');
     successMessage.classList.remove('show');
     
-    if (!currentUser) {
-      errorMessage.textContent = 'You must be logged in to verify your email.';
-      errorMessage.classList.add('show');
-      return;
-    }
-    
-    if (!code || code.length !== 6) {
-      errorMessage.textContent = 'Please enter the 6-digit verification code.';
-      errorMessage.classList.add('show');
-      return;
-    }
-    
     // Disable button
-    verifyButton.disabled = true;
-    verifyButton.textContent = 'Verifying...';
+    resendButton.disabled = true;
+    resendButton.textContent = 'Sending...';
     
     try {
-      // Get verification code from Firestore
-      const verificationDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'verificationCodes', currentUser.uid);
-      const verificationDoc = await window.firebaseFirestoreFunctions.getDoc(verificationDocRef);
-      
-      if (!verificationDoc.exists()) {
-        throw new Error('Verification code not found. Please request a new code.');
-      }
-      
-      const verificationData = verificationDoc.data();
-      const storedCode = verificationData.code;
-      const expiresAt = verificationData.expiresAt;
-      
-      // Check if code has expired
-      if (Date.now() > expiresAt) {
-        throw new Error('Verification code has expired. Please request a new code.');
-      }
-      
-      // Verify the code
-      if (code !== storedCode) {
-        throw new Error('Invalid verification code. Please try again.');
-      }
-      
-      // Code is valid - mark email as verified in Firebase Auth
-      // Note: Firebase Auth doesn't have a direct way to mark email as verified
-      // We'll update Firestore to track verification status
-      const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
-      await window.firebaseFirestoreFunctions.updateDoc(userDocRef, {
-        emailVerified: true,
-        emailVerifiedAt: window.firebaseFirestoreFunctions.serverTimestamp()
+      // Send verification email using Firebase Auth
+      await window.firebaseAuthFunctions.sendEmailVerification(currentUser, {
+        url: window.location.origin + '/verify-email.html',
+        handleCodeInApp: false
       });
       
-      // Delete the verification code document
-      await window.firebaseFirestoreFunctions.deleteDoc(verificationDocRef);
-      
-      // Show success message
-      successMessage.textContent = 'Email verified successfully! Redirecting...';
+      successMessage.textContent = 'Verification email sent! Please check your inbox.';
       successMessage.classList.add('show');
       
-      // Redirect to homepage after a short delay
-      setTimeout(() => {
-        window.location.href = 'index.html';
-      }, 1500);
-      
-    } catch (error) {
-      console.error('Verification error:', error);
-      errorMessage.textContent = error.message || 'An error occurred. Please try again.';
-      errorMessage.classList.add('show');
-      
-      verifyButton.disabled = false;
-      verifyButton.textContent = 'Verify';
-    }
-  });
-
-  // Handle resend code
-  document.getElementById('resendLink').addEventListener('click', async function(e) {
-    e.preventDefault();
-    
-    if (this.classList.contains('disabled')) {
-      return;
-    }
-    
-    if (!currentUser) {
-      return;
-    }
-    
-    const resendLink = this;
-    const resendTimerEl = document.getElementById('resendTimer');
-    const errorMessage = document.getElementById('errorMessage');
-    
-    try {
-      // Generate new verification code
-      const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-      const codeExpiry = Date.now() + (15 * 60 * 1000);
-      
-      // Store new code
-      const verificationDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'verificationCodes', currentUser.uid);
-      await window.firebaseFirestoreFunctions.setDoc(verificationDocRef, {
-        code: verificationCode,
-        email: userEmail,
-        expiresAt: codeExpiry,
-        createdAt: window.firebaseFirestoreFunctions.serverTimestamp()
-      });
-      
-      // Send email
-      if (window.firebaseFunctions && window.firebaseFunctionsInstance) {
-        const sendVerificationCode = window.firebaseFunctions.httpsCallable(window.firebaseFunctionsInstance, 'sendVerificationCode');
-        await sendVerificationCode({
-          email: userEmail,
-          code: verificationCode,
-          username: currentUser.displayName || ''
-        });
-      }
-      
-      // Start cooldown timer
-      resendLink.classList.add('disabled');
-      resendLink.style.pointerEvents = 'none';
+      // Start cooldown timer (60 seconds)
       resendTimer = 60;
+      resendTimerEl.textContent = `Resend email in ${resendTimer} seconds`;
+      
+      if (resendInterval) {
+        clearInterval(resendInterval);
+      }
       
       resendInterval = setInterval(() => {
         resendTimer--;
-        resendTimerEl.textContent = `Resend code in ${resendTimer} seconds`;
+        resendTimerEl.textContent = `Resend email in ${resendTimer} seconds`;
         
         if (resendTimer <= 0) {
           clearInterval(resendInterval);
-          resendLink.classList.remove('disabled');
-          resendLink.style.pointerEvents = 'auto';
           resendTimerEl.textContent = '';
+          resendButton.disabled = false;
+          resendButton.textContent = 'Resend verification email';
         }
       }, 1000);
       
-      errorMessage.textContent = 'New verification code sent!';
-      errorMessage.style.color = '#2e7d32';
-      errorMessage.classList.add('show');
-      
     } catch (error) {
       console.error('Resend error:', error);
-      errorMessage.textContent = 'Failed to resend code. Please try again.';
-      errorMessage.style.color = '#d32f2f';
+      errorMessage.textContent = 'Failed to send verification email. Please try again.';
       errorMessage.classList.add('show');
+      resendButton.disabled = false;
+      resendButton.textContent = 'Resend verification email';
     }
   });
 </script>

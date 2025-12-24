@@ -529,50 +529,19 @@
       
       console.log('User account created and logged in:', user.email);
       
-      // Generate verification code
-      const verificationCode = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit code
-      const codeExpiry = Date.now() + (15 * 60 * 1000); // 15 minutes from now
-      
-      // Store verification code in Firestore
+      // Send verification email using Firebase Auth (free, built-in)
       try {
-        const verificationDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'verificationCodes', user.uid);
-        await window.firebaseFirestoreFunctions.setDoc(verificationDocRef, {
-          code: verificationCode,
-          email: email,
-          expiresAt: codeExpiry,
-          createdAt: window.firebaseFirestoreFunctions.serverTimestamp()
+        console.log('Sending verification email to:', email);
+        await window.firebaseAuthFunctions.sendEmailVerification(user, {
+          url: window.location.origin + '/verify-email.html',
+          handleCodeInApp: false
         });
-        console.log('Verification code stored in Firestore');
-      } catch (codeError) {
-        console.error('Error storing verification code:', codeError);
-      }
-      
-      // Send verification code email via Cloud Function
-      try {
-        if (window.firebaseFunctions && window.firebaseFunctionsInstance) {
-          console.log('Attempting to send verification email to:', email);
-          const sendVerificationCode = window.firebaseFunctions.httpsCallable(window.firebaseFunctionsInstance, 'sendVerificationCode');
-          const result = await sendVerificationCode({
-            email: email,
-            code: verificationCode,
-            username: username
-          });
-          console.log('Verification code email sent successfully:', result);
-        } else {
-          console.error('Cloud Functions not available! Make sure firebase-functions is imported in firebase-config.js');
-          console.warn('Email will not be sent. User can request resend on verification page.');
-        }
+        console.log('Verification email sent successfully');
       } catch (emailError) {
         console.error('Error sending verification email:', emailError);
         console.error('Error code:', emailError.code);
         console.error('Error message:', emailError.message);
-        console.error('Full error:', emailError);
-        // Show code in console for debugging if email fails
-        console.warn('═══════════════════════════════════════');
-        console.warn('VERIFICATION CODE (for testing):', verificationCode);
-        console.warn('═══════════════════════════════════════');
-        // Continue even if email fails - user can request resend
-        alert('Warning: Could not send verification email.\n\nYour verification code is: ' + verificationCode + '\n\n(Also check the browser console for details)\n\nYou can also request a new code on the verification page.');
+        // Continue anyway - user can request resend on verification page
       }
       
       // createUserWithEmailAndPassword automatically logs the user in
