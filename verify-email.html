@@ -215,26 +215,49 @@
           
           // Check for email verification link in URL (Firebase adds actionCode and oobCode)
           const urlParams = new URLSearchParams(window.location.search);
-          const actionCode = urlParams.get('oobCode');
-          const mode = urlParams.get('mode');
+          const urlHash = window.location.hash ? new URLSearchParams(window.location.hash.substring(1)) : null;
+          
+          // Check both URL search params and hash for Firebase action codes
+          const actionCode = urlParams.get('oobCode') || (urlHash ? urlHash.get('oobCode') : null);
+          const mode = urlParams.get('mode') || (urlHash ? urlHash.get('mode') : null);
+          const apiKey = urlParams.get('apiKey') || (urlHash ? urlHash.get('apiKey') : null);
+          
+          console.log('URL params:', { actionCode, mode, apiKey, fullUrl: window.location.href });
           
           if (actionCode && mode === 'verifyEmail') {
             // User clicked the verification link - apply the action code
+            console.log('Processing email verification link...');
             try {
               await window.firebaseAuthFunctions.applyActionCode(window.firebaseAuth, actionCode);
               // Reload user to get updated verification status
               await user.reload();
               if (user.emailVerified) {
+                console.log('✓ Email verified successfully!');
                 document.getElementById('successMessage').textContent = 'Email verified successfully! Redirecting...';
                 document.getElementById('successMessage').classList.add('show');
                 setTimeout(() => {
                   window.location.href = 'index.html';
                 }, 2000);
+              } else {
+                console.warn('Email verification applied but user.emailVerified is still false');
               }
             } catch (linkError) {
               console.error('Error verifying email link:', linkError);
+              console.error('Error code:', linkError.code);
+              console.error('Error message:', linkError.message);
               document.getElementById('errorMessage').textContent = 'Invalid or expired verification link. Please request a new verification email.';
               document.getElementById('errorMessage').classList.add('show');
+            }
+          } else if (urlParams.has('continueUrl') || urlHash?.has('continueUrl')) {
+            // Firebase redirected us - check if we're already verified
+            console.log('Firebase redirect detected, checking verification status...');
+            await user.reload();
+            if (user.emailVerified) {
+              document.getElementById('successMessage').textContent = 'Email verified successfully! Redirecting...';
+              document.getElementById('successMessage').classList.add('show');
+              setTimeout(() => {
+                window.location.href = 'index.html';
+              }, 2000);
             }
           }
           

@@ -533,11 +533,27 @@
       try {
         console.log('Sending verification email to:', email);
         console.log('Redirect URL:', window.location.origin + '/verify-email.html');
+        // Get the correct URL for GitHub Pages
+        // Build URL by removing the current filename and adding verify-email.html
+        const currentPath = window.location.pathname;
+        const pathParts = currentPath.split('/').filter(p => p);
+        
+        // Remove the current filename (e.g., signup.html)
+        if (pathParts.length > 0) {
+          pathParts[pathParts.length - 1] = 'verify-email.html';
+        } else {
+          pathParts.push('verify-email.html');
+        }
+        
+        const continueUrl = window.location.origin + '/' + pathParts.join('/');
+        
         const actionCodeSettings = {
-          url: window.location.origin + '/verify-email.html',
+          url: continueUrl,
           handleCodeInApp: false
         };
         console.log('Action code settings:', actionCodeSettings);
+        console.log('Continue URL:', continueUrl);
+        console.log('Current location:', window.location.href);
         await window.firebaseAuthFunctions.sendEmailVerification(user, actionCodeSettings);
         console.log('✓ Verification email sent successfully');
         console.log('Check your inbox at:', email);
