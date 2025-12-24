@@ -1,12 +1,29 @@
 const functions = require("firebase-functions");
 const { Resend } = require("resend");
 const admin = require("firebase-admin");
-require("dotenv").config(); // Load .env variables
 
 admin.initializeApp();
 const db = admin.firestore();
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Get Resend API key from environment variable or config
+// For local development, use .env file with dotenv
+// For production, set via: firebase functions:config:set resend.api_key="your_key"
+const resendApiKey = process.env.RESEND_API_KEY || 
+                     functions.config().resend?.api_key || 
+                     (() => {
+                       try {
+                         require("dotenv").config();
+                         return process.env.RESEND_API_KEY;
+                       } catch (e) {
+                         return null;
+                       }
+                     })();
+
+if (!resendApiKey) {
+  console.error("RESEND_API_KEY is not set! Emails will not work.");
+}
+
+const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
 // Daily email function (runs at 8am ET)
 exports.sendDailyTardleEmail = functions.pubsub
@@ -64,6 +81,10 @@ exports.sendVerificationCode = functions.https.onCall(async (data, context) => {
 
     if (!email || !code) {
       throw new functions.https.HttpsError('invalid-argument', 'Email and code are required');
+    }
+
+    if (!resend) {
+      throw new functions.https.HttpsError('failed-precondition', 'Resend API key is not configured. Please set RESEND_API_KEY in Firebase Functions config.');
     }
 
     await resend.emails.send({
