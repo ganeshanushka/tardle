@@ -165,6 +165,25 @@
 <script type="module" src="firebase-config.js"></script>
 
 <script>
+  // Suppress 404 errors for Firebase hosting files that don't exist on GitHub Pages
+  // These errors are harmless and don't affect functionality
+  const originalError = console.error;
+  console.error = function(...args) {
+    const message = args.join(' ');
+    if (message.includes('__/firebase/init.json') && message.includes('404')) {
+      // Silently ignore this specific error - it's expected on GitHub Pages
+      return;
+    }
+    originalError.apply(console, args);
+  };
+  
+  window.addEventListener('error', (event) => {
+    if (event.target && event.target.src && event.target.src.includes('__/firebase/init.json')) {
+      event.preventDefault();
+      return false;
+    }
+  }, true);
+
   let currentUser = null;
   let userEmail = '';
   let resendTimer = 60; // 60 seconds cooldown
@@ -187,9 +206,10 @@
           console.log('User creation time:', user.metadata.creationTime);
           console.log('Last sign-in time:', user.metadata.lastSignInTime);
           
-          // Check if already verified
+          // Check if already verified (this happens when Firebase redirects after verification)
           if (user.emailVerified) {
-            document.getElementById('successMessage').textContent = 'Your email is already verified! Redirecting...';
+            console.log('✓ User email is already verified');
+            document.getElementById('successMessage').textContent = 'Your email has been verified! Redirecting...';
             document.getElementById('successMessage').classList.add('show');
             setTimeout(() => {
               window.location.href = 'index.html';
@@ -248,16 +268,21 @@
               document.getElementById('errorMessage').textContent = 'Invalid or expired verification link. Please request a new verification email.';
               document.getElementById('errorMessage').classList.add('show');
             }
-          } else if (urlParams.has('continueUrl') || urlHash?.has('continueUrl')) {
-            // Firebase redirected us - check if we're already verified
-            console.log('Firebase redirect detected, checking verification status...');
-            await user.reload();
-            if (user.emailVerified) {
-              document.getElementById('successMessage').textContent = 'Email verified successfully! Redirecting...';
-              document.getElementById('successMessage').classList.add('show');
-              setTimeout(() => {
-                window.location.href = 'index.html';
-              }, 2000);
+          } else {
+            // Check if we arrived from Firebase redirect (even without explicit params)
+            // Firebase might have already processed the verification
+            const referrer = document.referrer;
+            if (referrer && referrer.includes('firebaseapp.com/__/auth/action')) {
+              console.log('Arrived from Firebase auth handler, checking verification status...');
+              await user.reload();
+              if (user.emailVerified) {
+                document.getElementById('successMessage').textContent = 'Email verified successfully! Redirecting...';
+                document.getElementById('successMessage').classList.add('show');
+                setTimeout(() => {
+                  window.location.href = 'index.html';
+                }, 2000);
+                return;
+              }
             }
           }
           
