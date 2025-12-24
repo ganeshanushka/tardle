@@ -2735,11 +2735,20 @@
                 window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, async (user) => {
                   // Check email verification if user is logged in
                   if (user) {
-                    await user.reload(); // Refresh user data to get latest verification status
-                    if (!user.emailVerified) {
-                      console.log('User email not verified, redirecting to verification page');
-                      window.location.href = 'verify-email.html';
-                      return;
+                    try {
+                      await user.reload(); // Refresh user data to get latest verification status
+                      if (!user.emailVerified) {
+                        console.log('User email not verified, redirecting to verification page');
+                        window.location.replace('verify-email.html');
+                        return;
+                      }
+                    } catch (reloadError) {
+                      console.error('Error reloading user:', reloadError);
+                      // If reload fails, check current status
+                      if (!user.emailVerified) {
+                        window.location.replace('verify-email.html');
+                        return;
+                      }
                     }
                   }
                   
@@ -2817,11 +2826,20 @@
                       const currentUser = window.firebaseAuth.currentUser;
                       if (currentUser) {
                         // Check if email is verified - redirect if not
-                        await currentUser.reload(); // Refresh user data to get latest verification status
-                        if (!currentUser.emailVerified) {
-                          console.log('User email not verified, redirecting to verification page');
-                          window.location.href = 'verify-email.html';
-                          return;
+                        try {
+                          await currentUser.reload(); // Refresh user data to get latest verification status
+                          if (!currentUser.emailVerified) {
+                            console.log('User email not verified, redirecting to verification page');
+                            window.location.replace('verify-email.html');
+                            return;
+                          }
+                        } catch (reloadError) {
+                          console.error('Error reloading user:', reloadError);
+                          // If reload fails, check current status
+                          if (!currentUser.emailVerified) {
+                            window.location.replace('verify-email.html');
+                            return;
+                          }
                         }
                         
                         userFound = true;
@@ -3076,6 +3094,59 @@
         
         <!-- Firebase Config -->
         <script type="module" src="firebase-config.js"></script>
+        
+        <!-- Immediate email verification check - runs before any game code -->
+        <script>
+          // Block page access until email verification is confirmed
+          (function() {
+            let verificationChecked = false;
+            let verificationPassed = false;
+            
+            // Check verification status as soon as Firebase is available
+            const checkVerification = setInterval(async () => {
+              if (window.firebaseAuth && window.firebaseAuthFunctions) {
+                clearInterval(checkVerification);
+                
+                // Wait for auth state to be restored
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                const currentUser = window.firebaseAuth.currentUser;
+                if (currentUser) {
+                  // User is logged in - check verification
+                  try {
+                    await currentUser.reload(); // Get latest verification status
+                    if (!currentUser.emailVerified) {
+                      console.log('Email not verified - redirecting immediately');
+                      window.location.replace('verify-email.html');
+                      return;
+                    } else {
+                      console.log('Email verified - allowing access');
+                      verificationPassed = true;
+                    }
+                  } catch (error) {
+                    console.error('Error checking verification:', error);
+                    // On error, allow through (better UX than blocking)
+                    verificationPassed = true;
+                  }
+                } else {
+                  // No user logged in - allow through (they'll be prompted to login)
+                  verificationPassed = true;
+                }
+                
+                verificationChecked = true;
+              }
+            }, 100);
+            
+            // Timeout after 3 seconds - if verification check hasn't completed, allow through
+            setTimeout(() => {
+              if (!verificationChecked) {
+                console.warn('Verification check timeout - allowing access');
+                clearInterval(checkVerification);
+                verificationPassed = true;
+              }
+            }, 3000);
+          })();
+        </script>
         <!-- Profanity filter library -->
         <script src="https://cdn.jsdelivr.net/npm/bad-words@3.0.4/lib/badwords.min.js"></script>
         <script src="app.js"></script>

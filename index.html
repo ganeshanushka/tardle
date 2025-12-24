@@ -266,11 +266,20 @@
         window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, async (user) => {
           // Check email verification if user is logged in
           if (user) {
-            await user.reload(); // Refresh user data to get latest verification status
-            if (!user.emailVerified) {
-              console.log('User email not verified, redirecting to verification page');
-              window.location.href = 'verify-email.html';
-              return;
+            try {
+              await user.reload(); // Refresh user data to get latest verification status
+              if (!user.emailVerified) {
+                console.log('User email not verified, redirecting to verification page');
+                window.location.replace('verify-email.html');
+                return;
+              }
+            } catch (reloadError) {
+              console.error('Error reloading user:', reloadError);
+              // If reload fails, check current status
+              if (!user.emailVerified) {
+                window.location.replace('verify-email.html');
+                return;
+              }
             }
           }
           
