@@ -2755,6 +2755,10 @@
                         return;
                       } else {
                         // Email is verified, allow access
+                        console.log('Email verified in onAuthStateChanged - allowing page load');
+                        if (typeof allowPageLoad === 'function') {
+                          allowPageLoad();
+                        }
                         if (window.verificationCheck && window.verificationCheck.removeOverlay) {
                           window.verificationCheck.removeOverlay();
                         }
@@ -2776,6 +2780,10 @@
                     }
                   } else {
                     // No user - allow through (guest mode)
+                    console.log('No user in onAuthStateChanged - allowing guest access');
+                    if (typeof allowPageLoad === 'function') {
+                      allowPageLoad();
+                    }
                     if (window.verificationCheck && window.verificationCheck.removeOverlay) {
                       window.verificationCheck.removeOverlay();
                     }
@@ -3128,6 +3136,37 @@
         <script type="module" src="firebase-config.js"></script>
         
         <!-- Immediate email verification check - runs before any game code -->
+        <!-- This script MUST complete before app.js loads -->
+        <script>
+          // Block page immediately
+          document.body.style.pointerEvents = 'none';
+          document.body.style.overflow = 'hidden';
+          
+          // Create blocking overlay immediately
+          const blockingOverlay = document.createElement('div');
+          blockingOverlay.id = 'blocking-verification-overlay';
+          blockingOverlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 999999; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px;';
+          blockingOverlay.textContent = 'Checking verification status...';
+          document.body.appendChild(blockingOverlay);
+          
+          // Prevent app.js from loading until verification is checked
+          window.verificationComplete = false;
+          
+          // Function to allow page to load
+          function allowPageLoad() {
+            window.verificationComplete = true;
+            if (blockingOverlay.parentNode) {
+              document.body.removeChild(blockingOverlay);
+            }
+            document.body.style.pointerEvents = '';
+            document.body.style.overflow = '';
+            // Now load app.js
+            const appScript = document.createElement('script');
+            appScript.src = 'app.js';
+            document.body.appendChild(appScript);
+          }
+        </script>
+        
         <script>
           // Block page access until email verification is confirmed
           (function() {
@@ -3219,6 +3258,14 @@
                 gameContainer.style.pointerEvents = 'none';
               }
               
+              // Make sure overlay and its buttons are clickable even when body is blocked
+              overlay.style.pointerEvents = 'all';
+              content.style.pointerEvents = 'all';
+              buttonContainer.style.pointerEvents = 'all';
+              verifyButton.style.pointerEvents = 'all';
+              homeButton.style.pointerEvents = 'all';
+              logoutButton.style.pointerEvents = 'all';
+              
               document.body.appendChild(overlay);
               return overlay;
             }
@@ -3268,10 +3315,63 @@
                   
                   if (!currentUser.emailVerified) {
                     console.log('Email not verified - showing overlay with options');
-                    // Block body interactions
+                    // Update blocking overlay to show options
+                    const blockingOverlay = document.getElementById('blocking-verification-overlay');
+                    if (blockingOverlay) {
+                      blockingOverlay.innerHTML = '';
+                      blockingOverlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-size: 18px; pointer-events: all;';
+                      
+                      const content = document.createElement('div');
+                      content.style.cssText = 'text-align: center; padding: 20px; background: rgba(0,0,0,0.9); border-radius: 8px; max-width: 400px;';
+                      
+                      const message = document.createElement('div');
+                      message.textContent = 'Email verification required to play';
+                      message.style.cssText = 'margin-bottom: 20px; font-size: 20px; font-weight: bold;';
+                      
+                      const submessage = document.createElement('div');
+                      submessage.textContent = 'Please verify your email to access the game.';
+                      submessage.style.cssText = 'margin-bottom: 20px; font-size: 14px; color: #ccc;';
+                      
+                      const buttonContainer = document.createElement('div');
+                      buttonContainer.style.cssText = 'display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;';
+                      
+                      const verifyButton = document.createElement('button');
+                      verifyButton.textContent = 'Go to Verification';
+                      verifyButton.style.cssText = 'padding: 10px 20px; background: #7BAFD4; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;';
+                      verifyButton.onclick = () => window.location.href = 'verify-email.html';
+                      
+                      const homeButton = document.createElement('button');
+                      homeButton.textContent = 'Back to Homepage';
+                      homeButton.style.cssText = 'padding: 10px 20px; background: #666; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;';
+                      homeButton.onclick = async () => {
+                        if (window.firebaseAuthFunctions && window.firebaseAuthFunctions.signOut) {
+                          await window.firebaseAuthFunctions.signOut(window.firebaseAuth);
+                        }
+                        window.location.href = 'index.html';
+                      };
+                      
+                      const logoutButton = document.createElement('button');
+                      logoutButton.textContent = 'Log Out';
+                      logoutButton.style.cssText = 'padding: 10px 20px; background: #d32f2f; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;';
+                      logoutButton.onclick = async () => {
+                        if (window.firebaseAuthFunctions && window.firebaseAuthFunctions.signOut) {
+                          await window.firebaseAuthFunctions.signOut(window.firebaseAuth);
+                          window.location.href = 'index.html';
+                        }
+                      };
+                      
+                      buttonContainer.appendChild(verifyButton);
+                      buttonContainer.appendChild(homeButton);
+                      buttonContainer.appendChild(logoutButton);
+                      
+                      content.appendChild(message);
+                      content.appendChild(submessage);
+                      content.appendChild(buttonContainer);
+                      blockingOverlay.appendChild(content);
+                    }
+                    // Keep body blocked
                     document.body.style.pointerEvents = 'none';
                     document.body.style.overflow = 'hidden';
-                    createOverlay(); // Show overlay with navigation options
                     return false;
                   } else {
                     console.log('Email verified - allowing access');
@@ -3298,7 +3398,11 @@
                   }
                   // If we can't reload but cached status says verified, allow through
                   console.log('Cannot reload user, but cached status shows verified - allowing access');
-                  removeOverlay();
+                  if (typeof allowPageLoad === 'function') {
+                    allowPageLoad();
+                  } else {
+                    removeOverlay();
+                  }
                   verificationPassed = true;
                   if (window.verificationCheck && window.verificationCheck.setVerificationPassed) {
                     window.verificationCheck.setVerificationPassed(true);
@@ -3306,19 +3410,30 @@
                   return true;
                 }
               } else {
-                // No user logged in - but wait a bit more to ensure Firebase has restored session
-                // Don't immediately allow through - keep checking for a bit
-                console.log('No user found, waiting for Firebase to restore session...');
-                return false; // Keep checking, don't allow through yet
+                // No user logged in - wait a bit to ensure Firebase has restored session
+                // After waiting, allow guest access
+                console.log('No user found, allowing guest access');
+                if (typeof allowPageLoad === 'function') {
+                  allowPageLoad();
+                } else {
+                  document.body.style.pointerEvents = '';
+                  document.body.style.overflow = '';
+                  const blockingOverlay = document.getElementById('blocking-verification-overlay');
+                  if (blockingOverlay && blockingOverlay.parentNode) {
+                    document.body.removeChild(blockingOverlay);
+                  }
+                  removeOverlay();
+                }
+                verificationPassed = true;
+                if (window.verificationCheck && window.verificationCheck.setVerificationPassed) {
+                  window.verificationCheck.setVerificationPassed(true);
+                }
+                return true;
               }
             }
             
-            // Create overlay immediately to block all interactions
-            createOverlay();
-            
-            // Also block the entire body immediately
-            document.body.style.pointerEvents = 'none';
-            document.body.style.overflow = 'hidden';
+            // Overlay is already created above, just update it
+            const blockingOverlay = document.getElementById('blocking-verification-overlay');
             
             // Check verification status as soon as Firebase is available
             // Keep checking continuously until verified or confirmed no user
@@ -3344,9 +3459,14 @@
                       createOverlay();
                     } else if (!currentUser && isAuthRestored) {
                       // No user and auth state restored - allow guest access
-                      document.body.style.pointerEvents = '';
-                      document.body.style.overflow = '';
-                      removeOverlay();
+                      console.log('No user and auth restored - allowing guest access');
+                      if (typeof allowPageLoad === 'function') {
+                        allowPageLoad();
+                      } else {
+                        document.body.style.pointerEvents = '';
+                        document.body.style.overflow = '';
+                        removeOverlay();
+                      }
                       verificationPassed = true;
                       if (window.verificationCheck && window.verificationCheck.setVerificationPassed) {
                         window.verificationCheck.setVerificationPassed(true);
@@ -3364,21 +3484,17 @@
               const currentUser = window.firebaseAuth ? window.firebaseAuth.currentUser : null;
               if (!isAuthRestored || !currentUser) {
                 console.log('Auth state check timeout - allowing guest access');
-                // Re-enable body interactions
-                document.body.style.pointerEvents = '';
-                document.body.style.overflow = '';
-                removeOverlay();
+                if (typeof allowPageLoad === 'function') {
+                  allowPageLoad();
+                }
                 verificationPassed = true;
                 if (window.verificationCheck && window.verificationCheck.setVerificationPassed) {
                   window.verificationCheck.setVerificationPassed(true);
                 }
                 clearInterval(checkInterval);
               } else if (currentUser && !currentUser.emailVerified) {
-                // User exists but not verified - keep blocking
+                // User exists but not verified - keep blocking (already handled above)
                 console.log('User exists but not verified - keeping overlay');
-                document.body.style.pointerEvents = 'none';
-                document.body.style.overflow = 'hidden';
-                createOverlay();
               }
             }, 5000);
             
