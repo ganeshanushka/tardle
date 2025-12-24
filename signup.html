@@ -333,7 +333,7 @@
     }
   });
 
-  // Password validation function
+  // Password validation function - returns object with validation results and missing requirements
   function validatePassword(password) {
     const requirements = {
       length: password.length >= 8 && password.length <= 20,
@@ -342,8 +342,28 @@
       number: /[0-9]/.test(password)
     };
     
-    // Return true if all requirements are met
-    return Object.values(requirements).every(req => req === true);
+    const missing = [];
+    if (!requirements.length) {
+      if (password.length < 8) {
+        missing.push('at least 8 characters');
+      } else if (password.length > 20) {
+        missing.push('no more than 20 characters');
+      }
+    }
+    if (!requirements.uppercase) {
+      missing.push('an uppercase letter');
+    }
+    if (!requirements.lowercase) {
+      missing.push('a lowercase letter');
+    }
+    if (!requirements.number) {
+      missing.push('a number');
+    }
+    
+    return {
+      isValid: Object.values(requirements).every(req => req === true),
+      missing: missing
+    };
   }
 
   // Account creation function
@@ -383,8 +403,18 @@
       return;
     }
     
-    if (!validatePassword(password)) {
-      errorMessage.textContent = 'Password does not meet requirements. Use 8-20 characters with upper & lowercase letters and number(s).';
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.isValid) {
+      const missingList = passwordValidation.missing;
+      let errorText = 'Password must contain ';
+      if (missingList.length === 1) {
+        errorText += missingList[0] + '.';
+      } else if (missingList.length === 2) {
+        errorText += missingList[0] + ' and ' + missingList[1] + '.';
+      } else {
+        errorText += missingList.slice(0, -1).join(', ') + ', and ' + missingList[missingList.length - 1] + '.';
+      }
+      errorMessage.textContent = errorText;
       errorMessage.style.display = 'block';
       return;
     }
