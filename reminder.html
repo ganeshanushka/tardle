@@ -206,6 +206,16 @@
 
       if (window.firebaseAuthFunctions.onAuthStateChanged) {
         window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, async (user) => {
+          // Check email verification if user is logged in
+          if (user) {
+            await user.reload(); // Refresh user data to get latest verification status
+            if (!user.emailVerified) {
+              console.log('User email not verified, redirecting to verification page');
+              window.location.href = 'verify-email.html';
+              return;
+            }
+          }
+          
           const loginStatus = document.getElementById('loginStatus');
           const subscriptionSection = document.getElementById('subscriptionSection');
           

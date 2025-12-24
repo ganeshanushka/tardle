@@ -2732,7 +2732,17 @@
             const checkFirebase = setInterval(() => {
               if (window.firebaseAuth && window.firebaseAuthFunctions && window.firebaseAuthFunctions.onAuthStateChanged) {
                 clearInterval(checkFirebase);
-                window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, (user) => {
+                window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, async (user) => {
+                  // Check email verification if user is logged in
+                  if (user) {
+                    await user.reload(); // Refresh user data to get latest verification status
+                    if (!user.emailVerified) {
+                      console.log('User email not verified, redirecting to verification page');
+                      window.location.href = 'verify-email.html';
+                      return;
+                    }
+                  }
+                  
                   const greetingElement = document.getElementById('sidePanelGreeting');
                   const greetingNameElement = document.getElementById('userGreetingName');
                   const logoutButton = document.getElementById('logoutButton');
@@ -2803,9 +2813,17 @@
                     let loginPromptShown = false;
                     
                     // Check auth state after 150ms delay
-                    setTimeout(() => {
+                    setTimeout(async () => {
                       const currentUser = window.firebaseAuth.currentUser;
                       if (currentUser) {
+                        // Check if email is verified - redirect if not
+                        await currentUser.reload(); // Refresh user data to get latest verification status
+                        if (!currentUser.emailVerified) {
+                          console.log('User email not verified, redirecting to verification page');
+                          window.location.href = 'verify-email.html';
+                          return;
+                        }
+                        
                         userFound = true;
                         // User is logged in - show PROFILE section and "LOG OUT" button
                         const logoutButton = document.getElementById('logoutButton');

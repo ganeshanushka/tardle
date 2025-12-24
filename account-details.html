@@ -576,6 +576,14 @@
           return;
         }
 
+        // Check if email is verified - redirect if not
+        await currentUser.reload(); // Refresh user data to get latest verification status
+        if (!currentUser.emailVerified) {
+          console.log('User email not verified, redirecting to verification page');
+          window.location.href = 'verify-email.html';
+          return;
+        }
+
         console.log('Current user found:', currentUser.uid, currentUser.email);
         
         // Update greeting immediately with email-based username as fallback

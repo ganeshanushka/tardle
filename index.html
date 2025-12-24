@@ -263,7 +263,17 @@
       if (window.firebaseAuthFunctions && window.firebaseAuth) {
         clearInterval(checkFirebase);
         
-        window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, (user) => {
+        window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, async (user) => {
+          // Check email verification if user is logged in
+          if (user) {
+            await user.reload(); // Refresh user data to get latest verification status
+            if (!user.emailVerified) {
+              console.log('User email not verified, redirecting to verification page');
+              window.location.href = 'verify-email.html';
+              return;
+            }
+          }
+          
           isUserLoggedIn = !!user;
           const loginButton = document.getElementById('loginButton');
           const howToPlayButton = document.getElementById('howToPlayButton');
