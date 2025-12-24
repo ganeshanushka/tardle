@@ -245,7 +245,13 @@
             console.error('✗ Could not auto-send verification email:', autoSendError);
             console.error('Error code:', autoSendError.code);
             console.error('Error message:', autoSendError.message);
-            // Don't show error on auto-send - user can manually resend if needed
+            
+            // Show helpful message for rate limiting
+            if (autoSendError.code === 'auth/too-many-requests') {
+              document.getElementById('errorMessage').textContent = 'Too many verification emails sent recently. Please wait 5-10 minutes before trying again, or check your inbox (including spam folder) for previous verification emails.';
+              document.getElementById('errorMessage').classList.add('show');
+            }
+            // Don't show error for other cases on auto-send - user can manually resend if needed
           }
           
           // Check for email verification link in URL (Firebase adds actionCode and oobCode)
@@ -413,7 +419,7 @@
       // Show specific error messages
       let errorMsg = 'Failed to send verification email. ';
       if (error.code === 'auth/too-many-requests') {
-        errorMsg = 'Too many verification emails sent. Please wait a few minutes before trying again.';
+        errorMsg = 'Too many verification emails sent recently. Firebase has temporarily blocked sending more emails to prevent abuse. Please wait 5-10 minutes before trying again. You can also check your inbox (including spam folder) for previous verification emails.';
       } else if (error.code === 'auth/user-not-found') {
         errorMsg = 'User account not found. Please try logging in again.';
       } else if (error.code === 'auth/requires-recent-login') {
