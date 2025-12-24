@@ -112,3 +112,86 @@ exports.sendVerificationCode = functions.https.onCall(async (data, context) => {
   }
 });
 
+// Clean up unverified accounts older than 7 days
+// Runs daily at 2am ET
+exports.cleanupUnverifiedAccounts = functions.pubsub
+  .schedule("0 2 * * *")
+  .timeZone("America/New_York")
+  .onRun(async (context) => {
+    try {
+      console.log('Starting cleanup of unverified accounts...');
+      
+      const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+      let deletedCount = 0;
+      let errorCount = 0;
+      
+      // List all users
+      const listUsersResult = await admin.auth().listUsers(1000);
+      const users = listUsersResult.users;
+      
+      console.log(`Found ${users.length} users to check`);
+      
+      for (const userRecord of users) {
+        try {
+          // Check if user is unverified and account is older than 7 days
+          const creationTime = userRecord.metadata.creationTime ? new Date(userRecord.metadata.creationTime).getTime() : 0;
+          const isUnverified = !userRecord.emailVerified;
+          const isOldEnough = creationTime < sevenDaysAgo;
+          
+          if (isUnverified && isOldEnough) {
+            // Check if user has a Firestore document (they shouldn't if unverified)
+            const userDoc = await db.collection('users').doc(userRecord.uid).get();
+            
+            if (!userDoc.exists) {
+              // No Firestore document, safe to delete
+              console.log(`Deleting unverified account: ${userRecord.email} (created: ${userRecord.metadata.creationTime})`);
+              await admin.auth().deleteUser(userRecord.uid);
+              deletedCount++;
+            } else {
+              console.log(`Skipping ${userRecord.email} - has Firestore document despite being unverified`);
+            }
+          }
+        } catch (userError) {
+          console.error(`Error processing user ${userRecord.uid}:`, userError);
+          errorCount++;
+        }
+      }
+      
+      // Handle pagination if there are more than 1000 users
+      let nextPageToken = listUsersResult.pageToken;
+      while (nextPageToken) {
+        const nextPageResult = await admin.auth().listUsers(1000, nextPageToken);
+        const nextUsers = nextPageResult.users;
+        
+        for (const userRecord of nextUsers) {
+          try {
+            const creationTime = userRecord.metadata.creationTime ? new Date(userRecord.metadata.creationTime).getTime() : 0;
+            const isUnverified = !userRecord.emailVerified;
+            const isOldEnough = creationTime < sevenDaysAgo;
+            
+            if (isUnverified && isOldEnough) {
+              const userDoc = await db.collection('users').doc(userRecord.uid).get();
+              
+              if (!userDoc.exists) {
+                console.log(`Deleting unverified account: ${userRecord.email} (created: ${userRecord.metadata.creationTime})`);
+                await admin.auth().deleteUser(userRecord.uid);
+                deletedCount++;
+              }
+            }
+          } catch (userError) {
+            console.error(`Error processing user ${userRecord.uid}:`, userError);
+            errorCount++;
+          }
+        }
+        
+        nextPageToken = nextPageResult.pageToken;
+      }
+      
+      console.log(`Cleanup complete. Deleted ${deletedCount} unverified accounts. Errors: ${errorCount}`);
+      return { deleted: deletedCount, errors: errorCount };
+    } catch (err) {
+      console.error("Error cleaning up unverified accounts:", err);
+      throw err;
+    }
+  });
+
