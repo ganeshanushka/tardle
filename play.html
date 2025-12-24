@@ -2733,22 +2733,54 @@
               if (window.firebaseAuth && window.firebaseAuthFunctions && window.firebaseAuthFunctions.onAuthStateChanged) {
                 clearInterval(checkFirebase);
                 window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, async (user) => {
+                  // Mark that auth state has been restored
+                  if (window.verificationCheck && window.verificationCheck.setAuthStateRestored) {
+                    window.verificationCheck.setAuthStateRestored(true);
+                  }
+                  
                   // Check email verification if user is logged in
                   if (user) {
                     try {
                       await user.reload(); // Refresh user data to get latest verification status
+                      console.log('onAuthStateChanged - emailVerified:', user.emailVerified);
                       if (!user.emailVerified) {
-                        console.log('User email not verified, redirecting to verification page');
-                        window.location.replace('verify-email.html');
+                        console.log('User email not verified, showing overlay');
+                        // Don't redirect - show overlay instead so they can navigate
+                        if (window.verificationCheck && window.verificationCheck.createOverlay) {
+                          window.verificationCheck.createOverlay();
+                        } else {
+                          // If overlay function not available yet, redirect
+                          window.location.replace('verify-email.html');
+                        }
                         return;
+                      } else {
+                        // Email is verified, allow access
+                        if (window.verificationCheck && window.verificationCheck.removeOverlay) {
+                          window.verificationCheck.removeOverlay();
+                        }
+                        if (window.verificationCheck && window.verificationCheck.setVerificationPassed) {
+                          window.verificationCheck.setVerificationPassed(true);
+                        }
                       }
                     } catch (reloadError) {
                       console.error('Error reloading user:', reloadError);
                       // If reload fails, check current status
                       if (!user.emailVerified) {
-                        window.location.replace('verify-email.html');
+                        if (window.verificationCheck && window.verificationCheck.createOverlay) {
+                          window.verificationCheck.createOverlay();
+                        } else {
+                          window.location.replace('verify-email.html');
+                        }
                         return;
                       }
+                    }
+                  } else {
+                    // No user - allow through (guest mode)
+                    if (window.verificationCheck && window.verificationCheck.removeOverlay) {
+                      window.verificationCheck.removeOverlay();
+                    }
+                    if (window.verificationCheck && window.verificationCheck.setVerificationPassed) {
+                      window.verificationCheck.setVerificationPassed(true);
                     }
                   }
                   
@@ -3101,6 +3133,16 @@
           (function() {
             let verificationPassed = false;
             let overlay = null;
+            let authStateRestored = false;
+            
+            // Make functions accessible globally for onAuthStateChanged handler
+            window.verificationCheck = {
+              createOverlay: null,
+              removeOverlay: null,
+              setAuthStateRestored: (value) => { authStateRestored = value; },
+              setVerificationPassed: (value) => { verificationPassed = value; },
+              getVerificationPassed: () => verificationPassed
+            };
             
             function createOverlay() {
               if (overlay && overlay.parentNode) return overlay;
@@ -3181,15 +3223,27 @@
               }
             }
             
+            // Store function on window object
+            window.verificationCheck.removeOverlay = removeOverlay;
+            
+            let authStateRestored = false;
+            
             async function checkVerification() {
-              if (verificationPassed) return true;
+              const isVerified = window.verificationCheck ? window.verificationCheck.getVerificationPassed() : verificationPassed;
+              if (isVerified) return true;
               
               if (!window.firebaseAuth || !window.firebaseAuthFunctions) {
                 return false;
               }
               
-              // Wait for auth state to be restored
-              await new Promise(resolve => setTimeout(resolve, 300));
+              // Wait longer for auth state to be restored (Firebase can take a moment)
+              // Also wait for onAuthStateChanged to fire at least once
+              const isAuthRestored = window.verificationCheck ? window.verificationCheck.getAuthStateRestored() : authStateRestored;
+              if (!isAuthRestored) {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                // Check if auth state has been restored by checking if onAuthStateChanged has fired
+                // We'll set authStateRestored in the onAuthStateChanged handler
+              }
               
               const currentUser = window.firebaseAuth.currentUser;
               if (currentUser) {
@@ -3220,13 +3274,16 @@
                   console.log('Cannot reload user, but cached status shows verified - allowing access');
                   removeOverlay();
                   verificationPassed = true;
+                  if (window.verificationCheck && window.verificationCheck.setVerificationPassed) {
+                    window.verificationCheck.setVerificationPassed(true);
+                  }
                   return true;
                 }
               } else {
-                // No user logged in - allow through (they'll be prompted to login)
-                removeOverlay();
-                verificationPassed = true;
-                return true;
+                // No user logged in - but wait a bit more to ensure Firebase has restored session
+                // Don't immediately allow through - keep checking for a bit
+                console.log('No user found, waiting for Firebase to restore session...');
+                return false; // Keep checking, don't allow through yet
               }
             }
             
@@ -3234,25 +3291,55 @@
             createOverlay();
             
             // Check verification status as soon as Firebase is available
-            // Keep checking continuously until verified or no user
+            // Keep checking continuously until verified or confirmed no user
             const checkInterval = setInterval(async () => {
               if (window.firebaseAuth && window.firebaseAuthFunctions) {
                 const passed = await checkVerification();
                 if (passed) {
                   clearInterval(checkInterval);
                 } else {
-                  // If not passed and user exists, keep overlay up
-                  const currentUser = window.firebaseAuth.currentUser;
-                  if (currentUser && !verificationPassed) {
-                    createOverlay();
+                  // If not passed, check if we should keep overlay up
+                  // Wait for auth state to be restored first
+                  // Check authStateRestored from the closure or window object
+                  const isAuthRestored = authStateRestored;
+                  if (isAuthRestored) {
+                    const currentUser = window.firebaseAuth.currentUser;
+                    const isVerified = window.verificationCheck ? window.verificationCheck.getVerificationPassed() : verificationPassed;
+                    if (currentUser && !isVerified) {
+                      // User is logged in but not verified - show overlay
+                      createOverlay();
+                    } else if (!currentUser && isAuthRestored) {
+                      // No user and auth state restored - allow guest access
+                      removeOverlay();
+                      verificationPassed = true;
+                      if (window.verificationCheck && window.verificationCheck.setVerificationPassed) {
+                        window.verificationCheck.setVerificationPassed(true);
+                      }
+                      clearInterval(checkInterval);
+                    }
                   }
                 }
               }
             }, 200); // Check every 200ms
             
+            // Stop checking after 5 seconds if still no user (allow guest mode)
+            setTimeout(() => {
+              const isAuthRestored = window.verificationCheck ? window.verificationCheck.getAuthStateRestored() : authStateRestored;
+              if (!isAuthRestored || !window.firebaseAuth.currentUser) {
+                console.log('Auth state check timeout - allowing guest access');
+                removeOverlay();
+                verificationPassed = true;
+                if (window.verificationCheck && window.verificationCheck.setVerificationPassed) {
+                  window.verificationCheck.setVerificationPassed(true);
+                }
+                clearInterval(checkInterval);
+              }
+            }, 5000);
+            
             // Also check when tab becomes visible (user switches back)
             document.addEventListener('visibilitychange', async () => {
-              if (!document.hidden && !verificationPassed) {
+              const isVerified = window.verificationCheck ? window.verificationCheck.getVerificationPassed() : verificationPassed;
+              if (!document.hidden && !isVerified) {
                 createOverlay();
                 await checkVerification();
               }
@@ -3260,7 +3347,8 @@
             
             // Check on window focus
             window.addEventListener('focus', async () => {
-              if (!verificationPassed) {
+              const isVerified = window.verificationCheck ? window.verificationCheck.getVerificationPassed() : verificationPassed;
+              if (!isVerified) {
                 createOverlay();
                 await checkVerification();
               }
