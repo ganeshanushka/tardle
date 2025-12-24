@@ -187,6 +187,8 @@
           userEmail = user.email || '';
           document.getElementById('emailDisplay').textContent = userEmail;
           
+          console.log('Verification page loaded for user:', userEmail);
+          
           // Check if already verified
           if (user.emailVerified) {
             document.getElementById('successMessage').textContent = 'Your email is already verified!';
@@ -194,6 +196,33 @@
             setTimeout(() => {
               window.location.href = 'index.html';
             }, 2000);
+            return;
+          }
+          
+          // Check if verification code exists in Firestore (for debugging)
+          try {
+            const verificationDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'verificationCodes', user.uid);
+            const verificationDoc = await window.firebaseFirestoreFunctions.getDoc(verificationDocRef);
+            
+            if (verificationDoc.exists()) {
+              const verificationData = verificationDoc.data();
+              const storedCode = verificationData.code;
+              const expiresAt = verificationData.expiresAt;
+              const timeRemaining = Math.floor((expiresAt - Date.now()) / 1000 / 60);
+              
+              console.log('✓ Verification code found in Firestore');
+              console.log('VERIFICATION CODE (for testing):', storedCode);
+              console.log('Code expires in:', timeRemaining, 'minutes');
+              
+              if (timeRemaining <= 0) {
+                console.warn('⚠ Code has expired');
+              }
+            } else {
+              console.warn('⚠ No verification code found in Firestore');
+              console.log('This means the code was not stored during signup, or it was already used.');
+            }
+          } catch (checkError) {
+            console.error('Error checking verification code:', checkError);
           }
         } else {
           // User is not logged in - redirect to login
