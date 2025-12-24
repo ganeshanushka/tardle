@@ -57,3 +57,37 @@ exports.sendDailyTardleEmail = functions.pubsub
     return null;
   });
 
+// Send verification code email
+exports.sendVerificationCode = functions.https.onCall(async (data, context) => {
+  try {
+    const { email, code, username } = data;
+
+    if (!email || !code) {
+      throw new functions.https.HttpsError('invalid-argument', 'Email and code are required');
+    }
+
+    await resend.emails.send({
+      from: "Tardle <no-reply@tardle.com>",
+      to: email,
+      subject: "Verify your Tardle account",
+      html: `
+        <h2>Welcome to Tardle, ${username || 'there'}!</h2>
+        <p>Thank you for creating an account. Please verify your email address by entering the following code:</p>
+        <div style="background-color: #f5f5f5; padding: 20px; text-align: center; margin: 20px 0; border-radius: 8px;">
+          <h1 style="font-size: 32px; letter-spacing: 8px; color: #001A57; margin: 0;">${code}</h1>
+        </div>
+        <p>This code will expire in 15 minutes.</p>
+        <p>If you didn't create an account, please ignore this email.</p>
+        <p>Happy playing!</p>
+        <p>- The Tardle Team</p>
+      `,
+    });
+
+    console.log(`Verification code sent to ${email}`);
+    return { success: true };
+  } catch (err) {
+    console.error("Error sending verification code:", err);
+    throw new functions.https.HttpsError('internal', 'Failed to send verification code');
+  }
+});
+

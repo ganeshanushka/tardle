@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verify Email - Tardle</title>
+<style>
+  body {
+    font-family: 'PT Serif', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #7BAFD4;
+  }
+
+  .verify-container {
+    background-color: white;
+    margin: auto;
+    padding: 40px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    width: 500px;
+    max-width: 90%;
+    text-align: center;
+  }
+
+  h1 {
+    font-size: 32px;
+    margin-bottom: 10px;
+    color: #1a1a1a;
+  }
+
+  .subtitle {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 30px;
+  }
+
+  .email-display {
+    font-weight: bold;
+    color: #001A57;
+    margin-bottom: 30px;
+  }
+
+  .code-input-container {
+    margin-bottom: 20px;
+  }
+
+  .code-input {
+    width: 100%;
+    padding: 15px;
+    font-size: 24px;
+    text-align: center;
+    letter-spacing: 8px;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-family: 'PT Serif', monospace;
+  }
+
+  .code-input:focus {
+    outline: none;
+    border-color: #7BAFD4;
+  }
+
+  .error-message {
+    color: #d32f2f;
+    font-size: 14px;
+    margin-top: 10px;
+    min-height: 20px;
+    display: none;
+  }
+
+  .error-message.show {
+    display: block;
+  }
+
+  .success-message {
+    color: #2e7d32;
+    font-size: 14px;
+    margin-top: 10px;
+    min-height: 20px;
+    display: none;
+  }
+
+  .success-message.show {
+    display: block;
+  }
+
+  .verify-button {
+    background-color: #7BAFD4;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'PT Serif', sans-serif;
+    width: 100%;
+    margin-top: 20px;
+    transition: background-color 0.2s ease;
+  }
+
+  .verify-button:hover {
+    background-color: #6a9fc0;
+  }
+
+  .verify-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+
+  .resend-section {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+  }
+
+  .resend-link {
+    color: #7BAFD4;
+    text-decoration: none;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .resend-link:hover {
+    text-decoration: underline;
+  }
+
+  .resend-link:disabled {
+    color: #ccc;
+    cursor: not-allowed;
+    text-decoration: none;
+  }
+
+  .resend-timer {
+    color: #666;
+    font-size: 14px;
+    margin-top: 10px;
+  }
+</style>
+</head>
+<body>
+
+<div class="verify-container">
+  <h1>Verify your email</h1>
+  <p class="subtitle">We've sent a verification code to</p>
+  <div class="email-display" id="emailDisplay">Loading...</div>
+  
+  <form id="verifyForm">
+    <div class="code-input-container">
+      <input type="text" id="verificationCode" class="code-input" placeholder="000000" maxlength="6" pattern="[0-9]{6}" autocomplete="off">
+    </div>
+    
+    <div class="error-message" id="errorMessage"></div>
+    <div class="success-message" id="successMessage"></div>
+    
+    <button type="submit" class="verify-button" id="verifyButton">Verify</button>
+  </form>
+  
+  <div class="resend-section">
+    <a href="#" class="resend-link" id="resendLink">Resend code</a>
+    <div class="resend-timer" id="resendTimer"></div>
+  </div>
+</div>
+
+<!-- Firebase Config -->
+<script type="module" src="firebase-config.js"></script>
+
+<script>
+  let currentUser = null;
+  let userEmail = '';
+  let resendTimer = 60; // 60 seconds cooldown
+  let resendInterval = null;
+
+  // Wait for Firebase to load
+  const checkFirebase = setInterval(() => {
+    if (window.firebaseAuth && window.firebaseAuthFunctions && window.firebaseFirestoreFunctions && window.firebaseDb) {
+      clearInterval(checkFirebase);
+      
+      // Set up listener for auth state changes
+      window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, async (user) => {
+        if (user) {
+          currentUser = user;
+          userEmail = user.email || '';
+          document.getElementById('emailDisplay').textContent = userEmail;
+          
+          // Check if already verified
+          if (user.emailVerified) {
+            document.getElementById('successMessage').textContent = 'Your email is already verified!';
+            document.getElementById('successMessage').classList.add('show');
+            setTimeout(() => {
+              window.location.href = 'index.html';
+            }, 2000);
+          }
+        } else {
+          // User is not logged in - redirect to login
+          window.location.href = 'login.html?return=' + encodeURIComponent('verify-email.html');
+        }
+      });
+      
+      // Wait for Firebase to restore the session
+      setTimeout(() => {
+        if (!window.firebaseAuth.currentUser) {
+          window.location.href = 'login.html?return=' + encodeURIComponent('verify-email.html');
+        }
+      }, 1500);
+    }
+  }, 100);
+
+  // Format code input (only numbers, auto-format)
+  document.getElementById('verificationCode').addEventListener('input', function(e) {
+    // Only allow numbers
+    this.value = this.value.replace(/[^0-9]/g, '');
+    
+    // Clear error when user types
+    document.getElementById('errorMessage').classList.remove('show');
+  });
+
+  // Handle form submission
+  document.getElementById('verifyForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const code = document.getElementById('verificationCode').value;
+    const errorMessage = document.getElementById('errorMessage');
+    const successMessage = document.getElementById('successMessage');
+    const verifyButton = document.getElementById('verifyButton');
+    
+    // Clear previous messages
+    errorMessage.classList.remove('show');
+    successMessage.classList.remove('show');
+    
+    if (!currentUser) {
+      errorMessage.textContent = 'You must be logged in to verify your email.';
+      errorMessage.classList.add('show');
+      return;
+    }
+    
+    if (!code || code.length !== 6) {
+      errorMessage.textContent = 'Please enter the 6-digit verification code.';
+      errorMessage.classList.add('show');
+      return;
+    }
+    
+    // Disable button
+    verifyButton.disabled = true;
+    verifyButton.textContent = 'Verifying...';
+    
+    try {
+      // Get verification code from Firestore
+      const verificationDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'verificationCodes', currentUser.uid);
+      const verificationDoc = await window.firebaseFirestoreFunctions.getDoc(verificationDocRef);
+      
+      if (!verificationDoc.exists()) {
+        throw new Error('Verification code not found. Please request a new code.');
+      }
+      
+      const verificationData = verificationDoc.data();
+      const storedCode = verificationData.code;
+      const expiresAt = verificationData.expiresAt;
+      
+      // Check if code has expired
+      if (Date.now() > expiresAt) {
+        throw new Error('Verification code has expired. Please request a new code.');
+      }
+      
+      // Verify the code
+      if (code !== storedCode) {
+        throw new Error('Invalid verification code. Please try again.');
+      }
+      
+      // Code is valid - mark email as verified in Firebase Auth
+      // Note: Firebase Auth doesn't have a direct way to mark email as verified
+      // We'll update Firestore to track verification status
+      const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
+      await window.firebaseFirestoreFunctions.updateDoc(userDocRef, {
+        emailVerified: true,
+        emailVerifiedAt: window.firebaseFirestoreFunctions.serverTimestamp()
+      });
+      
+      // Delete the verification code document
+      await window.firebaseFirestoreFunctions.deleteDoc(verificationDocRef);
+      
+      // Show success message
+      successMessage.textContent = 'Email verified successfully! Redirecting...';
+      successMessage.classList.add('show');
+      
+      // Redirect to homepage after a short delay
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 1500);
+      
+    } catch (error) {
+      console.error('Verification error:', error);
+      errorMessage.textContent = error.message || 'An error occurred. Please try again.';
+      errorMessage.classList.add('show');
+      
+      verifyButton.disabled = false;
+      verifyButton.textContent = 'Verify';
+    }
+  });
+
+  // Handle resend code
+  document.getElementById('resendLink').addEventListener('click', async function(e) {
+    e.preventDefault();
+    
+    if (this.classList.contains('disabled')) {
+      return;
+    }
+    
+    if (!currentUser) {
+      return;
+    }
+    
+    const resendLink = this;
+    const resendTimerEl = document.getElementById('resendTimer');
+    const errorMessage = document.getElementById('errorMessage');
+    
+    try {
+      // Generate new verification code
+      const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+      const codeExpiry = Date.now() + (15 * 60 * 1000);
+      
+      // Store new code
+      const verificationDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'verificationCodes', currentUser.uid);
+      await window.firebaseFirestoreFunctions.setDoc(verificationDocRef, {
+        code: verificationCode,
+        email: userEmail,
+        expiresAt: codeExpiry,
+        createdAt: window.firebaseFirestoreFunctions.serverTimestamp()
+      });
+      
+      // Send email
+      if (window.firebaseFunctions && window.firebaseFunctionsInstance) {
+        const sendVerificationCode = window.firebaseFunctions.httpsCallable(window.firebaseFunctionsInstance, 'sendVerificationCode');
+        await sendVerificationCode({
+          email: userEmail,
+          code: verificationCode,
+          username: currentUser.displayName || ''
+        });
+      }
+      
+      // Start cooldown timer
+      resendLink.classList.add('disabled');
+      resendLink.style.pointerEvents = 'none';
+      resendTimer = 60;
+      
+      resendInterval = setInterval(() => {
+        resendTimer--;
+        resendTimerEl.textContent = `Resend code in ${resendTimer} seconds`;
+        
+        if (resendTimer <= 0) {
+          clearInterval(resendInterval);
+          resendLink.classList.remove('disabled');
+          resendLink.style.pointerEvents = 'auto';
+          resendTimerEl.textContent = '';
+        }
+      }, 1000);
+      
+      errorMessage.textContent = 'New verification code sent!';
+      errorMessage.style.color = '#2e7d32';
+      errorMessage.classList.add('show');
+      
+    } catch (error) {
+      console.error('Resend error:', error);
+      errorMessage.textContent = 'Failed to resend code. Please try again.';
+      errorMessage.style.color = '#d32f2f';
+      errorMessage.classList.add('show');
+    }
+  });
+</script>
+
+</body>
+</html>

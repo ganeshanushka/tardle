@@ -742,6 +742,42 @@
       
       console.log('User account created and logged in:', user.email);
       
+      // Generate verification code
+      const verificationCode = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit code
+      const codeExpiry = Date.now() + (15 * 60 * 1000); // 15 minutes from now
+      
+      // Store verification code in Firestore
+      try {
+        const verificationDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'verificationCodes', user.uid);
+        await window.firebaseFirestoreFunctions.setDoc(verificationDocRef, {
+          code: verificationCode,
+          email: email,
+          expiresAt: codeExpiry,
+          createdAt: window.firebaseFirestoreFunctions.serverTimestamp()
+        });
+        console.log('Verification code stored in Firestore');
+      } catch (codeError) {
+        console.error('Error storing verification code:', codeError);
+      }
+      
+      // Send verification code email via Cloud Function
+      try {
+        if (window.firebaseFunctions && window.firebaseFunctionsInstance) {
+          const sendVerificationCode = window.firebaseFunctions.httpsCallable(window.firebaseFunctionsInstance, 'sendVerificationCode');
+          await sendVerificationCode({
+            email: email,
+            code: verificationCode,
+            username: username
+          });
+          console.log('Verification code email sent');
+        } else {
+          console.warn('Cloud Functions not available, skipping email send');
+        }
+      } catch (emailError) {
+        console.error('Error sending verification email:', emailError);
+        // Continue even if email fails - user can request resend
+      }
+      
       // createUserWithEmailAndPassword automatically logs the user in
       // Verify user is logged in (should be immediate after createUserWithEmailAndPassword)
       const currentUser = window.firebaseAuth.currentUser;
@@ -750,12 +786,9 @@
       // Small delay to ensure auth state is set
       await new Promise(resolve => setTimeout(resolve, 200));
       
-      // Redirect to homepage - this should ALWAYS happen
-      console.log('Redirecting to:', redirectUrl);
-      console.log('Current URL:', window.location.href);
-      
-      // Force redirect - use replace to prevent back button issues
-      window.location.replace(redirectUrl);
+      // Redirect to verification page instead of homepage
+      console.log('Redirecting to verification page');
+      window.location.replace('verify-email.html');
     } catch (error) {
       console.error('Sign up error:', error);
       console.error('Error code:', error.code);
