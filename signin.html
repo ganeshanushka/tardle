@@ -284,6 +284,16 @@
       // User signed in successfully
       console.log('User signed in:', userCredential.user.email);
       
+      // Check if email is verified before redirecting
+      const user = userCredential.user;
+      await user.reload(); // Get latest verification status
+      
+      if (!user.emailVerified) {
+        console.log('Email not verified - redirecting to verification page');
+        window.location.replace('verify-email.html');
+        return;
+      }
+      
       // Redirect to return URL if provided, otherwise to home page
       const redirectUrl = returnUrl || 'index.html';
       window.location.href = redirectUrl;

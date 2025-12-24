@@ -3099,16 +3099,22 @@
         <script>
           // Block page access until email verification is confirmed
           (function() {
+            // Show loading overlay to prevent interaction
+            const overlay = document.createElement('div');
+            overlay.id = 'verification-check-overlay';
+            overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 99999; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px;';
+            overlay.textContent = 'Checking verification status...';
+            document.body.appendChild(overlay);
+            
             let verificationChecked = false;
-            let verificationPassed = false;
             
             // Check verification status as soon as Firebase is available
             const checkVerification = setInterval(async () => {
               if (window.firebaseAuth && window.firebaseAuthFunctions) {
                 clearInterval(checkVerification);
                 
-                // Wait for auth state to be restored
-                await new Promise(resolve => setTimeout(resolve, 500));
+                // Wait for auth state to be restored (shorter wait)
+                await new Promise(resolve => setTimeout(resolve, 300));
                 
                 const currentUser = window.firebaseAuth.currentUser;
                 if (currentUser) {
@@ -3117,34 +3123,41 @@
                     await currentUser.reload(); // Get latest verification status
                     if (!currentUser.emailVerified) {
                       console.log('Email not verified - redirecting immediately');
+                      overlay.textContent = 'Email not verified. Redirecting...';
                       window.location.replace('verify-email.html');
                       return;
                     } else {
                       console.log('Email verified - allowing access');
-                      verificationPassed = true;
+                      document.body.removeChild(overlay);
+                      verificationChecked = true;
                     }
                   } catch (error) {
                     console.error('Error checking verification:', error);
-                    // On error, allow through (better UX than blocking)
-                    verificationPassed = true;
+                    // On error, check current status without reload
+                    if (!currentUser.emailVerified) {
+                      overlay.textContent = 'Email not verified. Redirecting...';
+                      window.location.replace('verify-email.html');
+                      return;
+                    }
+                    document.body.removeChild(overlay);
+                    verificationChecked = true;
                   }
                 } else {
                   // No user logged in - allow through (they'll be prompted to login)
-                  verificationPassed = true;
+                  document.body.removeChild(overlay);
+                  verificationChecked = true;
                 }
-                
+              }
+            }, 50); // Check more frequently
+            
+            // Timeout after 2 seconds - if verification check hasn't completed, remove overlay
+            setTimeout(() => {
+              if (!verificationChecked && overlay.parentNode) {
+                console.warn('Verification check timeout - removing overlay');
+                document.body.removeChild(overlay);
                 verificationChecked = true;
               }
-            }, 100);
-            
-            // Timeout after 3 seconds - if verification check hasn't completed, allow through
-            setTimeout(() => {
-              if (!verificationChecked) {
-                console.warn('Verification check timeout - allowing access');
-                clearInterval(checkVerification);
-                verificationPassed = true;
-              }
-            }, 3000);
+            }, 2000);
           })();
         </script>
         <!-- Profanity filter library -->
