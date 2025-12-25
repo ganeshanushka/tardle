@@ -1175,6 +1175,11 @@
         window.location.href = 'change-email.html';
       });
       
+      document.getElementById('verifyEmailLink')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        window.location.href = 'verify-email.html';
+      });
+      
       document.getElementById('updateUsernameLink')?.addEventListener('click', function(e) {
         e.preventDefault();
         alert('Username update functionality coming soon!');
