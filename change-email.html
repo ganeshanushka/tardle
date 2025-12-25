@@ -594,29 +594,11 @@
         console.error('Error message:', error.message);
         console.error('Full error object:', JSON.stringify(error, null, 2));
         
-        // Check current email verification status
-        let currentEmailVerified = false;
-        try {
-          await currentUser.reload();
-          currentEmailVerified = currentUser.emailVerified;
-          console.log('Current email verified status:', currentEmailVerified);
-        } catch (reloadErr) {
-          console.warn('Could not reload user:', reloadErr);
-          currentEmailVerified = currentUser.emailVerified || false;
-        }
-        
-        // Check if Firebase provided a specific error message
+        // This error shouldn't occur with verifyBeforeUpdateEmail, but handle it just in case
         let errorMsg = 'Email change is not allowed. ';
-        
         if (error.message && (error.message.includes('verify') || error.message.includes('verification'))) {
-          if (!currentEmailVerified) {
-            errorMsg = 'Your current email address (' + userEmail + ') must be verified before you can change it. ';
-            errorMsg += 'Please go to your account details page and verify your current email address first, then try again.';
-          } else {
-            // Current email is verified, so Firebase might be blocking for another reason
-            errorMsg = 'Email change requires additional verification. Your current email is verified, but Firebase may require additional security steps. ';
-            errorMsg += 'Please try logging out and back in, then try again. If the issue persists, the new email address may need to be verified after the change.';
-          }
+          // Even if current email is verified, Firebase requires NEW email verification
+          errorMsg = 'Firebase security requires verifying the NEW email address before changing, even though your current email is verified. This prevents unauthorized email changes. Please try again - a verification email will be sent to ' + newEmail + '.';
         } else if (error.message) {
           // Use Firebase's error message if it's more specific
           errorMsg = error.message.replace('Firebase: ', '').replace(' (auth/operation-not-allowed)', '');
