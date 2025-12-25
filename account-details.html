@@ -1199,13 +1199,83 @@
       
     });
 
+    // Function to update email verification status (can be called independently)
+    async function updateEmailVerificationStatus() {
+      console.log('updateEmailVerificationStatus called');
+      const currentUser = window.firebaseAuth ? window.firebaseAuth.currentUser : null;
+      if (!currentUser) {
+        console.log('No current user found');
+        return;
+      }
+      
+      const verificationStatusEl = document.getElementById('emailVerificationStatus');
+      const verifyEmailLink = document.getElementById('verifyEmailLink');
+      
+      console.log('Verification status element found:', !!verificationStatusEl);
+      
+      if (verificationStatusEl) {
+        try {
+          await currentUser.reload(); // Get latest verification status
+          if (currentUser.emailVerified) {
+            verificationStatusEl.textContent = '✓ Verified';
+            verificationStatusEl.style.color = '#2e7d32';
+            verificationStatusEl.style.fontWeight = '500';
+            if (verifyEmailLink) {
+              verifyEmailLink.style.display = 'none';
+            }
+          } else {
+            verificationStatusEl.textContent = '✗ Not verified';
+            verificationStatusEl.style.color = '#d32f2f';
+            verificationStatusEl.style.fontWeight = '500';
+            if (verifyEmailLink) {
+              verifyEmailLink.style.display = 'inline';
+            }
+          }
+          verificationStatusEl.classList.remove('loading');
+        } catch (reloadError) {
+          console.error('Error reloading user for verification status:', reloadError);
+          // Fallback to cached status
+          if (currentUser.emailVerified) {
+            verificationStatusEl.textContent = '✓ Verified';
+            verificationStatusEl.style.color = '#2e7d32';
+            verificationStatusEl.style.fontWeight = '500';
+            if (verifyEmailLink) {
+              verifyEmailLink.style.display = 'none';
+            }
+          } else {
+            verificationStatusEl.textContent = '✗ Not verified';
+            verificationStatusEl.style.color = '#d32f2f';
+            verificationStatusEl.style.fontWeight = '500';
+            if (verifyEmailLink) {
+              verifyEmailLink.style.display = 'inline';
+            }
+          }
+          verificationStatusEl.classList.remove('loading');
+        }
+      }
+    }
+    
     // Load account details when page loads
     // Use both DOMContentLoaded and window.onload to ensure page is ready
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', loadAccountDetails);
+      document.addEventListener('DOMContentLoaded', function() {
+        // Also update verification status after a short delay to ensure Firebase is loaded
+        setTimeout(updateEmailVerificationStatus, 1000);
+      });
     } else {
       // DOM already loaded, call immediately
       loadAccountDetails();
+      setTimeout(updateEmailVerificationStatus, 1000);
+    }
+    
+    // Also update verification status when auth state changes
+    if (window.firebaseAuthFunctions && window.firebaseAuth) {
+      window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, async (user) => {
+        if (user) {
+          setTimeout(updateEmailVerificationStatus, 500);
+        }
+      });
     }
   </script>
 </body>
