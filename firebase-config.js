@@ -39,6 +39,10 @@ window.firebaseAuthFunctions = {
   applyActionCode,
   verifyBeforeUpdateEmail
 };
+
+// Debug: Log to verify verifyBeforeUpdateEmail is exported
+console.log('Firebase config loaded. verifyBeforeUpdateEmail type:', typeof verifyBeforeUpdateEmail);
+console.log('Available in window.firebaseAuthFunctions:', typeof window.firebaseAuthFunctions.verifyBeforeUpdateEmail);
 window.firebaseFirestoreFunctions = {
   doc,
   getDoc,

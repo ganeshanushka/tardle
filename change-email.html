@@ -261,6 +261,14 @@
 <!-- Firebase Config -->
 <script type="module" src="firebase-config.js"></script>
 
+<script type="module">
+  // Import verifyBeforeUpdateEmail directly as fallback
+  import { verifyBeforeUpdateEmail } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
+  // Make it available globally for non-module scripts
+  window.verifyBeforeUpdateEmailDirect = verifyBeforeUpdateEmail;
+  console.log('Direct import of verifyBeforeUpdateEmail:', typeof verifyBeforeUpdateEmail);
+</script>
+
 <script>
   // Get current user email and display it
   let currentUser = null;
@@ -497,7 +505,27 @@
       const continueUrl = window.location.origin + '/' + pathParts.join('/');
       
       // Send verification email to new address
-      await window.firebaseAuthFunctions.verifyBeforeUpdateEmail(refreshedUser, newEmail, {
+      // Check if function is available
+      const verifyFunc = window.verifyBeforeUpdateEmailDirect || 
+                        (window.firebaseAuthFunctions && window.firebaseAuthFunctions.verifyBeforeUpdateEmail);
+      
+      console.log('Checking verifyBeforeUpdateEmail availability:');
+      console.log('- window.verifyBeforeUpdateEmailDirect:', typeof window.verifyBeforeUpdateEmailDirect);
+      console.log('- window.firebaseAuthFunctions:', window.firebaseAuthFunctions);
+      console.log('- window.firebaseAuthFunctions.verifyBeforeUpdateEmail:', typeof (window.firebaseAuthFunctions && window.firebaseAuthFunctions.verifyBeforeUpdateEmail));
+      
+      if (!verifyFunc) {
+        const errorMsg = 'verifyBeforeUpdateEmail function is not available. Firebase SDK may not be fully loaded. Please refresh the page and try again.';
+        console.error(errorMsg);
+        errorMessage.textContent = errorMsg;
+        errorMessage.style.color = '#d32f2f';
+        errorMessage.classList.add('show');
+        saveButton.disabled = false;
+        saveButton.textContent = 'Save';
+        return;
+      }
+      
+      await verifyFunc(refreshedUser, newEmail, {
         url: continueUrl,
         handleCodeInApp: false
       });
