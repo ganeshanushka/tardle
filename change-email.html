@@ -482,31 +482,38 @@
         // Continue but log the issue
       }
       
-      // Update email
-      console.log('Attempting to update email to:', newEmail);
-      await window.firebaseAuthFunctions.updateEmail(refreshedUser, newEmail);
+      // Use verifyBeforeUpdateEmail instead of updateEmail
+      // This sends a verification email to the new address first
+      console.log('Sending verification email to new address:', newEmail);
       
-      // Update email in Firestore if document exists
-      if (window.firebaseDb && window.firebaseFirestoreFunctions) {
-        try {
-          const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', refreshedUser.uid);
-          await window.firebaseFirestoreFunctions.updateDoc(userDocRef, {
-            email: newEmail
-          });
-        } catch (firestoreError) {
-          console.warn('Could not update email in Firestore:', firestoreError);
-          // Continue even if Firestore update fails
-        }
+      // Build the correct URL for GitHub Pages
+      const currentPath = window.location.pathname;
+      const pathParts = currentPath.split('/').filter(p => p);
+      if (pathParts.length > 0) {
+        pathParts[pathParts.length - 1] = 'account-details.html';
+      } else {
+        pathParts.push('account-details.html');
       }
+      const continueUrl = window.location.origin + '/' + pathParts.join('/');
       
-      // Show success message
-      successMessage.textContent = 'Email updated successfully!';
+      // Send verification email to new address
+      await window.firebaseAuthFunctions.verifyBeforeUpdateEmail(refreshedUser, newEmail, {
+        url: continueUrl,
+        handleCodeInApp: false
+      });
+      
+      // Show success message - email will be updated after user verifies
+      successMessage.textContent = 'A verification email has been sent to ' + newEmail + '. Please check your inbox (and spam folder) and click the verification link to complete the email change. Your email will be updated once you verify the new address.';
+      successMessage.style.color = '#2e7d32';
       successMessage.classList.add('show');
       
-      // Redirect to account details after a short delay
-      setTimeout(() => {
-        window.location.href = 'account-details.html';
-      }, 1500);
+      // Clear form
+      document.getElementById('newEmail').value = '';
+      document.getElementById('password').value = '';
+      
+      // Don't redirect immediately - let user read the message
+      saveButton.disabled = false;
+      saveButton.textContent = 'Save';
       
     } catch (error) {
       console.error('Error changing email:', error);
