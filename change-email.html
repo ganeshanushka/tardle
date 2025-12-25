@@ -427,39 +427,14 @@
       return;
     }
     
-    // Check if email is already in use by another account (must check BEFORE password validation)
-    // Skip if new email is same as current email (already handled above)
-    if (newEmail.toLowerCase() !== userEmail.toLowerCase()) {
-      try {
-        console.log('Checking if email is already in use:', newEmail);
-        const signInMethods = await window.firebaseAuthFunctions.fetchSignInMethodsForEmail(window.firebaseAuth, newEmail);
-        console.log('Sign-in methods for email:', signInMethods);
-        
-        if (signInMethods && signInMethods.length > 0) {
-          // Email is already associated with another account
-          console.warn('Email is already in use:', newEmail);
-          emailErrorText.textContent = 'This email address is already associated with another account. Please use a different email address or sign in with that account instead.';
-          emailError.classList.add('show');
-          newEmailInput.classList.add('error');
-          newEmailInput.focus();
-          saveButton.disabled = false;
-          saveButton.textContent = 'Save';
-          return;
-        }
-        console.log('Email is available for use');
-      } catch (emailCheckError) {
-        console.error('Error checking if email is in use:', emailCheckError);
-        // If we can't check, we'll let Firebase handle it later
-        // But log it so we can debug
-      }
-    }
-    
     // Check email length (NYT standard: 64 characters max)
     if (newEmail.length > 64) {
       emailErrorText.textContent = 'Email address is too long. Please enter an email address that is 64 characters or less.';
       emailError.classList.add('show');
       newEmailInput.classList.add('error');
       newEmailInput.focus();
+      saveButton.disabled = false;
+      saveButton.textContent = 'Save';
       return;
     }
     
@@ -472,6 +447,40 @@
       saveButton.disabled = false;
       saveButton.textContent = 'Save';
       return;
+    }
+    
+    // Check if email is already in use by another account (must check BEFORE password validation)
+    try {
+      console.log('Checking if email is already in use:', newEmail);
+      console.log('Current user email:', userEmail);
+      const signInMethods = await window.firebaseAuthFunctions.fetchSignInMethodsForEmail(window.firebaseAuth, newEmail);
+      console.log('Sign-in methods for email:', signInMethods);
+      
+      // If sign-in methods exist, the email is already in use by another account
+      // (We've already checked above that it's not the current user's email)
+      if (signInMethods && Array.isArray(signInMethods) && signInMethods.length > 0) {
+        // Email is already associated with another account
+        console.warn('❌ Email is already in use:', newEmail, 'Sign-in methods:', signInMethods);
+        emailErrorText.textContent = 'This email address is already associated with another account. Please use a different email address or sign in with that account instead.';
+        emailError.classList.add('show');
+        newEmailInput.classList.add('error');
+        newEmailInput.focus();
+        // Clear password error if it exists
+        passwordError.classList.remove('show');
+        passwordInput.classList.remove('error');
+        saveButton.disabled = false;
+        saveButton.textContent = 'Save';
+        return;
+      }
+      console.log('✅ Email is available for use');
+    } catch (emailCheckError) {
+      console.error('❌ Error checking if email is in use:', emailCheckError);
+      console.error('Error details:', {
+        code: emailCheckError.code,
+        message: emailCheckError.message
+      });
+      // If we can't check, we'll let Firebase handle it later
+      // But log it so we can debug
     }
     
     // Check if password is missing (after email validation to prioritize email errors)
