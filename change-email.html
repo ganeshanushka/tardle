@@ -558,12 +558,14 @@
         console.log('Verification link will redirect to:', continueUrl);
         
         // Show success message - email will be updated after user verifies
-        const successMsg = 'A verification email has been sent to ' + newEmail + '. Please check your inbox (and spam folder).\n\n' +
-          '⚠️ If you don\'t see the email, check:\n' +
-          '1. Firebase Console > Authentication > Templates > "Email address change" template is ENABLED\n' +
-          '2. Check your spam/junk folder\n' +
-          '3. Wait 2-3 minutes for email delivery\n' +
-          '4. Verify Firebase email quotas haven\'t been exceeded\n' +
+        const successMsg = 'Verification emails have been sent:\n\n' +
+          '✓ Check ' + newEmail + ' for the verification link (check spam folder too)\n' +
+          '✓ Check ' + userEmail + ' for a notification about the change\n\n' +
+          '⚠️ If you don\'t see the verification email in ' + newEmail + ':\n' +
+          '1. Firebase Console > Authentication > Templates > Check ALL templates are enabled\n' +
+          '2. Check spam/junk folder thoroughly\n' +
+          '3. Wait 3-5 minutes (email delivery can be delayed)\n' +
+          '4. Verify Firebase email quotas: Project Settings > Usage and billing\n' +
           '5. Try requesting another email after a few minutes';
         
         successMessage.textContent = successMsg;
