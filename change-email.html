@@ -429,9 +429,12 @@
     
     // Check if email is already in use by another account
     try {
+      console.log('Checking if email is already in use:', newEmail);
       const signInMethods = await window.firebaseAuthFunctions.fetchSignInMethodsForEmail(window.firebaseAuth, newEmail);
+      console.log('Sign-in methods for email:', signInMethods);
       if (signInMethods && signInMethods.length > 0) {
-        emailErrorText.textContent = 'This email is already associated with another account. Please use a different email address.';
+        // Email is already associated with another account
+        emailErrorText.textContent = 'This email address is already associated with another account. Please use a different email address or sign in with that account instead.';
         emailError.classList.add('show');
         newEmailInput.classList.add('error');
         newEmailInput.focus();
@@ -439,9 +442,11 @@
         saveButton.textContent = 'Save';
         return;
       }
+      console.log('Email is available for use');
     } catch (emailCheckError) {
       console.warn('Could not check if email is in use:', emailCheckError);
       // Continue anyway - this is just a pre-check
+      // Firebase will catch it when we try to update the email
     }
     
     // Check email length (NYT standard: 64 characters max)
@@ -664,10 +669,12 @@
       
       // Handle email-related errors
       if (error.code === 'auth/email-already-in-use') {
-        emailErrorText.textContent = 'This email is already in use by another account.';
+        emailErrorText.textContent = 'This email address is already associated with another account. Please use a different email address or sign in with that account instead.';
         emailError.classList.add('show');
         newEmailInput.classList.add('error');
         newEmailInput.focus();
+        saveButton.disabled = false;
+        saveButton.textContent = 'Save';
         return;
       }
       
