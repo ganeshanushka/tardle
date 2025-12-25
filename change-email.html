@@ -298,6 +298,27 @@
   }, 100);
 
   // Handle form submission
+  // Toggle password visibility
+  const passwordInput = document.getElementById('password');
+  const passwordToggle = document.getElementById('passwordToggle');
+  const eyeIcon = document.getElementById('eyeIcon');
+  
+  if (passwordToggle && eyeIcon) {
+    passwordToggle.addEventListener('click', function() {
+      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordInput.setAttribute('type', type);
+      
+      // Update icon based on visibility
+      if (type === 'text') {
+        // Show eye with slash (hidden)
+        eyeIcon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+      } else {
+        // Show normal eye (visible)
+        eyeIcon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+      }
+    });
+  }
+
   document.getElementById('changeEmailForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     
@@ -330,24 +351,41 @@
       return;
     }
     
-    // Check if email is verified (Firebase often requires this)
-    if (currentUser.emailVerified === false) {
+    // Check if current email is verified (reload first to get latest status)
+    try {
+      await currentUser.reload(); // Get latest verification status
+      console.log('Current email verification status:', currentUser.emailVerified);
+    } catch (reloadError) {
+      console.warn('Could not reload user, using cached status:', reloadError);
+    }
+    
+    if (!currentUser.emailVerified) {
+      console.log('Current email not verified. Attempting to send verification email to:', userEmail);
       try {
-        console.log('Email not verified. Attempting to send verification email to:', userEmail);
+        // Build the correct URL for GitHub Pages
+        const currentPath = window.location.pathname;
+        const pathParts = currentPath.split('/').filter(p => p);
+        if (pathParts.length > 0) {
+          pathParts[pathParts.length - 1] = 'account-details.html';
+        } else {
+          pathParts.push('account-details.html');
+        }
+        const continueUrl = window.location.origin + '/' + pathParts.join('/');
+        
         // Send verification email
         await window.firebaseAuthFunctions.sendEmailVerification(currentUser, {
-          url: window.location.origin + '/account-details.html',
+          url: continueUrl,
           handleCodeInApp: false
         });
         console.log('Verification email sent successfully');
-        errorMessage.textContent = 'Please verify your email address before changing it. A verification email has been sent to ' + userEmail + '. Check your inbox (and spam folder) and click the verification link, then refresh this page and try again.';
+        errorMessage.textContent = 'Please verify your current email address (' + userEmail + ') before changing it. A verification email has been sent. Check your inbox (and spam folder) and click the verification link, then refresh this page and try again.';
         errorMessage.style.color = '#2e7d32'; // Green color for success message
       } catch (verifyError) {
         console.error('Error sending verification email:', verifyError);
         console.error('Error code:', verifyError.code);
         console.error('Error message:', verifyError.message);
         
-        let errorMsg = 'Please verify your email address before changing it. ';
+        let errorMsg = 'Please verify your current email address (' + userEmail + ') before changing it. ';
         if (verifyError.code === 'auth/too-many-requests') {
           errorMsg += 'Too many verification emails sent. Please wait a few minutes and try again, or check your inbox for a previous verification email.';
         } else if (verifyError.message) {
