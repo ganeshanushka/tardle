@@ -558,9 +558,24 @@
         console.log('Verification link will redirect to:', continueUrl);
         
         // Show success message - email will be updated after user verifies
-        successMessage.textContent = 'A verification email has been sent to ' + newEmail + '. Please check your inbox (and spam folder) and click the verification link to complete the email change. Your email will be updated once you verify the new address. If you don\'t see the email within a few minutes, check your spam folder or try again.';
+        const successMsg = 'A verification email has been sent to ' + newEmail + '. Please check your inbox (and spam folder).\n\n' +
+          '⚠️ If you don\'t see the email, make sure:\n' +
+          '1. The domain "ganeshanushka.github.io" is added to Firebase Console > Authentication > Settings > Authorized domains\n' +
+          '2. Check your spam/junk folder\n' +
+          '3. Wait 2-3 minutes for email delivery\n' +
+          '4. Try requesting another email after a few minutes';
+        
+        successMessage.textContent = successMsg;
         successMessage.style.color = '#2e7d32';
+        successMessage.style.whiteSpace = 'pre-line'; // Allow line breaks
         successMessage.classList.add('show');
+        
+        // Also log warning about authorized domains
+        console.warn('⚠️ IMPORTANT: If email not received, verify in Firebase Console:');
+        console.warn('1. Go to Firebase Console > Authentication > Settings');
+        console.warn('2. Scroll to "Authorized domains" section');
+        console.warn('3. Ensure "ganeshanushka.github.io" is in the list');
+        console.warn('4. If not, click "Add domain" and add it');
       } catch (verifyError) {
         console.error('✗ Error in verifyBeforeUpdateEmail:', verifyError);
         console.error('Error code:', verifyError.code);
