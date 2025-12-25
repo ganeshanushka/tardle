@@ -495,17 +495,19 @@
       console.log('Sending verification email to new address:', newEmail);
       
       // Build the correct URL for GitHub Pages - should point to a page that handles the verification
-      // For email change, we should handle it in verify-email.html or account-details.html
+      // For email change verification, we need verify-email.html to handle it
       const currentPath = window.location.pathname;
       const pathParts = currentPath.split('/').filter(p => p);
       if (pathParts.length > 0) {
-        pathParts[pathParts.length - 1] = 'account-details.html';
+        pathParts[pathParts.length - 1] = 'verify-email.html';
       } else {
-        pathParts.push('account-details.html');
+        pathParts.push('verify-email.html');
       }
       const continueUrl = window.location.origin + '/' + pathParts.join('/');
       
       console.log('Continue URL for email verification:', continueUrl);
+      console.log('Full window location:', window.location.href);
+      console.log('Origin:', window.location.origin);
       
       // Send verification email to new address
       // Check if function is available
@@ -534,22 +536,47 @@
       console.log('- Continue URL:', continueUrl);
       
       try {
-        await verifyFunc(refreshedUser, newEmail, {
-          url: continueUrl,
-          handleCodeInApp: false
+        console.log('About to call verifyBeforeUpdateEmail...');
+        console.log('Function type:', typeof verifyFunc);
+        console.log('User object:', {
+          uid: refreshedUser.uid,
+          email: refreshedUser.email,
+          emailVerified: refreshedUser.emailVerified
         });
         
+        const actionCodeSettings = {
+          url: continueUrl,
+          handleCodeInApp: false
+        };
+        console.log('Action code settings:', actionCodeSettings);
+        
+        const result = await verifyFunc(refreshedUser, newEmail, actionCodeSettings);
+        
         console.log('✓ verifyBeforeUpdateEmail completed successfully - email should have been sent');
+        console.log('Function return value:', result);
         console.log('Email sent to:', newEmail);
+        console.log('Verification link will redirect to:', continueUrl);
         
         // Show success message - email will be updated after user verifies
-        successMessage.textContent = 'A verification email has been sent to ' + newEmail + '. Please check your inbox (and spam folder) and click the verification link to complete the email change. Your email will be updated once you verify the new address.';
+        successMessage.textContent = 'A verification email has been sent to ' + newEmail + '. Please check your inbox (and spam folder) and click the verification link to complete the email change. Your email will be updated once you verify the new address. If you don\'t see the email within a few minutes, check your spam folder or try again.';
         successMessage.style.color = '#2e7d32';
         successMessage.classList.add('show');
       } catch (verifyError) {
-        console.error('Error in verifyBeforeUpdateEmail:', verifyError);
+        console.error('✗ Error in verifyBeforeUpdateEmail:', verifyError);
         console.error('Error code:', verifyError.code);
         console.error('Error message:', verifyError.message);
+        console.error('Full error:', JSON.stringify(verifyError, Object.getOwnPropertyNames(verifyError)));
+        
+        // If it's a specific error about the URL or domain, provide helpful message
+        if (verifyError.message && verifyError.message.includes('domain') || verifyError.message.includes('authorized')) {
+          errorMessage.textContent = 'Email change verification failed. The domain may not be authorized in Firebase Console. Please contact support or try again later. Error: ' + verifyError.message;
+          errorMessage.style.color = '#d32f2f';
+          errorMessage.classList.add('show');
+          saveButton.disabled = false;
+          saveButton.textContent = 'Save';
+          return;
+        }
+        
         throw verifyError; // Re-throw to be caught by outer catch block
       }
       
