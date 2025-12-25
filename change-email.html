@@ -427,26 +427,31 @@
       return;
     }
     
-    // Check if email is already in use by another account
-    try {
-      console.log('Checking if email is already in use:', newEmail);
-      const signInMethods = await window.firebaseAuthFunctions.fetchSignInMethodsForEmail(window.firebaseAuth, newEmail);
-      console.log('Sign-in methods for email:', signInMethods);
-      if (signInMethods && signInMethods.length > 0) {
-        // Email is already associated with another account
-        emailErrorText.textContent = 'This email address is already associated with another account. Please use a different email address or sign in with that account instead.';
-        emailError.classList.add('show');
-        newEmailInput.classList.add('error');
-        newEmailInput.focus();
-        saveButton.disabled = false;
-        saveButton.textContent = 'Save';
-        return;
+    // Check if email is already in use by another account (must check BEFORE password validation)
+    // Skip if new email is same as current email (already handled above)
+    if (newEmail.toLowerCase() !== userEmail.toLowerCase()) {
+      try {
+        console.log('Checking if email is already in use:', newEmail);
+        const signInMethods = await window.firebaseAuthFunctions.fetchSignInMethodsForEmail(window.firebaseAuth, newEmail);
+        console.log('Sign-in methods for email:', signInMethods);
+        
+        if (signInMethods && signInMethods.length > 0) {
+          // Email is already associated with another account
+          console.warn('Email is already in use:', newEmail);
+          emailErrorText.textContent = 'This email address is already associated with another account. Please use a different email address or sign in with that account instead.';
+          emailError.classList.add('show');
+          newEmailInput.classList.add('error');
+          newEmailInput.focus();
+          saveButton.disabled = false;
+          saveButton.textContent = 'Save';
+          return;
+        }
+        console.log('Email is available for use');
+      } catch (emailCheckError) {
+        console.error('Error checking if email is in use:', emailCheckError);
+        // If we can't check, we'll let Firebase handle it later
+        // But log it so we can debug
       }
-      console.log('Email is available for use');
-    } catch (emailCheckError) {
-      console.warn('Could not check if email is in use:', emailCheckError);
-      // Continue anyway - this is just a pre-check
-      // Firebase will catch it when we try to update the email
     }
     
     // Check email length (NYT standard: 64 characters max)
@@ -464,10 +469,12 @@
       emailError.classList.add('show');
       newEmailInput.classList.add('error');
       newEmailInput.focus();
+      saveButton.disabled = false;
+      saveButton.textContent = 'Save';
       return;
     }
     
-    // Check if password is missing
+    // Check if password is missing (after email validation to prioritize email errors)
     if (!password || password.trim() === '') {
       passwordErrorText.textContent = 'Please enter a password.';
       passwordError.classList.add('show');
