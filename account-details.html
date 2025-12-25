@@ -648,6 +648,27 @@
                   emailEl.classList.remove('loading');
                 }
                 
+                // Display email verification status
+                const verificationStatusEl = document.getElementById('emailVerificationStatus');
+                const verifyEmailLink = document.getElementById('verifyEmailLink');
+                if (verificationStatusEl) {
+                  await currentUser.reload(); // Get latest verification status
+                  if (currentUser.emailVerified) {
+                    verificationStatusEl.textContent = '✓ Verified';
+                    verificationStatusEl.style.color = '#2e7d32';
+                    if (verifyEmailLink) {
+                      verifyEmailLink.style.display = 'none';
+                    }
+                  } else {
+                    verificationStatusEl.textContent = '✗ Not verified';
+                    verificationStatusEl.style.color = '#d32f2f';
+                    if (verifyEmailLink) {
+                      verifyEmailLink.style.display = 'inline';
+                    }
+                  }
+                  verificationStatusEl.classList.remove('loading');
+                }
+                
                 // Show basic info from Auth
                 const accountNumberEl = document.getElementById('accountNumber');
                 if (accountNumberEl) {
@@ -823,6 +844,44 @@
             emailEl.textContent = userData.email || currentUser.email || 'Not available';
             emailEl.classList.remove('loading');
           }
+          
+          // Display email verification status
+          const verificationStatusEl = document.getElementById('emailVerificationStatus');
+          const verifyEmailLink = document.getElementById('verifyEmailLink');
+          if (verificationStatusEl) {
+            try {
+              await currentUser.reload(); // Get latest verification status
+              if (currentUser.emailVerified) {
+                verificationStatusEl.textContent = '✓ Verified';
+                verificationStatusEl.style.color = '#2e7d32';
+                if (verifyEmailLink) {
+                  verifyEmailLink.style.display = 'none';
+                }
+              } else {
+                verificationStatusEl.textContent = '✗ Not verified';
+                verificationStatusEl.style.color = '#d32f2f';
+                if (verifyEmailLink) {
+                  verifyEmailLink.style.display = 'inline';
+                }
+              }
+            } catch (reloadError) {
+              // If reload fails, check cached status
+              if (currentUser.emailVerified) {
+                verificationStatusEl.textContent = '✓ Verified';
+                verificationStatusEl.style.color = '#2e7d32';
+                if (verifyEmailLink) {
+                  verifyEmailLink.style.display = 'none';
+                }
+              } else {
+                verificationStatusEl.textContent = '✗ Not verified';
+                verificationStatusEl.style.color = '#d32f2f';
+                if (verifyEmailLink) {
+                  verifyEmailLink.style.display = 'inline';
+                }
+              }
+            }
+            verificationStatusEl.classList.remove('loading');
+          }
 
           // Display username
           const usernameDisplayEl = document.getElementById('usernameDisplay');
@@ -905,6 +964,43 @@
               if (emailEl) {
                 emailEl.textContent = userData.email || currentUser.email || 'Not available';
                 emailEl.classList.remove('loading');
+              }
+              
+              // Display email verification status
+              const verificationStatusEl = document.getElementById('emailVerificationStatus');
+              const verifyEmailLink = document.getElementById('verifyEmailLink');
+              if (verificationStatusEl) {
+                try {
+                  await currentUser.reload(); // Get latest verification status
+                  if (currentUser.emailVerified) {
+                    verificationStatusEl.textContent = '✓ Verified';
+                    verificationStatusEl.style.color = '#2e7d32';
+                    if (verifyEmailLink) {
+                      verifyEmailLink.style.display = 'none';
+                    }
+                  } else {
+                    verificationStatusEl.textContent = '✗ Not verified';
+                    verificationStatusEl.style.color = '#d32f2f';
+                    if (verifyEmailLink) {
+                      verifyEmailLink.style.display = 'inline';
+                    }
+                  }
+                } catch (reloadError) {
+                  if (currentUser.emailVerified) {
+                    verificationStatusEl.textContent = '✓ Verified';
+                    verificationStatusEl.style.color = '#2e7d32';
+                    if (verifyEmailLink) {
+                      verifyEmailLink.style.display = 'none';
+                    }
+                  } else {
+                    verificationStatusEl.textContent = '✗ Not verified';
+                    verificationStatusEl.style.color = '#d32f2f';
+                    if (verifyEmailLink) {
+                      verifyEmailLink.style.display = 'inline';
+                    }
+                  }
+                }
+                verificationStatusEl.classList.remove('loading');
               }
               
               // Display username
@@ -991,6 +1087,43 @@
             if (emailEl) {
               emailEl.textContent = currentUser.email || 'Not available';
               emailEl.classList.remove('loading');
+            }
+            
+            // Display email verification status
+            const verificationStatusEl = document.getElementById('emailVerificationStatus');
+            const verifyEmailLink = document.getElementById('verifyEmailLink');
+            if (verificationStatusEl) {
+              try {
+                await currentUser.reload();
+                if (currentUser.emailVerified) {
+                  verificationStatusEl.textContent = '✓ Verified';
+                  verificationStatusEl.style.color = '#2e7d32';
+                  if (verifyEmailLink) {
+                    verifyEmailLink.style.display = 'none';
+                  }
+                } else {
+                  verificationStatusEl.textContent = '✗ Not verified';
+                  verificationStatusEl.style.color = '#d32f2f';
+                  if (verifyEmailLink) {
+                    verifyEmailLink.style.display = 'inline';
+                  }
+                }
+              } catch (reloadError) {
+                if (currentUser.emailVerified) {
+                  verificationStatusEl.textContent = '✓ Verified';
+                  verificationStatusEl.style.color = '#2e7d32';
+                  if (verifyEmailLink) {
+                    verifyEmailLink.style.display = 'none';
+                  }
+                } else {
+                  verificationStatusEl.textContent = '✗ Not verified';
+                  verificationStatusEl.style.color = '#d32f2f';
+                  if (verifyEmailLink) {
+                    verifyEmailLink.style.display = 'inline';
+                  }
+                }
+              }
+              verificationStatusEl.classList.remove('loading');
             }
             
             const usernameDisplayEl = document.getElementById('usernameDisplay');
