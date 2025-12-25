@@ -346,23 +346,44 @@
           
           console.log('URL params:', { actionCode, mode, apiKey, fullUrl: window.location.href });
           
-          if (actionCode && mode === 'verifyEmail') {
+          if (actionCode && (mode === 'verifyEmail' || mode === 'verifyAndChangeEmail')) {
             // User clicked the verification link - apply the action code
-            console.log('Processing email verification link...');
+            const isEmailChange = mode === 'verifyAndChangeEmail';
+            console.log('Processing email verification link...', isEmailChange ? '(email change)' : '(initial verification)');
             try {
               await window.firebaseAuthFunctions.applyActionCode(window.firebaseAuth, actionCode);
-              // Reload user to get updated verification status
+              // Reload user to get updated verification status and email
               await user.reload();
-              if (user.emailVerified) {
+              
+              if (isEmailChange) {
+                console.log('✓ Email changed and verified successfully!');
+                console.log('New email:', user.email);
+                document.getElementById('successMessage').textContent = 'Your email has been changed and verified successfully! Redirecting...';
+                document.getElementById('successMessage').classList.add('show');
+                
+                // Update Firestore if document exists
+                if (window.firebaseDb && window.firebaseFirestoreFunctions) {
+                  try {
+                    const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', user.uid);
+                    await window.firebaseFirestoreFunctions.updateDoc(userDocRef, {
+                      email: user.email
+                    });
+                    console.log('✓ Firestore email updated');
+                  } catch (firestoreError) {
+                    console.warn('Could not update email in Firestore:', firestoreError);
+                  }
+                }
+              } else if (user.emailVerified) {
                 console.log('✓ Email verified successfully!');
                 document.getElementById('successMessage').textContent = 'Email verified successfully! Redirecting...';
                 document.getElementById('successMessage').classList.add('show');
-                setTimeout(() => {
-                  window.location.href = 'index.html';
-                }, 2000);
               } else {
                 console.warn('Email verification applied but user.emailVerified is still false');
               }
+              
+              setTimeout(() => {
+                window.location.href = isEmailChange ? 'account-details.html' : 'index.html';
+              }, 2000);
             } catch (linkError) {
               console.error('Error verifying email link:', linkError);
               console.error('Error code:', linkError.code);
