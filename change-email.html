@@ -465,7 +465,25 @@
         throw new Error('User session expired. Please log in again.');
       }
       
+      // Double-check email verification status after re-authentication
+      try {
+        await refreshedUser.reload();
+        console.log('Email verification status before update:', refreshedUser.emailVerified);
+        if (!refreshedUser.emailVerified) {
+          errorMessage.textContent = 'Your current email address (' + userEmail + ') must be verified before you can change it. Please verify your email first, then try again.';
+          errorMessage.style.color = '#d32f2f';
+          errorMessage.classList.add('show');
+          saveButton.disabled = false;
+          saveButton.textContent = 'Save';
+          return;
+        }
+      } catch (reloadErr) {
+        console.warn('Could not reload user after re-authentication:', reloadErr);
+        // Continue but log the issue
+      }
+      
       // Update email
+      console.log('Attempting to update email to:', newEmail);
       await window.firebaseAuthFunctions.updateEmail(refreshedUser, newEmail);
       
       // Update email in Firestore if document exists
@@ -567,20 +585,43 @@
         console.error('Operation not allowed - Full error:', error);
         console.error('Error code:', error.code);
         console.error('Error message:', error.message);
+        console.error('Full error object:', JSON.stringify(error, null, 2));
+        
+        // Check current email verification status
+        let currentEmailVerified = false;
+        try {
+          await currentUser.reload();
+          currentEmailVerified = currentUser.emailVerified;
+          console.log('Current email verified status:', currentEmailVerified);
+        } catch (reloadErr) {
+          console.warn('Could not reload user:', reloadErr);
+          currentEmailVerified = currentUser.emailVerified || false;
+        }
         
         // Check if Firebase provided a specific error message
-        let errorMsg = 'Email change is not allowed. This may be due to account security settings. Please try logging out and back in, or contact support if the issue persists.';
+        let errorMsg = 'Email change is not allowed. ';
         
-        if (error.message && error.message.includes('verify the new email')) {
-          // Show Firebase's specific message about email verification
-          errorMsg = 'Firebase requires email verification before changing your email. This is a security setting in your Firebase project. Please contact support to adjust this setting, or verify your current email address first.';
+        if (error.message && (error.message.includes('verify') || error.message.includes('verification'))) {
+          if (!currentEmailVerified) {
+            errorMsg = 'Your current email address (' + userEmail + ') must be verified before you can change it. ';
+            errorMsg += 'Please go to your account details page and verify your current email address first, then try again.';
+          } else {
+            // Current email is verified, so Firebase might be blocking for another reason
+            errorMsg = 'Email change requires additional verification. Your current email is verified, but Firebase may require additional security steps. ';
+            errorMsg += 'Please try logging out and back in, then try again. If the issue persists, the new email address may need to be verified after the change.';
+          }
         } else if (error.message) {
           // Use Firebase's error message if it's more specific
           errorMsg = error.message.replace('Firebase: ', '').replace(' (auth/operation-not-allowed)', '');
+        } else {
+          errorMsg += 'This may be due to account security settings. Please ensure your current email is verified, try logging out and back in, or contact support if the issue persists.';
         }
         
         errorMessage.textContent = errorMsg;
+        errorMessage.style.color = '#d32f2f';
         errorMessage.classList.add('show');
+        saveButton.disabled = false;
+        saveButton.textContent = 'Save';
         return;
       }
       
