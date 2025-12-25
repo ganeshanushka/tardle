@@ -494,7 +494,8 @@
       // This sends a verification email to the new address first
       console.log('Sending verification email to new address:', newEmail);
       
-      // Build the correct URL for GitHub Pages
+      // Build the correct URL for GitHub Pages - should point to a page that handles the verification
+      // For email change, we should handle it in verify-email.html or account-details.html
       const currentPath = window.location.pathname;
       const pathParts = currentPath.split('/').filter(p => p);
       if (pathParts.length > 0) {
@@ -503,6 +504,8 @@
         pathParts.push('account-details.html');
       }
       const continueUrl = window.location.origin + '/' + pathParts.join('/');
+      
+      console.log('Continue URL for email verification:', continueUrl);
       
       // Send verification email to new address
       // Check if function is available
@@ -525,15 +528,30 @@
         return;
       }
       
-      await verifyFunc(refreshedUser, newEmail, {
-        url: continueUrl,
-        handleCodeInApp: false
-      });
+      console.log('Calling verifyBeforeUpdateEmail with:');
+      console.log('- User:', refreshedUser.email);
+      console.log('- New email:', newEmail);
+      console.log('- Continue URL:', continueUrl);
       
-      // Show success message - email will be updated after user verifies
-      successMessage.textContent = 'A verification email has been sent to ' + newEmail + '. Please check your inbox (and spam folder) and click the verification link to complete the email change. Your email will be updated once you verify the new address.';
-      successMessage.style.color = '#2e7d32';
-      successMessage.classList.add('show');
+      try {
+        await verifyFunc(refreshedUser, newEmail, {
+          url: continueUrl,
+          handleCodeInApp: false
+        });
+        
+        console.log('✓ verifyBeforeUpdateEmail completed successfully - email should have been sent');
+        console.log('Email sent to:', newEmail);
+        
+        // Show success message - email will be updated after user verifies
+        successMessage.textContent = 'A verification email has been sent to ' + newEmail + '. Please check your inbox (and spam folder) and click the verification link to complete the email change. Your email will be updated once you verify the new address.';
+        successMessage.style.color = '#2e7d32';
+        successMessage.classList.add('show');
+      } catch (verifyError) {
+        console.error('Error in verifyBeforeUpdateEmail:', verifyError);
+        console.error('Error code:', verifyError.code);
+        console.error('Error message:', verifyError.message);
+        throw verifyError; // Re-throw to be caught by outer catch block
+      }
       
       // Clear form
       document.getElementById('newEmail').value = '';
@@ -605,8 +623,21 @@
       }
       
       if (error.code === 'auth/too-many-requests') {
-        errorMessage.textContent = 'Too many attempts. Please try again later.';
+        errorMessage.textContent = 'Too many verification email attempts. Please wait a few minutes before requesting another email, or check your spam folder for a previous email.';
         errorMessage.classList.add('show');
+        saveButton.disabled = false;
+        saveButton.textContent = 'Save';
+        return;
+      }
+      
+      // Handle rate limiting or email sending errors specifically for verifyBeforeUpdateEmail
+      if (error.code === 'auth/invalid-email' || error.code === 'auth/user-not-found') {
+        emailErrorText.textContent = 'Invalid email address. Please check the email address and try again.';
+        emailError.classList.add('show');
+        newEmailInput.classList.add('error');
+        newEmailInput.focus();
+        saveButton.disabled = false;
+        saveButton.textContent = 'Save';
         return;
       }
       
