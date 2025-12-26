@@ -330,6 +330,13 @@
   document.getElementById('changeEmailForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     
+    // Check if user is still logged in before proceeding
+    if (!window.firebaseAuth.currentUser) {
+      console.warn('⚠️ User is not logged in, redirecting to login...');
+      window.location.href = 'login.html?return=' + encodeURIComponent('change-email.html');
+      return;
+    }
+    
     const newEmail = document.getElementById('newEmail').value;
     const password = document.getElementById('password').value;
     const errorMessage = document.getElementById('errorMessage');
@@ -353,11 +360,15 @@
     emailErrorText.textContent = '';
     passwordErrorText.textContent = '';
     
+    // Get current user fresh from Firebase
+    const currentUser = window.firebaseAuth.currentUser;
     if (!currentUser) {
-      errorMessage.textContent = 'You must be logged in to change your email.';
-      errorMessage.classList.add('show');
+      console.warn('⚠️ No current user found, redirecting to login...');
+      window.location.href = 'login.html?return=' + encodeURIComponent('change-email.html');
       return;
     }
+    
+    const userEmail = currentUser.email || '';
     
     // Check if current email is verified (reload first to get latest status)
     try {
@@ -408,12 +419,21 @@
       return;
     }
     
+    // Double-check user is still logged in before email check
+    if (!window.firebaseAuth.currentUser) {
+      console.warn('⚠️ User logged out during validation, redirecting...');
+      window.location.href = 'login.html?return=' + encodeURIComponent('change-email.html');
+      return;
+    }
+    
     // Check if email is missing
     if (!newEmail || newEmail.trim() === '') {
       emailErrorText.textContent = 'Please enter a new email address.';
       emailError.classList.add('show');
       newEmailInput.classList.add('error');
       newEmailInput.focus();
+      saveButton.disabled = false;
+      saveButton.textContent = 'Save';
       return;
     }
     
