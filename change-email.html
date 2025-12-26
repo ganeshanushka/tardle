@@ -553,13 +553,7 @@
       passwordInput.focus();
       saveButton.disabled = false;
       saveButton.textContent = 'Save';
-      
-      // Verify user is still logged in
-      if (!window.firebaseAuth || !window.firebaseAuth.currentUser) {
-        console.warn('⚠️ User logged out, redirecting...');
-        window.location.href = 'login.html?return=' + encodeURIComponent('change-email.html');
-        return;
-      }
+      isProcessingForm = false; // Reset flag before returning
       return;
     }
     
@@ -903,7 +897,20 @@
       // Clear password field
       passwordInput.value = '';
       passwordInput.focus();
+    } catch (error) {
+      // This catch block is for the outer try that wraps the entire form handler
+      // Re-throw to be handled by existing error handling
+      throw error;
     } finally {
+      // Always reset the flag and re-enable button
+      isProcessingForm = false;
+      saveButton.disabled = false;
+      saveButton.textContent = 'Save';
+    }
+    } catch (outerError) {
+      // Handle any errors that weren't caught in inner try-catch blocks
+      console.error('Unexpected error in form handler:', outerError);
+      isProcessingForm = false;
       saveButton.disabled = false;
       saveButton.textContent = 'Save';
     }
