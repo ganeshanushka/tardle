@@ -491,7 +491,14 @@
       
       // If signInMethods is empty, try alternative check using createUserWithEmailAndPassword
       // This will throw auth/email-already-in-use if the email exists
+      // NOTE: This will log out the current user if account is created, so we need to restore session
       console.log('⚠️ Sign-in methods empty - trying alternative check...');
+      
+      // Save current user info to restore session if needed
+      const currentUserBeforeCheck = window.firebaseAuth.currentUser;
+      const currentUserEmail = currentUserBeforeCheck ? currentUserBeforeCheck.email : null;
+      const currentUserUid = currentUserBeforeCheck ? currentUserBeforeCheck.uid : null;
+      
       try {
         // Use a dummy password to attempt account creation
         // This will fail with auth/email-already-in-use if email exists
@@ -499,20 +506,31 @@
         await window.firebaseAuthFunctions.createUserWithEmailAndPassword(window.firebaseAuth, newEmail, dummyPassword);
         
         // If we get here, account was created (email doesn't exist)
-        // Delete the account we just created
+        // Delete the test account and restore original session
         const createdUser = window.firebaseAuth.currentUser;
-        if (createdUser) {
+        if (createdUser && createdUser.email === newEmail) {
           try {
             await createdUser.delete();
             console.log('✅ Email is available (created and deleted test account)');
+            
+            // Sign out to clear the test session
+            await window.firebaseAuthFunctions.signOut(window.firebaseAuth);
+            
+            // Note: We can't automatically restore the session without password
+            // The user will need to refresh or we'll handle it in onAuthStateChanged
+            console.warn('⚠️ Test account deleted - user session cleared. User may need to refresh.');
           } catch (deleteError) {
             console.error('⚠️ Failed to delete test account:', deleteError);
-            // Sign out to clear the session
             await window.firebaseAuthFunctions.signOut(window.firebaseAuth);
           }
         }
       } catch (createError) {
         console.log('  Create account check error code:', createError.code);
+        
+        // Restore original session if we were logged out
+        if (!window.firebaseAuth.currentUser && currentUserEmail && currentUserUid) {
+          console.warn('⚠️ Session was lost during check - user will need to refresh page');
+        }
         
         // If email is already in use, show error
         if (createError.code === 'auth/email-already-in-use' || 
