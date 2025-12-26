@@ -489,15 +489,57 @@
         return;
       }
       
-      // If signInMethods is empty, we can't tell if email exists due to Email Enumeration Protection
-      // We'll proceed and let Firebase catch it when we try to change the email
-      console.log('⚠️ Email Enumeration Protection may be enabled - cannot pre-check email availability');
-      console.log('  Will rely on Firebase error when attempting email change');
+      // If signInMethods is empty, try alternative check using createUserWithEmailAndPassword
+      // This will throw auth/email-already-in-use if the email exists
+      console.log('⚠️ Sign-in methods empty - trying alternative check...');
+      try {
+        // Use a dummy password to attempt account creation
+        // This will fail with auth/email-already-in-use if email exists
+        const dummyPassword = 'CheckEmailExists_' + Date.now() + '_' + Math.random();
+        await window.firebaseAuthFunctions.createUserWithEmailAndPassword(window.firebaseAuth, newEmail, dummyPassword);
+        
+        // If we get here, account was created (email doesn't exist)
+        // Delete the account we just created
+        const createdUser = window.firebaseAuth.currentUser;
+        if (createdUser) {
+          try {
+            await createdUser.delete();
+            console.log('✅ Email is available (created and deleted test account)');
+          } catch (deleteError) {
+            console.error('⚠️ Failed to delete test account:', deleteError);
+            // Sign out to clear the session
+            await window.firebaseAuthFunctions.signOut(window.firebaseAuth);
+          }
+        }
+      } catch (createError) {
+        console.log('  Create account check error code:', createError.code);
+        
+        // If email is already in use, show error
+        if (createError.code === 'auth/email-already-in-use' || 
+            createError.code === 'auth/emailAlreadyInUse' ||
+            (createError.message && createError.message.toLowerCase().includes('already in use'))) {
+          console.warn('❌ Email is already in use (detected via createUser check)!');
+          saveButton.disabled = false;
+          saveButton.textContent = 'Save';
+          
+          emailErrorText.textContent = 'This email address is already associated with another account. Please use a different email address or sign in with that account instead.';
+          emailError.classList.add('show');
+          newEmailInput.classList.add('error');
+          newEmailInput.focus();
+          passwordError.classList.remove('show');
+          passwordInput.classList.remove('error');
+          passwordErrorText.textContent = '';
+          return;
+        } else {
+          // Other errors (invalid email, etc.) - email might be available
+          console.log('✅ Email appears to be available (error:', createError.code, ')');
+        }
+      }
       
       // Re-enable button after check
       saveButton.disabled = false;
       saveButton.textContent = 'Save';
-      console.log('✅ Email pre-check complete - proceeding (Firebase will validate on change)');
+      console.log('✅ Email pre-check complete - proceeding');
       
     } catch (emailCheckError) {
       // Re-enable button if check fails
