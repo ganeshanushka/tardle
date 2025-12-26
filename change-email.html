@@ -449,12 +449,22 @@
       return;
     }
     
-    // Check if email is already in use by another account (must check BEFORE password validation)
+    // Check if email is already in use by another account (MUST check BEFORE password validation)
+    // This ensures the error shows immediately when user clicks Save, even without password
     try {
       console.log('Checking if email is already in use:', newEmail);
       console.log('Current user email:', userEmail);
+      
+      // Disable button while checking
+      saveButton.disabled = true;
+      saveButton.textContent = 'Checking...';
+      
       const signInMethods = await window.firebaseAuthFunctions.fetchSignInMethodsForEmail(window.firebaseAuth, newEmail);
       console.log('Sign-in methods for email:', signInMethods);
+      
+      // Re-enable button after check
+      saveButton.disabled = false;
+      saveButton.textContent = 'Save';
       
       // If sign-in methods exist, the email is already in use by another account
       // (We've already checked above that it's not the current user's email)
@@ -468,12 +478,14 @@
         // Clear password error if it exists
         passwordError.classList.remove('show');
         passwordInput.classList.remove('error');
-        saveButton.disabled = false;
-        saveButton.textContent = 'Save';
         return;
       }
       console.log('✅ Email is available for use');
     } catch (emailCheckError) {
+      // Re-enable button if check fails
+      saveButton.disabled = false;
+      saveButton.textContent = 'Save';
+      
       console.error('❌ Error checking if email is in use:', emailCheckError);
       console.error('Error details:', {
         code: emailCheckError.code,
