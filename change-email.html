@@ -662,12 +662,27 @@
         console.warn('5. Check: Project Settings > Usage and billing for email quota limits');
       } catch (verifyError) {
         console.error('✗ Error in verifyBeforeUpdateEmail:', verifyError);
-        console.error('Error code:', verifyError.code);
-        console.error('Error message:', verifyError.message);
-        console.error('Full error:', JSON.stringify(verifyError, Object.getOwnPropertyNames(verifyError)));
+        console.error('  Error code:', verifyError.code);
+        console.error('  Error message:', verifyError.message);
+        console.error('  Full error:', verifyError);
+        
+        // Handle email-already-in-use immediately
+        if (verifyError.code === 'auth/email-already-in-use') {
+          console.warn('  → Email is already in use! Showing error message.');
+          emailErrorText.textContent = 'This email address is already associated with another account. Please use a different email address or sign in with that account instead.';
+          emailError.classList.add('show');
+          newEmailInput.classList.add('error');
+          newEmailInput.focus();
+          passwordError.classList.remove('show');
+          passwordInput.classList.remove('error');
+          passwordErrorText.textContent = '';
+          saveButton.disabled = false;
+          saveButton.textContent = 'Save';
+          return; // Don't re-throw, we've handled it
+        }
         
         // If it's a specific error about the URL or domain, provide helpful message
-        if (verifyError.message && verifyError.message.includes('domain') || verifyError.message.includes('authorized')) {
+        if (verifyError.message && (verifyError.message.includes('domain') || verifyError.message.includes('authorized'))) {
           errorMessage.textContent = 'Email change verification failed. The domain may not be authorized in Firebase Console. Please contact support or try again later. Error: ' + verifyError.message;
           errorMessage.style.color = '#d32f2f';
           errorMessage.classList.add('show');
@@ -676,7 +691,7 @@
           return;
         }
         
-        throw verifyError; // Re-throw to be caught by outer catch block
+        throw verifyError; // Re-throw other errors to be caught by outer catch block
       }
       
       // Clear form
