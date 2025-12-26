@@ -713,10 +713,15 @@
       
       // Handle email-related errors
       if (error.code === 'auth/email-already-in-use') {
+        console.warn('❌ Caught auth/email-already-in-use in outer catch block');
         emailErrorText.textContent = 'This email address is already associated with another account. Please use a different email address or sign in with that account instead.';
         emailError.classList.add('show');
         newEmailInput.classList.add('error');
         newEmailInput.focus();
+        // Clear password error if it exists
+        passwordError.classList.remove('show');
+        passwordInput.classList.remove('error');
+        passwordErrorText.textContent = '';
         saveButton.disabled = false;
         saveButton.textContent = 'Save';
         return;
