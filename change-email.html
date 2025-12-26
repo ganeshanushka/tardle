@@ -337,6 +337,9 @@
   const passwordInput = document.getElementById('password');
   const passwordToggle = document.getElementById('passwordToggle');
   const eyeIcon = document.getElementById('eyeIcon');
+  const newEmailInput = document.getElementById('newEmail');
+  const emailError = document.getElementById('emailError');
+  const emailErrorText = document.getElementById('emailErrorText');
   
   if (passwordToggle && eyeIcon) {
     passwordToggle.addEventListener('click', function() {
@@ -351,6 +354,88 @@
         // Show normal eye (visible)
         eyeIcon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
       }
+    });
+  }
+  
+  // Check email availability in real-time when user enters email
+  let emailCheckTimeout = null;
+  if (newEmailInput) {
+    newEmailInput.addEventListener('blur', async function() {
+      const email = newEmailInput.value.trim();
+      
+      // Clear previous timeout
+      if (emailCheckTimeout) {
+        clearTimeout(emailCheckTimeout);
+      }
+      
+      // Basic validation first
+      if (!email) {
+        emailError.classList.remove('show');
+        newEmailInput.classList.remove('error');
+        return;
+      }
+      
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        // Don't check invalid emails
+        return;
+      }
+      
+      // Check if it's the same as current email
+      if (currentUser && currentUser.email && email.toLowerCase() === currentUser.email.toLowerCase()) {
+        emailErrorText.textContent = 'The email address you entered is already associated with this account. Please enter a different email address.';
+        emailError.classList.add('show');
+        newEmailInput.classList.add('error');
+        return;
+      }
+      
+      // Wait for Firebase to be ready
+      if (!window.firebaseAuth || !window.firebaseAuthFunctions) {
+        return;
+      }
+      
+      // Check if email is already in use
+      try {
+        console.log('🔍 Checking email availability:', email);
+        const signInMethods = await window.firebaseAuthFunctions.fetchSignInMethodsForEmail(window.firebaseAuth, email);
+        console.log('  Sign-in methods returned:', signInMethods);
+        
+        // If we got sign-in methods, email is definitely in use
+        if (signInMethods && Array.isArray(signInMethods) && signInMethods.length > 0) {
+          console.warn('❌ Email is already in use!');
+          emailErrorText.textContent = 'This email address is already associated with another account. Please use a different email address or sign in with that account instead.';
+          emailError.classList.add('show');
+          newEmailInput.classList.add('error');
+        } else {
+          // Email appears to be available (or Email Enumeration Protection is hiding it)
+          // Clear any previous error
+          emailError.classList.remove('show');
+          newEmailInput.classList.remove('error');
+          console.log('✅ Email appears to be available (or protected by Email Enumeration Protection)');
+        }
+      } catch (checkError) {
+        console.error('Error checking email:', checkError);
+        // Don't show error if check fails - we'll catch it during form submission
+      }
+    });
+    
+    // Also check on input with debounce (after user stops typing for 1 second)
+    newEmailInput.addEventListener('input', function() {
+      // Clear previous timeout
+      if (emailCheckTimeout) {
+        clearTimeout(emailCheckTimeout);
+      }
+      
+      // Clear error when user starts typing
+      emailError.classList.remove('show');
+      newEmailInput.classList.remove('error');
+      
+      // Debounce: wait 1 second after user stops typing
+      emailCheckTimeout = setTimeout(() => {
+        // Trigger blur event to check email
+        newEmailInput.dispatchEvent(new Event('blur'));
+      }, 1000);
     });
   }
 
