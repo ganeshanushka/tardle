@@ -526,13 +526,38 @@
     saveButton.textContent = 'Saving...';
     
     try {
-      // Re-authenticate user first
+      // Re-authenticate user first - this will throw an error if password is wrong
+      console.log('Re-authenticating user with provided password...');
       const credential = window.firebaseAuthFunctions.EmailAuthProvider.credential(
         currentUser.email,
         password
       );
       
-      await window.firebaseAuthFunctions.reauthenticateWithCredential(currentUser, credential);
+      try {
+        await window.firebaseAuthFunctions.reauthenticateWithCredential(currentUser, credential);
+        console.log('✓ Re-authentication successful');
+      } catch (reauthError) {
+        console.error('✗ Re-authentication failed:', reauthError);
+        console.error('  Error code:', reauthError.code);
+        console.error('  Error message:', reauthError.message);
+        
+        // Handle password-related errors
+        if (reauthError.code === 'auth/wrong-password' || 
+            reauthError.code === 'auth/invalid-credential' || 
+            reauthError.code === 'auth/invalid-login-credentials') {
+          passwordErrorText.textContent = 'Incorrect password. Please enter the correct password for this account.';
+          passwordError.classList.add('show');
+          passwordInput.classList.add('error');
+          passwordInput.value = '';
+          passwordInput.focus();
+          saveButton.disabled = false;
+          saveButton.textContent = 'Save';
+          return;
+        }
+        
+        // Re-throw other errors to be handled by outer catch
+        throw reauthError;
+      }
       
       // Get the refreshed user object after re-authentication
       const refreshedUser = window.firebaseAuth.currentUser;
