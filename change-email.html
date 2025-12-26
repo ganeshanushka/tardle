@@ -281,6 +281,20 @@
     if (window.firebaseAuth && window.firebaseAuthFunctions && window.firebaseFirestoreFunctions && window.firebaseDb) {
       clearInterval(checkFirebase);
       
+      // Update email immediately if user is already logged in
+      const updateEmailDisplay = () => {
+        const currentEmailEl = document.getElementById('currentEmail');
+        if (currentEmailEl && window.firebaseAuth.currentUser) {
+          const email = window.firebaseAuth.currentUser.email || '';
+          currentEmailEl.textContent = email;
+          userEmail = email;
+          currentUser = window.firebaseAuth.currentUser;
+        }
+      };
+      
+      // Try to update immediately
+      updateEmailDisplay();
+      
       // Set up listener for auth state changes
       window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, async (user) => {
         if (user) {
@@ -303,10 +317,16 @@
         }
       });
       
+      // Also try updating after a short delay in case auth state hasn't been restored yet
+      setTimeout(updateEmailDisplay, 500);
+      
       // Wait for Firebase to restore the session
       setTimeout(() => {
         if (!window.firebaseAuth.currentUser) {
           window.location.href = 'login.html?return=' + encodeURIComponent('change-email.html');
+        } else {
+          // Update email one more time after session is restored
+          updateEmailDisplay();
         }
       }, 1500);
     }
@@ -897,8 +917,9 @@
       // Clear password field
       passwordInput.value = '';
       passwordInput.focus();
+    } // End of catch block for try at line 564
     } finally {
-      // Always reset the flag and re-enable button
+      // Always reset the flag and re-enable button for outer try at line 343
       isProcessingForm = false;
       saveButton.disabled = false;
       saveButton.textContent = 'Save';
