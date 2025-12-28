@@ -971,16 +971,31 @@
         console.error('✗ Error in verifyBeforeUpdateEmail:', verifyError);
         console.error('  Error code:', verifyError.code);
         console.error('  Error message:', verifyError.message);
-        console.error('  Full error:', verifyError);
+        console.error('  Full error object:', verifyError);
+        console.error('  Error keys:', Object.keys(verifyError));
+        console.error('  Error stringified:', JSON.stringify(verifyError, null, 2));
         
         // Handle email-already-in-use immediately - check multiple possible error codes
         const errorCode = verifyError.code || '';
         const errorMessage = (verifyError.message || '').toLowerCase();
+        const errorString = JSON.stringify(verifyError).toLowerCase();
+        
+        console.log('  Checking for email-already-in-use:');
+        console.log('    errorCode:', errorCode);
+        console.log('    errorMessage:', errorMessage);
+        console.log('    errorString:', errorString);
+        
         const isEmailInUse = errorCode === 'auth/email-already-in-use' || 
                             errorCode === 'auth/emailAlreadyInUse' ||
+                            errorCode === 'auth/email-already-exists' ||
                             errorMessage.includes('email already in use') ||
                             errorMessage.includes('email already exists') ||
-                            errorMessage.includes('already associated');
+                            errorMessage.includes('already associated') ||
+                            errorMessage.includes('email address is already') ||
+                            errorString.includes('email already in use') ||
+                            errorString.includes('email already exists');
+        
+        console.log('    isEmailInUse result:', isEmailInUse);
         
         if (isEmailInUse) {
           console.warn('  → Email is already in use! Showing error message.');
@@ -1006,6 +1021,9 @@
           isProcessingForm = false;
           
           return; // Don't re-throw, we've handled it
+        } else {
+          console.warn('  → Email-already-in-use NOT detected. Error code:', errorCode);
+          console.warn('  → This might be a different error. Will re-throw to outer catch block.');
         }
         
         // If it's a specific error about the URL or domain, provide helpful message
