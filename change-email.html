@@ -391,11 +391,15 @@
       return;
     }
     
-    // Check if email is already in use using multiple methods
+    // Check if email is already in use
+    // Note: Due to Email Enumeration Protection, we can only reliably detect emails in use
+    // if fetchSignInMethodsForEmail returns methods. If it returns empty, we can't tell.
+    // For emails that aren't in use, we'll allow the user to proceed and Firebase will
+    // catch any issues during the actual email change attempt.
     try {
       console.log('🔍 Checking email availability:', trimmedEmail);
       
-      // Method 1: Try fetchSignInMethodsForEmail (works if Email Enumeration Protection is disabled)
+      // Try fetchSignInMethodsForEmail (works if Email Enumeration Protection is disabled)
       let signInMethods = [];
       try {
         signInMethods = await window.firebaseAuthFunctions.fetchSignInMethodsForEmail(window.firebaseAuth, trimmedEmail);
@@ -413,67 +417,12 @@
         console.log('  fetchSignInMethodsForEmail failed:', fetchError);
       }
       
-      // Method 2: Try createUserWithEmailAndPassword with dummy password
-      // This will throw auth/email-already-in-use if the email exists
-      // IMPORTANT: This will log out the current user if email doesn't exist, so we need to restore session
-      const originalUser = window.firebaseAuth.currentUser;
-      const originalUserEmail = originalUser ? originalUser.email : null;
-      
-      try {
-        const dummyPassword = 'DummyCheck123!@#Temp' + Date.now();
-        const createdUser = await window.firebaseAuthFunctions.createUserWithEmailAndPassword(
-          window.firebaseAuth, 
-          trimmedEmail, 
-          dummyPassword
-        );
-        
-        // If we get here, account was created (email didn't exist)
-        console.log('  ✓ Email is available (account created during check - will delete and restore session)');
-        
-        // Delete the account we just created
-        if (createdUser && createdUser.user) {
-          try {
-            await createdUser.user.delete();
-            console.log('  ✓ Deleted test account');
-          } catch (deleteError) {
-            console.error('  ✗ Failed to delete test account:', deleteError);
-          }
-        }
-        
-        // Email is available - clear any errors
-        emailError.classList.remove('show');
-        newEmailInput.classList.remove('error');
-        
-        // Note: User is now logged out. We can't automatically restore the session
-        // without their password, so we'll just note this in console
-        console.warn('  ⚠️ User session was logged out during check. User will need to log back in.');
-        
-      } catch (createError) {
-        const errorCode = createError.code || '';
-        const errorMessage = (createError.message || '').toLowerCase();
-        
-        // Check if email is already in use
-        if (errorCode === 'auth/email-already-in-use' || 
-            errorCode === 'auth/emailAlreadyInUse' ||
-            errorMessage.includes('email already in use') ||
-            errorMessage.includes('email already exists') ||
-            errorMessage.includes('already associated')) {
-          // Email is already in use!
-          console.warn('❌ Email is already in use (detected via createUserWithEmailAndPassword)!');
-          emailErrorText.textContent = 'This email address is already associated with another account. Please use a different email address or sign in with that account instead.';
-          emailError.classList.add('show');
-          newEmailInput.classList.add('error');
-          
-          // User is still logged in (createUserWithEmailAndPassword failed, so didn't log them out)
-          return;
-        } else {
-          // Some other error - email might be available, but we can't be sure
-          console.log('  ⚠️ Could not determine email availability (error: ' + errorCode + ')');
-          // Clear error - we'll catch it during form submission
-          emailError.classList.remove('show');
-          newEmailInput.classList.remove('error');
-        }
-      }
+      // If signInMethods is empty, we can't tell if email exists due to Email Enumeration Protection
+      // Clear any previous error and allow user to proceed - Firebase will catch it during form submission
+      console.log('  ⚠️ Email Enumeration Protection may be enabled - cannot pre-check email availability');
+      console.log('  ✓ Allowing user to proceed - will check during form submission');
+      emailError.classList.remove('show');
+      newEmailInput.classList.remove('error');
       
     } catch (checkError) {
       console.error('Error checking email:', checkError);
