@@ -1194,7 +1194,7 @@
       
       document.getElementById('updatePasswordLink')?.addEventListener('click', function(e) {
         e.preventDefault();
-        alert('Password update functionality coming soon!');
+        window.location.href = 'change-password.html';
       });
       
     });
@@ -1216,10 +1216,12 @@
       if (verificationStatusEl) {
         try {
           await currentUser.reload(); // Get latest verification status
+          console.log('Email verified status:', currentUser.emailVerified);
           if (currentUser.emailVerified) {
             verificationStatusEl.textContent = '✓ Verified';
             verificationStatusEl.style.color = '#2e7d32';
             verificationStatusEl.style.fontWeight = '500';
+            console.log('Set status to Verified');
             if (verifyEmailLink) {
               verifyEmailLink.style.display = 'none';
             }
@@ -1227,11 +1229,13 @@
             verificationStatusEl.textContent = '✗ Not verified';
             verificationStatusEl.style.color = '#d32f2f';
             verificationStatusEl.style.fontWeight = '500';
+            console.log('Set status to Not verified');
             if (verifyEmailLink) {
               verifyEmailLink.style.display = 'inline';
             }
           }
           verificationStatusEl.classList.remove('loading');
+          console.log('Verification status updated successfully');
         } catch (reloadError) {
           console.error('Error reloading user for verification status:', reloadError);
           // Fallback to cached status
