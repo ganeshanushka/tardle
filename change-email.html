@@ -445,79 +445,10 @@
       }
       
       // If fetchSignInMethodsForEmail returned empty (Email Enumeration Protection),
-      // try createUserWithEmailAndPassword to detect if email exists
-      // IMPORTANT: If email is in use, this will throw auth/email-already-in-use (we stay logged in)
-      // If email doesn't exist, this will create account and log us out (we'll redirect to login)
-      if (!emailInUse && signInMethods && Array.isArray(signInMethods) && signInMethods.length === 0) {
-        console.log('  ⚠️ Email Enumeration Protection detected - trying alternative check on blur');
-        
-        // Save current user info
-        const originalUser = window.firebaseAuth.currentUser;
-        if (!originalUser) {
-          console.warn('  ⚠️ No current user - cannot perform alternative check');
-          emailError.classList.remove('show');
-          newEmailInput.classList.remove('error');
-          return;
-        }
-        
-        try {
-          // Try to create account with dummy password
-          const dummyPassword = 'TempCheck' + Date.now() + '!@#';
-          const userCredential = await window.firebaseAuthFunctions.createUserWithEmailAndPassword(
-            window.firebaseAuth,
-            trimmedEmail,
-            dummyPassword
-          );
-          
-          // If we get here, account was created (email didn't exist)
-          console.log('  ✓ Email is available (account created during check - will delete)');
-          
-          // Delete the test account
-          if (userCredential && userCredential.user) {
-            try {
-              await userCredential.user.delete();
-              console.log('  ✓ Deleted test account');
-            } catch (deleteError) {
-              console.error('  ✗ Failed to delete test account:', deleteError);
-            }
-          }
-          
-          // User is now logged out - redirect to login
-          console.warn('  ⚠️ User session was logged out during check. Redirecting to login...');
-          window.location.href = 'login.html?return=' + encodeURIComponent('change-email.html') + '&email=' + encodeURIComponent(originalUser.email);
-          return;
-          
-        } catch (createError) {
-          const errorCode = createError.code || '';
-          const errorMessage = (createError.message || '').toLowerCase();
-          
-          // Check if email is already in use
-          if (errorCode === 'auth/email-already-in-use' || 
-              errorCode === 'auth/emailAlreadyInUse' ||
-              errorMessage.includes('email already in use') ||
-              errorMessage.includes('email already exists') ||
-              errorMessage.includes('already associated')) {
-            // Email is already in use! Show error immediately
-            emailInUse = true;
-            console.warn('❌ Email is already in use (detected via createUserWithEmailAndPassword on blur)!');
-            emailErrorText.textContent = 'This email address is already associated with another account. Please use a different email address or sign in with that account instead.';
-            emailError.classList.add('show');
-            newEmailInput.classList.add('error');
-            // User is still logged in (createUserWithEmailAndPassword failed, so didn't log them out)
-            return;
-          } else {
-            // Some other error - can't determine
-            console.log('  ⚠️ Could not determine email availability (error: ' + errorCode + ')');
-            emailError.classList.remove('show');
-            newEmailInput.classList.remove('error');
-          }
-        }
-      }
-      
-      // If we couldn't determine (Email Enumeration Protection), don't show error on blur
-      // The error will be caught during form submission when verifyBeforeUpdateEmail is called
+      // we can't reliably check on blur without logging the user out
+      // So we'll allow them to proceed and check during form submission
       if (!emailInUse) {
-        console.log('  ⚠️ Email Enumeration Protection may be enabled - cannot pre-check email availability');
+        console.log('  ⚠️ Email Enumeration Protection may be enabled - cannot pre-check email availability on blur');
         console.log('  ✓ Allowing user to proceed - will check during form submission');
         // Clear any previous error since we can't determine
         emailError.classList.remove('show');
