@@ -454,13 +454,6 @@
         newEmailInput.classList.remove('error');
       }
       
-      // If signInMethods is empty, we can't tell if email exists due to Email Enumeration Protection
-      // Clear any previous error and allow user to proceed - Firebase will catch it during form submission
-      console.log('  ⚠️ Email Enumeration Protection may be enabled - cannot pre-check email availability');
-      console.log('  ✓ Allowing user to proceed - will check during form submission');
-      emailError.classList.remove('show');
-      newEmailInput.classList.remove('error');
-      
     } catch (checkError) {
       console.error('Error checking email:', checkError);
       // Don't show error if check fails - we'll catch it during form submission
