@@ -309,16 +309,19 @@
           // User is not logged in - redirect to login
           // But don't redirect if:
           // 1. We're currently processing the form (might be temporary)
-          // 2. User is actively typing in the email field (might trigger false logout detection)
+          // 2. User is actively typing in the email or password field (might trigger false logout detection)
+          // Note: This protection only prevents redirects - it doesn't affect email validation or error display
           const newEmailInput = document.getElementById('newEmail');
-          const isTyping = newEmailInput && document.activeElement === newEmailInput;
+          const passwordInput = document.getElementById('password');
+          const isTyping = (newEmailInput && document.activeElement === newEmailInput) ||
+                          (passwordInput && document.activeElement === passwordInput);
           
           if (!isProcessingForm && !isTyping) {
             console.log('⚠️ Auth state changed: user logged out, redirecting...');
             window.location.href = 'login.html?return=' + encodeURIComponent('change-email.html');
           } else {
             if (isTyping) {
-              console.log('⚠️ Auth state changed but user is typing - not redirecting');
+              console.log('⚠️ Auth state changed but user is typing - not redirecting (email validation still works)');
             } else {
               console.log('⚠️ User logged out during form processing - will handle in form handler');
             }
@@ -453,12 +456,20 @@
   };
   
   if (newEmailInput) {
-    // Check when user leaves the email field
+    // Check when user leaves the email field (moves to password field or clicks away)
     newEmailInput.addEventListener('blur', async function(e) {
       e.preventDefault();
       e.stopPropagation();
-      const email = newEmailInput.value;
-      await checkEmailAvailability(email);
+      const email = newEmailInput.value.trim();
+      
+      // Only check if email is not empty and is valid format
+      if (email && email.length > 0) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (emailRegex.test(email)) {
+          console.log('📧 Email field blurred - checking availability for:', email);
+          await checkEmailAvailability(email);
+        }
+      }
     });
     
     // Also check on input with debounce (after user stops typing for 1 second)
