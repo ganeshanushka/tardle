@@ -3138,52 +3138,16 @@
         <!-- Immediate email verification check - runs before any game code -->
         <!-- This script MUST complete before app.js loads -->
         <script>
-          // Block page immediately (but don't show overlay yet)
+          // Block page immediately (silently, no overlay)
           document.body.style.pointerEvents = 'none';
           document.body.style.overflow = 'hidden';
-          
-          // Create blocking overlay but don't show it immediately
-          const blockingOverlay = document.createElement('div');
-          blockingOverlay.id = 'blocking-verification-overlay';
-          blockingOverlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 999999; display: none; align-items: center; justify-content: center; color: white; font-size: 18px;';
-          blockingOverlay.textContent = 'Checking verification status...';
-          document.body.appendChild(blockingOverlay);
           
           // Prevent app.js from loading until verification is checked
           window.verificationComplete = false;
           
-          // Only show overlay if check takes longer than 300ms (prevents flash for fast checks)
-          let overlayTimeout = null;
-          let overlayShown = false;
-          
-          function showOverlayIfNeeded() {
-            if (!overlayShown) {
-              overlayTimeout = setTimeout(() => {
-                if (!window.verificationComplete && !overlayShown) {
-                  blockingOverlay.style.display = 'flex';
-                  overlayShown = true;
-                }
-              }, 300); // Only show after 300ms delay
-            }
-          }
-          
-          // Start the timer when page loads
-          showOverlayIfNeeded();
-          
           // Function to allow page to load
           function allowPageLoad() {
             window.verificationComplete = true;
-            
-            // Clear the timeout if overlay hasn't been shown yet
-            if (overlayTimeout) {
-              clearTimeout(overlayTimeout);
-              overlayTimeout = null;
-            }
-            
-            // Remove overlay if it was shown
-            if (blockingOverlay.parentNode) {
-              document.body.removeChild(blockingOverlay);
-            }
             document.body.style.pointerEvents = '';
             document.body.style.overflow = '';
             // Now load app.js
