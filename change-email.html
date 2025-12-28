@@ -920,17 +920,31 @@
         return;
       }
       
-      // Handle email-related errors
-      if (error.code === 'auth/email-already-in-use') {
-        console.warn('❌ Caught auth/email-already-in-use in outer catch block');
-        emailErrorText.textContent = 'This email address is already associated with another account. Please use a different email address or sign in with that account instead.';
-        emailError.classList.add('show');
-        newEmailInput.classList.add('error');
-        newEmailInput.focus();
+      // Handle email-related errors - check multiple possible error codes
+      const errorCode = error.code || '';
+      const errorMessage = (error.message || '').toLowerCase();
+      const isEmailInUse = errorCode === 'auth/email-already-in-use' || 
+                          errorCode === 'auth/emailAlreadyInUse' ||
+                          errorMessage.includes('email already in use') ||
+                          errorMessage.includes('email already exists') ||
+                          errorMessage.includes('already associated');
+      
+      if (isEmailInUse) {
+        console.warn('❌ Caught email-already-in-use in outer catch block');
+        console.warn('  → Error code:', errorCode);
+        console.warn('  → Error message:', error.message);
+        
         // Clear password error if it exists
         passwordError.classList.remove('show');
         passwordInput.classList.remove('error');
         passwordErrorText.textContent = '';
+        
+        // Show email error prominently
+        emailErrorText.textContent = 'This email address is already associated with another account. Please use a different email address or sign in with that account instead.';
+        emailError.classList.add('show');
+        newEmailInput.classList.add('error');
+        newEmailInput.focus();
+        
         saveButton.disabled = false;
         saveButton.textContent = 'Save';
         return;
