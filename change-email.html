@@ -858,7 +858,10 @@
       console.warn('⚠️ Could not verify email availability, will let Firebase handle it');
     }
     
-    // Check if password is missing (after email validation to prioritize email errors)
+    // PASSWORD VALIDATION - MUST HAPPEN BEFORE ANY EMAIL CHANGE LOGIC
+    // This ensures the user cannot proceed past the change email screen without correct password
+    
+    // Step 1: Check if password is missing
     if (!password || password.trim() === '') {
       console.log('⚠️ Password is empty, showing error and stopping');
       passwordErrorText.textContent = 'Please enter a password.';
@@ -868,15 +871,17 @@
       saveButton.disabled = false;
       saveButton.textContent = 'Save';
       isProcessingForm = false; // Reset flag before returning
-      return;
+      return; // STOP - cannot proceed without password
     }
     
-    // Disable button and show loading state
+    // Step 2: Verify password matches current account BEFORE proceeding with email change
+    console.log('🔐 Verifying password before allowing email change...');
     saveButton.disabled = true;
-    saveButton.textContent = 'Saving...';
+    saveButton.textContent = 'Verifying password...';
     
     try {
-      // Re-authenticate user first - this will throw an error if password is wrong
+      // Re-authenticate user - this will throw an error if password is wrong
+      // This MUST succeed before we proceed with any email change logic
       console.log('Re-authenticating user with provided password...');
       const credential = window.firebaseAuthFunctions.EmailAuthProvider.credential(
         currentUser.email,
@@ -885,16 +890,18 @@
       
       try {
         await window.firebaseAuthFunctions.reauthenticateWithCredential(currentUser, credential);
-        console.log('✓ Re-authentication successful');
+        console.log('✓ Password verified successfully - password matches current account');
+        console.log('✓ User can now proceed with email change');
       } catch (reauthError) {
-        console.error('✗ Re-authentication failed:', reauthError);
+        console.error('✗ Password verification failed:', reauthError);
         console.error('  Error code:', reauthError.code);
         console.error('  Error message:', reauthError.message);
         
-        // Handle password-related errors
+        // Handle password-related errors - STOP HERE, do not proceed
         if (reauthError.code === 'auth/wrong-password' || 
             reauthError.code === 'auth/invalid-credential' || 
             reauthError.code === 'auth/invalid-login-credentials') {
+          console.error('✗ INCORRECT PASSWORD - stopping email change process');
           passwordErrorText.textContent = 'Incorrect password. Please enter the correct password for this account.';
           passwordError.classList.add('show');
           passwordInput.classList.add('error');
@@ -902,20 +909,42 @@
           passwordInput.focus();
           saveButton.disabled = false;
           saveButton.textContent = 'Save';
-          return;
+          isProcessingForm = false; // Reset flag
+          return; // STOP - cannot proceed with incorrect password
         }
         
         // Re-throw other errors to be handled by outer catch
         throw reauthError;
       }
       
-      // Get the refreshed user object after re-authentication
+      // Password is verified - now we can proceed with email change
+      console.log('✅ Password verified - proceeding with email change process');
+      saveButton.disabled = true;
+      saveButton.textContent = 'Saving...';
+      
+    } catch (passwordVerifyError) {
+      // This should not happen if re-authentication succeeded, but handle it just in case
+      console.error('✗ Unexpected error during password verification:', passwordVerifyError);
+      passwordErrorText.textContent = 'Error verifying password. Please try again.';
+      passwordError.classList.add('show');
+      passwordInput.classList.add('error');
+      passwordInput.focus();
+      saveButton.disabled = false;
+      saveButton.textContent = 'Save';
+      isProcessingForm = false;
+      return; // STOP - cannot proceed
+    }
+    
+    // Password is verified - now proceed with email change logic
+    try {
+      
+      // Get the refreshed user object after password verification
       const refreshedUser = window.firebaseAuth.currentUser;
       if (!refreshedUser) {
         throw new Error('User session expired. Please log in again.');
       }
       
-      // Double-check email verification status after re-authentication
+      // Double-check email verification status after password verification
       try {
         await refreshedUser.reload();
         console.log('Email verification status before update:', refreshedUser.emailVerified);
@@ -925,10 +954,11 @@
           errorMessage.classList.add('show');
           saveButton.disabled = false;
           saveButton.textContent = 'Save';
+          isProcessingForm = false;
           return;
         }
       } catch (reloadErr) {
-        console.warn('Could not reload user after re-authentication:', reloadErr);
+        console.warn('Could not reload user after password verification:', reloadErr);
         // Continue but log the issue
       }
       
