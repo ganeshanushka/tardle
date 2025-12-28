@@ -424,12 +424,14 @@
       
       // Try fetchSignInMethodsForEmail (works if Email Enumeration Protection is disabled)
       let signInMethods = [];
+      let emailInUse = false;
       try {
         signInMethods = await window.firebaseAuthFunctions.fetchSignInMethodsForEmail(window.firebaseAuth, trimmedEmail);
         console.log('  Sign-in methods returned:', signInMethods);
         
         // If we got sign-in methods, email is definitely in use
         if (signInMethods && Array.isArray(signInMethods) && signInMethods.length > 0) {
+          emailInUse = true;
           console.warn('❌ Email is already in use (detected via sign-in methods)!');
           emailErrorText.textContent = 'This email address is already associated with another account. Please use a different email address or sign in with that account instead.';
           emailError.classList.add('show');
@@ -438,6 +440,18 @@
         }
       } catch (fetchError) {
         console.log('  fetchSignInMethodsForEmail failed:', fetchError);
+        // If fetchSignInMethodsForEmail fails, we can't determine email availability
+        // But we'll still show a message if Email Enumeration Protection might be hiding it
+      }
+      
+      // If we couldn't determine (Email Enumeration Protection), don't show error on blur
+      // The error will be caught during form submission when verifyBeforeUpdateEmail is called
+      if (!emailInUse) {
+        console.log('  ⚠️ Email Enumeration Protection may be enabled - cannot pre-check email availability');
+        console.log('  ✓ Allowing user to proceed - will check during form submission');
+        // Clear any previous error since we can't determine
+        emailError.classList.remove('show');
+        newEmailInput.classList.remove('error');
       }
       
       // If signInMethods is empty, we can't tell if email exists due to Email Enumeration Protection
