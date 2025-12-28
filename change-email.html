@@ -307,12 +307,21 @@
           
         } else {
           // User is not logged in - redirect to login
-          // But don't redirect if we're currently processing the form (might be temporary)
-          if (!isProcessingForm) {
+          // But don't redirect if:
+          // 1. We're currently processing the form (might be temporary)
+          // 2. User is actively typing in the email field (might trigger false logout detection)
+          const newEmailInput = document.getElementById('newEmail');
+          const isTyping = newEmailInput && document.activeElement === newEmailInput;
+          
+          if (!isProcessingForm && !isTyping) {
             console.log('⚠️ Auth state changed: user logged out, redirecting...');
             window.location.href = 'login.html?return=' + encodeURIComponent('change-email.html');
           } else {
-            console.log('⚠️ User logged out during form processing - will handle in form handler');
+            if (isTyping) {
+              console.log('⚠️ Auth state changed but user is typing - not redirecting');
+            } else {
+              console.log('⚠️ User logged out during form processing - will handle in form handler');
+            }
           }
         }
       });
@@ -479,9 +488,19 @@
 
   document.getElementById('changeEmailForm').addEventListener('submit', async function(e) {
     e.preventDefault();
+    e.stopPropagation();
     
     // Set flag to prevent auth state change redirect during form processing
     isProcessingForm = true;
+    
+    // Ensure we don't proceed if form is being submitted without user action
+    // Only proceed if Save button was clicked
+    const saveButton = document.getElementById('saveButton');
+    if (!saveButton || saveButton.disabled) {
+      console.warn('⚠️ Form submission blocked - Save button not available or disabled');
+      isProcessingForm = false;
+      return;
+    }
     
     try {
       // Check if user is still logged in before proceeding
