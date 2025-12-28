@@ -434,13 +434,18 @@
   
   if (newEmailInput) {
     // Check when user leaves the email field
-    newEmailInput.addEventListener('blur', async function() {
+    newEmailInput.addEventListener('blur', async function(e) {
+      e.preventDefault();
+      e.stopPropagation();
       const email = newEmailInput.value;
       await checkEmailAvailability(email);
     });
     
     // Also check on input with debounce (after user stops typing for 1 second)
-    newEmailInput.addEventListener('input', function() {
+    newEmailInput.addEventListener('input', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
       // Clear previous timeout
       if (emailCheckTimeout) {
         clearTimeout(emailCheckTimeout);
@@ -456,6 +461,19 @@
       emailCheckTimeout = setTimeout(() => {
         checkEmailAvailability(email);
       }, 1000);
+    });
+    
+    // Prevent form submission when Enter is pressed in email field
+    newEmailInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        e.stopPropagation();
+        // Focus on password field instead
+        const passwordInput = document.getElementById('password');
+        if (passwordInput) {
+          passwordInput.focus();
+        }
+      }
     });
   }
 
