@@ -330,14 +330,25 @@
       setTimeout(updateEmailDisplay, 500);
       
       // Wait for Firebase to restore the session
+      // Give it more time and check if user is actively interacting with the form
       setTimeout(() => {
-        if (!window.firebaseAuth.currentUser) {
+        const newEmailInput = document.getElementById('newEmail');
+        const passwordInput = document.getElementById('password');
+        const isTyping = (newEmailInput && document.activeElement === newEmailInput) ||
+                        (passwordInput && document.activeElement === passwordInput);
+        
+        if (!window.firebaseAuth.currentUser && !isProcessingForm && !isTyping) {
+          console.log('⚠️ No user found after session restore, redirecting...');
           window.location.href = 'login.html?return=' + encodeURIComponent('change-email.html');
         } else {
-          // Update email one more time after session is restored
-          updateEmailDisplay();
+          if (window.firebaseAuth.currentUser) {
+            // Update email one more time after session is restored
+            updateEmailDisplay();
+          } else if (isTyping) {
+            console.log('⚠️ User is typing - not redirecting even though no user found');
+          }
         }
-      }, 1500);
+      }, 2000); // Increased timeout to give more time for session restoration
     }
   }, 100);
 
