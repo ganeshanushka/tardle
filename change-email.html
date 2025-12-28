@@ -836,18 +836,6 @@
         return; // Stop here - don't proceed with password validation
       }
       
-      // If email is in use, show error and stop
-      if (emailInUse) {
-        saveButton.disabled = false;
-        saveButton.textContent = 'Save';
-        
-        emailErrorText.textContent = 'This email address is already associated with another account. Please use a different email address or sign in with that account instead.';
-        emailError.classList.add('show');
-        newEmailInput.classList.add('error');
-        newEmailInput.focus();
-        return; // Stop here - don't proceed with password validation
-      }
-      
       // If we couldn't determine, proceed to password validation
       // Firebase's verifyBeforeUpdateEmail will catch it if the email is in use
       console.log('⚠️ Email Enumeration Protection may be enabled - cannot pre-check email availability');
@@ -1113,10 +1101,7 @@
         throw verifyError; // Re-throw other errors to be caught by outer catch block
       }
       
-      // Clear form
-      document.getElementById('newEmail').value = '';
-      document.getElementById('password').value = '';
-      
+      // Form is already cleared in the success block above
       // Don't redirect immediately - let user read the message
       saveButton.disabled = false;
       saveButton.textContent = 'Save';
