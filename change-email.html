@@ -1015,7 +1015,17 @@
         console.log('Verification link will redirect to:', continueUrl);
         console.log('From email address: noreply@tardle-c0c26.firebaseapp.com');
         
-        // Additional Gmail-specific troubleshooting
+        // Show success message - "Email has been changed"
+        successMessage.textContent = 'Email has been changed';
+        successMessage.style.color = '#2e7d32';
+        successMessage.style.whiteSpace = 'pre-line';
+        successMessage.classList.add('show');
+        
+        // Clear form
+        document.getElementById('newEmail').value = '';
+        document.getElementById('password').value = '';
+        
+        // Additional Gmail-specific troubleshooting (logged to console only)
         if (newEmail.toLowerCase().includes('@gmail.com')) {
           console.warn('⚠️ Gmail-specific troubleshooting:');
           console.warn('1. Search Gmail for: "noreply@tardle-c0c26.firebaseapp.com"');
@@ -1023,26 +1033,6 @@
           console.warn('3. Gmail may delay Firebase emails by 5-15 minutes');
           console.warn('4. Check Gmail Settings > Filters and Blocked Addresses');
         }
-        
-        // Show success message - email will be updated after user verifies
-        const isGmail = newEmail.toLowerCase().includes('@gmail.com');
-        const successMsg = 'Verification emails have been sent:\n\n' +
-          '✓ Check ' + newEmail + ' for the verification link\n' +
-          '  → Check SPAM folder thoroughly (Gmail often filters Firebase emails)\n' +
-          '  → Check "All Mail" and "Promotions" tabs in Gmail\n' +
-          '  → Search for "noreply@tardle-c0c26.firebaseapp.com" in Gmail\n' +
-          '✓ Check ' + userEmail + ' for a notification about the change\n\n' +
-          '⚠️ If you still don\'t see the email in ' + newEmail + ':\n' +
-          (isGmail ? '• Gmail may be blocking Firebase emails - try a different email provider\n' : '') +
-          '• Wait 5-10 minutes (Gmail filtering can delay delivery)\n' +
-          '• Check Gmail\'s "Blocked senders" list\n' +
-          '• Try requesting another email after 10 minutes\n' +
-          '• Contact support if the issue persists';
-        
-        successMessage.textContent = successMsg;
-        successMessage.style.color = '#2e7d32';
-        successMessage.style.whiteSpace = 'pre-line'; // Allow line breaks
-        successMessage.classList.add('show');
         
         // Also log warning about email templates
         console.warn('⚠️ IMPORTANT: If email not received, verify in Firebase Console:');
