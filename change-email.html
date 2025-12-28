@@ -783,6 +783,7 @@
           email: refreshedUser.email,
           emailVerified: refreshedUser.emailVerified
         });
+        console.log('New email to check:', newEmail);
         
         const actionCodeSettings = {
           url: continueUrl,
@@ -790,6 +791,8 @@
         };
         console.log('Action code settings:', actionCodeSettings);
         
+        // This is where Firebase will throw auth/email-already-in-use if the email exists
+        console.log('⚠️ Calling verifyBeforeUpdateEmail - this will throw auth/email-already-in-use if email is in use');
         const result = await verifyFunc(refreshedUser, newEmail, actionCodeSettings);
         
         console.log('✓ verifyBeforeUpdateEmail completed successfully - email should have been sent');
