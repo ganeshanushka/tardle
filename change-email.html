@@ -1120,9 +1120,13 @@
         
         console.log('✓ verifyBeforeUpdateEmail completed successfully - email should have been sent');
         console.log('Function return value:', result);
+        console.log('Function return type:', typeof result);
+        console.log('Function return value (stringified):', JSON.stringify(result, null, 2));
         console.log('Email sent to:', newEmail);
         console.log('Verification link will redirect to:', continueUrl);
         console.log('From email address: noreply@tardle-c0c26.firebaseapp.com');
+        console.log('⚠️ NOTE: If email is not received, this might be a Firebase issue with verifyBeforeUpdateEmail');
+        console.log('⚠️ Try checking Firebase Console > Authentication > Users for any email sending activity');
         
         // IMPORTANT: verifyBeforeUpdateEmail doesn't return a promise that resolves when email is sent
         // It only verifies the email can be changed and queues the email to be sent
