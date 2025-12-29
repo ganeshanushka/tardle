@@ -161,7 +161,7 @@ exports.sendEmailChangeVerification = functions.https.onCall(async (data, contex
     const verificationUrl = `https://ganeshanushka.github.io/tardle/verify-email-change.html?code=${code}&email=${encodeURIComponent(email)}`;
 
     const emailResult = await resend.emails.send({
-      from: "Tardle <onboarding@resend.dev>",
+      from: "Tardle <no-reply@tardle.com>",
       to: email,
       subject: "Verify your new email address for Tardle",
       html: `
