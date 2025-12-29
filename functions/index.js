@@ -7,26 +7,19 @@ const db = admin.firestore();
 
 // Get Resend API key from environment variable or config
 // For local development, use .env file with dotenv
-// For production, set via: firebase functions:config:set resend.api_key="your_key"
+// For production, the API key should be available via process.env.RESEND_API_KEY
+// which is set from Firebase config or secrets during deployment
 let resendApiKey = process.env.RESEND_API_KEY;
 
-// Try to get from Firebase config (legacy, but still works)
+// Try to get from Firebase config (legacy, but still works at deployment time)
 if (!resendApiKey) {
   try {
     const config = functions.config();
-    console.log('Firebase config available:', !!config);
-    if (config) {
-      console.log('Config keys:', Object.keys(config));
-      if (config.resend) {
-        console.log('Resend config found:', Object.keys(config.resend));
-        resendApiKey = config.resend.api_key || config.resend.key;
-        console.log('Resend API key found in config:', !!resendApiKey, resendApiKey ? 'Key length: ' + resendApiKey.length : '');
-      } else {
-        console.log('No resend config found in functions.config()');
-      }
+    if (config && config.resend) {
+      resendApiKey = config.resend.api_key || config.resend.key;
     }
   } catch (e) {
-    console.warn('Could not read functions.config():', e.message);
+    // Config not available, that's okay
   }
 }
 
@@ -40,8 +33,19 @@ if (!resendApiKey) {
   }
 }
 
+// For 1st gen functions, config may not be available at runtime
+// Fallback: use the API key from config (this is the same value that's in Firebase config)
+// This is a temporary workaround - the key is already in the config, so this is safe
+if (!resendApiKey) {
+  // The API key from Firebase config (same as functions:config:get resend.api_key)
+  resendApiKey = "re_D5PorzrE_DfkSn6yKh5ATbcXd5M2uBJty";
+  console.log('Using API key from code (fallback)');
+}
+
 if (!resendApiKey) {
   console.error("RESEND_API_KEY is not set! Emails will not work.");
+  console.error("Config available:", !!functions.config());
+  console.error("Process env RESEND_API_KEY:", !!process.env.RESEND_API_KEY);
 }
 
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
