@@ -503,12 +503,13 @@
                 emailInUse = true;
               } else {
                 // Ambiguous - error message doesn't give clear clues
-                // However, when fetchSignInMethodsForEmail returns empty AND we get invalid-credential,
-                // it's likely Email Enumeration Protection is hiding the email, but the email exists
-                // We'll assume it exists to catch emails in Firebase (matches form submission logic)
-                console.warn('❌ Email likely in use (invalid-credential after empty fetchSignInMethods)');
-                console.warn('  ⚠️ This is ambiguous but likely means email exists (Email Enumeration Protection)');
-                emailInUse = true; // Assume email exists to catch it early
+                // When Email Enumeration Protection is enabled, we can't reliably distinguish
+                // For real-time checks: don't show error (be conservative to avoid false positives)
+                // Form submission will catch it via verifyBeforeUpdateEmail which throws auth/email-already-in-use
+                console.warn('  ⚠️ Invalid credential - AMBIGUOUS (cannot reliably determine)');
+                console.warn('  ⚠️ Email Enumeration Protection likely enabled');
+                console.warn('  ⚠️ Not showing error in real-time - verifyBeforeUpdateEmail will catch it on form submission');
+                emailInUse = false; // Don't show error for ambiguous cases in real-time
               }
             } else if (errorCode === 'auth/too-many-requests') {
               // Rate limit hit - can't determine
@@ -577,10 +578,10 @@
               console.warn('❌ Email IS in use (error message mentions password issue - email exists)!');
               emailInUse = true;
             } else {
-              // Ambiguous - but when fetchSignInMethodsForEmail failed and we get invalid-credential,
-              // it's likely the email exists (Email Enumeration Protection)
-              console.warn('❌ Email likely in use (invalid-credential after fetchSignInMethodsForEmail failed)');
-              emailInUse = true; // Assume email exists to catch it
+              // Ambiguous - cannot reliably determine
+              // For real-time checks: don't show error (be conservative)
+              console.warn('  ⚠️ Invalid credential in fallback - AMBIGUOUS, not showing error');
+              emailInUse = false; // Don't show error for ambiguous cases
             }
           } else if (errorCode === 'auth/too-many-requests') {
             // Rate limit hit - can't determine
