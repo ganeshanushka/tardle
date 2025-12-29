@@ -1075,9 +1075,15 @@
               emailInUse = true;
               console.warn('❌ Email likely in use (invalid-credential after empty fetchSignInMethods)');
               console.warn('  ⚠️ This is ambiguous but likely means email exists (Email Enumeration Protection)');
+            } else if (errorCode === 'auth/too-many-requests') {
+              // Rate limit - can't determine, but be safe and assume email might exist
+              console.warn('  ⚠️ Rate limit hit - cannot determine, but blocking to be safe');
+              emailInUse = true; // Block to be safe
             } else {
-              console.log('  ⚠️ Could not determine email existence (error:', errorCode + ')');
-              emailInUse = false;
+              // Unknown error - be conservative and assume email might exist
+              console.warn('  ⚠️ Could not determine email existence (error:', errorCode + ')');
+              console.warn('  ⚠️ Being conservative - assuming email might exist');
+              emailInUse = true; // Block to be safe
             }
           }
         }
@@ -1095,13 +1101,27 @@
           emailInUse = false;
         } catch (signInError) {
           const errorCode = signInError.code || '';
+          const errorMessage = signInError.message || '';
+          console.log('  Fallback sign-in error code:', errorCode);
+          console.log('  Fallback sign-in error message:', errorMessage);
+          
           if (errorCode === 'auth/user-not-found') {
             emailInUse = false;
-          } else if (errorCode === 'auth/wrong-password' || 
-                     errorCode === 'auth/invalid-credential' ||
-                     errorCode === 'auth/invalid-login-credentials') {
+            console.log('  ✓ Email does NOT exist (user-not-found)');
+          } else if (errorCode === 'auth/wrong-password') {
             emailInUse = true;
-            console.warn('❌ Email likely in use (error:', errorCode + ')');
+            console.warn('❌ Email IS in use (wrong-password)!');
+          } else if (errorCode === 'auth/invalid-credential' || 
+                     errorCode === 'auth/invalid-login-credentials') {
+            // When fetchSignInMethodsForEmail failed AND we get invalid-credential,
+            // assume email exists (Email Enumeration Protection)
+            emailInUse = true;
+            console.warn('❌ Email likely in use (invalid-credential after fetchSignInMethodsForEmail failed)');
+          } else {
+            // Unknown error - log it but assume email might exist
+            console.warn('  ⚠️ Unknown error code:', errorCode);
+            // Be safe and assume email exists
+            emailInUse = true;
           }
         }
       }
@@ -1130,8 +1150,17 @@
       saveButton.textContent = 'Save';
       
       console.error('❌ Error during email availability check:', emailCheckError);
-      // Continue - password is already verified, Firebase will catch email issues
-      console.warn('⚠️ Could not verify email availability, but password is verified - proceeding');
+      console.error('  Error code:', emailCheckError.code);
+      console.error('  Error message:', emailCheckError.message);
+      
+      // If we can't check, be safe and block the form
+      // It's better to require the user to try again than to allow a potentially invalid email change
+      emailErrorText.textContent = 'Could not verify email availability. Please try again. If the problem persists, the email may already be in use.';
+      emailError.classList.add('show');
+      newEmailInput.classList.add('error');
+      newEmailInput.focus();
+      isProcessingForm = false;
+      return; // Stop here - don't proceed if we can't verify
     }
     
     // Password is verified and email check is complete - proceed with email change
