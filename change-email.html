@@ -523,16 +523,27 @@
       }
       
       // Show or clear error based on result
+      console.log('  Final emailInUse result:', emailInUse);
       if (emailInUse) {
         // Email is in Firebase - show error
+        console.log('  🚨 Email is in Firebase - displaying error message');
         if (emailErrorText) {
           emailErrorText.textContent = 'This email address is already associated with another account. Please use a different email address or sign in with that account instead.';
+          console.log('  ✅ Error text set');
+        } else {
+          console.error('  ❌ emailErrorText element not found!');
         }
         if (emailError) {
           emailError.classList.add('show');
+          console.log('  ✅ Error class "show" added to emailError');
+        } else {
+          console.error('  ❌ emailError element not found!');
         }
         if (newEmailInput) {
           newEmailInput.classList.add('error');
+          console.log('  ✅ Error class added to input');
+        } else {
+          console.error('  ❌ newEmailInput element not found!');
         }
         console.log('  ✅ Error displayed - email is in Firebase');
       } else {
