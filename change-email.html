@@ -429,10 +429,12 @@
     try {
       console.log('🔍 Checking email availability:', trimmedEmail);
       
-      // Clear any existing errors at the start of the check
-      // Only show error if we definitively determine email exists
+      // Clear any existing errors at the start - we'll show error only if email is definitively in use
       if (emailError) {
         emailError.classList.remove('show');
+      }
+      if (emailErrorText) {
+        emailErrorText.textContent = '';
       }
       if (newEmailInput) {
         newEmailInput.classList.remove('error');
@@ -529,6 +531,9 @@
         if (emailError) {
           emailError.classList.remove('show');
         }
+        if (emailErrorText) {
+          emailErrorText.textContent = ''; // Clear error text
+        }
         if (newEmailInput) {
           newEmailInput.classList.remove('error');
         }
@@ -540,6 +545,9 @@
       // On error, clear any previous errors and allow proceed (Firebase will catch it)
       if (emailError) {
         emailError.classList.remove('show');
+      }
+      if (emailErrorText) {
+        emailErrorText.textContent = ''; // Clear error text
       }
       if (newEmailInput) {
         newEmailInput.classList.remove('error');
