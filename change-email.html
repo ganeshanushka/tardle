@@ -481,9 +481,15 @@
               // Email EXISTS in Firebase (wrong password or invalid credential means email exists)
               console.warn('❌ Email IS in use (detected via sign-in attempt)!');
               emailInUse = true;
+            } else if (errorCode === 'auth/too-many-requests') {
+              // Rate limit hit - can't determine, but don't assume email doesn't exist
+              // Since we can't check, allow proceed but Firebase will catch it during actual change
+              console.warn('  ⚠️ Rate limit hit (too-many-requests) - cannot check email availability');
+              console.warn('  ⚠️ Allowing proceed - Firebase will catch it during actual email change');
+              emailInUse = false;
             } else {
               // Unknown error - can't determine, allow proceed (Firebase will catch it)
-              console.log('  ⚠️ Unknown error, allowing proceed - Firebase will catch it');
+              console.log('  ⚠️ Unknown error (' + errorCode + '), allowing proceed - Firebase will catch it');
               emailInUse = false;
             }
           }
@@ -507,6 +513,9 @@
                      errorCode === 'auth/invalid-credential' ||
                      errorCode === 'auth/invalid-login-credentials') {
             emailInUse = true;
+          } else if (errorCode === 'auth/too-many-requests') {
+            // Rate limit hit - can't determine
+            emailInUse = false;
           } else {
             emailInUse = false;
           }
