@@ -351,13 +351,25 @@
             const isEmailChange = mode === 'verifyAndChangeEmail';
             console.log('Processing email verification link...', isEmailChange ? '(email change)' : '(initial verification)');
             try {
+              // Store old email before applying action code
+              const oldEmail = user.email;
+              console.log('  Old email before verification:', oldEmail);
+              
               await window.firebaseAuthFunctions.applyActionCode(window.firebaseAuth, actionCode);
               // Reload user to get updated verification status and email
               await user.reload();
               
-              if (isEmailChange) {
+              // Check if email actually changed (compare with what we had before)
+              const emailChanged = user.email && oldEmail && user.email !== oldEmail;
+              
+              if (isEmailChange || emailChanged) {
                 console.log('✓ Email changed and verified successfully!');
-                console.log('New email:', user.email);
+                console.log('  Old email:', currentUser.email);
+                console.log('  New email:', user.email);
+                console.log('  Mode was:', mode);
+                console.log('  isEmailChange flag:', isEmailChange);
+                console.log('  emailChanged detected:', emailChanged);
+                
                 document.getElementById('successMessage').textContent = 'Your email has been changed and verified successfully! Redirecting...';
                 document.getElementById('successMessage').classList.add('show');
                 
@@ -365,13 +377,28 @@
                 if (window.firebaseDb && window.firebaseFirestoreFunctions) {
                   try {
                     const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', user.uid);
+                    console.log('  Updating Firestore document with new email:', user.email);
                     await window.firebaseFirestoreFunctions.updateDoc(userDocRef, {
                       email: user.email
                     });
-                    console.log('✓ Firestore email updated');
+                    console.log('✓ Firestore email updated successfully');
+                    
+                    // Verify the update worked
+                    const updatedDoc = await window.firebaseFirestoreFunctions.getDoc(userDocRef);
+                    if (updatedDoc.exists()) {
+                      const data = updatedDoc.data();
+                      console.log('  Verified Firestore update - email in document:', data.email);
+                    }
                   } catch (firestoreError) {
-                    console.warn('Could not update email in Firestore:', firestoreError);
+                    console.error('✗ Could not update email in Firestore:', firestoreError);
+                    console.error('  Error code:', firestoreError.code);
+                    console.error('  Error message:', firestoreError.message);
+                    // Show error to user
+                    document.getElementById('errorMessage').textContent = 'Email was changed in Firebase Authentication, but there was an error updating it in the database. Your email change is still valid.';
+                    document.getElementById('errorMessage').classList.add('show');
                   }
+                } else {
+                  console.warn('⚠️ Firestore functions not available - cannot update email in database');
                 }
               } else if (user.emailVerified) {
                 console.log('✓ Email verified successfully!');
