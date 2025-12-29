@@ -430,6 +430,7 @@
       console.log('🔍 Checking email availability:', trimmedEmail);
       
       let emailInUse = false;
+      let rateLimited = false; // Track if we hit rate limits
       
       // Step 1: Try fetchSignInMethodsForEmail (works if Email Enumeration Protection is disabled)
       try {
@@ -479,11 +480,13 @@
               console.warn('❌ Email IS in use (detected via sign-in attempt - ' + errorCode + ')!');
               emailInUse = true;
             } else if (errorCode === 'auth/too-many-requests') {
-              // Rate limit hit - can't determine, but don't assume email doesn't exist
-              // Since we can't check, allow proceed but Firebase will catch it during actual change
+              // Rate limit hit - can't determine
+              // When rate limited, we can't check, but we should NOT assume email doesn't exist
+              // Instead, we'll keep any existing error state and let verifyBeforeUpdateEmail catch it
               console.warn('  ⚠️ Rate limit hit (too-many-requests) - cannot check email availability');
-              console.warn('  ⚠️ Allowing proceed - Firebase will catch it during actual email change');
-              emailInUse = false;
+              console.warn('  ⚠️ Cannot determine if email exists - will check on form submission');
+              rateLimited = true; // Mark that we hit rate limits
+              // Don't set emailInUse - we can't determine, so keep current state
             } else {
               // Unknown error - log it but don't assume email doesn't exist
               console.warn('  ⚠️ Unknown error code: ' + errorCode);
@@ -524,7 +527,10 @@
             console.warn('❌ Email IS in use (detected via fallback sign-in attempt)!');
           } else if (errorCode === 'auth/too-many-requests') {
             // Rate limit hit - can't determine
-            emailInUse = false;
+            // Don't assume email doesn't exist - keep current state
+            console.warn('  ⚠️ Rate limit hit in fallback - cannot determine');
+            rateLimited = true; // Mark that we hit rate limits
+            // Don't set emailInUse - we can't determine
           } else {
             emailInUse = false;
           }
@@ -533,6 +539,14 @@
       
       // Show or clear error based on result
       console.log('  Final emailInUse result:', emailInUse);
+      console.log('  Rate limited:', rateLimited);
+      
+      // If we hit rate limits, don't change error state - keep whatever it was
+      if (rateLimited) {
+        console.warn('  ⚠️ Rate limited - not changing error state, will check on form submission');
+        return; // Exit early, don't change error display
+      }
+      
       if (emailInUse) {
         // Email is in Firebase - show error
         console.log('  🚨 Email is in Firebase - displaying error message');
@@ -607,7 +621,7 @@
       }
     });
     
-    // Also check on input with debounce (after user stops typing for 2 seconds to reduce rate limits)
+    // Also check on input with debounce (after user stops typing for 3 seconds to reduce rate limits)
     newEmailInput.addEventListener('input', function(e) {
       e.preventDefault();
       e.stopPropagation();
@@ -617,17 +631,21 @@
         clearTimeout(emailCheckTimeout);
       }
       
-      // Clear error when user starts typing
-      emailError.classList.remove('show');
-      emailErrorText.textContent = '';
-      newEmailInput.classList.remove('error');
+      // Clear error when user starts typing (but only if it's a different email)
+      // Don't clear if user is just editing the same email
+      const currentEmail = newEmailInput.value.trim();
+      if (currentEmail.length === 0 || !emailErrorText.textContent.includes(currentEmail)) {
+        emailError.classList.remove('show');
+        emailErrorText.textContent = '';
+        newEmailInput.classList.remove('error');
+      }
       
       const email = newEmailInput.value;
       
-      // Debounce: wait 2 seconds after user stops typing (increased to reduce rate limits)
+      // Debounce: wait 3 seconds after user stops typing (increased to reduce rate limits)
       emailCheckTimeout = setTimeout(() => {
         checkEmailAvailability(email);
-      }, 2000);
+      }, 3000);
     });
     
     // Prevent form submission when Enter is pressed in email field
