@@ -1115,6 +1115,8 @@
           handleCodeInApp: false
         };
         console.log('Action code settings:', actionCodeSettings);
+        console.log('Continue URL being used:', continueUrl);
+        console.log('⚠️ IMPORTANT: Make sure "Email address verification" template (not "Email address change") is enabled in Firebase Console');
         
         // This is where Firebase will throw auth/email-already-in-use if the email exists
         console.log('⚠️ Calling verifyBeforeUpdateEmail - this will throw auth/email-already-in-use if email is in use');
