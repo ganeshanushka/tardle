@@ -147,31 +147,16 @@ exports.sendEmailChangeVerification = functions.https.onCall(async (data, contex
       throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
     }
 
-    // Get Resend API key - try multiple sources
-    let apiKey = process.env.RESEND_API_KEY;
-    if (!apiKey) {
-      try {
-        const config = functions.config();
-        if (config && config.resend) {
-          apiKey = config.resend.api_key || config.resend.key;
-        }
-      } catch (e) {
-        console.warn('Could not read config:', e.message);
-      }
+    // Use the global resend instance (initialized at module load with config)
+    // This is the same approach used by sendVerificationCode
+    if (!resend) {
+      throw new functions.https.HttpsError('failed-precondition', 'Resend API key is not configured. Please set RESEND_API_KEY in Firebase Functions config.');
     }
-    
-    if (!apiKey) {
-      throw new functions.https.HttpsError('failed-precondition', 'Resend API key is not configured. Please set RESEND_API_KEY as a secret or in Firebase Functions config.');
-    }
-    
-    // Create Resend instance with the API key
-    const resendInstance = new Resend(apiKey);
-    console.log('Resend instance created with API key, length:', apiKey ? apiKey.length : 0);
 
     // Build verification URL - use the code as a query parameter
     const verificationUrl = `https://ganeshanushka.github.io/tardle/verify-email-change.html?code=${code}&email=${encodeURIComponent(email)}`;
 
-    await resendInstance.emails.send({
+    await resend.emails.send({
       from: "Tardle <no-reply@tardle.com",
       to: email,
       subject: "Verify your new email address for Tardle",
