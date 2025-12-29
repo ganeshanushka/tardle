@@ -276,66 +276,33 @@
   let username = '';
   let isProcessingForm = false; // Flag to prevent redirect during form submission
 
-  // Update email display function
-  const updateEmailDisplay = () => {
-    const currentEmailEl = document.getElementById('currentEmail');
-    if (currentEmailEl) {
-      if (window.firebaseAuth && window.firebaseAuth.currentUser) {
-        const email = window.firebaseAuth.currentUser.email || '';
-        currentEmailEl.textContent = email;
-        userEmail = email;
-        currentUser = window.firebaseAuth.currentUser;
-        console.log('✅ Email updated:', email);
-        return true;
-      } else {
-        console.log('⚠️ No current user found');
-        // Don't change "Loading..." to "Not logged in" immediately - wait for auth state
-        return false;
-      }
-    } else {
-      console.error('❌ currentEmail element not found');
-      return false;
-    }
-  };
-
-  // Ensure DOM is ready before initializing
-  function initializeEmailPage() {
-    console.log('🚀 Initializing change-email page');
-    
-    // Try to update email immediately if Firebase is already loaded
-    if (window.firebaseAuth && window.firebaseAuthFunctions) {
-      updateEmailDisplay();
-    }
-    
-    // Wait for Firebase to load
-    let checkFirebaseAttempts = 0;
-    const maxCheckFirebaseAttempts = 100; // 10 seconds max (100 * 100ms)
-    
-    const checkFirebase = setInterval(() => {
-      checkFirebaseAttempts++;
-      console.log('Checking Firebase availability, attempt:', checkFirebaseAttempts);
-      console.log('  firebaseAuth:', !!window.firebaseAuth);
-      console.log('  firebaseAuthFunctions:', !!window.firebaseAuthFunctions);
-      console.log('  firebaseFirestoreFunctions:', !!window.firebaseFirestoreFunctions);
-      console.log('  firebaseDb:', !!window.firebaseDb);
+  // Wait for Firebase to load
+  const checkFirebase = setInterval(() => {
+    if (window.firebaseAuth && window.firebaseAuthFunctions && window.firebaseFirestoreFunctions && window.firebaseDb) {
+      clearInterval(checkFirebase);
       
-      if (window.firebaseAuth && window.firebaseAuthFunctions && window.firebaseFirestoreFunctions && window.firebaseDb) {
-        clearInterval(checkFirebase);
-        console.log('✅ Firebase loaded successfully');
-        
-        // Try to update immediately
-        updateEmailDisplay();
+      // Update email immediately if user is already logged in
+      const updateEmailDisplay = () => {
+        const currentEmailEl = document.getElementById('currentEmail');
+        if (currentEmailEl && window.firebaseAuth.currentUser) {
+          const email = window.firebaseAuth.currentUser.email || '';
+          currentEmailEl.textContent = email;
+          userEmail = email;
+          currentUser = window.firebaseAuth.currentUser;
+        }
+      };
+      
+      // Try to update immediately
+      updateEmailDisplay();
       
       // Set up listener for auth state changes
       window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, async (user) => {
-        console.log('🔔 Auth state changed, user:', user ? user.email : 'null');
         if (user) {
           currentUser = user;
           userEmail = user.email || '';
           const currentEmailEl = document.getElementById('currentEmail');
           if (currentEmailEl) {
             currentEmailEl.textContent = userEmail;
-            console.log('✅ Email updated via auth state listener:', userEmail);
           }
           
         } else {
@@ -385,25 +352,8 @@
           }
         }
       }, 2000); // Increased timeout to give more time for session restoration
-    } else if (checkFirebaseAttempts >= maxCheckFirebaseAttempts) {
-      // Firebase didn't load after max attempts
-      clearInterval(checkFirebase);
-      console.error('❌ Firebase failed to load after', maxCheckFirebaseAttempts, 'attempts');
-      const currentEmailEl = document.getElementById('currentEmail');
-      if (currentEmailEl) {
-        currentEmailEl.textContent = 'Error loading email';
-      }
     }
-    }, 100);
-  }
-  
-  // Initialize when DOM is ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeEmailPage);
-  } else {
-    // DOM is already ready
-    initializeEmailPage();
-  }
+  }, 100);
 
   // Handle form submission
   // Toggle password visibility
@@ -952,7 +902,31 @@
     // ========================================================================
     // EMAIL AVAILABILITY CHECK - ONLY RUNS AFTER PASSWORD IS VERIFIED
     // ========================================================================
-    // Note: Email format and "same as current email" validation already done above
+    
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newEmail)) {
+      emailErrorText.textContent = 'Please enter a valid email address.';
+      emailError.classList.add('show');
+      newEmailInput.classList.add('error');
+      newEmailInput.focus();
+      saveButton.disabled = false;
+      saveButton.textContent = 'Save';
+      isProcessingForm = false;
+      return;
+    }
+    
+    // Check if new email is the same as current email
+    if (newEmail.toLowerCase() === userEmail.toLowerCase()) {
+      emailErrorText.textContent = 'The email address you entered is already associated with this account. Please enter a different email address.';
+      emailError.classList.add('show');
+      newEmailInput.classList.add('error');
+      newEmailInput.focus();
+      saveButton.disabled = false;
+      saveButton.textContent = 'Save';
+      isProcessingForm = false;
+      return;
+    }
     
     try {
       console.log('🔍 Checking if email is already in use (AFTER password verification)...');
@@ -1214,9 +1188,8 @@
       // Don't redirect immediately - let user read the message
       saveButton.disabled = false;
       saveButton.textContent = 'Save';
-    }
-    
-    } catch (error) {
+      
+    } catch (error) { // This catch is for the try block starting at line 564
       console.error('Error changing email:', error);
       console.error('Error code:', error.code);
       console.error('Error message:', error.message);
@@ -1363,9 +1336,9 @@
       // Clear password field
       passwordInput.value = '';
       passwordInput.focus();
-      isProcessingForm = false;
+    } // End of catch block for try at line 564
     } finally {
-      // Always reset the flag and re-enable button
+      // Always reset the flag and re-enable button for outer try at line 343
       isProcessingForm = false;
       saveButton.disabled = false;
       saveButton.textContent = 'Save';
