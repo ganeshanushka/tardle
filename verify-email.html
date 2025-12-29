@@ -354,13 +354,26 @@
               // Store old email before applying action code
               const oldEmail = user.email;
               console.log('  Old email before verification:', oldEmail);
+              console.log('  Action code:', actionCode);
+              console.log('  Mode:', mode);
+              console.log('  isEmailChange:', isEmailChange);
               
+              // Apply the action code - this will update the email if mode is verifyAndChangeEmail
+              console.log('  Applying action code...');
               await window.firebaseAuthFunctions.applyActionCode(window.firebaseAuth, actionCode);
+              console.log('  ✓ Action code applied successfully');
+              
               // Reload user to get updated verification status and email
+              console.log('  Reloading user to get updated email...');
               await user.reload();
+              console.log('  ✓ User reloaded');
+              console.log('  Email after reload:', user.email);
               
               // Check if email actually changed (compare with what we had before)
               const emailChanged = user.email && oldEmail && user.email !== oldEmail;
+              console.log('  Email changed?', emailChanged);
+              console.log('  Old email:', oldEmail);
+              console.log('  New email:', user.email);
               
               if (isEmailChange || emailChanged) {
                 console.log('✓ Email changed and verified successfully!');
@@ -405,6 +418,16 @@
                 document.getElementById('successMessage').textContent = 'Email verified successfully! Redirecting...';
                 document.getElementById('successMessage').classList.add('show');
               } else {
+                // If email didn't change and not verified, something went wrong
+                if (isEmailChange && !emailChanged) {
+                  console.error('✗ Email change verification failed - email did not change');
+                  console.error('  Expected email to change but it did not');
+                  console.error('  Old email:', oldEmail);
+                  console.error('  Current email:', user.email);
+                  document.getElementById('errorMessage').textContent = 'Email change verification failed. The email did not change. Please try changing your email again from the account settings page.';
+                  document.getElementById('errorMessage').classList.add('show');
+                  return; // Don't redirect
+                }
                 console.warn('Email verification applied but user.emailVerified is still false');
               }
               
