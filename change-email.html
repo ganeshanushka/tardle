@@ -437,15 +437,21 @@
         console.log('  Calling fetchSignInMethodsForEmail for:', trimmedEmail);
         const signInMethods = await window.firebaseAuthFunctions.fetchSignInMethodsForEmail(window.firebaseAuth, trimmedEmail);
         console.log('  Sign-in methods returned:', signInMethods);
+        console.log('  Sign-in methods is array:', Array.isArray(signInMethods));
+        console.log('  Sign-in methods length:', signInMethods ? signInMethods.length : 'null/undefined');
         
         // If we got sign-in methods, email exists in Firebase
         if (signInMethods && Array.isArray(signInMethods) && signInMethods.length > 0) {
           emailInUse = true;
           console.warn('❌ Email is already in use (detected via sign-in methods)!');
+          console.warn('  Sign-in methods:', signInMethods);
         } else {
-          // Empty array - email does NOT exist in Firebase
+          // Empty array, null, or undefined - email does NOT exist in Firebase
           console.log('  ✓ Email does NOT exist in Firebase (no sign-in methods returned)');
-          emailInUse = false;
+          console.log('  signInMethods value:', signInMethods);
+          console.log('  signInMethods type:', typeof signInMethods);
+          console.log('  signInMethods is array:', Array.isArray(signInMethods));
+          emailInUse = false; // Explicitly set to false to clear any previous error
         }
       } catch (fetchError) {
         console.error('  ✗ fetchSignInMethodsForEmail failed:', fetchError);
@@ -479,10 +485,17 @@
             // Rate limit hit - can't determine
             console.warn('  ⚠️ Rate limit hit - cannot determine');
             rateLimited = true;
+            // Don't set emailInUse - will preserve state
+          } else if (errorCode === 'auth/invalid-credential' || 
+                     errorCode === 'auth/invalid-login-credentials') {
+            // Invalid credential - with Email Enumeration Protection disabled, this usually means email doesn't exist
+            // Clear any previous error state
+            console.warn('  ⚠️ Invalid credential - treating as email does NOT exist');
+            emailInUse = false; // Explicitly clear error
           } else {
-            // Unknown error - be conservative
-            console.warn('  ⚠️ Unknown error code:', errorCode);
-            rateLimited = true; // Treat as rate limited to preserve state
+            // Unknown error - don't assume email exists, clear any previous error
+            console.warn('  ⚠️ Unknown error code:', errorCode, '- treating as email does NOT exist');
+            emailInUse = false; // Explicitly clear error for unknown errors
           }
         }
       }
