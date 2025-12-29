@@ -429,6 +429,15 @@
     try {
       console.log('🔍 Checking email availability:', trimmedEmail);
       
+      // Clear any existing errors at the start of the check
+      // Only show error if we definitively determine email exists
+      if (emailError) {
+        emailError.classList.remove('show');
+      }
+      if (newEmailInput) {
+        newEmailInput.classList.remove('error');
+      }
+      
       let emailInUse = false;
       
       // Step 1: Try fetchSignInMethodsForEmail (works if Email Enumeration Protection is disabled)
