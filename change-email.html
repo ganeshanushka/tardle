@@ -1193,8 +1193,9 @@
         console.log('Verification link will redirect to:', continueUrl);
         console.log('From email address: noreply@tardle-c0c26.firebaseapp.com');
         
-        // Show success message - "Email has been changed"
-        successMessage.textContent = 'Email has been changed';
+        // Show success message - verification email has been sent
+        // Note: Email is NOT changed yet - it will only change after user clicks verification link
+        successMessage.textContent = 'Verification email sent!\n\nPlease check your inbox at ' + newEmail + ' and click the verification link to complete the email change.\n\nYour email will be updated in Firebase after you verify the new email address.';
         successMessage.style.color = '#2e7d32';
         successMessage.style.whiteSpace = 'pre-line';
         successMessage.classList.add('show');
