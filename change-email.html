@@ -249,9 +249,6 @@
 
     <div class="error-message" id="errorMessage"></div>
     <div class="success-message" id="successMessage"></div>
-    <div id="resendEmailContainer" style="display: none; margin-top: 15px; text-align: center;">
-      <button type="button" class="save-button" id="resendEmailButton" style="background-color: #1976d2;">Resend Verification Email</button>
-    </div>
 
     <div class="button-container">
       <button type="submit" class="save-button" id="saveButton">Save</button>
@@ -278,7 +275,6 @@
   let userEmail = '';
   let username = '';
   let isProcessingForm = false; // Flag to prevent redirect during form submission
-  let pendingEmailChange = null; // Store pending email change info for resend
 
   // Ensure DOM is ready
   function initEmailPage() {
@@ -1139,25 +1135,12 @@
         console.warn('  4. Wait 5-15 minutes (Gmail can delay Firebase emails)');
         console.warn('  5. Firebase Console > Project Settings > Usage and billing for email quota');
         
-        // Store pending email change info for resend functionality
-        pendingEmailChange = {
-          email: newEmail,
-          continueUrl: continueUrl,
-          user: refreshedUser
-        };
-        
         // Show success message - verification email has been sent
         // Note: Email is NOT changed yet - it will only change after user clicks verification link
-        successMessage.textContent = 'Verification email sent!\n\nPlease check your inbox at ' + newEmail + ' (including spam/junk folder) and click the verification link to complete the email change.\n\nIf you don\'t receive the email, click "Resend Verification Email" below.';
+        successMessage.textContent = 'Verification email sent!\n\nPlease check your inbox at ' + newEmail + ' (including spam/junk folder) and click the verification link to complete the email change.';
         successMessage.style.color = '#2e7d32';
         successMessage.style.whiteSpace = 'pre-line';
         successMessage.classList.add('show');
-        
-        // Show resend button
-        const resendContainer = document.getElementById('resendEmailContainer');
-        if (resendContainer) {
-          resendContainer.style.display = 'block';
-        }
         
         // Clear form
         document.getElementById('newEmail').value = '';
@@ -1449,70 +1432,6 @@
     // TODO: Implement forgot password functionality
     alert('Forgot password functionality coming soon!');
   });
-  
-  // Handle resend verification email button
-  const resendEmailButton = document.getElementById('resendEmailButton');
-  if (resendEmailButton) {
-    resendEmailButton.addEventListener('click', async function() {
-      if (!pendingEmailChange) {
-        console.error('No pending email change to resend');
-        return;
-      }
-      
-      const { email, continueUrl, user } = pendingEmailChange;
-      const resendButton = document.getElementById('resendEmailButton');
-      const successMessage = document.getElementById('successMessage');
-      const errorMessage = document.getElementById('errorMessage');
-      
-      // Disable button and show loading state
-      resendButton.disabled = true;
-      resendButton.textContent = 'Sending...';
-      errorMessage.classList.remove('show');
-      
-      try {
-        // Get fresh user object
-        const refreshedUser = window.firebaseAuth.currentUser;
-        if (!refreshedUser) {
-          throw new Error('User session expired. Please log in again.');
-        }
-        
-        // Get verifyBeforeUpdateEmail function
-        const verifyFunc = window.verifyBeforeUpdateEmailDirect || 
-                          (window.firebaseAuthFunctions && window.firebaseAuthFunctions.verifyBeforeUpdateEmail);
-        
-        if (!verifyFunc) {
-          throw new Error('verifyBeforeUpdateEmail function is not available. Please refresh the page.');
-        }
-        
-        const actionCodeSettings = {
-          url: continueUrl,
-          handleCodeInApp: false
-        };
-        
-        console.log('Resending verification email to:', email);
-        await verifyFunc(refreshedUser, email, actionCodeSettings);
-        
-        console.log('✓ Verification email resent successfully');
-        successMessage.textContent = 'Verification email resent!\n\nPlease check your inbox at ' + email + ' (including spam/junk folder).';
-        successMessage.style.color = '#2e7d32';
-        successMessage.classList.add('show');
-        
-        // Re-enable button
-        resendButton.disabled = false;
-        resendButton.textContent = 'Resend Verification Email';
-        
-      } catch (resendError) {
-        console.error('Error resending verification email:', resendError);
-        errorMessage.textContent = 'Failed to resend verification email: ' + (resendError.message || resendError.code || 'Unknown error');
-        errorMessage.style.color = '#d32f2f';
-        errorMessage.classList.add('show');
-        
-        // Re-enable button
-        resendButton.disabled = false;
-        resendButton.textContent = 'Resend Verification Email';
-      }
-    });
-  }
 </script>
 
 </body>
