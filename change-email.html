@@ -473,12 +473,20 @@
               // Email does NOT exist in Firebase
               console.log('  ✓ Email does NOT exist in Firebase (user-not-found)');
               emailInUse = false;
-            } else if (errorCode === 'auth/wrong-password' || 
-                       errorCode === 'auth/invalid-credential' ||
-                       errorCode === 'auth/invalid-login-credentials') {
-              // Email EXISTS in Firebase (wrong password or invalid credential means email exists)
-              console.warn('❌ Email IS in use (detected via sign-in attempt - ' + errorCode + ')!');
+            } else if (errorCode === 'auth/wrong-password') {
+              // Email EXISTS in Firebase (wrong password definitely means email exists)
+              console.warn('❌ Email IS in use (detected via sign-in attempt - wrong-password)!');
               emailInUse = true;
+            } else if (errorCode === 'auth/invalid-credential' || 
+                       errorCode === 'auth/invalid-login-credentials') {
+              // Invalid credential is ambiguous - could mean:
+              // 1. Email exists but wrong password (when Email Enumeration Protection is disabled)
+              // 2. Email doesn't exist (when Email Enumeration Protection is enabled)
+              // Since we can't distinguish, we should NOT assume email exists
+              // Firebase will catch it during actual email change via verifyBeforeUpdateEmail
+              console.warn('  ⚠️ Invalid credential error - ambiguous (Email Enumeration Protection might be enabled)');
+              console.warn('  ⚠️ Cannot determine if email exists - treating as available, Firebase will catch it');
+              emailInUse = false; // Don't assume email exists
             } else if (errorCode === 'auth/too-many-requests') {
               // Rate limit hit - can't determine
               // When rate limited, we can't check, but we should NOT assume email doesn't exist
@@ -520,11 +528,15 @@
           console.log('  Fallback sign-in error message:', errorMessage);
           if (errorCode === 'auth/user-not-found') {
             emailInUse = false;
-          } else if (errorCode === 'auth/wrong-password' || 
-                     errorCode === 'auth/invalid-credential' ||
-                     errorCode === 'auth/invalid-login-credentials') {
+          } else if (errorCode === 'auth/wrong-password') {
+            // Wrong password definitely means email exists
             emailInUse = true;
-            console.warn('❌ Email IS in use (detected via fallback sign-in attempt)!');
+            console.warn('❌ Email IS in use (detected via fallback sign-in attempt - wrong-password)!');
+          } else if (errorCode === 'auth/invalid-credential' || 
+                     errorCode === 'auth/invalid-login-credentials') {
+            // Invalid credential is ambiguous - don't assume email exists
+            console.warn('  ⚠️ Invalid credential in fallback - ambiguous, treating as available');
+            emailInUse = false; // Don't assume email exists
           } else if (errorCode === 'auth/too-many-requests') {
             // Rate limit hit - can't determine
             // Don't assume email doesn't exist - keep current state
