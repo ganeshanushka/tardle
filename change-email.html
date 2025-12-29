@@ -479,23 +479,25 @@
               emailInUse = true;
             } else if (errorCode === 'auth/invalid-credential' || 
                        errorCode === 'auth/invalid-login-credentials') {
-              // Invalid credential when fetchSignInMethodsForEmail returned empty array
-              // This is ambiguous - could mean email exists OR doesn't exist (Email Enumeration Protection)
-              // However, in practice, when Email Enumeration Protection is enabled:
-              // - If email exists: usually returns auth/invalid-credential (not auth/user-not-found)
-              // - If email doesn't exist: also returns auth/invalid-credential
-              // Since we can't distinguish reliably, we'll be conservative:
-              // If we got here (empty array from fetchSignInMethodsForEmail), it's ambiguous
-              // But we'll check the error message for clues
-              const errorMsgLower = errorMessage.toLowerCase();
-              if (errorMsgLower.includes('user-not-found') || errorMsgLower.includes('no user record')) {
-                // Error message suggests user not found
-                console.log('  ✓ Email does NOT exist (error message suggests user-not-found)');
+              // Invalid credential when fetchSignInMethodsForEmail returned empty
+              // This is ambiguous, but in practice:
+              // - If Email Enumeration Protection is DISABLED: invalid-credential usually means email exists
+              // - If Email Enumeration Protection is ENABLED: invalid-credential is ambiguous
+              // Since fetchSignInMethodsForEmail returned empty, Email Enumeration Protection might be enabled
+              // However, to provide better UX, we'll check if the error message gives us clues
+              const errorMsgLower = (errorMessage || '').toLowerCase();
+              
+              // If error message explicitly says user not found, email doesn't exist
+              if (errorMsgLower.includes('user-not-found') || 
+                  errorMsgLower.includes('no user record') ||
+                  errorMsgLower.includes('there is no user record')) {
+                console.log('  ✓ Email does NOT exist (error message indicates user-not-found)');
                 emailInUse = false;
               } else {
-                // Error message doesn't suggest user-not-found, likely means email exists
-                // In most Firebase setups, invalid-credential (without user-not-found in message) means email exists
-                console.warn('❌ Email IS likely in use (invalid-credential without user-not-found message)!');
+                // Error message doesn't mention user-not-found
+                // In most cases, this means email exists but password is wrong
+                // We'll show error to be safe - Firebase will catch it if we're wrong
+                console.warn('❌ Email IS likely in use (invalid-credential without user-not-found in message)');
                 emailInUse = true;
               }
             } else if (errorCode === 'auth/too-many-requests') {
@@ -545,15 +547,17 @@
             console.warn('❌ Email IS in use (detected via fallback sign-in attempt - wrong-password)!');
           } else if (errorCode === 'auth/invalid-credential' || 
                      errorCode === 'auth/invalid-login-credentials') {
-            // Invalid credential when fetchSignInMethodsForEmail failed (not just empty)
+            // Invalid credential when fetchSignInMethodsForEmail failed
             // Check error message for clues
-            const errorMsgLower = errorMessage.toLowerCase();
-            if (errorMsgLower.includes('user-not-found') || errorMsgLower.includes('no user record')) {
-              console.log('  ✓ Email does NOT exist (error message suggests user-not-found)');
+            const errorMsgLower = (errorMessage || '').toLowerCase();
+            if (errorMsgLower.includes('user-not-found') || 
+                errorMsgLower.includes('no user record') ||
+                errorMsgLower.includes('there is no user record')) {
+              console.log('  ✓ Email does NOT exist (error message indicates user-not-found)');
               emailInUse = false;
             } else {
-              // Error message doesn't suggest user-not-found, likely means email exists
-              console.warn('❌ Email IS likely in use (invalid-credential without user-not-found message)!');
+              // Error message doesn't mention user-not-found, likely means email exists
+              console.warn('❌ Email IS likely in use (invalid-credential without user-not-found in message)');
               emailInUse = true;
             }
           } else if (errorCode === 'auth/too-many-requests') {
