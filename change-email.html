@@ -429,17 +429,6 @@
     try {
       console.log('🔍 Checking email availability:', trimmedEmail);
       
-      // Clear any existing errors at the start - we'll show error only if email is definitively in use
-      if (emailError) {
-        emailError.classList.remove('show');
-      }
-      if (emailErrorText) {
-        emailErrorText.textContent = '';
-      }
-      if (newEmailInput) {
-        newEmailInput.classList.remove('error');
-      }
-      
       let emailInUse = false;
       
       // Step 1: Try fetchSignInMethodsForEmail (works if Email Enumeration Protection is disabled)
@@ -598,7 +587,7 @@
       }
     });
     
-    // Also check on input with debounce (after user stops typing for 1 second)
+    // Also check on input with debounce (after user stops typing for 2 seconds to reduce rate limits)
     newEmailInput.addEventListener('input', function(e) {
       e.preventDefault();
       e.stopPropagation();
@@ -610,14 +599,15 @@
       
       // Clear error when user starts typing
       emailError.classList.remove('show');
+      emailErrorText.textContent = '';
       newEmailInput.classList.remove('error');
       
       const email = newEmailInput.value;
       
-      // Debounce: wait 1 second after user stops typing
+      // Debounce: wait 2 seconds after user stops typing (increased to reduce rate limits)
       emailCheckTimeout = setTimeout(() => {
         checkEmailAvailability(email);
-      }, 1000);
+      }, 2000);
     });
     
     // Prevent form submission when Enter is pressed in email field
