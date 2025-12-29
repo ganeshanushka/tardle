@@ -439,12 +439,85 @@
           emailInUse = true;
           console.warn('❌ Email is already in use (detected via sign-in methods)!');
           console.warn('  Sign-in methods found:', signInMethods);
-          emailErrorText.textContent = 'This email address is already associated with another account. Please use a different email address or sign in with that account instead.';
-          emailError.classList.add('show');
-          newEmailInput.classList.add('error');
+          console.warn('  🚨 Showing error immediately - email is in Firebase');
+          
+          // Set error message
+          if (emailErrorText) {
+            emailErrorText.textContent = 'This email address is already associated with another account. Please use a different email address or sign in with that account instead.';
+          }
+          
+          // Show error
+          if (emailError) {
+            emailError.classList.add('show');
+          }
+          if (newEmailInput) {
+            newEmailInput.classList.add('error');
+          }
+          
+          console.log('  ✅ Error displayed - email is already in Firebase');
           return;
         } else {
-          console.log('  ✓ No sign-in methods returned - email may be available (or Email Enumeration Protection is enabled)');
+          console.log('  ✓ No sign-in methods returned - trying alternative check method...');
+          
+          // Email Enumeration Protection is likely enabled - try alternative method
+          // Attempt to sign in with a dummy password to detect if email exists
+          // This won't log the current user out because we're just checking for errors
+          try {
+            console.log('  🔍 Trying signInWithEmailAndPassword with dummy password to detect email existence...');
+            const dummyPassword = 'CheckEmailExists123!@#';
+            await window.firebaseAuthFunctions.signInWithEmailAndPassword(
+              window.firebaseAuth,
+              trimmedEmail,
+              dummyPassword
+            );
+            // If we get here, the email doesn't exist (sign in succeeded with wrong password? unlikely)
+            console.log('  ⚠️ Unexpected: sign in succeeded - this should not happen');
+          } catch (signInError) {
+            const errorCode = signInError.code || '';
+            console.log('  Sign-in check error code:', errorCode);
+            
+            // If we get auth/user-not-found, the email doesn't exist
+            if (errorCode === 'auth/user-not-found') {
+              console.log('  ✓ Email does NOT exist in Firebase (user-not-found)');
+              emailInUse = false;
+            } 
+            // If we get auth/wrong-password, the email EXISTS but password is wrong
+            else if (errorCode === 'auth/wrong-password' || 
+                     errorCode === 'auth/invalid-credential' ||
+                     errorCode === 'auth/invalid-login-credentials') {
+              emailInUse = true;
+              console.warn('❌ Email IS in use (detected via sign-in attempt - wrong password error)!');
+              console.warn('  🚨 Showing error immediately - email exists in Firebase');
+              
+              // Set error message
+              if (emailErrorText) {
+                emailErrorText.textContent = 'This email address is already associated with another account. Please use a different email address or sign in with that account instead.';
+              }
+              
+              // Show error
+              if (emailError) {
+                emailError.classList.add('show');
+              }
+              if (newEmailInput) {
+                newEmailInput.classList.add('error');
+              }
+              
+              console.log('  ✅ Error displayed - email is already in Firebase');
+              return;
+            } else {
+              console.log('  ⚠️ Could not determine email existence (error:', errorCode + ')');
+            }
+          }
+          
+          // Clear error if email appears available
+          if (!emailInUse) {
+            if (emailError) {
+              emailError.classList.remove('show');
+            }
+            if (newEmailInput) {
+              newEmailInput.classList.remove('error');
+            }
+          }
         }
       } catch (fetchError) {
         console.error('  ✗ fetchSignInMethodsForEmail failed:', fetchError);
@@ -454,15 +527,16 @@
         // Don't show error - allow user to proceed and Firebase will catch it
       }
       
-      // If fetchSignInMethodsForEmail returned empty (Email Enumeration Protection),
-      // we can't reliably check on blur without logging the user out
-      // So we'll allow them to proceed and check during form submission
+      // If we still couldn't determine, log it
       if (!emailInUse) {
-        console.log('  ⚠️ Email Enumeration Protection may be enabled - cannot pre-check email availability on blur');
-        console.log('  ✓ Allowing user to proceed - will check during form submission');
+        console.log('  ⚠️ Could not determine if email is in use - will check during form submission');
         // Clear any previous error since we can't determine
-        emailError.classList.remove('show');
-        newEmailInput.classList.remove('error');
+        if (emailError) {
+          emailError.classList.remove('show');
+        }
+        if (newEmailInput) {
+          newEmailInput.classList.remove('error');
+        }
       }
       
     } catch (checkError) {
@@ -476,8 +550,7 @@
   if (newEmailInput) {
     // Check when user leaves the email field (moves to password field or clicks away)
     newEmailInput.addEventListener('blur', async function(e) {
-      e.preventDefault();
-      e.stopPropagation();
+      // Don't prevent default or stop propagation - let the blur happen naturally
       const email = newEmailInput.value.trim();
       
       // Only check if email is not empty and is valid format
@@ -485,7 +558,14 @@
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (emailRegex.test(email)) {
           console.log('📧 Email field blurred - checking availability for:', email);
-          await checkEmailAvailability(email);
+          console.log('  User is moving away from email field - checking if email is in Firebase...');
+          
+          // Small delay to ensure blur completes before checking
+          setTimeout(async () => {
+            // Check email availability
+            await checkEmailAvailability(email);
+            console.log('  Email availability check complete after blur');
+          }, 100);
         }
       }
     });
@@ -525,6 +605,28 @@
       }
     });
   }
+  
+  // Also check when password field receives focus (user moved from email to password)
+  const passwordInputForFocus = document.getElementById('password');
+  if (passwordInputForFocus && newEmailInput) {
+    passwordInputForFocus.addEventListener('focus', async function(e) {
+      const email = newEmailInput.value.trim();
+      
+      // Only check if email is not empty and is valid format
+      if (email && email.length > 0) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (emailRegex.test(email)) {
+          console.log('🔍 Password field focused - checking email availability for:', email);
+          console.log('  User moved from email field to password field');
+          
+          // Check email availability
+          await checkEmailAvailability(email);
+          
+          console.log('  Email availability check complete after password field focus');
+        }
+      }
+    });
+  }
 
   document.getElementById('changeEmailForm').addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -551,48 +653,161 @@
         return;
       }
       
-      const newEmail = document.getElementById('newEmail').value.trim();
-      const password = document.getElementById('password').value;
-    const errorMessage = document.getElementById('errorMessage');
-    const emailError = document.getElementById('emailError');
-    const emailErrorText = document.getElementById('emailErrorText');
-    const passwordError = document.getElementById('passwordError');
-    const passwordErrorText = document.getElementById('passwordErrorText');
-    const successMessage = document.getElementById('successMessage');
-    const saveButton = document.getElementById('saveButton');
-    const newEmailInput = document.getElementById('newEmail');
-    const passwordInput = document.getElementById('password');
-    
-    // Clear previous messages
-    errorMessage.classList.remove('show');
-    emailError.classList.remove('show');
-    passwordError.classList.remove('show');
-    successMessage.classList.remove('show');
-    newEmailInput.classList.remove('error');
-    passwordInput.classList.remove('error');
-    // Clear error text content
-    emailErrorText.textContent = '';
-    passwordErrorText.textContent = '';
-    
-    // Get current user fresh from Firebase
-    const currentUser = window.firebaseAuth.currentUser;
-    if (!currentUser) {
-      console.warn('⚠️ No current user found, redirecting to login...');
-      window.location.href = 'login.html?return=' + encodeURIComponent('change-email.html');
-      return;
-    }
-    
-    const userEmail = currentUser.email || '';
-    
-    // Check if current email is verified (reload first to get latest status)
-    try {
-      await currentUser.reload(); // Get latest verification status
-      console.log('Current email verification status:', currentUser.emailVerified);
-    } catch (reloadError) {
-      console.warn('Could not reload user, using cached status:', reloadError);
-    }
-    
-    if (!currentUser.emailVerified) {
+      // Get form elements
+      const errorMessage = document.getElementById('errorMessage');
+      const emailError = document.getElementById('emailError');
+      const emailErrorText = document.getElementById('emailErrorText');
+      const passwordError = document.getElementById('passwordError');
+      const passwordErrorText = document.getElementById('passwordErrorText');
+      const successMessage = document.getElementById('successMessage');
+      const saveButton = document.getElementById('saveButton');
+      const newEmailInput = document.getElementById('newEmail');
+      const passwordInput = document.getElementById('password');
+      
+      // Get form values
+      const newEmail = newEmailInput ? newEmailInput.value.trim() : '';
+      const passwordValue = passwordInput ? passwordInput.value.trim() : '';
+      
+      // Clear previous messages
+      errorMessage.classList.remove('show');
+      emailError.classList.remove('show');
+      passwordError.classList.remove('show');
+      successMessage.classList.remove('show');
+      if (newEmailInput) newEmailInput.classList.remove('error');
+      if (passwordInput) passwordInput.classList.remove('error');
+      emailErrorText.textContent = '';
+      passwordErrorText.textContent = '';
+      errorMessage.textContent = '';
+      successMessage.textContent = '';
+      
+      // Get current user fresh from Firebase
+      const currentUser = window.firebaseAuth.currentUser;
+      if (!currentUser) {
+        console.warn('⚠️ No current user found, redirecting to login...');
+        isProcessingForm = false;
+        window.location.href = 'login.html?return=' + encodeURIComponent('change-email.html');
+        return;
+      }
+      
+      const userEmail = currentUser.email || '';
+      
+      // ========================================================================
+      // CRITICAL: PASSWORD VALIDATION MUST HAPPEN FIRST
+      // ========================================================================
+      // For security, we MUST verify the password BEFORE doing any other checks
+      // This ensures users cannot bypass password verification
+      // ========================================================================
+      
+      // Step 1: Check if password is missing
+      if (!passwordValue || passwordValue === '') {
+        console.log('⚠️ Password is empty, showing error and stopping');
+        passwordErrorText.textContent = 'Please enter a password.';
+        passwordError.classList.add('show');
+        passwordInput.classList.add('error');
+        passwordInput.focus();
+        saveButton.disabled = false;
+        saveButton.textContent = 'Save';
+        isProcessingForm = false;
+        return; // STOP - cannot proceed without password
+      }
+      
+      console.log('🔐 PASSWORD VALIDATION - RUNNING FIRST (before any other checks)');
+      console.log('  Password length:', passwordValue.length);
+      console.log('  Password value (first 2 chars):', passwordValue.substring(0, 2) + '***');
+      console.log('  Current user email:', currentUser.email);
+      console.log('  This ensures security - password must be verified before any email change');
+      
+      // Step 2: Verify password matches current account BEFORE any other checks
+      saveButton.disabled = true;
+      saveButton.textContent = 'Verifying password...';
+      
+      try {
+        console.log('Re-authenticating user with provided password...');
+        console.log('  Current account email:', currentUser.email);
+        console.log('  Verifying password matches this account...');
+        const credential = window.firebaseAuthFunctions.EmailAuthProvider.credential(
+          currentUser.email,
+          passwordValue
+        );
+        
+        try {
+          await window.firebaseAuthFunctions.reauthenticateWithCredential(currentUser, credential);
+          console.log('✓ Password verified successfully - password matches current account stored in Firebase');
+          console.log('✓ User has proven they know the current account password');
+          console.log('✓ NOW proceeding with other validation checks');
+        } catch (reauthError) {
+          console.error('✗ Password verification failed:', reauthError);
+          console.error('  Error code:', reauthError.code);
+          console.error('  Error message:', reauthError.message);
+          console.error('  Full error object:', JSON.stringify(reauthError, null, 2));
+          console.error('  ❌ Password does NOT match the password stored in Firebase for this account');
+          
+          // Handle password-related errors - STOP HERE, do not proceed
+          // Check for all possible password error codes
+          const errorCode = reauthError.code || '';
+          const errorMessage = (reauthError.message || '').toLowerCase();
+          const isPasswordError = 
+            errorCode === 'auth/wrong-password' || 
+            errorCode === 'auth/invalid-credential' || 
+            errorCode === 'auth/invalid-login-credentials' ||
+            errorCode === 'auth/user-mismatch' ||
+            errorCode === 'auth/user-not-found' ||
+            errorMessage.includes('wrong password') ||
+            errorMessage.includes('invalid credential') ||
+            errorMessage.includes('invalid login') ||
+            errorMessage.includes('password is invalid') ||
+            errorMessage.includes('incorrect password');
+          
+          if (isPasswordError) {
+            console.error('✗ INCORRECT PASSWORD DETECTED - stopping email change process');
+            console.error('  🛑 User cannot proceed - password does not match Firebase account');
+            console.error('  Error code matched:', errorCode);
+            
+            // Show error message
+            passwordErrorText.textContent = 'Incorrect password. The password you entered does not match the password stored in Firebase for this account. Please enter the correct password.';
+            passwordError.classList.add('show');
+            passwordInput.classList.add('error');
+            passwordInput.value = '';
+            passwordInput.focus();
+            saveButton.disabled = false;
+            saveButton.textContent = 'Save';
+            isProcessingForm = false;
+            return; // STOP - cannot proceed with incorrect password
+          }
+          
+          // If it's not a password error, log it and re-throw
+          console.warn('⚠️ Unexpected re-authentication error (not password-related):', errorCode);
+          throw reauthError;
+        }
+        
+        // Password is verified - NOW we can proceed with other checks
+        console.log('✅ Password verified - proceeding with email verification and other checks');
+        saveButton.disabled = true;
+        saveButton.textContent = 'Checking...';
+        
+      } catch (passwordVerifyError) {
+        console.error('✗ Unexpected error during password verification:', passwordVerifyError);
+        console.error('  🛑 Cannot proceed with email change - password verification failed');
+        passwordErrorText.textContent = 'Error verifying password. Please try again.';
+        passwordError.classList.add('show');
+        passwordInput.classList.add('error');
+        passwordInput.focus();
+        saveButton.disabled = false;
+        saveButton.textContent = 'Save';
+        isProcessingForm = false;
+        return; // STOP - cannot proceed
+      }
+      
+      // Password is verified - NOW check email verification status
+      // Check if current email is verified (reload first to get latest status)
+      try {
+        await currentUser.reload(); // Get latest verification status
+        console.log('Current email verification status:', currentUser.emailVerified);
+      } catch (reloadError) {
+        console.warn('Could not reload user, using cached status:', reloadError);
+      }
+      
+      if (!currentUser.emailVerified) {
       console.log('Current email not verified. Attempting to send verification email to:', userEmail);
       try {
         // Build the correct URL for GitHub Pages
@@ -683,40 +898,51 @@
       return;
     }
     
-    // Check if email is already in use by another account
-    // This check happens BEFORE password validation to catch the error immediately
-    // We'll try multiple methods since Email Enumeration Protection may prevent detection
+    // Password is verified - NOW check email availability
+    // ========================================================================
+    // EMAIL AVAILABILITY CHECK - ONLY RUNS AFTER PASSWORD IS VERIFIED
+    // ========================================================================
+    
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newEmail)) {
+      emailErrorText.textContent = 'Please enter a valid email address.';
+      emailError.classList.add('show');
+      newEmailInput.classList.add('error');
+      newEmailInput.focus();
+      saveButton.disabled = false;
+      saveButton.textContent = 'Save';
+      isProcessingForm = false;
+      return;
+    }
+    
+    // Check if new email is the same as current email
+    if (newEmail.toLowerCase() === userEmail.toLowerCase()) {
+      emailErrorText.textContent = 'The email address you entered is already associated with this account. Please enter a different email address.';
+      emailError.classList.add('show');
+      newEmailInput.classList.add('error');
+      newEmailInput.focus();
+      saveButton.disabled = false;
+      saveButton.textContent = 'Save';
+      isProcessingForm = false;
+      return;
+    }
+    
     try {
-      console.log('🔍 Checking if email is already in use (form submission)...');
+      console.log('🔍 Checking if email is already in use (AFTER password verification)...');
       console.log('  New email:', newEmail);
       console.log('  Current user email:', userEmail);
       
-      // Disable button while checking
-      saveButton.disabled = true;
-      saveButton.textContent = 'Checking email...';
-      
-      // Clear any previous errors
-      emailError.classList.remove('show');
-      passwordError.classList.remove('show');
-      newEmailInput.classList.remove('error');
-      passwordInput.classList.remove('error');
-      emailErrorText.textContent = '';
-      passwordErrorText.textContent = '';
-      
       let emailInUse = false;
       
-      // Method 1: Try fetchSignInMethodsForEmail
+      // Try fetchSignInMethodsForEmail
       let signInMethods = [];
       try {
         console.log('  Calling fetchSignInMethodsForEmail for:', newEmail);
         signInMethods = await window.firebaseAuthFunctions.fetchSignInMethodsForEmail(window.firebaseAuth, newEmail);
         console.log('  Sign-in methods returned:', signInMethods);
-        console.log('  Sign-in methods type:', typeof signInMethods);
-        console.log('  Sign-in methods is array:', Array.isArray(signInMethods));
-        console.log('  Sign-in methods length:', signInMethods ? signInMethods.length : 'null/undefined');
         
         // Only show error if we got actual sign-in methods (not empty array)
-        // Empty array means either email doesn't exist OR Email Enumeration Protection is hiding it
         if (signInMethods && Array.isArray(signInMethods) && signInMethods.length > 0) {
           emailInUse = true;
           console.warn('❌ Email is already in use (detected via sign-in methods)!');
@@ -726,8 +952,6 @@
         }
       } catch (fetchError) {
         console.error('  ✗ fetchSignInMethodsForEmail failed:', fetchError);
-        console.error('  Error code:', fetchError.code);
-        console.error('  Error message:', fetchError.message);
         // If fetchSignInMethodsForEmail fails, we can't determine email availability
         // Don't show error - allow user to proceed and Firebase will catch it
       }
@@ -741,110 +965,14 @@
         emailError.classList.add('show');
         newEmailInput.classList.add('error');
         newEmailInput.focus();
-        return; // Stop here - don't proceed with password validation
+        isProcessingForm = false;
+        return; // Stop here - password was verified, but email is in use
       }
       
-      // If fetchSignInMethodsForEmail returned empty (Email Enumeration Protection),
-      // try createUserWithEmailAndPassword to detect if email exists
-      // IMPORTANT: This will log the user out if email doesn't exist, but we need to check
-      if (!emailInUse && signInMethods && Array.isArray(signInMethods) && signInMethods.length === 0) {
-        console.log('  ⚠️ Email Enumeration Protection detected - trying createUserWithEmailAndPassword check');
-        
-        // Save current user info
-        const originalUser = window.firebaseAuth.currentUser;
-        if (!originalUser) {
-          console.warn('  ⚠️ No current user - cannot perform check');
-          saveButton.disabled = false;
-          saveButton.textContent = 'Save';
-          return;
-        }
-        
-        const originalUserEmail = originalUser.email;
-        const originalUserUid = originalUser.uid;
-        
-        try {
-          // Try to create account with dummy password
-          // If email exists, this will throw auth/email-already-in-use
-          // If email doesn't exist, this will create account and log us out
-          const dummyPassword = 'TempCheck' + Date.now() + '!@#';
-          console.log('  Attempting createUserWithEmailAndPassword to check if email exists...');
-          const userCredential = await window.firebaseAuthFunctions.createUserWithEmailAndPassword(
-            window.firebaseAuth,
-            newEmail,
-            dummyPassword
-          );
-          
-          // If we get here, account was created (email didn't exist)
-          console.log('  ✓ Email is NOT in use (account created - will delete and restore session)');
-          
-          // Delete the test account
-          if (userCredential && userCredential.user) {
-            try {
-              await userCredential.user.delete();
-              console.log('  ✓ Deleted test account');
-            } catch (deleteError) {
-              console.error('  ✗ Failed to delete test account:', deleteError);
-            }
-          }
-          
-          // User is now logged out - we need to restore session
-          // Sign back in as original user (we'll need their password, but we can't get it here)
-          // For now, redirect to login with a message
-          console.warn('  ⚠️ User session was logged out. Email is available, redirecting to restore session...');
-          saveButton.disabled = false;
-          saveButton.textContent = 'Save';
-          
-          // Store the new email in sessionStorage so we can restore it after login
-          sessionStorage.setItem('pendingEmailChange', newEmail);
-          window.location.href = 'login.html?return=' + encodeURIComponent('change-email.html') + '&email=' + encodeURIComponent(originalUserEmail) + '&message=' + encodeURIComponent('Email is available. Please log back in to continue.');
-          return;
-          
-        } catch (createError) {
-          const errorCode = createError.code || '';
-          const errorMessage = (createError.message || '').toLowerCase();
-          
-          console.log('  createUserWithEmailAndPassword error:', errorCode);
-          
-          // Check if email is already in use
-          if (errorCode === 'auth/email-already-in-use' || 
-              errorCode === 'auth/emailAlreadyInUse' ||
-              errorMessage.includes('email already in use') ||
-              errorMessage.includes('email already exists') ||
-              errorMessage.includes('already associated')) {
-            // Email is already in use!
-            emailInUse = true;
-            console.warn('❌ Email IS in use (detected via createUserWithEmailAndPassword)!');
-            console.warn('  Error code:', errorCode);
-            // User is still logged in (createUserWithEmailAndPassword failed, so didn't log them out)
-          } else {
-            // Some other error - can't determine
-            console.log('  ⚠️ Could not determine email availability (error: ' + errorCode + ')');
-            console.log('  Allowing user to proceed - verifyBeforeUpdateEmail will catch it');
-          }
-        }
-      }
-      
-      // If email is in use, show error and stop
-      if (emailInUse) {
-        saveButton.disabled = false;
-        saveButton.textContent = 'Save';
-        
-        emailErrorText.textContent = 'This email address is already associated with another account. Please use a different email address or sign in with that account instead.';
-        emailError.classList.add('show');
-        newEmailInput.classList.add('error');
-        newEmailInput.focus();
-        return; // Stop here - don't proceed with password validation
-      }
-      
-      // If we couldn't determine, proceed to password validation
-      // Firebase's verifyBeforeUpdateEmail will catch it if the email is in use
-      console.log('⚠️ Email Enumeration Protection may be enabled - cannot pre-check email availability');
-      console.log('  ✓ Allowing user to proceed - will check during email change attempt');
-      
-      // Re-enable button after check
-      saveButton.disabled = false;
-      saveButton.textContent = 'Save';
-      console.log('✅ Email pre-check complete - proceeding to password validation');
+      // If fetchSignInMethodsForEmail returned empty, proceed to email change
+      // Password is already verified, so we can safely proceed
+      console.log('✅ Email check complete - email appears available');
+      console.log('✅ Password already verified - proceeding with email change');
       
     } catch (emailCheckError) {
       // Re-enable button if check fails
@@ -852,90 +980,15 @@
       saveButton.textContent = 'Save';
       
       console.error('❌ Error during email availability check:', emailCheckError);
-      console.error('  Error code:', emailCheckError.code);
-      console.error('  Error message:', emailCheckError.message);
-      // Continue - Firebase will catch it when we try to update
-      console.warn('⚠️ Could not verify email availability, will let Firebase handle it');
+      // Continue - password is already verified, Firebase will catch email issues
+      console.warn('⚠️ Could not verify email availability, but password is verified - proceeding');
     }
     
-    // PASSWORD VALIDATION - MUST HAPPEN BEFORE ANY EMAIL CHANGE LOGIC
-    // This ensures the user cannot proceed past the change email screen without correct password
-    
-    // Step 1: Check if password is missing
-    if (!password || password.trim() === '') {
-      console.log('⚠️ Password is empty, showing error and stopping');
-      passwordErrorText.textContent = 'Please enter a password.';
-      passwordError.classList.add('show');
-      passwordInput.classList.add('error');
-      passwordInput.focus();
-      saveButton.disabled = false;
-      saveButton.textContent = 'Save';
-      isProcessingForm = false; // Reset flag before returning
-      return; // STOP - cannot proceed without password
-    }
-    
-    // Step 2: Verify password matches current account BEFORE proceeding with email change
-    console.log('🔐 Verifying password before allowing email change...');
+    // Password is verified and email check is complete - proceed with email change
     saveButton.disabled = true;
-    saveButton.textContent = 'Verifying password...';
+    saveButton.textContent = 'Saving...';
     
-    try {
-      // Re-authenticate user - this will throw an error if password is wrong
-      // This MUST succeed before we proceed with any email change logic
-      console.log('Re-authenticating user with provided password...');
-      const credential = window.firebaseAuthFunctions.EmailAuthProvider.credential(
-        currentUser.email,
-        password
-      );
-      
-      try {
-        await window.firebaseAuthFunctions.reauthenticateWithCredential(currentUser, credential);
-        console.log('✓ Password verified successfully - password matches current account');
-        console.log('✓ User can now proceed with email change');
-      } catch (reauthError) {
-        console.error('✗ Password verification failed:', reauthError);
-        console.error('  Error code:', reauthError.code);
-        console.error('  Error message:', reauthError.message);
-        
-        // Handle password-related errors - STOP HERE, do not proceed
-        if (reauthError.code === 'auth/wrong-password' || 
-            reauthError.code === 'auth/invalid-credential' || 
-            reauthError.code === 'auth/invalid-login-credentials') {
-          console.error('✗ INCORRECT PASSWORD - stopping email change process');
-          passwordErrorText.textContent = 'Incorrect password. Please enter the correct password for this account.';
-          passwordError.classList.add('show');
-          passwordInput.classList.add('error');
-          passwordInput.value = '';
-          passwordInput.focus();
-          saveButton.disabled = false;
-          saveButton.textContent = 'Save';
-          isProcessingForm = false; // Reset flag
-          return; // STOP - cannot proceed with incorrect password
-        }
-        
-        // Re-throw other errors to be handled by outer catch
-        throw reauthError;
-      }
-      
-      // Password is verified - now we can proceed with email change
-      console.log('✅ Password verified - proceeding with email change process');
-      saveButton.disabled = true;
-      saveButton.textContent = 'Saving...';
-      
-    } catch (passwordVerifyError) {
-      // This should not happen if re-authentication succeeded, but handle it just in case
-      console.error('✗ Unexpected error during password verification:', passwordVerifyError);
-      passwordErrorText.textContent = 'Error verifying password. Please try again.';
-      passwordError.classList.add('show');
-      passwordInput.classList.add('error');
-      passwordInput.focus();
-      saveButton.disabled = false;
-      saveButton.textContent = 'Save';
-      isProcessingForm = false;
-      return; // STOP - cannot proceed
-    }
-    
-    // Password is verified - now proceed with email change logic
+    // Password is verified and email check is complete - proceed with email change logic
     try {
       
       // Get the refreshed user object after password verification

@@ -136,7 +136,13 @@
       emailInput.value = emailParam;
       // Focus and position cursor at the end of the email
       emailInput.focus();
-      emailInput.setSelectionRange(emailParam.length, emailParam.length);
+      // setSelectionRange doesn't work on email input types, so wrap in try-catch
+      try {
+        emailInput.setSelectionRange(emailParam.length, emailParam.length);
+      } catch (e) {
+        // Email input types don't support setSelectionRange - this is expected
+        // Just focus the field instead
+      }
     }
     
     if (!loginForm) {
