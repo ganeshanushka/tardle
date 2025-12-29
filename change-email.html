@@ -1174,7 +1174,10 @@
       // Don't redirect immediately - let user read the message
       saveButton.disabled = false;
       saveButton.textContent = 'Save';
-    } // Close try block at line 978
+    } catch (innerError) {
+      // Re-throw to outer catch block
+      throw innerError;
+    }
     
     } catch (error) {
       console.error('Error changing email:', error);
