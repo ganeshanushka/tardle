@@ -1189,7 +1189,7 @@
       saveButton.disabled = false;
       saveButton.textContent = 'Save';
       
-    } catch (error) { // This catch is for the try block starting at line 564
+    } catch (error) {
       console.error('Error changing email:', error);
       console.error('Error code:', error.code);
       console.error('Error message:', error.message);
@@ -1336,9 +1336,8 @@
       // Clear password field
       passwordInput.value = '';
       passwordInput.focus();
-    } // End of catch block for try at line 564
     } finally {
-      // Always reset the flag and re-enable button for outer try at line 343
+      // Always reset the flag and re-enable button
       isProcessingForm = false;
       saveButton.disabled = false;
       saveButton.textContent = 'Save';
