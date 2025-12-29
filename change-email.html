@@ -425,164 +425,116 @@
     }
     
     // Check if email is already in use
-    // Note: Due to Email Enumeration Protection, we can only reliably detect emails in use
-    // if fetchSignInMethodsForEmail returns methods. If it returns empty, we can't tell.
-    // For emails that aren't in use, we'll allow the user to proceed and Firebase will
-    // catch any issues during the actual email change attempt.
+    // Simple logic: if email is in Firebase, show error. If not, allow proceed.
     try {
       console.log('🔍 Checking email availability:', trimmedEmail);
       
-      // Try fetchSignInMethodsForEmail (works if Email Enumeration Protection is disabled)
-      let signInMethods = [];
       let emailInUse = false;
+      
+      // Step 1: Try fetchSignInMethodsForEmail (works if Email Enumeration Protection is disabled)
       try {
         console.log('  Calling fetchSignInMethodsForEmail for:', trimmedEmail);
-        signInMethods = await window.firebaseAuthFunctions.fetchSignInMethodsForEmail(window.firebaseAuth, trimmedEmail);
+        const signInMethods = await window.firebaseAuthFunctions.fetchSignInMethodsForEmail(window.firebaseAuth, trimmedEmail);
         console.log('  Sign-in methods returned:', signInMethods);
-        console.log('  Sign-in methods type:', typeof signInMethods);
-        console.log('  Sign-in methods is array:', Array.isArray(signInMethods));
-        console.log('  Sign-in methods length:', signInMethods ? signInMethods.length : 'null/undefined');
         
-        // Only show error if we got actual sign-in methods (not empty array)
-        // Empty array means either email doesn't exist OR Email Enumeration Protection is hiding it
+        // If we got sign-in methods, email exists in Firebase
         if (signInMethods && Array.isArray(signInMethods) && signInMethods.length > 0) {
           emailInUse = true;
           console.warn('❌ Email is already in use (detected via sign-in methods)!');
-          console.warn('  Sign-in methods found:', signInMethods);
-          console.warn('  🚨 Showing error immediately - email is in Firebase');
-          
-          // Set error message
-          if (emailErrorText) {
-            emailErrorText.textContent = 'This email address is already associated with another account. Please use a different email address or sign in with that account instead.';
-          }
-          
-          // Show error
-          if (emailError) {
-            emailError.classList.add('show');
-          }
-          if (newEmailInput) {
-            newEmailInput.classList.add('error');
-          }
-          
-          console.log('  ✅ Error displayed - email is already in Firebase');
-          return;
         } else {
-          console.log('  ✓ No sign-in methods returned - trying alternative check method...');
+          // Empty array - Email Enumeration Protection might be enabled, try fallback method
+          console.log('  ✓ No sign-in methods returned - trying fallback method...');
           
-          // Email Enumeration Protection is likely enabled - try alternative method
-          // Attempt to sign in with a dummy password to detect if email exists
-          // This won't log the current user out because we're just checking for errors
+          // Step 2: Try sign-in with dummy password to detect if email exists
           try {
-            console.log('  🔍 Trying signInWithEmailAndPassword with dummy password to detect email existence...');
             const dummyPassword = 'CheckEmailExists123!@#';
             await window.firebaseAuthFunctions.signInWithEmailAndPassword(
               window.firebaseAuth,
               trimmedEmail,
               dummyPassword
             );
-            // If we get here, the email doesn't exist (sign in succeeded with wrong password? unlikely)
-            console.log('  ⚠️ Unexpected: sign in succeeded - this should not happen');
+            // If sign-in succeeds (unlikely with wrong password), email doesn't exist
+            console.log('  ⚠️ Unexpected: sign in succeeded');
+            emailInUse = false;
           } catch (signInError) {
             const errorCode = signInError.code || '';
             console.log('  Sign-in check error code:', errorCode);
             
-            // If we get auth/user-not-found, the email doesn't exist
             if (errorCode === 'auth/user-not-found') {
+              // Email does NOT exist in Firebase
               console.log('  ✓ Email does NOT exist in Firebase (user-not-found)');
               emailInUse = false;
-            } 
-            // If we get auth/wrong-password, the email EXISTS but password is wrong
-            else if (errorCode === 'auth/wrong-password') {
+            } else if (errorCode === 'auth/wrong-password' || 
+                       errorCode === 'auth/invalid-credential' ||
+                       errorCode === 'auth/invalid-login-credentials') {
+              // Email EXISTS in Firebase (wrong password or invalid credential means email exists)
+              console.warn('❌ Email IS in use (detected via sign-in attempt)!');
               emailInUse = true;
-              console.warn('❌ Email IS in use (detected via sign-in attempt - wrong password error)!');
-              console.warn('  🚨 Showing error immediately - email exists in Firebase');
-              
-              // Set error message
-              if (emailErrorText) {
-                emailErrorText.textContent = 'This email address is already associated with another account. Please use a different email address or sign in with that account instead.';
-              }
-              
-              // Show error
-              if (emailError) {
-                emailError.classList.add('show');
-              }
-              if (newEmailInput) {
-                newEmailInput.classList.add('error');
-              }
-              
-              console.log('  ✅ Error displayed - email is already in Firebase');
-              return;
-            }
-            // auth/invalid-credential or auth/invalid-login-credentials are ambiguous
-            // when Email Enumeration Protection is enabled. However, since fetchSignInMethodsForEmail
-            // returned empty (which is why we're in this fallback), if we get invalid-credential,
-            // it's more likely the email exists (Email Enumeration Protection is hiding it).
-            // We'll show the error to be safe - Firebase will catch it definitively during form submission.
-            else if (errorCode === 'auth/invalid-credential' || errorCode === 'auth/invalid-login-credentials') {
-              // Since fetchSignInMethodsForEmail returned empty, Email Enumeration Protection is likely enabled
-              // In this case, invalid-credential is ambiguous, but we'll show a warning
-              // The form submission check will catch it definitively
-              emailInUse = true;
-              console.warn('❌ Email likely in use (invalid-credential after empty fetchSignInMethods)');
-              console.warn('  ⚠️ This is ambiguous but likely means email exists (Email Enumeration Protection)');
-              console.warn('  ⚠️ Showing error - form submission will verify definitively');
-              
-              // Set error message
-              if (emailErrorText) {
-                emailErrorText.textContent = 'This email address is already associated with another account. Please use a different email address or sign in with that account instead.';
-              }
-              
-              // Show error
-              if (emailError) {
-                emailError.classList.add('show');
-              }
-              if (newEmailInput) {
-                newEmailInput.classList.add('error');
-              }
-              
-              console.log('  ✅ Error displayed - email likely in Firebase');
-              return;
             } else {
-              console.log('  ⚠️ Could not determine email existence (error:', errorCode + ')');
-              emailInUse = false; // Don't assume email is in use for unknown errors
-            }
-          }
-          
-          // Clear error if email appears available
-          if (!emailInUse) {
-            if (emailError) {
-              emailError.classList.remove('show');
-            }
-            if (newEmailInput) {
-              newEmailInput.classList.remove('error');
+              // Unknown error - can't determine, allow proceed (Firebase will catch it)
+              console.log('  ⚠️ Unknown error, allowing proceed - Firebase will catch it');
+              emailInUse = false;
             }
           }
         }
       } catch (fetchError) {
         console.error('  ✗ fetchSignInMethodsForEmail failed:', fetchError);
-        console.error('  Error code:', fetchError.code);
-        console.error('  Error message:', fetchError.message);
-        // If fetchSignInMethodsForEmail fails, we can't determine email availability
-        // Don't show error - allow user to proceed and Firebase will catch it
+        // If fetchSignInMethodsForEmail fails, try fallback method
+        try {
+          const dummyPassword = 'CheckEmailExists123!@#';
+          await window.firebaseAuthFunctions.signInWithEmailAndPassword(
+            window.firebaseAuth,
+            trimmedEmail,
+            dummyPassword
+          );
+          emailInUse = false;
+        } catch (signInError) {
+          const errorCode = signInError.code || '';
+          if (errorCode === 'auth/user-not-found') {
+            emailInUse = false;
+          } else if (errorCode === 'auth/wrong-password' || 
+                     errorCode === 'auth/invalid-credential' ||
+                     errorCode === 'auth/invalid-login-credentials') {
+            emailInUse = true;
+          } else {
+            emailInUse = false;
+          }
+        }
       }
       
-      // If we still couldn't determine, log it
-      if (!emailInUse) {
-        console.log('  ⚠️ Could not determine if email is in use - will check during form submission');
-        // Clear any previous error since we can't determine
+      // Show or clear error based on result
+      if (emailInUse) {
+        // Email is in Firebase - show error
+        if (emailErrorText) {
+          emailErrorText.textContent = 'This email address is already associated with another account. Please use a different email address or sign in with that account instead.';
+        }
+        if (emailError) {
+          emailError.classList.add('show');
+        }
+        if (newEmailInput) {
+          newEmailInput.classList.add('error');
+        }
+        console.log('  ✅ Error displayed - email is in Firebase');
+      } else {
+        // Email is NOT in Firebase - clear any errors, allow proceed
         if (emailError) {
           emailError.classList.remove('show');
         }
         if (newEmailInput) {
           newEmailInput.classList.remove('error');
         }
+        console.log('  ✓ Email is available - user can proceed');
       }
       
     } catch (checkError) {
       console.error('Error checking email:', checkError);
-      // Don't show error if check fails - we'll catch it during form submission
-      emailError.classList.remove('show');
-      newEmailInput.classList.remove('error');
+      // On error, clear any previous errors and allow proceed (Firebase will catch it)
+      if (emailError) {
+        emailError.classList.remove('show');
+      }
+      if (newEmailInput) {
+        newEmailInput.classList.remove('error');
+      }
     }
   };
   
