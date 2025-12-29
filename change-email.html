@@ -278,26 +278,32 @@
 
   // Ensure DOM is ready
   function initEmailPage() {
+    // Update email display function - can be called from anywhere
+    const updateEmailDisplay = () => {
+      const currentEmailEl = document.getElementById('currentEmail');
+      if (currentEmailEl) {
+        if (window.firebaseAuth && window.firebaseAuth.currentUser) {
+          const email = window.firebaseAuth.currentUser.email || '';
+          currentEmailEl.textContent = email;
+          userEmail = email;
+          currentUser = window.firebaseAuth.currentUser;
+          console.log('✓ Email displayed:', email);
+        } else {
+          // Keep "Loading..." if user not loaded yet
+          currentEmailEl.textContent = 'Loading...';
+        }
+      }
+    };
+    
     // First, try to update email display as soon as Auth is available (don't wait for Functions)
     const checkAuthForEmail = setInterval(() => {
       if (window.firebaseAuth && window.firebaseAuthFunctions) {
         clearInterval(checkAuthForEmail);
         
-        // Update email immediately if user is already logged in
-        const updateEmailDisplay = () => {
-          const currentEmailEl = document.getElementById('currentEmail');
-          if (currentEmailEl && window.firebaseAuth.currentUser) {
-            const email = window.firebaseAuth.currentUser.email || '';
-            currentEmailEl.textContent = email;
-            userEmail = email;
-            currentUser = window.firebaseAuth.currentUser;
-          }
-        };
-        
         // Try to update immediately
         updateEmailDisplay();
         
-        // Set up listener for auth state changes
+        // Set up listener for auth state changes - this will fire when user is loaded
         window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, async (user) => {
           if (user) {
             currentUser = user;
@@ -305,6 +311,7 @@
             const currentEmailEl = document.getElementById('currentEmail');
             if (currentEmailEl) {
               currentEmailEl.textContent = userEmail;
+              console.log('✓ Email updated via auth state change:', userEmail);
             }
           } else {
           // User is not logged in - redirect to login
@@ -330,8 +337,11 @@
         }
       });
       
-      // Also try updating after a short delay in case auth state hasn't been restored yet
+      // Try updating multiple times to catch when user loads
+      setTimeout(updateEmailDisplay, 100);
       setTimeout(updateEmailDisplay, 500);
+      setTimeout(updateEmailDisplay, 1000);
+      setTimeout(updateEmailDisplay, 2000);
       
       // Wait for Firebase to restore the session
       // Give it more time and check if user is actively interacting with the form
@@ -341,18 +351,19 @@
         const isTyping = (newEmailInput && document.activeElement === newEmailInput) ||
                         (passwordInput && document.activeElement === passwordInput);
         
+        updateEmailDisplay(); // Try one more time
+        
         if (!window.firebaseAuth.currentUser && !isProcessingForm && !isTyping) {
           console.log('⚠️ No user found after session restore, redirecting...');
           window.location.href = 'login.html?return=' + encodeURIComponent('change-email.html');
         } else {
           if (window.firebaseAuth.currentUser) {
-            // Update email one more time after session is restored
-            updateEmailDisplay();
+            console.log('✓ User found, email should be displayed');
           } else if (isTyping) {
             console.log('⚠️ User is typing - not redirecting even though no user found');
           }
         }
-      }, 2000); // Increased timeout to give more time for session restoration
+      }, 3000); // Increased timeout to give more time for session restoration
     }
     }, 100);
     
