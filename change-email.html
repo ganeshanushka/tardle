@@ -1070,6 +1070,47 @@
         // Continue but log the issue
       }
       
+      // Final check: Verify email is not already in use before calling verifyBeforeUpdateEmail
+      // This catches cases where the real-time check might have missed due to rate limits
+      console.log('🔍 Final email availability check before submission:', newEmail);
+      try {
+        const signInMethods = await window.firebaseAuthFunctions.fetchSignInMethodsForEmail(window.firebaseAuth, newEmail);
+        if (signInMethods && Array.isArray(signInMethods) && signInMethods.length > 0) {
+          // Email exists in Firebase
+          console.warn('❌ Email is already in use (final check before submission)');
+          emailErrorText.textContent = 'This email address is already associated with another account. Please use a different email address or sign in with that account instead.';
+          emailError.classList.add('show');
+          newEmailInput.classList.add('error');
+          saveButton.disabled = false;
+          saveButton.textContent = 'Save';
+          isProcessingForm = false;
+          return;
+        }
+      } catch (finalCheckError) {
+        // If fetchSignInMethodsForEmail fails, try fallback
+        try {
+          const dummyPassword = 'FinalCheck123!@#';
+          await window.firebaseAuthFunctions.signInWithEmailAndPassword(window.firebaseAuth, newEmail, dummyPassword);
+          // If sign-in succeeds (unlikely), email doesn't exist
+        } catch (signInError) {
+          const errorCode = signInError.code || '';
+          if (errorCode === 'auth/wrong-password' || 
+              errorCode === 'auth/invalid-credential' ||
+              errorCode === 'auth/invalid-login-credentials') {
+            // Email EXISTS in Firebase
+            console.warn('❌ Email is already in use (final check before submission via sign-in)');
+            emailErrorText.textContent = 'This email address is already associated with another account. Please use a different email address or sign in with that account instead.';
+            emailError.classList.add('show');
+            newEmailInput.classList.add('error');
+            saveButton.disabled = false;
+            saveButton.textContent = 'Save';
+            isProcessingForm = false;
+            return;
+          }
+          // If it's auth/user-not-found or rate limit, continue - verifyBeforeUpdateEmail will catch it
+        }
+      }
+      
       // Use verifyBeforeUpdateEmail instead of updateEmail
       // This sends a verification email to the new address first
       console.log('Sending verification email to new address:', newEmail);
@@ -1179,6 +1220,21 @@
         const errorCode = verifyError.code || '';
         const errorMessage = (verifyError.message || '').toLowerCase();
         const errorString = JSON.stringify(verifyError).toLowerCase();
+        
+        // If email is already in use, show error in email field
+        if (errorCode === 'auth/email-already-in-use' || 
+            errorCode === 'auth/emailAlreadyInUse' ||
+            errorMessage.includes('already in use') ||
+            errorString.includes('already in use')) {
+          console.warn('❌ Email is already in use (detected by verifyBeforeUpdateEmail)');
+          emailErrorText.textContent = 'This email address is already associated with another account. Please use a different email address or sign in with that account instead.';
+          emailError.classList.add('show');
+          newEmailInput.classList.add('error');
+          saveButton.disabled = false;
+          saveButton.textContent = 'Save';
+          isProcessingForm = false;
+          return;
+        }
         
         console.log('  Checking for email-already-in-use:');
         console.log('    errorCode:', errorCode);
