@@ -280,7 +280,7 @@
   function initEmailPage() {
     // Wait for Firebase to load
     const checkFirebase = setInterval(() => {
-    if (window.firebaseAuth && window.firebaseAuthFunctions && window.firebaseFirestoreFunctions && window.firebaseDb) {
+    if (window.firebaseAuth && window.firebaseAuthFunctions && window.firebaseFirestoreFunctions && window.firebaseDb && window.firebaseFunctions && window.firebaseFunctionsFunctions) {
       clearInterval(checkFirebase);
       
       // Update email immediately if user is already logged in
