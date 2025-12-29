@@ -492,9 +492,11 @@
               emailInUse = false;
             } 
             // If we get auth/wrong-password, the email EXISTS but password is wrong
-            else if (errorCode === 'auth/wrong-password' || 
-                     errorCode === 'auth/invalid-credential' ||
-                     errorCode === 'auth/invalid-login-credentials') {
+            // NOTE: auth/invalid-credential and auth/invalid-login-credentials are ambiguous
+            // when Email Enumeration Protection is enabled - they could mean either
+            // "email exists" OR "email doesn't exist". Only treat auth/wrong-password
+            // as a definitive signal that the email exists.
+            else if (errorCode === 'auth/wrong-password') {
               emailInUse = true;
               console.warn('❌ Email IS in use (detected via sign-in attempt - wrong password error)!');
               console.warn('  🚨 Showing error immediately - email exists in Firebase');
@@ -515,7 +517,12 @@
               console.log('  ✅ Error displayed - email is already in Firebase');
               return;
             } else {
+              // auth/invalid-credential or auth/invalid-login-credentials are ambiguous
+              // when Email Enumeration Protection is enabled - don't assume email exists
               console.log('  ⚠️ Could not determine email existence (error:', errorCode + ')');
+              console.log('  ⚠️ This error is ambiguous - could mean email exists OR doesn\'t exist');
+              console.log('  ⚠️ Will allow user to proceed - Firebase will catch it during actual email change');
+              emailInUse = false; // Don't assume email is in use
             }
           }
           
