@@ -1336,9 +1336,8 @@
       // Clear password field
       passwordInput.value = '';
       passwordInput.focus();
-    } // End of catch block for try at line 564
     } finally {
-      // Always reset the flag and re-enable button for outer try at line 343
+      // Always reset the flag and re-enable button
       isProcessingForm = false;
       saveButton.disabled = false;
       saveButton.textContent = 'Save';
