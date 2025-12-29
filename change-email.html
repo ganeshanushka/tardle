@@ -902,31 +902,7 @@
     // ========================================================================
     // EMAIL AVAILABILITY CHECK - ONLY RUNS AFTER PASSWORD IS VERIFIED
     // ========================================================================
-    
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(newEmail)) {
-      emailErrorText.textContent = 'Please enter a valid email address.';
-      emailError.classList.add('show');
-      newEmailInput.classList.add('error');
-      newEmailInput.focus();
-      saveButton.disabled = false;
-      saveButton.textContent = 'Save';
-      isProcessingForm = false;
-      return;
-    }
-    
-    // Check if new email is the same as current email
-    if (newEmail.toLowerCase() === userEmail.toLowerCase()) {
-      emailErrorText.textContent = 'The email address you entered is already associated with this account. Please enter a different email address.';
-      emailError.classList.add('show');
-      newEmailInput.classList.add('error');
-      newEmailInput.focus();
-      saveButton.disabled = false;
-      saveButton.textContent = 'Save';
-      isProcessingForm = false;
-      return;
-    }
+    // Note: Email format and "same as current email" validation already done above
     
     try {
       console.log('🔍 Checking if email is already in use (AFTER password verification)...');
