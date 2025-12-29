@@ -161,7 +161,7 @@ exports.sendEmailChangeVerification = functions.https.onCall(async (data, contex
     const verificationUrl = `https://ganeshanushka.github.io/tardle/verify-email-change.html?code=${code}&email=${encodeURIComponent(email)}`;
 
     const emailResult = await resend.emails.send({
-      from: "Tardle <no-reply@tardle.com>",
+      from: "Tardle <onboarding@resend.dev>",
       to: email,
       subject: "Verify your new email address for Tardle",
       html: `
@@ -180,8 +180,20 @@ exports.sendEmailChangeVerification = functions.https.onCall(async (data, contex
       `,
     });
 
-    console.log(`Email change verification sent to ${email} for user ${context.auth.uid}`);
     console.log('Resend API response:', JSON.stringify(emailResult, null, 2));
+    
+    // Check if Resend returned an error
+    if (emailResult.error) {
+      console.error('Resend API error:', emailResult.error);
+      throw new functions.https.HttpsError('failed-precondition', `Email sending failed: ${emailResult.error.message}`);
+    }
+    
+    if (!emailResult.data || !emailResult.data.id) {
+      console.error('Resend API response missing email ID:', emailResult);
+      throw new functions.https.HttpsError('internal', 'Email sending failed: No email ID returned');
+    }
+
+    console.log(`Email change verification sent to ${email} for user ${context.auth.uid}, email ID: ${emailResult.data.id}`);
     return { success: true };
   } catch (err) {
     console.error("Error sending email change verification:", err);
