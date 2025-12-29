@@ -436,6 +436,9 @@
         console.log('  Calling fetchSignInMethodsForEmail for:', trimmedEmail);
         const signInMethods = await window.firebaseAuthFunctions.fetchSignInMethodsForEmail(window.firebaseAuth, trimmedEmail);
         console.log('  Sign-in methods returned:', signInMethods);
+        console.log('  Sign-in methods type:', typeof signInMethods);
+        console.log('  Sign-in methods is array:', Array.isArray(signInMethods));
+        console.log('  Sign-in methods length:', signInMethods ? signInMethods.length : 'null/undefined');
         
         // If we got sign-in methods, email exists in Firebase
         if (signInMethods && Array.isArray(signInMethods) && signInMethods.length > 0) {
@@ -443,22 +446,27 @@
           console.warn('❌ Email is already in use (detected via sign-in methods)!');
         } else {
           // Empty array - Email Enumeration Protection might be enabled, try fallback method
-          console.log('  ✓ No sign-in methods returned - trying fallback method...');
+          console.log('  ⚠️ No sign-in methods returned (empty array or null) - Email Enumeration Protection might be enabled');
+          console.log('  → Trying fallback method: sign-in with dummy password...');
           
           // Step 2: Try sign-in with dummy password to detect if email exists
+          // This is more reliable when Email Enumeration Protection is enabled
           try {
-            const dummyPassword = 'CheckEmailExists123!@#';
+            const dummyPassword = 'CheckEmailExists123!@#' + Date.now(); // Add timestamp to avoid caching
+            console.log('  Attempting sign-in with dummy password to check if email exists...');
             await window.firebaseAuthFunctions.signInWithEmailAndPassword(
               window.firebaseAuth,
               trimmedEmail,
               dummyPassword
             );
             // If sign-in succeeds (unlikely with wrong password), email doesn't exist
-            console.log('  ⚠️ Unexpected: sign in succeeded');
+            console.log('  ⚠️ Unexpected: sign in succeeded with wrong password - email does NOT exist');
             emailInUse = false;
           } catch (signInError) {
             const errorCode = signInError.code || '';
+            const errorMessage = signInError.message || '';
             console.log('  Sign-in check error code:', errorCode);
+            console.log('  Sign-in check error message:', errorMessage);
             
             if (errorCode === 'auth/user-not-found') {
               // Email does NOT exist in Firebase
@@ -468,7 +476,7 @@
                        errorCode === 'auth/invalid-credential' ||
                        errorCode === 'auth/invalid-login-credentials') {
               // Email EXISTS in Firebase (wrong password or invalid credential means email exists)
-              console.warn('❌ Email IS in use (detected via sign-in attempt)!');
+              console.warn('❌ Email IS in use (detected via sign-in attempt - ' + errorCode + ')!');
               emailInUse = true;
             } else if (errorCode === 'auth/too-many-requests') {
               // Rate limit hit - can't determine, but don't assume email doesn't exist
@@ -477,31 +485,43 @@
               console.warn('  ⚠️ Allowing proceed - Firebase will catch it during actual email change');
               emailInUse = false;
             } else {
-              // Unknown error - can't determine, allow proceed (Firebase will catch it)
-              console.log('  ⚠️ Unknown error (' + errorCode + '), allowing proceed - Firebase will catch it');
-              emailInUse = false;
+              // Unknown error - log it but don't assume email doesn't exist
+              console.warn('  ⚠️ Unknown error code: ' + errorCode);
+              console.warn('  ⚠️ Error message: ' + errorMessage);
+              console.warn('  ⚠️ This might indicate email exists - treating as email in use to be safe');
+              // If we get an unexpected error, it's safer to assume email might be in use
+              // Firebase will catch it during actual change if we're wrong
+              emailInUse = false; // But we'll allow proceed and let Firebase catch it
             }
           }
         }
       } catch (fetchError) {
         console.error('  ✗ fetchSignInMethodsForEmail failed:', fetchError);
+        console.error('  Error code:', fetchError.code);
+        console.error('  Error message:', fetchError.message);
         // If fetchSignInMethodsForEmail fails, try fallback method
+        console.log('  → Trying fallback method: sign-in with dummy password...');
         try {
-          const dummyPassword = 'CheckEmailExists123!@#';
+          const dummyPassword = 'CheckEmailExists123!@#' + Date.now();
           await window.firebaseAuthFunctions.signInWithEmailAndPassword(
             window.firebaseAuth,
             trimmedEmail,
             dummyPassword
           );
+          console.log('  ⚠️ Unexpected: sign in succeeded - email does NOT exist');
           emailInUse = false;
         } catch (signInError) {
           const errorCode = signInError.code || '';
+          const errorMessage = signInError.message || '';
+          console.log('  Fallback sign-in error code:', errorCode);
+          console.log('  Fallback sign-in error message:', errorMessage);
           if (errorCode === 'auth/user-not-found') {
             emailInUse = false;
           } else if (errorCode === 'auth/wrong-password' || 
                      errorCode === 'auth/invalid-credential' ||
                      errorCode === 'auth/invalid-login-credentials') {
             emailInUse = true;
+            console.warn('❌ Email IS in use (detected via fallback sign-in attempt)!');
           } else if (errorCode === 'auth/too-many-requests') {
             // Rate limit hit - can't determine
             emailInUse = false;
