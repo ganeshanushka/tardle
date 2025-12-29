@@ -112,6 +112,55 @@ exports.sendVerificationCode = functions.https.onCall(async (data, context) => {
   }
 });
 
+// Send email change verification email
+exports.sendEmailChangeVerification = functions.https.onCall(async (data, context) => {
+  try {
+    const { email, code, currentEmail, username } = data;
+
+    if (!email || !code || !currentEmail) {
+      throw new functions.https.HttpsError('invalid-argument', 'Email, code, and currentEmail are required');
+    }
+
+    // Verify user is authenticated
+    if (!context.auth) {
+      throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
+    }
+
+    if (!resend) {
+      throw new functions.https.HttpsError('failed-precondition', 'Resend API key is not configured. Please set RESEND_API_KEY in Firebase Functions config.');
+    }
+
+    // Build verification URL - use the code as a query parameter
+    const verificationUrl = `https://ganeshanushka.github.io/tardle/verify-email-change.html?code=${code}&email=${encodeURIComponent(email)}`;
+
+    await resend.emails.send({
+      from: "Tardle <no-reply@tardle.com",
+      to: email,
+      subject: "Verify your new email address for Tardle",
+      html: `
+        <h2>Hello ${username || 'there'}!</h2>
+        <p>You requested to change your email address from <strong>${currentEmail}</strong> to <strong>${email}</strong>.</p>
+        <p>Click the button below to verify your new email address:</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${verificationUrl}" style="background-color: #001A57; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Verify Email Address</a>
+        </div>
+        <p>Or copy and paste this link into your browser:</p>
+        <p style="word-break: break-all; color: #666;">${verificationUrl}</p>
+        <p>Your verification code is: <strong style="font-size: 18px; letter-spacing: 2px;">${code}</strong></p>
+        <p>This link will expire in 15 minutes.</p>
+        <p>If you didn't request this email change, please ignore this email or contact support if you're concerned.</p>
+        <p>Thanks,<br>The Tardle Team</p>
+      `,
+    });
+
+    console.log(`Email change verification sent to ${email} for user ${context.auth.uid}`);
+    return { success: true };
+  } catch (err) {
+    console.error("Error sending email change verification:", err);
+    throw new functions.https.HttpsError('internal', 'Failed to send email change verification');
+  }
+});
+
 // Clean up unverified accounts older than 7 days
 // Runs daily at 2am ET
 exports.cleanupUnverifiedAccounts = functions.pubsub

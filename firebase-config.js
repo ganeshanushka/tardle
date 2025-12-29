@@ -56,7 +56,8 @@ window.firebaseFirestoreFunctions = {
   query,
   where
 };
-window.firebaseFunctions = {
+window.firebaseFunctions = functions;
+window.firebaseFunctionsFunctions = {
   httpsCallable
 };
 window.firebaseFunctionsInstance = functions;

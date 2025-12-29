@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verify Email Change - Tardle</title>
+<style>
+  body {
+    font-family: 'PT Serif', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #7BAFD4;
+  }
+
+  .verify-container {
+    background-color: white;
+    margin: auto;
+    padding: 40px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    width: 500px;
+    max-width: 90%;
+    text-align: center;
+  }
+
+  h1 {
+    font-size: 32px;
+    margin-bottom: 10px;
+    color: #1a1a1a;
+  }
+
+  .subtitle {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 30px;
+  }
+
+  .email-display {
+    font-weight: bold;
+    color: #001A57;
+    margin-bottom: 30px;
+  }
+
+  .instructions {
+    margin-bottom: 30px;
+    color: #666;
+    line-height: 1.6;
+  }
+
+  .error-message {
+    color: #d32f2f;
+    font-size: 14px;
+    margin-top: 10px;
+    min-height: 20px;
+    display: none;
+  }
+
+  .error-message.show {
+    display: block;
+  }
+
+  .success-message {
+    color: #2e7d32;
+    font-size: 14px;
+    margin-top: 10px;
+    min-height: 20px;
+    display: none;
+  }
+
+  .success-message.show {
+    display: block;
+  }
+
+  .loading {
+    color: #666;
+    font-size: 14px;
+    margin-top: 10px;
+  }
+</style>
+</head>
+<body>
+<div class="verify-container">
+  <h1>Verify Email Change</h1>
+  <p class="subtitle">Verifying your new email address...</p>
+  
+  <div id="emailDisplay" class="email-display">Loading...</div>
+  
+  <div id="loadingMessage" class="loading">Please wait while we verify your email change...</div>
+  
+  <div id="errorMessage" class="error-message"></div>
+  <div id="successMessage" class="success-message"></div>
+</div>
+
+<!-- Firebase Config -->
+<script type="module" src="firebase-config.js"></script>
+
+<script>
+  let currentUser = null;
+
+  // Wait for Firebase to load
+  const checkFirebase = setInterval(() => {
+    if (window.firebaseAuth && window.firebaseAuthFunctions && window.firebaseFirestoreFunctions && window.firebaseDb) {
+      clearInterval(checkFirebase);
+      
+      // Set up listener for auth state changes
+      window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, async (user) => {
+        if (user) {
+          currentUser = user;
+          await verifyEmailChange();
+        } else {
+          // User is not logged in
+          document.getElementById('errorMessage').textContent = 'You must be logged in to verify your email change. Please log in and try again.';
+          document.getElementById('errorMessage').classList.add('show');
+          document.getElementById('loadingMessage').style.display = 'none';
+          
+          setTimeout(() => {
+            window.location.href = 'login.html';
+          }, 3000);
+        }
+      });
+    }
+  }, 100);
+
+  async function verifyEmailChange() {
+    const loadingMessage = document.getElementById('loadingMessage');
+    const errorMessage = document.getElementById('errorMessage');
+    const successMessage = document.getElementById('successMessage');
+    const emailDisplay = document.getElementById('emailDisplay');
+    
+    try {
+      // Get code and email from URL parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      const email = urlParams.get('email');
+      
+      if (!code || !email) {
+        throw new Error('Missing verification code or email in URL. Please use the link from your email.');
+      }
+      
+      emailDisplay.textContent = email;
+      
+      console.log('Verifying email change:');
+      console.log('  Code:', code);
+      console.log('  New email:', email);
+      console.log('  User ID:', currentUser.uid);
+      
+      // Get verification data from Firestore
+      const emailChangeRef = window.firebaseFirestoreFunctions.doc(
+        window.firebaseDb,
+        'emailChanges',
+        currentUser.uid
+      );
+      
+      const emailChangeDoc = await window.firebaseFirestoreFunctions.getDoc(emailChangeRef);
+      
+      if (!emailChangeDoc.exists()) {
+        throw new Error('Verification code not found or has expired. Please request a new email change.');
+      }
+      
+      const emailChangeData = emailChangeDoc.data();
+      console.log('Email change data:', emailChangeData);
+      
+      // Verify code matches
+      if (emailChangeData.code !== code) {
+        throw new Error('Invalid verification code. Please use the link from your email.');
+      }
+      
+      // Verify email matches
+      if (emailChangeData.newEmail.toLowerCase() !== email.toLowerCase()) {
+        throw new Error('Email mismatch. Please use the link from your email.');
+      }
+      
+      // Check if code has expired
+      const expiresAt = emailChangeData.expiresAt;
+      if (expiresAt && expiresAt.toMillis && expiresAt.toMillis() < Date.now()) {
+        throw new Error('Verification code has expired. Please request a new email change.');
+      } else if (expiresAt && expiresAt < Date.now()) {
+        throw new Error('Verification code has expired. Please request a new email change.');
+      }
+      
+      console.log('✓ Code verified, updating email...');
+      
+      // Update email in Firebase Authentication
+      await window.firebaseAuthFunctions.updateEmail(currentUser, email);
+      console.log('✓ Email updated in Firebase Authentication');
+      
+      // Reload user to get updated email
+      await currentUser.reload();
+      console.log('✓ User reloaded, new email:', currentUser.email);
+      
+      // Update Firestore user document
+      if (window.firebaseDb && window.firebaseFirestoreFunctions) {
+        try {
+          const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
+          await window.firebaseFirestoreFunctions.updateDoc(userDocRef, {
+            email: currentUser.email
+          });
+          console.log('✓ Firestore email updated');
+          
+          // Verify the update worked
+          const updatedDoc = await window.firebaseFirestoreFunctions.getDoc(userDocRef);
+          if (updatedDoc.exists()) {
+            const data = updatedDoc.data();
+            console.log('✓ Verified Firestore update - email in document:', data.email);
+          }
+        } catch (firestoreError) {
+          console.error('✗ Could not update email in Firestore:', firestoreError);
+          // Don't throw - email change in Auth is still successful
+        }
+      }
+      
+      // Delete the verification code from Firestore
+      try {
+        await window.firebaseFirestoreFunctions.deleteDoc(emailChangeRef);
+        console.log('✓ Verification code deleted from Firestore');
+      } catch (deleteError) {
+        console.warn('Could not delete verification code:', deleteError);
+        // Don't throw - email change is still successful
+      }
+      
+      // Show success message
+      loadingMessage.style.display = 'none';
+      successMessage.textContent = 'Email changed successfully! Your email address has been updated to ' + email + '. Redirecting...';
+      successMessage.classList.add('show');
+      
+      // Redirect to account details page
+      setTimeout(() => {
+        window.location.href = 'account-details.html';
+      }, 2000);
+      
+    } catch (error) {
+      console.error('Error verifying email change:', error);
+      loadingMessage.style.display = 'none';
+      errorMessage.textContent = error.message || 'An error occurred while verifying your email change. Please try again.';
+      errorMessage.classList.add('show');
+    }
+  }
+</script>
+
+</body>
+</html>
+

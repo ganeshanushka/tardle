@@ -361,28 +361,28 @@
 <div class="container">
   <div class="delete-form" id="deleteForm">
     <div class="header-tile-grid" id="headerTiles"></div>
-    
-    <div class="account-info">
-      Delete the Tardle account for:<br>
-      <strong id="userEmail"></strong>
-    </div>
+  
+  <div class="account-info">
+    Delete the Tardle account for:<br>
+    <strong id="userEmail"></strong>
+  </div>
 
-    <div class="consequences">
+  <div class="consequences">
       <p>Are you sure? This is like skipping that 8 am you signed up for—you can, but do you really want to?</p>
-    </div>
+  </div>
 
-    <div class="section-title">What to expect</div>
-    <div class="section-content">
+  <div class="section-title">What to expect</div>
+  <div class="section-content">
       <p>After your account has been deleted, you will no longer be able to log in to Tardle using this account. You will also stop receiving any emails to the email address associated with this account.</p>
       <p class="warning">This action is permanent—like that "C" on your transcript you swore wouldn't happen.</p>
-    </div>
+  </div>
 
-    <div class="checkbox-container">
-      <input type="checkbox" id="confirmCheckbox">
-      <label for="confirmCheckbox">I confirm I want to delete my Tardle account.</label>
-    </div>
+  <div class="checkbox-container">
+    <input type="checkbox" id="confirmCheckbox">
+    <label for="confirmCheckbox">I confirm I want to delete my Tardle account.</label>
+  </div>
 
-    <div class="success-message" id="successMessage"></div>
+  <div class="success-message" id="successMessage"></div>
 
     <div class="password-prompt" id="passwordPrompt" style="display: none;">
       <label for="passwordInput">For security reasons, please enter your password to confirm account deletion:</label>
@@ -398,7 +398,7 @@
       <div class="error-message" id="errorMessage"></div>
     </div>
 
-    <div class="button-container">
+  <div class="button-container">
       <button type="button" class="delete-button" id="deleteButton" disabled>Delete account</button>
       <a href="account-details.html" class="return-link">Return to account</a>
     </div>
@@ -526,16 +526,16 @@
 
   // Setup delete button and checkbox when DOM is ready
   function setupDeleteButton() {
-    const confirmCheckbox = document.getElementById('confirmCheckbox');
-    const deleteButton = document.getElementById('deleteButton');
-    
+  const confirmCheckbox = document.getElementById('confirmCheckbox');
+  const deleteButton = document.getElementById('deleteButton');
+  
     if (!confirmCheckbox || !deleteButton) {
       console.error('Delete button or checkbox not found');
       console.error('Checkbox element:', confirmCheckbox);
       console.error('Delete button element:', deleteButton);
       return;
     }
-    
+
     console.log('Delete button and checkbox found, setting up event listeners');
     console.log('Firebase loaded:', checkFirebaseLoaded());
     
@@ -562,7 +562,7 @@
         deleteButton.classList.add('enabled');
         console.log('Delete button enabled');
       } else {
-        deleteButton.disabled = true;
+    deleteButton.disabled = true;
         deleteButton.classList.remove('enabled');
         console.log('Delete button disabled');
       }
@@ -629,7 +629,7 @@
         const startTime = Date.now();
         
         while (!firebaseReady && (Date.now() - startTime) < maxWaitTime) {
-          if (window.firebaseAuthFunctions && window.firebaseFirestoreFunctions && window.firebaseAuth) {
+            if (window.firebaseAuthFunctions && window.firebaseFirestoreFunctions && window.firebaseAuth) {
             firebaseReady = true;
             console.log('Firebase functions are available!');
             break;
@@ -703,10 +703,10 @@
 
         // Delete user document from Firestore first (with timeout)
         // Note: We continue with Auth deletion even if Firestore deletion fails or is cancelled
-        if (currentUser && window.firebaseFirestoreFunctions && window.firebaseDb) {
-          try {
+      if (currentUser && window.firebaseFirestoreFunctions && window.firebaseDb) {
+        try {
             console.log('Deleting user document from Firestore...');
-            const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
+          const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
             
             // Add timeout to Firestore deletion (5 seconds)
             // Use Promise.race but catch all errors including cancellations
@@ -727,8 +727,8 @@
             
             try {
               await Promise.race([firestoreDeletePromise, firestoreTimeoutPromise]);
-              console.log('User document deleted from Firestore');
-            } catch (firestoreError) {
+          console.log('User document deleted from Firestore');
+        } catch (firestoreError) {
               // Handle all Firestore errors - we continue regardless
               const errorMessage = firestoreError?.message || '';
               
@@ -742,15 +742,15 @@
           } catch (firestoreError) {
             // Catch any outer errors - we continue regardless
             console.warn('Firestore deletion encountered an error (this is OK, continuing with Auth deletion):', firestoreError);
-            // Continue with auth deletion even if Firestore deletion fails
-          }
+          // Continue with auth deletion even if Firestore deletion fails
+        }
         } else {
           console.log('Skipping Firestore deletion (not available or user not found)');
-        }
+      }
 
-        // Delete user from Firebase Auth
-        // deleteUser is a method on the User object, not a standalone function
-        if (currentUser && currentUser.delete) {
+      // Delete user from Firebase Auth
+      // deleteUser is a method on the User object, not a standalone function
+      if (currentUser && currentUser.delete) {
           console.log('Deleting user from Firebase Auth...');
           
           try {
@@ -761,8 +761,8 @@
             );
             
             await Promise.race([deletePromise, timeoutPromise]);
-            console.log('User account deleted from Firebase Auth');
-            
+        console.log('User account deleted from Firebase Auth');
+        
             // Hide the form and show success screen
             deleteForm.classList.add('hidden');
             passwordPrompt.style.display = 'none';
@@ -777,11 +777,11 @@
             // Re-throw the error to be handled in outer catch
             throw deleteError;
           }
-        } else {
-          throw new Error('Unable to delete account. Please try logging out and logging back in, then try again.');
-        }
-        } catch (error) {
-          console.error('Error deleting account:', error);
+      } else {
+        throw new Error('Unable to delete account. Please try logging out and logging back in, then try again.');
+      }
+    } catch (error) {
+      console.error('Error deleting account:', error);
           console.error('Error code:', error.code);
           console.error('Error message:', error.message);
           console.error('Error name:', error.name);
@@ -822,8 +822,8 @@
           }
           
           errorMessage.textContent = errorMsg;
-          errorMessage.classList.add('show');
-          deleteButton.disabled = false;
+      errorMessage.classList.add('show');
+      deleteButton.disabled = false;
           deleteButton.classList.remove('loading');
           deleteButton.textContent = 'Confirm and delete'; // Restore text since password prompt is still visible
           passwordInput.disabled = false;
@@ -845,7 +845,7 @@
       if (!confirmCheckbox.checked) {
         console.log('Checkbox not checked, returning');
         return;
-      }
+    }
       
       if (!currentUser) {
         console.log('No current user, refreshing...');

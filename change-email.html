@@ -1051,97 +1051,68 @@
         // Continue but log the issue
       }
       
-      // Use verifyBeforeUpdateEmail instead of updateEmail
-      // This sends a verification email to the new address first
-      console.log('Sending verification email to new address:', newEmail);
+      // Use custom email verification flow via Resend (since verifyBeforeUpdateEmail isn't working reliably)
+      console.log('Generating verification code for email change to:', newEmail);
       
-      // Build the correct URL for GitHub Pages - should point to a page that handles the verification
-      // For email change verification, we need verify-email.html to handle it
-      const currentPath = window.location.pathname;
-      const pathParts = currentPath.split('/').filter(p => p);
-      if (pathParts.length > 0) {
-        pathParts[pathParts.length - 1] = 'verify-email.html';
-      } else {
-        pathParts.push('verify-email.html');
-      }
-      const continueUrl = window.location.origin + '/' + pathParts.join('/');
+      // Generate a 6-digit verification code
+      const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+      const expiresAt = Date.now() + (15 * 60 * 1000); // 15 minutes from now
       
-      console.log('Continue URL for email verification:', continueUrl);
-      console.log('Full window location:', window.location.href);
-      console.log('Origin:', window.location.origin);
+      // Store verification code in Firestore
+      const emailChangeRef = window.firebaseFirestoreFunctions.doc(
+        window.firebaseDb,
+        'emailChanges',
+        refreshedUser.uid
+      );
       
-      // Send verification email to new address
-      // Check if function is available
-      const verifyFunc = window.verifyBeforeUpdateEmailDirect || 
-                        (window.firebaseAuthFunctions && window.firebaseAuthFunctions.verifyBeforeUpdateEmail);
+      await window.firebaseFirestoreFunctions.setDoc(emailChangeRef, {
+        code: verificationCode,
+        newEmail: newEmail,
+        oldEmail: refreshedUser.email,
+        userId: refreshedUser.uid,
+        expiresAt: expiresAt,
+        createdAt: window.firebaseFirestoreFunctions.serverTimestamp()
+      });
       
-      console.log('Checking verifyBeforeUpdateEmail availability:');
-      console.log('- window.verifyBeforeUpdateEmailDirect:', typeof window.verifyBeforeUpdateEmailDirect);
-      console.log('- window.firebaseAuthFunctions:', window.firebaseAuthFunctions);
-      console.log('- window.firebaseAuthFunctions.verifyBeforeUpdateEmail:', typeof (window.firebaseAuthFunctions && window.firebaseAuthFunctions.verifyBeforeUpdateEmail));
+      console.log('✓ Verification code stored in Firestore');
+      console.log('Code:', verificationCode);
+      console.log('Expires at:', new Date(expiresAt).toISOString());
       
-      if (!verifyFunc) {
-        const errorMsg = 'verifyBeforeUpdateEmail function is not available. Firebase SDK may not be fully loaded. Please refresh the page and try again.';
-        console.error(errorMsg);
-        errorMessage.textContent = errorMsg;
-        errorMessage.style.color = '#d32f2f';
-        errorMessage.classList.add('show');
-        saveButton.disabled = false;
-        saveButton.textContent = 'Save';
-        return;
-      }
-      
-      console.log('Calling verifyBeforeUpdateEmail with:');
-      console.log('- User:', refreshedUser.email);
-      console.log('- New email:', newEmail);
-      console.log('- Continue URL:', continueUrl);
-      
+      // Get username from Firestore for email personalization
+      let username = 'there';
       try {
-        console.log('About to call verifyBeforeUpdateEmail...');
-        console.log('Function type:', typeof verifyFunc);
-        console.log('User object:', {
-          uid: refreshedUser.uid,
-          email: refreshedUser.email,
-          emailVerified: refreshedUser.emailVerified
-        });
-        console.log('New email to check:', newEmail);
-        
-        const actionCodeSettings = {
-          url: continueUrl,
-          handleCodeInApp: false
-        };
-        console.log('Action code settings:', actionCodeSettings);
-        console.log('Continue URL being used:', continueUrl);
-        console.log('⚠️ IMPORTANT: Make sure "Email address verification" template (not "Email address change") is enabled in Firebase Console');
-        
-        // This is where Firebase will throw auth/email-already-in-use if the email exists
-        console.log('⚠️ Calling verifyBeforeUpdateEmail - this will throw auth/email-already-in-use if email is in use');
-        const result = await verifyFunc(refreshedUser, newEmail, actionCodeSettings);
-        
-        console.log('✓ verifyBeforeUpdateEmail completed successfully - email should have been sent');
-        console.log('Function return value:', result);
-        console.log('Function return type:', typeof result);
-        console.log('Function return value (stringified):', JSON.stringify(result, null, 2));
-        console.log('Email sent to:', newEmail);
-        console.log('Verification link will redirect to:', continueUrl);
-        console.log('From email address: noreply@tardle-c0c26.firebaseapp.com');
-        console.log('⚠️ NOTE: If email is not received, this might be a Firebase issue with verifyBeforeUpdateEmail');
-        console.log('⚠️ Try checking Firebase Console > Authentication > Users for any email sending activity');
-        
-        // IMPORTANT: verifyBeforeUpdateEmail doesn't return a promise that resolves when email is sent
-        // It only verifies the email can be changed and queues the email to be sent
-        // The email is sent asynchronously by Firebase
-        console.warn('⚠️ NOTE: verifyBeforeUpdateEmail returns immediately - email is sent asynchronously by Firebase');
-        console.warn('⚠️ If email is not received, check:');
-        console.warn('  1. Firebase Console > Authentication > Templates > "Email address change" is ENABLED');
-        console.warn('  2. Firebase Console > Authentication > Settings > Authorized domains includes your domain');
-        console.warn('  3. Check spam/junk folder');
-        console.warn('  4. Wait 5-15 minutes (Gmail can delay Firebase emails)');
-        console.warn('  5. Firebase Console > Project Settings > Usage and billing for email quota');
+        const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', refreshedUser.uid);
+        const userDoc = await window.firebaseFirestoreFunctions.getDoc(userDocRef);
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          username = userData.username || userData.email?.split('@')[0] || 'there';
+        }
+      } catch (usernameError) {
+        console.warn('Could not fetch username, using default:', usernameError);
+      }
+      
+      // Call Cloud Function to send verification email via Resend
+      if (!window.firebaseFunctionsFunctions || !window.firebaseFunctions) {
+        throw new Error('Firebase Functions not available. Please refresh the page.');
+      }
+      const sendEmailChangeVerification = window.firebaseFunctionsFunctions.httpsCallable(
+        window.firebaseFunctions,
+        'sendEmailChangeVerification'
+      );
+      
+      console.log('Calling sendEmailChangeVerification Cloud Function...');
+      const emailResult = await sendEmailChangeVerification({
+        email: newEmail,
+        code: verificationCode,
+        currentEmail: refreshedUser.email,
+        username: username
+      });
+      
+      console.log('✓ Email change verification email sent via Resend');
+      console.log('Result:', emailResult.data);
         
         // Show success message - verification email has been sent
-        // Note: Email is NOT changed yet - it will only change after user clicks verification link
-        successMessage.textContent = 'Verification email sent!\n\nPlease check your inbox at ' + newEmail + ' (including spam/junk folder) and click the verification link to complete the email change.';
+        successMessage.textContent = 'Verification email sent!\n\nPlease check your inbox at ' + newEmail + ' (including spam/junk folder) and click the verification link to complete the email change.\n\nYour verification code is: ' + verificationCode;
         successMessage.style.color = '#2e7d32';
         successMessage.style.whiteSpace = 'pre-line';
         successMessage.classList.add('show');
@@ -1149,93 +1120,53 @@
         // Clear form
         document.getElementById('newEmail').value = '';
         document.getElementById('password').value = '';
-        
-        // Additional Gmail-specific troubleshooting (logged to console only)
-        if (newEmail.toLowerCase().includes('@gmail.com')) {
-          console.warn('⚠️ Gmail-specific troubleshooting:');
-          console.warn('1. Search Gmail for: "noreply@tardle-c0c26.firebaseapp.com"');
-          console.warn('2. Check: Spam, All Mail, Promotions, Social tabs');
-          console.warn('3. Gmail may delay Firebase emails by 5-15 minutes');
-          console.warn('4. Check Gmail Settings > Filters and Blocked Addresses');
-        }
-        
-        // Also log warning about email templates
-        console.warn('⚠️ IMPORTANT: If email not received, verify in Firebase Console:');
-        console.warn('1. Go to Firebase Console > Authentication > Templates');
-        console.warn('2. Find "Email address change" template');
-        console.warn('3. Ensure it is ENABLED (not disabled)');
-        console.warn('4. Also check: Authentication > Settings > Authorized domains includes "ganeshanushka.github.io"');
-        console.warn('5. Check: Project Settings > Usage and billing for email quota limits');
       } catch (verifyError) {
-        console.error('✗ Error in verifyBeforeUpdateEmail:', verifyError);
+        console.error('✗ Error in email change verification flow:', verifyError);
         console.error('  Error code:', verifyError.code);
         console.error('  Error message:', verifyError.message);
         console.error('  Full error object:', verifyError);
-        console.error('  Error keys:', Object.keys(verifyError));
-        console.error('  Error stringified:', JSON.stringify(verifyError, null, 2));
         
-        // Handle email-already-in-use immediately - check multiple possible error codes
-        const errorCode = verifyError.code || '';
-        const errorMessage = (verifyError.message || '').toLowerCase();
-        const errorString = JSON.stringify(verifyError).toLowerCase();
-        
-        console.log('  Checking for email-already-in-use:');
-        console.log('    errorCode:', errorCode);
-        console.log('    errorMessage:', errorMessage);
-        console.log('    errorString:', errorString);
-        
-        const isEmailInUse = errorCode === 'auth/email-already-in-use' || 
-                            errorCode === 'auth/emailAlreadyInUse' ||
-                            errorCode === 'auth/email-already-exists' ||
-                            errorMessage.includes('email already in use') ||
-                            errorMessage.includes('email already exists') ||
-                            errorMessage.includes('already associated') ||
-                            errorMessage.includes('email address is already') ||
-                            errorString.includes('email already in use') ||
-                            errorString.includes('email already exists');
-        
-        console.log('    isEmailInUse result:', isEmailInUse);
-        
-        if (isEmailInUse) {
-          console.warn('  → Email is already in use! Showing error message.');
-          console.warn('  → Error code:', errorCode);
-          console.warn('  → Error message:', verifyError.message);
-          
-          // Clear any password errors
-          passwordError.classList.remove('show');
-          passwordInput.classList.remove('error');
-          passwordErrorText.textContent = '';
-          
-          // Show email error prominently
-          emailErrorText.textContent = 'This email address is already associated with another account. Please use a different email address or sign in with that account instead.';
-          emailError.classList.add('show');
-          newEmailInput.classList.add('error');
-          newEmailInput.focus();
-          
-          // Re-enable button
-          saveButton.disabled = false;
-          saveButton.textContent = 'Save';
-          
-          // Reset form processing flag
-          isProcessingForm = false;
-          
-          return; // Don't re-throw, we've handled it
-        } else {
-          console.warn('  → Email-already-in-use NOT detected. Error code:', errorCode);
-          console.warn('  → This might be a different error. Will re-throw to outer catch block.');
-        }
-        
-        // If it's a specific error about the URL or domain, provide helpful message
-        if (verifyError.message && (verifyError.message.includes('domain') || verifyError.message.includes('authorized'))) {
-          errorMessage.textContent = 'Email change verification failed. The domain may not be authorized in Firebase Console. Please contact support or try again later. Error: ' + verifyError.message;
+        // Handle Cloud Function errors
+        if (verifyError.code === 'functions/not-found') {
+          errorMessage.textContent = 'Email sending service is not available. Please contact support or try again later.';
           errorMessage.style.color = '#d32f2f';
           errorMessage.classList.add('show');
           saveButton.disabled = false;
           saveButton.textContent = 'Save';
+          isProcessingForm = false;
           return;
         }
         
-        throw verifyError; // Re-throw other errors to be caught by outer catch block
+        // Handle Firestore errors
+        if (verifyError.code === 'permission-denied' || verifyError.code === 'unavailable') {
+          errorMessage.textContent = 'Database error. Please try again in a moment.';
+          errorMessage.style.color = '#d32f2f';
+          errorMessage.classList.add('show');
+          saveButton.disabled = false;
+          saveButton.textContent = 'Save';
+          isProcessingForm = false;
+          return;
+        }
+        
+        // Handle email sending errors from Cloud Function
+        if (verifyError.message && verifyError.message.includes('Failed to send')) {
+          errorMessage.textContent = 'Failed to send verification email. Please try again. If the problem persists, contact support.';
+          errorMessage.style.color = '#d32f2f';
+          errorMessage.classList.add('show');
+          saveButton.disabled = false;
+          saveButton.textContent = 'Save';
+          isProcessingForm = false;
+          return;
+        }
+        
+        // Generic error
+        errorMessage.textContent = 'An error occurred while sending the verification email. Please try again. Error: ' + (verifyError.message || verifyError.code || 'Unknown error');
+        errorMessage.style.color = '#d32f2f';
+        errorMessage.classList.add('show');
+        saveButton.disabled = false;
+        saveButton.textContent = 'Save';
+        isProcessingForm = false;
+        return;
       }
       
       // Form is already cleared in the success block above
