@@ -1122,9 +1122,20 @@
         console.log('Verification link will redirect to:', continueUrl);
         console.log('From email address: noreply@tardle-c0c26.firebaseapp.com');
         
+        // IMPORTANT: verifyBeforeUpdateEmail doesn't return a promise that resolves when email is sent
+        // It only verifies the email can be changed and queues the email to be sent
+        // The email is sent asynchronously by Firebase
+        console.warn('⚠️ NOTE: verifyBeforeUpdateEmail returns immediately - email is sent asynchronously by Firebase');
+        console.warn('⚠️ If email is not received, check:');
+        console.warn('  1. Firebase Console > Authentication > Templates > "Email address change" is ENABLED');
+        console.warn('  2. Firebase Console > Authentication > Settings > Authorized domains includes your domain');
+        console.warn('  3. Check spam/junk folder');
+        console.warn('  4. Wait 5-15 minutes (Gmail can delay Firebase emails)');
+        console.warn('  5. Firebase Console > Project Settings > Usage and billing for email quota');
+        
         // Show success message - verification email has been sent
         // Note: Email is NOT changed yet - it will only change after user clicks verification link
-        successMessage.textContent = 'Verification email sent!\n\nPlease check your inbox at ' + newEmail + ' and click the verification link to complete the email change.\n\nYour email will be updated in Firebase after you verify the new email address.';
+        successMessage.textContent = 'Verification email sent!\n\nPlease check your inbox at ' + newEmail + ' (including spam/junk folder) and click the verification link to complete the email change.\n\nIf you don\'t receive the email within 15 minutes, please check:\n• Firebase Console > Authentication > Templates > "Email address change" is enabled\n• Your spam/junk folder\n• Try again later';
         successMessage.style.color = '#2e7d32';
         successMessage.style.whiteSpace = 'pre-line';
         successMessage.classList.add('show');
@@ -1360,6 +1371,34 @@
         errorMessage.classList.add('show');
         saveButton.disabled = false;
         saveButton.textContent = 'Save';
+        isProcessingForm = false;
+        return;
+      }
+      
+      // Handle email sending/quota errors
+      if (error.code === 'auth/quota-exceeded' || 
+          (error.message && error.message.toLowerCase().includes('quota'))) {
+        errorMessage.textContent = 'Email sending quota exceeded. Please try again later or contact support.';
+        errorMessage.style.color = '#d32f2f';
+        errorMessage.classList.add('show');
+        saveButton.disabled = false;
+        saveButton.textContent = 'Save';
+        isProcessingForm = false;
+        return;
+      }
+      
+      // Handle generic email sending failures
+      if (error.message && (error.message.toLowerCase().includes('email') && 
+                            (error.message.toLowerCase().includes('send') || 
+                             error.message.toLowerCase().includes('template') ||
+                             error.message.toLowerCase().includes('disabled')))) {
+        errorMessage.textContent = 'Failed to send verification email. Please check:\n\n1. Firebase Console > Authentication > Templates > "Email address change" is ENABLED\n2. Firebase Console > Authentication > Settings > Authorized domains includes your domain\n3. Try again in a few minutes\n\nError: ' + error.message;
+        errorMessage.style.color = '#d32f2f';
+        errorMessage.style.whiteSpace = 'pre-line';
+        errorMessage.classList.add('show');
+        saveButton.disabled = false;
+        saveButton.textContent = 'Save';
+        isProcessingForm = false;
         return;
       }
       
