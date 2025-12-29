@@ -479,14 +479,25 @@
               emailInUse = true;
             } else if (errorCode === 'auth/invalid-credential' || 
                        errorCode === 'auth/invalid-login-credentials') {
-              // Invalid credential is ambiguous - could mean:
-              // 1. Email exists but wrong password (when Email Enumeration Protection is disabled)
-              // 2. Email doesn't exist (when Email Enumeration Protection is enabled)
-              // Since we can't distinguish, we should NOT assume email exists
-              // Firebase will catch it during actual email change via verifyBeforeUpdateEmail
-              console.warn('  ⚠️ Invalid credential error - ambiguous (Email Enumeration Protection might be enabled)');
-              console.warn('  ⚠️ Cannot determine if email exists - treating as available, Firebase will catch it');
-              emailInUse = false; // Don't assume email exists
+              // Invalid credential when fetchSignInMethodsForEmail returned empty array
+              // This is ambiguous - could mean email exists OR doesn't exist (Email Enumeration Protection)
+              // However, in practice, when Email Enumeration Protection is enabled:
+              // - If email exists: usually returns auth/invalid-credential (not auth/user-not-found)
+              // - If email doesn't exist: also returns auth/invalid-credential
+              // Since we can't distinguish reliably, we'll be conservative:
+              // If we got here (empty array from fetchSignInMethodsForEmail), it's ambiguous
+              // But we'll check the error message for clues
+              const errorMsgLower = errorMessage.toLowerCase();
+              if (errorMsgLower.includes('user-not-found') || errorMsgLower.includes('no user record')) {
+                // Error message suggests user not found
+                console.log('  ✓ Email does NOT exist (error message suggests user-not-found)');
+                emailInUse = false;
+              } else {
+                // Error message doesn't suggest user-not-found, likely means email exists
+                // In most Firebase setups, invalid-credential (without user-not-found in message) means email exists
+                console.warn('❌ Email IS likely in use (invalid-credential without user-not-found message)!');
+                emailInUse = true;
+              }
             } else if (errorCode === 'auth/too-many-requests') {
               // Rate limit hit - can't determine
               // When rate limited, we can't check, but we should NOT assume email doesn't exist
@@ -534,9 +545,17 @@
             console.warn('❌ Email IS in use (detected via fallback sign-in attempt - wrong-password)!');
           } else if (errorCode === 'auth/invalid-credential' || 
                      errorCode === 'auth/invalid-login-credentials') {
-            // Invalid credential is ambiguous - don't assume email exists
-            console.warn('  ⚠️ Invalid credential in fallback - ambiguous, treating as available');
-            emailInUse = false; // Don't assume email exists
+            // Invalid credential when fetchSignInMethodsForEmail failed (not just empty)
+            // Check error message for clues
+            const errorMsgLower = errorMessage.toLowerCase();
+            if (errorMsgLower.includes('user-not-found') || errorMsgLower.includes('no user record')) {
+              console.log('  ✓ Email does NOT exist (error message suggests user-not-found)');
+              emailInUse = false;
+            } else {
+              // Error message doesn't suggest user-not-found, likely means email exists
+              console.warn('❌ Email IS likely in use (invalid-credential without user-not-found message)!');
+              emailInUse = true;
+            }
           } else if (errorCode === 'auth/too-many-requests') {
             // Rate limit hit - can't determine
             // Don't assume email doesn't exist - keep current state
