@@ -276,56 +276,66 @@
   let username = '';
   let isProcessingForm = false; // Flag to prevent redirect during form submission
 
+  // Update email display function
+  const updateEmailDisplay = () => {
+    const currentEmailEl = document.getElementById('currentEmail');
+    if (currentEmailEl) {
+      if (window.firebaseAuth && window.firebaseAuth.currentUser) {
+        const email = window.firebaseAuth.currentUser.email || '';
+        currentEmailEl.textContent = email;
+        userEmail = email;
+        currentUser = window.firebaseAuth.currentUser;
+        console.log('✅ Email updated:', email);
+        return true;
+      } else {
+        console.log('⚠️ No current user found');
+        // Don't change "Loading..." to "Not logged in" immediately - wait for auth state
+        return false;
+      }
+    } else {
+      console.error('❌ currentEmail element not found');
+      return false;
+    }
+  };
+
   // Ensure DOM is ready before initializing
   function initializeEmailPage() {
     console.log('🚀 Initializing change-email page');
+    
+    // Try to update email immediately if Firebase is already loaded
+    if (window.firebaseAuth && window.firebaseAuthFunctions) {
+      updateEmailDisplay();
+    }
     
     // Wait for Firebase to load
     let checkFirebaseAttempts = 0;
     const maxCheckFirebaseAttempts = 100; // 10 seconds max (100 * 100ms)
     
     const checkFirebase = setInterval(() => {
-    checkFirebaseAttempts++;
-    console.log('Checking Firebase availability, attempt:', checkFirebaseAttempts);
-    console.log('  firebaseAuth:', !!window.firebaseAuth);
-    console.log('  firebaseAuthFunctions:', !!window.firebaseAuthFunctions);
-    console.log('  firebaseFirestoreFunctions:', !!window.firebaseFirestoreFunctions);
-    console.log('  firebaseDb:', !!window.firebaseDb);
-    
-    if (window.firebaseAuth && window.firebaseAuthFunctions && window.firebaseFirestoreFunctions && window.firebaseDb) {
-      clearInterval(checkFirebase);
-      console.log('✅ Firebase loaded successfully');
+      checkFirebaseAttempts++;
+      console.log('Checking Firebase availability, attempt:', checkFirebaseAttempts);
+      console.log('  firebaseAuth:', !!window.firebaseAuth);
+      console.log('  firebaseAuthFunctions:', !!window.firebaseAuthFunctions);
+      console.log('  firebaseFirestoreFunctions:', !!window.firebaseFirestoreFunctions);
+      console.log('  firebaseDb:', !!window.firebaseDb);
       
-      // Update email immediately if user is already logged in
-      const updateEmailDisplay = () => {
-        const currentEmailEl = document.getElementById('currentEmail');
-        if (currentEmailEl) {
-          if (window.firebaseAuth.currentUser) {
-            const email = window.firebaseAuth.currentUser.email || '';
-            currentEmailEl.textContent = email;
-            userEmail = email;
-            currentUser = window.firebaseAuth.currentUser;
-            console.log('✅ Email updated:', email);
-          } else {
-            console.log('⚠️ No current user found');
-            currentEmailEl.textContent = 'Not logged in';
-          }
-        } else {
-          console.error('❌ currentEmail element not found');
-        }
-      };
-      
-      // Try to update immediately
-      updateEmailDisplay();
+      if (window.firebaseAuth && window.firebaseAuthFunctions && window.firebaseFirestoreFunctions && window.firebaseDb) {
+        clearInterval(checkFirebase);
+        console.log('✅ Firebase loaded successfully');
+        
+        // Try to update immediately
+        updateEmailDisplay();
       
       // Set up listener for auth state changes
       window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, async (user) => {
+        console.log('🔔 Auth state changed, user:', user ? user.email : 'null');
         if (user) {
           currentUser = user;
           userEmail = user.email || '';
           const currentEmailEl = document.getElementById('currentEmail');
           if (currentEmailEl) {
             currentEmailEl.textContent = userEmail;
+            console.log('✅ Email updated via auth state listener:', userEmail);
           }
           
         } else {
