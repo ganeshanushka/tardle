@@ -1189,7 +1189,7 @@
       saveButton.disabled = false;
       saveButton.textContent = 'Save';
       
-    } catch (error) {
+    } catch (error) { // This catch is for the try block starting at line 564
       console.error('Error changing email:', error);
       console.error('Error code:', error.code);
       console.error('Error message:', error.message);
