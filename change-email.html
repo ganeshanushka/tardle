@@ -276,8 +276,10 @@
   let username = '';
   let isProcessingForm = false; // Flag to prevent redirect during form submission
 
-  // Wait for Firebase to load
-  const checkFirebase = setInterval(() => {
+  // Ensure DOM is ready
+  function initEmailPage() {
+    // Wait for Firebase to load
+    const checkFirebase = setInterval(() => {
     if (window.firebaseAuth && window.firebaseAuthFunctions && window.firebaseFirestoreFunctions && window.firebaseDb) {
       clearInterval(checkFirebase);
       
@@ -353,7 +355,15 @@
         }
       }, 2000); // Increased timeout to give more time for session restoration
     }
-  }, 100);
+    }, 100);
+  }
+
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initEmailPage);
+  } else {
+    initEmailPage();
+  }
 
   // Handle form submission
   // Toggle password visibility
