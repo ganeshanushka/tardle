@@ -8,16 +8,37 @@ const db = admin.firestore();
 // Get Resend API key from environment variable or config
 // For local development, use .env file with dotenv
 // For production, set via: firebase functions:config:set resend.api_key="your_key"
-const resendApiKey = process.env.RESEND_API_KEY || 
-                     functions.config().resend?.api_key || 
-                     (() => {
-                       try {
-                         require("dotenv").config();
-                         return process.env.RESEND_API_KEY;
-                       } catch (e) {
-                         return null;
-                       }
-                     })();
+let resendApiKey = process.env.RESEND_API_KEY;
+
+// Try to get from Firebase config (legacy, but still works)
+if (!resendApiKey) {
+  try {
+    const config = functions.config();
+    console.log('Firebase config available:', !!config);
+    if (config) {
+      console.log('Config keys:', Object.keys(config));
+      if (config.resend) {
+        console.log('Resend config found:', Object.keys(config.resend));
+        resendApiKey = config.resend.api_key || config.resend.key;
+        console.log('Resend API key found in config:', !!resendApiKey, resendApiKey ? 'Key length: ' + resendApiKey.length : '');
+      } else {
+        console.log('No resend config found in functions.config()');
+      }
+    }
+  } catch (e) {
+    console.warn('Could not read functions.config():', e.message);
+  }
+}
+
+// Fallback to dotenv for local development
+if (!resendApiKey) {
+  try {
+    require("dotenv").config();
+    resendApiKey = process.env.RESEND_API_KEY;
+  } catch (e) {
+    // dotenv not available, that's okay
+  }
+}
 
 if (!resendApiKey) {
   console.error("RESEND_API_KEY is not set! Emails will not work.");
@@ -126,14 +147,31 @@ exports.sendEmailChangeVerification = functions.https.onCall(async (data, contex
       throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
     }
 
-    if (!resend) {
-      throw new functions.https.HttpsError('failed-precondition', 'Resend API key is not configured. Please set RESEND_API_KEY in Firebase Functions config.');
+    // Get Resend API key - try multiple sources
+    let apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      try {
+        const config = functions.config();
+        if (config && config.resend) {
+          apiKey = config.resend.api_key || config.resend.key;
+        }
+      } catch (e) {
+        console.warn('Could not read config:', e.message);
+      }
     }
+    
+    if (!apiKey) {
+      throw new functions.https.HttpsError('failed-precondition', 'Resend API key is not configured. Please set RESEND_API_KEY as a secret or in Firebase Functions config.');
+    }
+    
+    // Create Resend instance with the API key
+    const resendInstance = new Resend(apiKey);
+    console.log('Resend instance created with API key, length:', apiKey ? apiKey.length : 0);
 
     // Build verification URL - use the code as a query parameter
     const verificationUrl = `https://ganeshanushka.github.io/tardle/verify-email-change.html?code=${code}&email=${encodeURIComponent(email)}`;
 
-    await resend.emails.send({
+    await resendInstance.emails.send({
       from: "Tardle <no-reply@tardle.com",
       to: email,
       subject: "Verify your new email address for Tardle",
