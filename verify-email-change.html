@@ -146,20 +146,21 @@
       console.log('  New email:', email);
       console.log('  User ID:', currentUser.uid);
       
-      // Get verification data from Firestore
-      const emailChangeRef = window.firebaseFirestoreFunctions.doc(
-        window.firebaseDb,
-        'emailChanges',
-        currentUser.uid
-      );
+      // Get verification data from Firestore user document
+      const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
+      const userDoc = await window.firebaseFirestoreFunctions.getDoc(userDocRef);
       
-      const emailChangeDoc = await window.firebaseFirestoreFunctions.getDoc(emailChangeRef);
+      if (!userDoc.exists()) {
+        throw new Error('User document not found. Please contact support.');
+      }
       
-      if (!emailChangeDoc.exists()) {
+      const userData = userDoc.data();
+      const emailChangeData = userData.emailChangeVerification;
+      
+      if (!emailChangeData) {
         throw new Error('Verification code not found or has expired. Please request a new email change.');
       }
       
-      const emailChangeData = emailChangeDoc.data();
       console.log('Email change data:', emailChangeData);
       
       // Verify code matches
@@ -176,7 +177,7 @@
       const expiresAt = emailChangeData.expiresAt;
       if (expiresAt && expiresAt.toMillis && expiresAt.toMillis() < Date.now()) {
         throw new Error('Verification code has expired. Please request a new email change.');
-      } else if (expiresAt && expiresAt < Date.now()) {
+      } else if (expiresAt && typeof expiresAt === 'number' && expiresAt < Date.now()) {
         throw new Error('Verification code has expired. Please request a new email change.');
       }
       
@@ -211,12 +212,14 @@
         }
       }
       
-      // Delete the verification code from Firestore
+      // Remove the verification code from Firestore user document
       try {
-        await window.firebaseFirestoreFunctions.deleteDoc(emailChangeRef);
-        console.log('✓ Verification code deleted from Firestore');
+        await window.firebaseFirestoreFunctions.updateDoc(userDocRef, {
+          emailChangeVerification: window.firebaseFirestoreFunctions.deleteField()
+        });
+        console.log('✓ Verification code removed from Firestore');
       } catch (deleteError) {
-        console.warn('Could not delete verification code:', deleteError);
+        console.warn('Could not remove verification code:', deleteError);
         // Don't throw - email change is still successful
       }
       

@@ -1076,20 +1076,24 @@
       const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
       const expiresAt = Date.now() + (15 * 60 * 1000); // 15 minutes from now
       
-      // Store verification code in Firestore
-      const emailChangeRef = window.firebaseFirestoreFunctions.doc(
-        window.firebaseDb,
-        'emailChanges',
-        refreshedUser.uid
-      );
+      // Store verification code in Firestore - use user document to avoid permission issues
+      const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', refreshedUser.uid);
       
-      await window.firebaseFirestoreFunctions.setDoc(emailChangeRef, {
-        code: verificationCode,
-        newEmail: newEmail,
-        oldEmail: refreshedUser.email,
-        userId: refreshedUser.uid,
-        expiresAt: expiresAt,
-        createdAt: window.firebaseFirestoreFunctions.serverTimestamp()
+      // First check if user document exists
+      const userDoc = await window.firebaseFirestoreFunctions.getDoc(userDocRef);
+      if (!userDoc.exists()) {
+        throw new Error('User document not found. Please contact support.');
+      }
+      
+      // Update user document with email change verification data
+      await window.firebaseFirestoreFunctions.updateDoc(userDocRef, {
+        emailChangeVerification: {
+          code: verificationCode,
+          newEmail: newEmail,
+          oldEmail: refreshedUser.email,
+          expiresAt: expiresAt,
+          createdAt: window.firebaseFirestoreFunctions.serverTimestamp()
+        }
       });
       
       console.log('✓ Verification code stored in Firestore');
@@ -1157,7 +1161,17 @@
         
         // Handle Firestore errors
         if (verifyError.code === 'permission-denied' || verifyError.code === 'unavailable') {
-          errorMessage.textContent = 'Database error. Please try again in a moment.';
+          console.error('Firestore error details:', {
+            code: verifyError.code,
+            message: verifyError.message,
+            fullError: verifyError
+          });
+          
+          if (verifyError.code === 'permission-denied') {
+            errorMessage.textContent = 'Permission denied: Firestore security rules may need to be updated to allow writing to the emailChanges collection. Please contact support.';
+          } else {
+            errorMessage.textContent = 'Database error. Please try again in a moment. Error: ' + (verifyError.message || verifyError.code);
+          }
           errorMessage.style.color = '#d32f2f';
           errorMessage.classList.add('show');
           saveButton.disabled = false;
