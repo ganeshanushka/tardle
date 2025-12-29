@@ -421,7 +421,6 @@
             <div class="info-label">Username</div>
             <div class="info-value-container">
               <div class="info-value loading" id="usernameDisplay">Loading...</div>
-              <a href="#" class="info-action" id="updateUsernameLink">Update</a>
             </div>
           </div>
           <div class="info-item">
@@ -1187,10 +1186,6 @@
         window.location.href = 'verify-email.html';
       });
       
-      document.getElementById('updateUsernameLink')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        alert('Username update functionality coming soon!');
-      });
       
       document.getElementById('updatePasswordLink')?.addEventListener('click', function(e) {
         e.preventDefault();
