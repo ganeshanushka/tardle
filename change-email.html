@@ -278,36 +278,35 @@
 
   // Ensure DOM is ready
   function initEmailPage() {
-    // Wait for Firebase to load
-    const checkFirebase = setInterval(() => {
-    if (window.firebaseAuth && window.firebaseAuthFunctions && window.firebaseFirestoreFunctions && window.firebaseDb && window.firebaseFunctions && window.firebaseFunctionsFunctions) {
-      clearInterval(checkFirebase);
-      
-      // Update email immediately if user is already logged in
-      const updateEmailDisplay = () => {
-        const currentEmailEl = document.getElementById('currentEmail');
-        if (currentEmailEl && window.firebaseAuth.currentUser) {
-          const email = window.firebaseAuth.currentUser.email || '';
-          currentEmailEl.textContent = email;
-          userEmail = email;
-          currentUser = window.firebaseAuth.currentUser;
-        }
-      };
-      
-      // Try to update immediately
-      updateEmailDisplay();
-      
-      // Set up listener for auth state changes
-      window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, async (user) => {
-        if (user) {
-          currentUser = user;
-          userEmail = user.email || '';
+    // First, try to update email display as soon as Auth is available (don't wait for Functions)
+    const checkAuthForEmail = setInterval(() => {
+      if (window.firebaseAuth && window.firebaseAuthFunctions) {
+        clearInterval(checkAuthForEmail);
+        
+        // Update email immediately if user is already logged in
+        const updateEmailDisplay = () => {
           const currentEmailEl = document.getElementById('currentEmail');
-          if (currentEmailEl) {
-            currentEmailEl.textContent = userEmail;
+          if (currentEmailEl && window.firebaseAuth.currentUser) {
+            const email = window.firebaseAuth.currentUser.email || '';
+            currentEmailEl.textContent = email;
+            userEmail = email;
+            currentUser = window.firebaseAuth.currentUser;
           }
-          
-        } else {
+        };
+        
+        // Try to update immediately
+        updateEmailDisplay();
+        
+        // Set up listener for auth state changes
+        window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, async (user) => {
+          if (user) {
+            currentUser = user;
+            userEmail = user.email || '';
+            const currentEmailEl = document.getElementById('currentEmail');
+            if (currentEmailEl) {
+              currentEmailEl.textContent = userEmail;
+            }
+          } else {
           // User is not logged in - redirect to login
           // But don't redirect if:
           // 1. We're currently processing the form (might be temporary)
@@ -355,6 +354,14 @@
         }
       }, 2000); // Increased timeout to give more time for session restoration
     }
+    }, 100);
+    
+    // Wait for Firebase Functions separately (for form submission)
+    const checkFirebaseFunctions = setInterval(() => {
+      if (window.firebaseFunctions && window.firebaseFunctionsFunctions && window.firebaseFirestoreFunctions && window.firebaseDb) {
+        clearInterval(checkFirebaseFunctions);
+        console.log('✓ Firebase Functions loaded and ready');
+      }
     }, 100);
   }
 
