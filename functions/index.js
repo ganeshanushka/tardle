@@ -160,8 +160,8 @@ exports.sendEmailChangeVerification = functions.https.onCall(async (data, contex
     // Build verification URL - use the code as a query parameter
     const verificationUrl = `https://ganeshanushka.github.io/tardle/verify-email-change.html?code=${code}&email=${encodeURIComponent(email)}`;
 
-    await resend.emails.send({
-      from: "Tardle <no-reply@tardle.com",
+    const emailResult = await resend.emails.send({
+      from: "Tardle <onboarding@resend.dev>",
       to: email,
       subject: "Verify your new email address for Tardle",
       html: `
@@ -181,6 +181,7 @@ exports.sendEmailChangeVerification = functions.https.onCall(async (data, contex
     });
 
     console.log(`Email change verification sent to ${email} for user ${context.auth.uid}`);
+    console.log('Resend API response:', JSON.stringify(emailResult, null, 2));
     return { success: true };
   } catch (err) {
     console.error("Error sending email change verification:", err);
