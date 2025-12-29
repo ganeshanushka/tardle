@@ -479,16 +479,26 @@
               emailInUse = true;
             } else if (errorCode === 'auth/invalid-credential' || 
                        errorCode === 'auth/invalid-login-credentials') {
-              // Invalid credential is AMBIGUOUS when Email Enumeration Protection is enabled
-              // It can mean EITHER:
-              // 1. Email exists but wrong password
-              // 2. Email doesn't exist (Firebase hides this to prevent enumeration)
-              // Since we can't reliably distinguish, we should NOT assume email exists
-              // Only show error when we're CERTAIN (auth/wrong-password or fetchSignInMethodsForEmail returns methods)
-              console.warn('  ⚠️ Invalid credential - AMBIGUOUS (cannot determine if email exists)');
-              console.warn('  ⚠️ Email Enumeration Protection likely enabled - treating as available');
-              console.warn('  ⚠️ Firebase will catch it during form submission if email actually exists');
-              emailInUse = false; // Don't show error - we can't be certain
+              // Invalid credential when fetchSignInMethodsForEmail returned empty
+              // This is ambiguous, but to provide better UX and catch existing emails:
+              // - If error message explicitly says "user-not-found" or "no user record" → email doesn't exist
+              // - Otherwise → assume email exists (to catch emails in Firebase)
+              // This is more aggressive but provides better real-time feedback
+              const errorMsgLower = (errorMessage || '').toLowerCase();
+              
+              if (errorMsgLower.includes('user-not-found') || 
+                  errorMsgLower.includes('no user record') ||
+                  errorMsgLower.includes('there is no user record')) {
+                // Error message explicitly says user not found
+                console.log('  ✓ Email does NOT exist (error message indicates user-not-found)');
+                emailInUse = false;
+              } else {
+                // Error message doesn't mention user-not-found
+                // In most Firebase setups, this means email exists but password is wrong
+                // We'll show error to catch emails that exist in Firebase
+                console.warn('❌ Email IS likely in use (invalid-credential without user-not-found in message)');
+                emailInUse = true;
+              }
             } else if (errorCode === 'auth/too-many-requests') {
               // Rate limit hit - can't determine
               // When rate limited, we can't check, but we should NOT assume email doesn't exist
@@ -536,9 +546,19 @@
             console.warn('❌ Email IS in use (detected via fallback sign-in attempt - wrong-password)!');
           } else if (errorCode === 'auth/invalid-credential' || 
                      errorCode === 'auth/invalid-login-credentials') {
-            // Invalid credential is AMBIGUOUS - cannot reliably determine
-            console.warn('  ⚠️ Invalid credential in fallback - AMBIGUOUS, treating as available');
-            emailInUse = false; // Don't show error - we can't be certain
+            // Invalid credential when fetchSignInMethodsForEmail failed
+            // Check error message for clues
+            const errorMsgLower = (errorMessage || '').toLowerCase();
+            if (errorMsgLower.includes('user-not-found') || 
+                errorMsgLower.includes('no user record') ||
+                errorMsgLower.includes('there is no user record')) {
+              console.log('  ✓ Email does NOT exist (error message indicates user-not-found)');
+              emailInUse = false;
+            } else {
+              // Error message doesn't mention user-not-found, likely means email exists
+              console.warn('❌ Email IS likely in use (invalid-credential without user-not-found in message)');
+              emailInUse = true;
+            }
           } else if (errorCode === 'auth/too-many-requests') {
             // Rate limit hit - can't determine
             // Don't assume email doesn't exist - keep current state
