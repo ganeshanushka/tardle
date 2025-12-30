@@ -204,28 +204,42 @@
       
       // Reload user to get updated email and verification status
       await currentUser.reload();
+      currentUser = window.firebaseAuth.currentUser; // Update global reference
       console.log('✓ User reloaded, new email:', currentUser.email);
       console.log('✓ Email verified status:', currentUser.emailVerified);
       
-      // Update Firestore user document
+      // Update Firestore user document with new email
       if (window.firebaseDb && window.firebaseFirestoreFunctions) {
         try {
           const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
           await window.firebaseFirestoreFunctions.updateDoc(userDocRef, {
             email: currentUser.email
           });
-          console.log('✓ Firestore email updated');
+          console.log('✓ Firestore email updated to:', currentUser.email);
           
           // Verify the update worked
           const updatedDoc = await window.firebaseFirestoreFunctions.getDoc(userDocRef);
           if (updatedDoc.exists()) {
             const data = updatedDoc.data();
             console.log('✓ Verified Firestore update - email in document:', data.email);
+            if (data.email !== currentUser.email) {
+              console.warn('⚠️ Email mismatch! Firestore:', data.email, 'Auth:', currentUser.email);
+            }
           }
         } catch (firestoreError) {
           console.error('✗ Could not update email in Firestore:', firestoreError);
           // Don't throw - email change in Auth is still successful
         }
+      }
+      
+      // Force auth state change to update all listeners
+      // This ensures change-email.html and other pages see the updated email
+      try {
+        // Trigger a sign-in refresh to update auth state across all pages
+        const token = await currentUser.getIdToken(true); // Force refresh
+        console.log('✓ Auth token refreshed, email should be updated everywhere');
+      } catch (tokenError) {
+        console.warn('Could not refresh auth token:', tokenError);
       }
       
       // Remove the verification code from Firestore user document
