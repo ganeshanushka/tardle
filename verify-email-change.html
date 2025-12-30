@@ -193,14 +193,46 @@
       const code = urlParams.get('code');
       const email = urlParams.get('email');
       
-      if (!uid || !code || !email) {
+      if (!code || !email) {
         throw new Error('Missing verification information in URL. Please use the link from your email.');
+      }
+      
+      // If uid is missing, we need to find the user by verification code
+      // This handles old verification links that don't have uid
+      let userId = uid;
+      if (!userId) {
+        console.log('UID not in URL, searching for user by verification code...');
+        // Search for user with this verification code
+        try {
+          const usersRef = window.firebaseFirestoreFunctions.collection(window.firebaseDb, 'users');
+          const querySnapshot = await window.firebaseFirestoreFunctions.getDocs(usersRef);
+          
+          let foundUser = null;
+          querySnapshot.forEach((doc) => {
+            const userData = doc.data();
+            if (userData.emailChangeVerification && 
+                userData.emailChangeVerification.code === code &&
+                userData.emailChangeVerification.newEmail.toLowerCase() === email.toLowerCase()) {
+              foundUser = doc.id;
+            }
+          });
+          
+          if (foundUser) {
+            userId = foundUser;
+            console.log('Found user by verification code:', userId);
+          } else {
+            throw new Error('Could not find user with this verification code. Please request a new email change.');
+          }
+        } catch (searchError) {
+          console.error('Error searching for user:', searchError);
+          throw new Error('Invalid or expired verification link. Please request a new email change.');
+        }
       }
       
       emailDisplay.textContent = email;
       
       console.log('Verifying email change:');
-      console.log('  User ID:', uid);
+      console.log('  User ID:', userId);
       console.log('  Code:', code);
       console.log('  New email:', email);
       
@@ -212,7 +244,7 @@
       
       console.log('Calling completeEmailChange Cloud Function...');
       const result = await completeEmailChange({
-        uid: uid,
+        uid: userId,
         code: code,
         newEmail: email
       });
