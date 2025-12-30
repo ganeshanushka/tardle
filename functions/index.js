@@ -266,7 +266,22 @@ exports.completeEmailChange = functions.https.onCall(async (data, context) => {
       emailChangeVerification: admin.firestore.FieldValue.delete()
     });
 
-    console.log(`Firestore updated for user ${uid}`);
+    // Verify the update worked
+    const updatedDoc = await userDocRef.get();
+    if (updatedDoc.exists()) {
+      const updatedData = updatedDoc.data();
+      console.log(`Firestore updated for user ${uid}`);
+      console.log(`  Old email in Firestore: ${userData.email}`);
+      console.log(`  New email in Firestore: ${updatedData.email}`);
+      if (updatedData.email !== newEmail) {
+        console.error(`  ⚠️ Email mismatch! Expected: ${newEmail}, Got: ${updatedData.email}`);
+        // Try updating again
+        await userDocRef.update({ email: newEmail });
+        console.log(`  Retried Firestore update`);
+      }
+    } else {
+      console.error(`  ⚠️ User document not found after update!`);
+    }
 
     return { success: true, newEmail: newEmail };
   } catch (err) {
