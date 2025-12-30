@@ -249,7 +249,7 @@ exports.completeEmailChange = functions.https.onCall(async (data, context) => {
     const userDocRef = db.collection('users').doc(uid);
     const userDoc = await userDocRef.get();
 
-    if (!userDoc.exists()) {
+    if (!userDoc.exists) {
       throw new functions.https.HttpsError('not-found', 'User not found');
     }
 
@@ -332,7 +332,7 @@ exports.completeEmailChange = functions.https.onCall(async (data, context) => {
 
     // Verify the update worked
     const updatedDoc = await userDocRef.get();
-    if (updatedDoc.exists()) {
+    if (updatedDoc.exists) {
       const updatedData = updatedDoc.data();
       console.log(`✓ Verified Firestore update for user ${uid}`);
       console.log(`  Email in Firestore: ${updatedData.email}`);
