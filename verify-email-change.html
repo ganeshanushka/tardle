@@ -98,30 +98,94 @@
 
 <script>
   let currentUser = null;
+  let verificationUserId = null; // Store the user ID found from verification code
 
   // Wait for Firebase to load
   const checkFirebase = setInterval(() => {
     if (window.firebaseAuth && window.firebaseAuthFunctions && window.firebaseFirestoreFunctions && window.firebaseDb) {
       clearInterval(checkFirebase);
       
-      // Set up listener for auth state changes
-      window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, async (user) => {
-        if (user) {
-          currentUser = user;
-          await verifyEmailChange();
-        } else {
-          // User is not logged in
-          document.getElementById('errorMessage').textContent = 'You must be logged in to verify your email change. Please log in and try again.';
-          document.getElementById('errorMessage').classList.add('show');
-          document.getElementById('loadingMessage').style.display = 'none';
-          
-          setTimeout(() => {
-            window.location.href = 'login.html';
-          }, 3000);
-        }
+      // First, try to find the user by verification code (works even if not logged in)
+      findUserByVerificationCode().then(() => {
+        // Then set up auth state listener
+        window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, async (user) => {
+          if (user) {
+            currentUser = user;
+            // Check if logged-in user matches the verification user
+            if (verificationUserId && user.uid === verificationUserId) {
+              await verifyEmailChange();
+            } else if (verificationUserId) {
+              // User is logged in but as a different account
+              document.getElementById('errorMessage').textContent = 'Please log out and log in with the account that requested this email change.';
+              document.getElementById('errorMessage').classList.add('show');
+              document.getElementById('loadingMessage').style.display = 'none';
+            } else {
+              // No verification code found, show error
+              document.getElementById('errorMessage').textContent = 'Invalid or expired verification link. Please request a new email change.';
+              document.getElementById('errorMessage').classList.add('show');
+              document.getElementById('loadingMessage').style.display = 'none';
+            }
+          } else {
+            // User is not logged in - ask them to log in
+            if (verificationUserId) {
+              document.getElementById('errorMessage').textContent = 'Please log in with your current password to complete the email change.';
+              document.getElementById('errorMessage').classList.add('show');
+              document.getElementById('loadingMessage').style.display = 'none';
+              
+              // Redirect to login with return URL
+              setTimeout(() => {
+                window.location.href = 'login.html?return=' + encodeURIComponent(window.location.href);
+              }, 3000);
+            } else {
+              document.getElementById('errorMessage').textContent = 'Invalid or expired verification link. Please request a new email change.';
+              document.getElementById('errorMessage').classList.add('show');
+              document.getElementById('loadingMessage').style.display = 'none';
+            }
+          }
+        });
       });
     }
   }, 100);
+
+  // Find user by verification code (works without login)
+  async function findUserByVerificationCode() {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      const email = urlParams.get('email');
+      
+      if (!code || !email) {
+        return; // No code/email, can't find user
+      }
+      
+      // Search Firestore for user with this verification code
+      const usersRef = window.firebaseFirestoreFunctions.collection(window.firebaseDb, 'users');
+      const q = window.firebaseFirestoreFunctions.query(
+        usersRef,
+        window.firebaseFirestoreFunctions.where('emailChangeVerification.code', '==', code)
+      );
+      
+      const querySnapshot = await window.firebaseFirestoreFunctions.getDocs(q);
+      
+      if (!querySnapshot.empty) {
+        // Found user with this code
+        const userDoc = querySnapshot.docs[0];
+        const userData = userDoc.data();
+        const emailChangeData = userData.emailChangeVerification;
+        
+        // Verify email matches
+        if (emailChangeData && emailChangeData.newEmail.toLowerCase() === email.toLowerCase()) {
+          verificationUserId = userDoc.id;
+          console.log('Found user for verification:', verificationUserId);
+          return;
+        }
+      }
+      
+      console.log('No user found with this verification code');
+    } catch (error) {
+      console.error('Error finding user by verification code:', error);
+    }
+  }
 
   async function verifyEmailChange() {
     const loadingMessage = document.getElementById('loadingMessage');
@@ -145,6 +209,12 @@
       console.log('  Code:', code);
       console.log('  New email:', email);
       console.log('  User ID:', currentUser.uid);
+      console.log('  Verification User ID:', verificationUserId);
+      
+      // Verify the logged-in user matches the verification user
+      if (verificationUserId && currentUser.uid !== verificationUserId) {
+        throw new Error('You are logged in as a different account. Please log out and log in with the account that requested this email change.');
+      }
       
       // Get verification data from Firestore user document
       const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
