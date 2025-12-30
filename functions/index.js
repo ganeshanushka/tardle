@@ -158,7 +158,7 @@ exports.sendEmailChangeVerification = functions.https.onCall(async (data, contex
     }
 
     // Build verification URL - use the code as a query parameter
-    const verificationUrl = `https://ganeshanushka.github.io/tardle/verify-email-change.html?code=${code}&email=${encodeURIComponent(email)}`;
+    const verificationUrl = `https://playtardle.com/verify-email-change.html?code=${code}&email=${encodeURIComponent(email)}`;
 
     const emailResult = await resend.emails.send({
       from: "Tardle <no-reply@playtardle.com>",
