@@ -138,9 +138,11 @@ exports.sendVerificationCode = functions.https.onCall(async (data, context) => {
 });
 
 // Send email change verification email
+// IMPORTANT: This function ONLY sends the email - it does NOT change the email address
+// The email will ONLY be changed when completeEmailChange is called after verification
 exports.sendEmailChangeVerification = functions.https.onCall(async (data, context) => {
   try {
-    const { email, code, currentEmail, username } = data;
+    const { email, code, currentEmail, username, uid } = data;
 
     if (!email || !code || !currentEmail) {
       throw new functions.https.HttpsError('invalid-argument', 'Email, code, and currentEmail are required');
@@ -150,6 +152,17 @@ exports.sendEmailChangeVerification = functions.https.onCall(async (data, contex
     if (!context.auth) {
       throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
     }
+    
+    // Use uid from data if provided, otherwise use context.auth.uid
+    const userId = uid || context.auth.uid;
+    
+    // IMPORTANT: Do NOT update the email here - only send the verification email
+    // The email will be updated by completeEmailChange after the user clicks the link
+    console.log(`Sending email change verification to ${email} for user ${userId}`);
+    console.log('  Current email:', currentEmail);
+    console.log('  New email:', email);
+    console.log('  Code:', code);
+    console.log('  ⚠️ Email will NOT be changed until user clicks verification link');
 
     // Use the global resend instance (initialized at module load with config)
     // This is the same approach used by sendVerificationCode
@@ -160,7 +173,7 @@ exports.sendEmailChangeVerification = functions.https.onCall(async (data, contex
     // Build verification URL - include user ID, code, and email as query parameters
     // Use Firebase Hosting URL until custom domain is set up
     // Once playtardle.com is connected, change this back to: https://playtardle.com/verify-email-change.html
-    const verificationUrl = `https://tardle-c0c26.web.app/verify-email-change.html?uid=${context.auth.uid}&code=${code}&email=${encodeURIComponent(email)}`;
+    const verificationUrl = `https://tardle-c0c26.web.app/verify-email-change.html?uid=${userId}&code=${code}&email=${encodeURIComponent(email)}`;
 
     const emailResult = await resend.emails.send({
       from: "Tardle <no-reply@playtardle.com>",

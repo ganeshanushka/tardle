@@ -1072,20 +1072,31 @@
       // Use custom email verification flow via Resend (since verifyBeforeUpdateEmail isn't working reliably)
       console.log('Generating verification code for email change to:', newEmail);
       
+      // IMPORTANT: Check if there's already a pending email change verification
+      const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', refreshedUser.uid);
+      const userDoc = await window.firebaseFirestoreFunctions.getDoc(userDocRef);
+      
+      if (!userDoc.exists()) {
+        throw new Error('User document not found. Please contact support.');
+      }
+      
+      const userData = userDoc.data();
+      if (userData.emailChangeVerification) {
+        // There's already a pending verification - clear it first
+        console.warn('⚠️ Found existing email change verification, clearing it before creating new one');
+        await window.firebaseFirestoreFunctions.updateDoc(userDocRef, {
+          emailChangeVerification: window.firebaseFirestoreFunctions.deleteField()
+        });
+        console.log('✓ Cleared existing email change verification');
+      }
+      
       // Generate a 6-digit verification code
       const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
       const expiresAt = Date.now() + (15 * 60 * 1000); // 15 minutes from now
       
       // Store verification code in Firestore - use user document to avoid permission issues
-      const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', refreshedUser.uid);
-      
-      // First check if user document exists
-      const userDoc = await window.firebaseFirestoreFunctions.getDoc(userDocRef);
-      if (!userDoc.exists()) {
-        throw new Error('User document not found. Please contact support.');
-      }
-      
-      // Update user document with email change verification data
+      // IMPORTANT: This does NOT update the email - it only stores the verification code
+      // The email will ONLY be updated when the user clicks the verification link
       await window.firebaseFirestoreFunctions.updateDoc(userDocRef, {
         emailChangeVerification: {
           code: verificationCode,
@@ -1095,6 +1106,9 @@
           createdAt: window.firebaseFirestoreFunctions.serverTimestamp()
         }
       });
+      
+      console.log('✓ Verification code stored in Firestore (email NOT changed yet)');
+      console.log('  Email will ONLY be changed when user clicks verification link');
       
       console.log('✓ Verification code stored in Firestore');
       console.log('Code:', verificationCode);
@@ -1123,18 +1137,21 @@
       );
       
       console.log('Calling sendEmailChangeVerification Cloud Function...');
+      console.log('  ⚠️ IMPORTANT: Email will NOT be changed until user clicks verification link');
       const emailResult = await sendEmailChangeVerification({
         email: newEmail,
         code: verificationCode,
         currentEmail: refreshedUser.email,
-        username: username
+        username: username,
+        uid: refreshedUser.uid // Pass UID explicitly
       });
       
       console.log('✓ Email change verification email sent via Resend');
       console.log('Result:', emailResult.data);
         
         // Show success message - verification email has been sent
-        successMessage.textContent = 'Verification email sent!\n\nPlease check your inbox at ' + newEmail + ' (including spam/junk folder) and click the verification link to complete the email change.\n\nYour verification code is: ' + verificationCode;
+        // IMPORTANT: Make it clear that the email has NOT been changed yet
+        successMessage.textContent = 'Verification email sent!\n\n⚠️ Your email has NOT been changed yet.\n\nPlease check your inbox at ' + newEmail + ' (including spam/junk folder) and click the verification link to complete the email change.\n\nYour verification code is: ' + verificationCode + '\n\nYour email will remain ' + refreshedUser.email + ' until you click the verification link.';
         successMessage.style.color = '#2e7d32';
         successMessage.style.whiteSpace = 'pre-line';
         successMessage.classList.add('show');
