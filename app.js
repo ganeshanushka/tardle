@@ -105,7 +105,7 @@ let words = [
   const maxTries = 6;
   let isLoggedIn = false;
   let currentUser = null;
-  let gamesPlayed = 1;
+  let gamesPlayed = 0;
   let gamesWon = 0;
   let currentStreak = 0;
   let maxStreak = 0;
@@ -126,7 +126,7 @@ let words = [
           } else {
             isLoggedIn = false;
             currentUser = null;
-            gamesPlayed = 1;
+            gamesPlayed = 0;
             gamesWon = 0;
             currentStreak = 0;
             maxStreak = 0;
@@ -157,9 +157,22 @@ let words = [
         gamesWon = data.gamesWon || 0;
         currentStreak = data.currentStreak || 0;
         maxStreak = data.maxStreak || 0;
+        console.log('Stats loaded from Firestore:', { gamesPlayed, gamesWon, currentStreak, maxStreak });
+      } else {
+        // User document doesn't exist yet - initialize stats to 0
+        console.log('User document not found, initializing stats to 0');
+        gamesPlayed = 0;
+        gamesWon = 0;
+        currentStreak = 0;
+        maxStreak = 0;
       }
     } catch (error) {
       console.error('Error loading user stats:', error);
+      // On error, reset to defaults
+      gamesPlayed = 0;
+      gamesWon = 0;
+      currentStreak = 0;
+      maxStreak = 0;
     }
   }
 
@@ -847,7 +860,12 @@ function closeGameOverPopup() {
     }
 }
 
-function showStatsPopup() {
+async function showStatsPopup() {
+    // Reload stats from Firestore before showing popup (in case they were updated elsewhere)
+    if (isLoggedIn && currentUser) {
+        await loadUserStats();
+    }
+    
     const popup = document.getElementById('statsPopup');
     const gamesPlayedEl = document.getElementById('gamesPlayed');
     const winPercentageEl = document.getElementById('winPercentage');
@@ -958,15 +976,17 @@ async function updateStatsOnWin() {
                 currentStreak: currentStreak,
                 maxStreak: maxStreak
             });
+            console.log('Stats updated on win:', { gamesPlayed, gamesWon, currentStreak, maxStreak });
         } catch (error) {
             console.error('Error updating stats on win:', error);
         }
     } else {
-        // Update local stats even if not logged in
+        // Update local stats even if not logged in (won't persist)
         gamesPlayed++;
         gamesWon++;
         currentStreak++;
         maxStreak = Math.max(maxStreak, currentStreak);
+        console.log('Stats updated locally (not logged in):', { gamesPlayed, gamesWon, currentStreak, maxStreak });
     }
 }
 
@@ -975,19 +995,21 @@ async function updateStatsOnLoss() {
         gamesPlayed++;
         currentStreak = 0;
         
-        // Update stats in Firestore
+        // Update stats in Firestore (preserve gamesWon and maxStreak)
         try {
             const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
             await window.firebaseFirestoreFunctions.updateDoc(userDocRef, {
                 gamesPlayed: gamesPlayed,
                 currentStreak: currentStreak
             });
+            console.log('Stats updated on loss:', { gamesPlayed, gamesWon, currentStreak, maxStreak });
         } catch (error) {
             console.error('Error updating stats on loss:', error);
         }
     } else {
-        // Update local stats even if not logged in
+        // Update local stats even if not logged in (won't persist)
         gamesPlayed++;
         currentStreak = 0;
+        console.log('Stats updated locally (not logged in):', { gamesPlayed, gamesWon, currentStreak, maxStreak });
     }
 }
