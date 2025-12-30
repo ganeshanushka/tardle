@@ -201,24 +201,21 @@
       // This handles old verification links that don't have uid
       let userId = uid;
       if (!userId) {
-        console.log('UID not in URL, searching for user by verification code...');
-        // Search for user with this verification code
+        console.log('UID not in URL, searching for user by verification code via Cloud Function...');
+        // Call Cloud Function to find user (server-side has permissions)
         try {
-          const usersRef = window.firebaseFirestoreFunctions.collection(window.firebaseDb, 'users');
-          const querySnapshot = await window.firebaseFirestoreFunctions.getDocs(usersRef);
+          const findUserByVerificationCode = window.firebaseFunctionsFunctions.httpsCallable(
+            window.firebaseFunctions,
+            'findUserByVerificationCode'
+          );
           
-          let foundUser = null;
-          querySnapshot.forEach((doc) => {
-            const userData = doc.data();
-            if (userData.emailChangeVerification && 
-                userData.emailChangeVerification.code === code &&
-                userData.emailChangeVerification.newEmail.toLowerCase() === email.toLowerCase()) {
-              foundUser = doc.id;
-            }
+          const findResult = await findUserByVerificationCode({
+            code: code,
+            email: email
           });
           
-          if (foundUser) {
-            userId = foundUser;
+          if (findResult.data && findResult.data.uid) {
+            userId = findResult.data.uid;
             console.log('Found user by verification code:', userId);
           } else {
             throw new Error('Could not find user with this verification code. Please request a new email change.');

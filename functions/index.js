@@ -203,6 +203,39 @@ exports.sendEmailChangeVerification = functions.https.onCall(async (data, contex
   }
 });
 
+// Find user by verification code (for backward compatibility with old links)
+exports.findUserByVerificationCode = functions.https.onCall(async (data, context) => {
+  try {
+    const { code, email } = data;
+
+    if (!code || !email) {
+      throw new functions.https.HttpsError('invalid-argument', 'Code and email are required');
+    }
+
+    // Search for user with this verification code
+    const usersRef = db.collection('users');
+    const querySnapshot = await usersRef.get();
+
+    for (const doc of querySnapshot.docs) {
+      const userData = doc.data();
+      if (userData.emailChangeVerification &&
+          userData.emailChangeVerification.code === code &&
+          userData.emailChangeVerification.newEmail.toLowerCase() === email.toLowerCase()) {
+        console.log(`Found user ${doc.id} by verification code`);
+        return { uid: doc.id };
+      }
+    }
+
+    throw new functions.https.HttpsError('not-found', 'User not found with this verification code');
+  } catch (err) {
+    console.error("Error finding user by verification code:", err);
+    if (err instanceof functions.https.HttpsError) {
+      throw err;
+    }
+    throw new functions.https.HttpsError('internal', 'Failed to find user');
+  }
+});
+
 // Complete email change verification (works without user being logged in)
 exports.completeEmailChange = functions.https.onCall(async (data, context) => {
   try {
