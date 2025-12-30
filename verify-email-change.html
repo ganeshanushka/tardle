@@ -258,8 +258,9 @@
       successMessage.textContent = 'Email changed successfully! Your email address has been updated to ' + email + '. Redirecting...';
       successMessage.classList.add('show');
       
-      // Redirect to account details page
+      // Wait a moment for all updates to propagate, then redirect
       setTimeout(() => {
+        // Redirect to account details page - it will show the updated email from Firestore
         window.location.href = 'account-details.html';
       }, 2000);
       
