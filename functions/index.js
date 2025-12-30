@@ -265,26 +265,35 @@ exports.completeEmailChange = functions.https.onCall(async (data, context) => {
 
     console.log(`✓ Email updated in Firebase Auth for user ${uid} to ${newEmail}`);
 
-    // Update Firestore user document - use set with merge to ensure it works
+    // Update Firestore user document - update email first, then delete verification field
     try {
-      await userDocRef.set({
-        email: newEmail,
+      // First, update the email
+      await userDocRef.update({ email: newEmail });
+      console.log(`✓ Firestore email updated for user ${uid}`);
+      
+      // Then, delete the verification field
+      await userDocRef.update({
         emailChangeVerification: admin.firestore.FieldValue.delete()
-      }, { merge: true });
-      console.log(`✓ Firestore update initiated for user ${uid}`);
+      });
+      console.log(`✓ Verification field deleted for user ${uid}`);
     } catch (firestoreError) {
       console.error(`✗ Firestore update error:`, firestoreError);
-      // Try alternative approach - update without deleteField
+      console.error(`  Error code:`, firestoreError.code);
+      console.error(`  Error message:`, firestoreError.message);
+      
+      // If update fails, try set with merge (but can't delete field this way)
       try {
-        await userDocRef.update({ email: newEmail });
-        // Delete verification field separately
+        await userDocRef.set({ email: newEmail }, { merge: true });
+        console.log(`✓ Firestore email updated using set() with merge`);
+        // Delete verification field in separate call
         await userDocRef.update({
           emailChangeVerification: admin.firestore.FieldValue.delete()
         });
-        console.log(`✓ Firestore updated using alternative method`);
+        console.log(`✓ Verification field deleted`);
       } catch (retryError) {
         console.error(`✗ Firestore retry also failed:`, retryError);
-        throw new Error(`Failed to update Firestore: ${retryError.message}`);
+        // Don't throw - Auth update is still successful
+        console.warn(`⚠️ Continuing despite Firestore update failure`);
       }
     }
 
