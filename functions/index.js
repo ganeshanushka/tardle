@@ -78,7 +78,7 @@ exports.sendDailyTardleEmail = functions.pubsub
         await Promise.all(
           batch.map(email =>
             resend.emails.send({
-              from: "Tardle <no-reply@tardle.com>",
+              from: "Tardle <no-reply@playtardle.com>",
               to: email,
               subject: "Your Daily Tardle Challenge!",
               html: `
@@ -113,7 +113,7 @@ exports.sendVerificationCode = functions.https.onCall(async (data, context) => {
     }
 
     await resend.emails.send({
-      from: "Tardle <no-reply@tardle.com>",
+      from: "Tardle <no-reply@playtardle.com>",
       to: email,
       subject: "Verify your Tardle account",
       html: `
@@ -161,7 +161,7 @@ exports.sendEmailChangeVerification = functions.https.onCall(async (data, contex
     const verificationUrl = `https://ganeshanushka.github.io/tardle/verify-email-change.html?code=${code}&email=${encodeURIComponent(email)}`;
 
     const emailResult = await resend.emails.send({
-      from: "Tardle <no-reply@tardle.com>",
+      from: "Tardle <no-reply@playtardle.com>",
       to: email,
       subject: "Verify your new email address for Tardle",
       html: `
