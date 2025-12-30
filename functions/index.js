@@ -303,6 +303,27 @@ exports.completeEmailChange = functions.https.onCall(async (data, context) => {
     console.log(`  Old email: ${oldEmail}`);
     console.log(`  New email: ${newEmail}`);
 
+    // CRITICAL: Check if the new email is already in use by another account
+    try {
+      const existingUser = await admin.auth().getUserByEmail(newEmail);
+      if (existingUser && existingUser.uid !== uid) {
+        console.error(`❌ Email ${newEmail} is already in use by user ${existingUser.uid}`);
+        throw new functions.https.HttpsError('already-exists', `The email address ${newEmail} is already associated with another account. Please use a different email address.`);
+      }
+    } catch (checkError) {
+      // If it's our custom error, re-throw it
+      if (checkError instanceof functions.https.HttpsError) {
+        throw checkError;
+      }
+      // If getUserByEmail throws 'user-not-found', that's good - email is available
+      if (checkError.code === 'auth/user-not-found') {
+        console.log(`✓ Email ${newEmail} is available (not in use by another account)`);
+      } else {
+        // Some other error - log it but continue (might be a transient issue)
+        console.warn(`⚠️ Could not verify email availability: ${checkError.message}`);
+      }
+    }
+
     // Update email in Firebase Authentication using Admin SDK
     await admin.auth().updateUser(uid, {
       email: newEmail,
