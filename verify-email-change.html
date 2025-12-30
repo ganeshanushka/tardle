@@ -10,9 +10,10 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
     margin: 0;
     background-color: #7BAFD4;
+    padding: 20px;
   }
 
   .verify-container {
@@ -23,10 +24,44 @@
     width: 500px;
     max-width: 90%;
     text-align: center;
+    border-radius: 8px;
+  }
+
+  .tardle-logo {
+    margin-bottom: 20px;
+  }
+
+  .logo-grid {
+    display: inline-block;
+    border: 4px solid black;
+    border-radius: 5px;
+    margin-bottom: 10px;
+  }
+
+  .logo-row {
+    display: flex;
+  }
+
+  .logo-cell {
+    width: 20px;
+    height: 20px;
+    border: 1px solid white;
+    border-radius: 3px;
+  }
+
+  .carolina-blue { background-color: #7BAFD4; }
+  .duke-blue { background-color: #001A57; }
+  .yellow { background-color: #c9b458; }
+
+  .tardle-title {
+    font-size: 36px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #1a1a1a;
   }
 
   h1 {
-    font-size: 32px;
+    font-size: 28px;
     margin-bottom: 10px;
     color: #1a1a1a;
   }
@@ -41,12 +76,14 @@
     font-weight: bold;
     color: #001A57;
     margin-bottom: 30px;
+    font-size: 18px;
   }
 
   .instructions {
     margin-bottom: 30px;
-    color: #666;
+    color: #333;
     line-height: 1.6;
+    font-size: 16px;
   }
 
   .error-message {
@@ -63,10 +100,11 @@
 
   .success-message {
     color: #2e7d32;
-    font-size: 14px;
-    margin-top: 10px;
+    font-size: 16px;
+    margin-top: 20px;
     min-height: 20px;
     display: none;
+    line-height: 1.6;
   }
 
   .success-message.show {
@@ -78,10 +116,47 @@
     font-size: 14px;
     margin-top: 10px;
   }
+
+  .login-button {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 12px 24px;
+    background-color: #001A57;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 16px;
+  }
+
+  .login-button:hover {
+    background-color: #002a7a;
+  }
 </style>
 </head>
 <body>
 <div class="verify-container">
+  <div class="tardle-logo">
+    <div class="logo-grid">
+      <div class="logo-row">
+        <div class="logo-cell carolina-blue"></div>
+        <div class="logo-cell carolina-blue"></div>
+        <div class="logo-cell carolina-blue"></div>
+      </div>
+      <div class="logo-row">
+        <div class="logo-cell carolina-blue"></div>
+        <div class="logo-cell yellow"></div>
+        <div class="logo-cell duke-blue"></div>
+      </div>
+      <div class="logo-row">
+        <div class="logo-cell duke-blue"></div>
+        <div class="logo-cell duke-blue"></div>
+        <div class="logo-cell duke-blue"></div>
+      </div>
+    </div>
+    <div class="tardle-title">Tardle</div>
+  </div>
+
   <h1>Verify Email Change</h1>
   <p class="subtitle">Verifying your new email address...</p>
   
@@ -97,31 +172,11 @@
 <script type="module" src="firebase-config.js"></script>
 
 <script>
-  let currentUser = null;
-
   // Wait for Firebase to load
   const checkFirebase = setInterval(() => {
-    if (window.firebaseAuth && window.firebaseAuthFunctions && window.firebaseFirestoreFunctions && window.firebaseDb) {
+    if (window.firebaseFirestoreFunctions && window.firebaseDb && window.firebaseFunctions && window.firebaseFunctionsFunctions) {
       clearInterval(checkFirebase);
-      
-      // Set up listener for auth state changes
-      window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, async (user) => {
-        if (user) {
-          currentUser = user;
-          await verifyEmailChange();
-        } else {
-          // User is not logged in (edge case: different device, session expired, etc.)
-          // They need to log in with their current credentials to complete verification
-          document.getElementById('errorMessage').textContent = 'Please log in to complete the email change verification.';
-          document.getElementById('errorMessage').classList.add('show');
-          document.getElementById('loadingMessage').style.display = 'none';
-          
-          // Redirect to login with return URL so they come back after logging in
-          setTimeout(() => {
-            window.location.href = 'login.html?return=' + encodeURIComponent(window.location.href);
-          }, 2000);
-        }
-      });
+      verifyEmailChange();
     }
   }, 100);
 
@@ -132,144 +187,72 @@
     const emailDisplay = document.getElementById('emailDisplay');
     
     try {
-      // Get code and email from URL parameters
+      // Get uid, code, and email from URL parameters
       const urlParams = new URLSearchParams(window.location.search);
+      const uid = urlParams.get('uid');
       const code = urlParams.get('code');
       const email = urlParams.get('email');
       
-      if (!code || !email) {
-        throw new Error('Missing verification code or email in URL. Please use the link from your email.');
+      if (!uid || !code || !email) {
+        throw new Error('Missing verification information in URL. Please use the link from your email.');
       }
       
       emailDisplay.textContent = email;
       
       console.log('Verifying email change:');
+      console.log('  User ID:', uid);
       console.log('  Code:', code);
       console.log('  New email:', email);
-      console.log('  User ID:', currentUser.uid);
       
-      // Get verification data from Firestore user document
-      const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
-      const userDoc = await window.firebaseFirestoreFunctions.getDoc(userDocRef);
+      // Call Cloud Function to complete email change (no login required)
+      const completeEmailChange = window.firebaseFunctionsFunctions.httpsCallable(
+        window.firebaseFunctions,
+        'completeEmailChange'
+      );
       
-      if (!userDoc.exists()) {
-        throw new Error('User document not found. Please contact support.');
-      }
+      console.log('Calling completeEmailChange Cloud Function...');
+      const result = await completeEmailChange({
+        uid: uid,
+        code: code,
+        newEmail: email
+      });
       
-      const userData = userDoc.data();
-      const emailChangeData = userData.emailChangeVerification;
-      
-      if (!emailChangeData) {
-        throw new Error('Verification code not found or has expired. Please request a new email change.');
-      }
-      
-      console.log('Email change data:', emailChangeData);
-      
-      // Verify code matches
-      if (emailChangeData.code !== code) {
-        throw new Error('Invalid verification code. Please use the link from your email.');
-      }
-      
-      // Verify email matches
-      if (emailChangeData.newEmail.toLowerCase() !== email.toLowerCase()) {
-        throw new Error('Email mismatch. Please use the link from your email.');
-      }
-      
-      // Check if code has expired
-      const expiresAt = emailChangeData.expiresAt;
-      if (expiresAt && expiresAt.toMillis && expiresAt.toMillis() < Date.now()) {
-        throw new Error('Verification code has expired. Please request a new email change.');
-      } else if (expiresAt && typeof expiresAt === 'number' && expiresAt < Date.now()) {
-        throw new Error('Verification code has expired. Please request a new email change.');
-      }
-      
-      console.log('✓ Code verified, updating email...');
-      
-      // Update email in Firebase Authentication
-      await window.firebaseAuthFunctions.updateEmail(currentUser, email);
-      console.log('✓ Email updated in Firebase Authentication');
-      
-      // Mark email as verified using Cloud Function (since updateEmail resets emailVerified to false)
-      try {
-        if (window.firebaseFunctions && window.firebaseFunctionsFunctions) {
-          const markEmailVerified = window.firebaseFunctionsFunctions.httpsCallable(
-            window.firebaseFunctions,
-            'markEmailVerified'
-          );
-          await markEmailVerified();
-          console.log('✓ Email marked as verified via Cloud Function');
-        }
-      } catch (verifyError) {
-        console.warn('Could not mark email as verified via Cloud Function:', verifyError);
-        // Continue anyway - email change is still successful
-      }
-      
-      // Reload user to get updated email and verification status
-      await currentUser.reload();
-      currentUser = window.firebaseAuth.currentUser; // Update global reference
-      console.log('✓ User reloaded, new email:', currentUser.email);
-      console.log('✓ Email verified status:', currentUser.emailVerified);
-      
-      // Update Firestore user document with new email
-      if (window.firebaseDb && window.firebaseFirestoreFunctions) {
-        try {
-          const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
-          await window.firebaseFirestoreFunctions.updateDoc(userDocRef, {
-            email: currentUser.email
-          });
-          console.log('✓ Firestore email updated to:', currentUser.email);
-          
-          // Verify the update worked
-          const updatedDoc = await window.firebaseFirestoreFunctions.getDoc(userDocRef);
-          if (updatedDoc.exists()) {
-            const data = updatedDoc.data();
-            console.log('✓ Verified Firestore update - email in document:', data.email);
-            if (data.email !== currentUser.email) {
-              console.warn('⚠️ Email mismatch! Firestore:', data.email, 'Auth:', currentUser.email);
-            }
-          }
-        } catch (firestoreError) {
-          console.error('✗ Could not update email in Firestore:', firestoreError);
-          // Don't throw - email change in Auth is still successful
-        }
-      }
-      
-      // Force auth state change to update all listeners
-      // This ensures change-email.html and other pages see the updated email
-      try {
-        // Trigger a sign-in refresh to update auth state across all pages
-        const token = await currentUser.getIdToken(true); // Force refresh
-        console.log('✓ Auth token refreshed, email should be updated everywhere');
-      } catch (tokenError) {
-        console.warn('Could not refresh auth token:', tokenError);
-      }
-      
-      // Remove the verification code from Firestore user document
-      try {
-        await window.firebaseFirestoreFunctions.updateDoc(userDocRef, {
-          emailChangeVerification: window.firebaseFirestoreFunctions.deleteField()
-        });
-        console.log('✓ Verification code removed from Firestore');
-      } catch (deleteError) {
-        console.warn('Could not remove verification code:', deleteError);
-        // Don't throw - email change is still successful
-      }
+      console.log('✓ Email change completed successfully');
+      console.log('Result:', result.data);
       
       // Show success message
       loadingMessage.style.display = 'none';
-      successMessage.textContent = 'Email changed successfully! Your email address has been updated to ' + email + '. Redirecting...';
+      successMessage.innerHTML = `
+        <strong>Verification complete!</strong><br><br>
+        Your email address change has been completed.<br><br>
+        Please log in again with your new email address and existing password.
+      `;
       successMessage.classList.add('show');
       
-      // Wait a moment for all updates to propagate, then redirect
-      setTimeout(() => {
-        // Redirect to account details page - it will show the updated email from Firestore
-        window.location.href = 'account-details.html';
-      }, 2000);
+      // Add login button
+      const loginButton = document.createElement('a');
+      loginButton.href = 'login.html';
+      loginButton.className = 'login-button';
+      loginButton.textContent = 'Go to Login';
+      successMessage.appendChild(document.createElement('br'));
+      successMessage.appendChild(loginButton);
       
     } catch (error) {
       console.error('Error verifying email change:', error);
       loadingMessage.style.display = 'none';
-      errorMessage.textContent = error.message || 'An error occurred while verifying your email change. Please try again.';
+      
+      let errorMsg = 'An error occurred while verifying your email change.';
+      if (error.code === 'functions/not-found') {
+        errorMsg = 'Verification code not found or has expired. Please request a new email change.';
+      } else if (error.code === 'functions/invalid-argument') {
+        errorMsg = 'Invalid verification code. Please use the link from your email.';
+      } else if (error.code === 'functions/deadline-exceeded') {
+        errorMsg = 'Verification code has expired. Please request a new email change.';
+      } else if (error.message) {
+        errorMsg = error.message;
+      }
+      
+      errorMessage.textContent = errorMsg;
       errorMessage.classList.add('show');
     }
   }
@@ -277,4 +260,3 @@
 
 </body>
 </html>
-

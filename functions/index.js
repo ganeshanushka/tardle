@@ -157,10 +157,10 @@ exports.sendEmailChangeVerification = functions.https.onCall(async (data, contex
       throw new functions.https.HttpsError('failed-precondition', 'Resend API key is not configured. Please set RESEND_API_KEY in Firebase Functions config.');
     }
 
-    // Build verification URL - use the code as a query parameter
+    // Build verification URL - include user ID, code, and email as query parameters
     // Use Firebase Hosting URL until custom domain is set up
     // Once playtardle.com is connected, change this back to: https://playtardle.com/verify-email-change.html
-    const verificationUrl = `https://tardle-c0c26.web.app/verify-email-change.html?code=${code}&email=${encodeURIComponent(email)}`;
+    const verificationUrl = `https://tardle-c0c26.web.app/verify-email-change.html?uid=${context.auth.uid}&code=${code}&email=${encodeURIComponent(email)}`;
 
     const emailResult = await resend.emails.send({
       from: "Tardle <no-reply@playtardle.com>",
@@ -200,6 +200,81 @@ exports.sendEmailChangeVerification = functions.https.onCall(async (data, contex
   } catch (err) {
     console.error("Error sending email change verification:", err);
     throw new functions.https.HttpsError('internal', 'Failed to send email change verification');
+  }
+});
+
+// Complete email change verification (works without user being logged in)
+exports.completeEmailChange = functions.https.onCall(async (data, context) => {
+  try {
+    const { uid, code, newEmail } = data;
+
+    if (!uid || !code || !newEmail) {
+      throw new functions.https.HttpsError('invalid-argument', 'User ID, code, and new email are required');
+    }
+
+    // Get user document from Firestore
+    const userDocRef = db.collection('users').doc(uid);
+    const userDoc = await userDocRef.get();
+
+    if (!userDoc.exists()) {
+      throw new functions.https.HttpsError('not-found', 'User not found');
+    }
+
+    const userData = userDoc.data();
+    const emailChangeData = userData.emailChangeVerification;
+
+    if (!emailChangeData) {
+      throw new functions.https.HttpsError('not-found', 'Verification code not found or has expired');
+    }
+
+    // Verify code matches
+    if (emailChangeData.code !== code) {
+      throw new functions.https.HttpsError('invalid-argument', 'Invalid verification code');
+    }
+
+    // Verify email matches
+    if (emailChangeData.newEmail.toLowerCase() !== newEmail.toLowerCase()) {
+      throw new functions.https.HttpsError('invalid-argument', 'Email mismatch');
+    }
+
+    // Check if code has expired
+    const expiresAt = emailChangeData.expiresAt;
+    let isExpired = false;
+    if (expiresAt) {
+      if (expiresAt.toMillis) {
+        isExpired = expiresAt.toMillis() < Date.now();
+      } else if (typeof expiresAt === 'number') {
+        isExpired = expiresAt < Date.now();
+      }
+    }
+    
+    if (isExpired) {
+      throw new functions.https.HttpsError('deadline-exceeded', 'Verification code has expired');
+    }
+
+    // Update email in Firebase Authentication using Admin SDK
+    await admin.auth().updateUser(uid, {
+      email: newEmail,
+      emailVerified: true
+    });
+
+    console.log(`Email updated for user ${uid} to ${newEmail}`);
+
+    // Update Firestore user document
+    await userDocRef.update({
+      email: newEmail,
+      emailChangeVerification: admin.firestore.FieldValue.delete()
+    });
+
+    console.log(`Firestore updated for user ${uid}`);
+
+    return { success: true, newEmail: newEmail };
+  } catch (err) {
+    console.error("Error completing email change:", err);
+    if (err instanceof functions.https.HttpsError) {
+      throw err;
+    }
+    throw new functions.https.HttpsError('internal', 'Failed to complete email change');
   }
 });
 
