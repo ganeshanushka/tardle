@@ -171,8 +171,9 @@ exports.sendEmailChangeVerification = functions.https.onCall(async (data, contex
     }
 
     // Build verification URL - include user ID, code, and email as query parameters
-    // Use custom domain to avoid phishing warnings
-    const verificationUrl = `https://playtardle.com/verify-email-change.html?uid=${userId}&code=${code}&email=${encodeURIComponent(email)}`;
+    // Using Firebase Hosting URL for now - playtardle.com not connected yet
+    // TODO: Switch to playtardle.com once domain is connected to Firebase Hosting
+    const verificationUrl = `https://tardle-c0c26.web.app/verify-email-change.html?uid=${userId}&code=${code}&email=${encodeURIComponent(email)}`;
 
     const emailResult = await resend.emails.send({
       from: "Tardle <no-reply@playtardle.com>",
