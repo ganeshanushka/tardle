@@ -110,16 +110,16 @@
           currentUser = user;
           await verifyEmailChange();
         } else {
-          // User is not logged in - they need to log in with their current credentials
-          // (the email they used when requesting the change + their password)
-          document.getElementById('errorMessage').textContent = 'Please log in with your current email and password to complete the email change.';
+          // User is not logged in (edge case: different device, session expired, etc.)
+          // They need to log in with their current credentials to complete verification
+          document.getElementById('errorMessage').textContent = 'Please log in to complete the email change verification.';
           document.getElementById('errorMessage').classList.add('show');
           document.getElementById('loadingMessage').style.display = 'none';
           
           // Redirect to login with return URL so they come back after logging in
           setTimeout(() => {
             window.location.href = 'login.html?return=' + encodeURIComponent(window.location.href);
-          }, 3000);
+          }, 2000);
         }
       });
     }
