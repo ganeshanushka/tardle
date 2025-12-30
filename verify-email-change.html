@@ -187,9 +187,25 @@
       await window.firebaseAuthFunctions.updateEmail(currentUser, email);
       console.log('✓ Email updated in Firebase Authentication');
       
-      // Reload user to get updated email
+      // Mark email as verified using Cloud Function (since updateEmail resets emailVerified to false)
+      try {
+        if (window.firebaseFunctions && window.firebaseFunctionsFunctions) {
+          const markEmailVerified = window.firebaseFunctionsFunctions.httpsCallable(
+            window.firebaseFunctions,
+            'markEmailVerified'
+          );
+          await markEmailVerified();
+          console.log('✓ Email marked as verified via Cloud Function');
+        }
+      } catch (verifyError) {
+        console.warn('Could not mark email as verified via Cloud Function:', verifyError);
+        // Continue anyway - email change is still successful
+      }
+      
+      // Reload user to get updated email and verification status
       await currentUser.reload();
       console.log('✓ User reloaded, new email:', currentUser.email);
+      console.log('✓ Email verified status:', currentUser.emailVerified);
       
       // Update Firestore user document
       if (window.firebaseDb && window.firebaseFirestoreFunctions) {

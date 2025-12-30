@@ -201,6 +201,29 @@ exports.sendEmailChangeVerification = functions.https.onCall(async (data, contex
   }
 });
 
+// Mark email as verified after email change
+exports.markEmailVerified = functions.https.onCall(async (data, context) => {
+  try {
+    // Verify user is authenticated
+    if (!context.auth) {
+      throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
+    }
+
+    const uid = context.auth.uid;
+    
+    // Use Admin SDK to mark email as verified
+    await admin.auth().updateUser(uid, {
+      emailVerified: true
+    });
+
+    console.log(`Email marked as verified for user ${uid}`);
+    return { success: true };
+  } catch (err) {
+    console.error("Error marking email as verified:", err);
+    throw new functions.https.HttpsError('internal', 'Failed to mark email as verified');
+  }
+});
+
 // Clean up unverified accounts older than 7 days
 // Runs daily at 2am ET
 exports.cleanupUnverifiedAccounts = functions.pubsub
