@@ -252,32 +252,55 @@ exports.completeEmailChange = functions.https.onCall(async (data, context) => {
       throw new functions.https.HttpsError('deadline-exceeded', 'Verification code has expired');
     }
 
+    const oldEmail = userData.email || 'unknown';
+    console.log(`Starting email change for user ${uid}:`);
+    console.log(`  Old email: ${oldEmail}`);
+    console.log(`  New email: ${newEmail}`);
+
     // Update email in Firebase Authentication using Admin SDK
     await admin.auth().updateUser(uid, {
       email: newEmail,
       emailVerified: true
     });
 
-    console.log(`Email updated for user ${uid} to ${newEmail}`);
+    console.log(`✓ Email updated in Firebase Auth for user ${uid} to ${newEmail}`);
 
-    // Update Firestore user document
-    await userDocRef.update({
-      email: newEmail,
-      emailChangeVerification: admin.firestore.FieldValue.delete()
-    });
+    // Update Firestore user document - use set with merge to ensure it works
+    try {
+      await userDocRef.set({
+        email: newEmail,
+        emailChangeVerification: admin.firestore.FieldValue.delete()
+      }, { merge: true });
+      console.log(`✓ Firestore update initiated for user ${uid}`);
+    } catch (firestoreError) {
+      console.error(`✗ Firestore update error:`, firestoreError);
+      // Try alternative approach - update without deleteField
+      try {
+        await userDocRef.update({ email: newEmail });
+        // Delete verification field separately
+        await userDocRef.update({
+          emailChangeVerification: admin.firestore.FieldValue.delete()
+        });
+        console.log(`✓ Firestore updated using alternative method`);
+      } catch (retryError) {
+        console.error(`✗ Firestore retry also failed:`, retryError);
+        throw new Error(`Failed to update Firestore: ${retryError.message}`);
+      }
+    }
 
     // Verify the update worked
     const updatedDoc = await userDocRef.get();
     if (updatedDoc.exists()) {
       const updatedData = updatedDoc.data();
-      console.log(`Firestore updated for user ${uid}`);
-      console.log(`  Old email in Firestore: ${userData.email}`);
-      console.log(`  New email in Firestore: ${updatedData.email}`);
+      console.log(`✓ Verified Firestore update for user ${uid}`);
+      console.log(`  Email in Firestore: ${updatedData.email}`);
       if (updatedData.email !== newEmail) {
         console.error(`  ⚠️ Email mismatch! Expected: ${newEmail}, Got: ${updatedData.email}`);
-        // Try updating again
-        await userDocRef.update({ email: newEmail });
-        console.log(`  Retried Firestore update`);
+        // Force update one more time
+        await userDocRef.set({ email: newEmail }, { merge: true });
+        console.log(`  Force updated Firestore email`);
+      } else {
+        console.log(`  ✓ Email matches in Firestore`);
       }
     } else {
       console.error(`  ⚠️ User document not found after update!`);
