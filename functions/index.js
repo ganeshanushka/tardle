@@ -50,6 +50,12 @@ if (!resendApiKey) {
 
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
+// Base URL for all email links - use custom domain once verified
+// TODO: Once playtardle.com is verified in Firebase Hosting, this will be used for all emails
+const BASE_URL = 'https://playtardle.com';
+// Fallback to Firebase Hosting URL if custom domain not ready:
+// const BASE_URL = 'https://tardle-c0c26.web.app';
+
 // Daily email function (runs at 8am ET)
 exports.sendDailyTardleEmail = functions.pubsub
   .schedule("0 8 * * *")
@@ -84,8 +90,8 @@ exports.sendDailyTardleEmail = functions.pubsub
               html: `
                 <h2>Good morning! 🌞</h2>
                 <p>Here's today's Tardle puzzle:</p>
-                <a href="https://tardle.example.com/play.html">Play Tardle</a>
-                <p>If you want to unsubscribe, click <a href="https://tardle.example.com/unsubscribe.html?email=${encodeURIComponent(email)}">here</a>.</p>
+                <a href="${BASE_URL}/play.html">Play Tardle</a>
+                <p>If you want to unsubscribe, click <a href="${BASE_URL}/unsubscribe.html?email=${encodeURIComponent(email)}">here</a>.</p>
               `,
             })
           )
@@ -171,9 +177,8 @@ exports.sendEmailChangeVerification = functions.https.onCall(async (data, contex
     }
 
     // Build verification URL - include user ID, code, and email as query parameters
-    // Using Firebase Hosting URL for now - playtardle.com not connected yet
-    // TODO: Switch to playtardle.com once domain is connected to Firebase Hosting
-    const verificationUrl = `https://tardle-c0c26.web.app/verify-email-change.html?uid=${userId}&code=${code}&email=${encodeURIComponent(email)}`;
+    // Uses BASE_URL constant (playtardle.com once verified)
+    const verificationUrl = `${BASE_URL}/verify-email-change.html?uid=${userId}&code=${code}&email=${encodeURIComponent(email)}`;
 
     const emailResult = await resend.emails.send({
       from: "Tardle <no-reply@playtardle.com>",
