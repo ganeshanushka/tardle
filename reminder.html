@@ -98,7 +98,7 @@
       padding: 10px 20px;
       border-radius: 6px;
       text-decoration: none;
-      margin-top: 14px;
+      margin-top: 8px;
       border: none;
       cursor: pointer;
       font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
@@ -310,7 +310,7 @@
 
     function showSignupButton() {
       const loginStatus = document.getElementById('loginStatus');
-      loginStatus.innerHTML = '<a href="login.html?return=reminder.html" class="signup-button">Sign up</a>';
+      loginStatus.innerHTML = '<a href="login.html?return=reminder.html" class="signup-button">Sign up</a><p class="small" style="margin-top: 12px;">Already have an account? <a href="login.html?return=reminder.html">Log in to get it.</a></p>';
     }
 
     // Prevent browser back/forward navigation
