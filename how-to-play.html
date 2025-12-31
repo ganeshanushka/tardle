@@ -82,6 +82,7 @@
     grid-template-columns: start;
     gap: 4px;
     margin-bottom: 10px;
+    perspective: 1000px;
   }
 
   .cell {
@@ -94,21 +95,37 @@
     border-radius: 4px;
     font-weight: bold;
     font-size: 1.5em;
+    background-color: white;
+    color: #000;
+    transform-style: preserve-3d;
   }
 
-  .correct {
+  .cell.flip {
+    animation: cellFlip 0.8s ease-in-out;
+  }
+
+  @keyframes cellFlip {
+    0% { transform: rotateX(0); }
+    50% { transform: rotateX(-90deg); }
+    100% { transform: rotateX(0); }
+  }
+
+  .cell.correct {
     background-color: #7BAFD4;
     color: white;
+    border-color: white;
   }
 
-  .present {
+  .cell.present {
     background-color: #c9b458;
     color: white;
+    border-color: white;
   }
 
-  .absent {
-    background-color: #001A57;;
+  .cell.absent {
+    background-color: #001A57;
     color: white;
+    border-color: white;
   }
 
   .account-prompt p, .daily-reminder p {
@@ -129,17 +146,17 @@
   </ul>
   <h2>Examples</h2>
   <div class="example">
-    <div class="word-grid">
-      <div class="cell correct">S</div>
+    <div class="word-grid" id="example1-grid">
+      <div class="cell" data-color="correct">S</div>
       <div class="cell">R</div>
       <div class="cell">C</div>
     </div>
     <p><B>S</B> is in the word and in the correct spot.</p>
   </div>
   <div class="example">
-    <div class="word-grid">
+    <div class="word-grid" id="example2-grid">
       <div class="cell">D</div>
-      <div class="cell present">A</div>
+      <div class="cell" data-color="present">A</div>
       <div class="cell">V</div>
       <div class="cell">I</div>
       <div class="cell">S</div>
@@ -147,10 +164,10 @@
     <p><B>A</B> is in the word but in the wrong spot.</p>
   </div>
   <div class="example">
-    <div class="word-grid">
+    <div class="word-grid" id="example3-grid">
       <div class="cell">L</div>
       <div class="cell">E</div>
-      <div class="cell absent">N</div>
+      <div class="cell" data-color="absent">N</div>
       <div class="cell">O</div>
       <div class="cell">I</div>
       <div class="cell">R</div>
@@ -174,6 +191,75 @@
     function goBack() {
       window.history.back();
     }
+
+    // Animate tiles with flip effect on page load
+    function animateTiles() {
+      const flipDelay = 250; // Delay between each flip (in milliseconds)
+      const flipDuration = 800; // Duration of each flip animation (in milliseconds)
+
+      // Example 1: SRC
+      const example1Cells = document.querySelectorAll('#example1-grid .cell');
+      example1Cells.forEach((cell, i) => {
+        setTimeout(() => {
+          cell.classList.add('flip');
+          const colorClass = cell.getAttribute('data-color');
+          if (colorClass) {
+            setTimeout(() => {
+              cell.classList.add(colorClass);
+            }, flipDuration / 2); // Add color at midpoint
+          }
+          setTimeout(() => {
+            cell.classList.remove('flip');
+          }, flipDuration);
+        }, i * flipDelay);
+      });
+
+      // Example 2: DAVIS (start after example 1 finishes)
+      const example1TotalTime = example1Cells.length * flipDelay + flipDuration;
+      setTimeout(() => {
+        const example2Cells = document.querySelectorAll('#example2-grid .cell');
+        example2Cells.forEach((cell, i) => {
+          setTimeout(() => {
+            cell.classList.add('flip');
+            const colorClass = cell.getAttribute('data-color');
+            if (colorClass) {
+              setTimeout(() => {
+                cell.classList.add(colorClass);
+              }, flipDuration / 2);
+            }
+            setTimeout(() => {
+              cell.classList.remove('flip');
+            }, flipDuration);
+          }, i * flipDelay);
+        });
+      }, example1TotalTime + 200); // Small delay between examples
+
+      // Example 3: LENOIR (start after example 2 finishes)
+      const example2Cells = document.querySelectorAll('#example2-grid .cell');
+      const example2TotalTime = example2Cells.length * flipDelay + flipDuration;
+      setTimeout(() => {
+        const example3Cells = document.querySelectorAll('#example3-grid .cell');
+        example3Cells.forEach((cell, i) => {
+          setTimeout(() => {
+            cell.classList.add('flip');
+            const colorClass = cell.getAttribute('data-color');
+            if (colorClass) {
+              setTimeout(() => {
+                cell.classList.add(colorClass);
+              }, flipDuration / 2);
+            }
+            setTimeout(() => {
+              cell.classList.remove('flip');
+            }, flipDuration);
+          }, i * flipDelay);
+        });
+      }, example1TotalTime + example2TotalTime + 400); // Delay after example 2
+    }
+
+    // Start animation when page loads
+    window.addEventListener('load', () => {
+      setTimeout(animateTiles, 150); // Small delay to ensure page is fully rendered
+    });
   </script>
 
 </body>
