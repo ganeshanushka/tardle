@@ -128,9 +128,20 @@
     border-color: white;
   }
 
-  .account-prompt p, .daily-reminder p {
-  font-size: 1em; /* Set a smaller font-size */
-}
+  .account-prompt {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .account-prompt p {
+    font-size: 1em;
+    margin: 0;
+  }
+
+  .daily-reminder p {
+    font-size: 1em;
+  }
 
 </style>
 </head>
@@ -192,68 +203,26 @@
       window.history.back();
     }
 
-    // Animate tiles with flip effect on page load
+    // Animate tiles with flip effect on page load - only colored tiles flip, all at once
     function animateTiles() {
-      const flipDelay = 250; // Delay between each flip (in milliseconds)
       const flipDuration = 800; // Duration of each flip animation (in milliseconds)
 
-      // Example 1: SRC
-      const example1Cells = document.querySelectorAll('#example1-grid .cell');
-      example1Cells.forEach((cell, i) => {
+      // Get all cells with data-color attribute (colored tiles only)
+      const coloredCells = document.querySelectorAll('.cell[data-color]');
+
+      // Flip all colored tiles at the same time
+      coloredCells.forEach((cell) => {
+        cell.classList.add('flip');
+        const colorClass = cell.getAttribute('data-color');
+        if (colorClass) {
+          setTimeout(() => {
+            cell.classList.add(colorClass);
+          }, flipDuration / 2); // Add color at midpoint
+        }
         setTimeout(() => {
-          cell.classList.add('flip');
-          const colorClass = cell.getAttribute('data-color');
-          if (colorClass) {
-            setTimeout(() => {
-              cell.classList.add(colorClass);
-            }, flipDuration / 2); // Add color at midpoint
-          }
-          setTimeout(() => {
-            cell.classList.remove('flip');
-          }, flipDuration);
-        }, i * flipDelay);
+          cell.classList.remove('flip');
+        }, flipDuration);
       });
-
-      // Example 2: DAVIS (start after example 1 finishes)
-      const example1TotalTime = example1Cells.length * flipDelay + flipDuration;
-      setTimeout(() => {
-        const example2Cells = document.querySelectorAll('#example2-grid .cell');
-        example2Cells.forEach((cell, i) => {
-          setTimeout(() => {
-            cell.classList.add('flip');
-            const colorClass = cell.getAttribute('data-color');
-            if (colorClass) {
-              setTimeout(() => {
-                cell.classList.add(colorClass);
-              }, flipDuration / 2);
-            }
-            setTimeout(() => {
-              cell.classList.remove('flip');
-            }, flipDuration);
-          }, i * flipDelay);
-        });
-      }, example1TotalTime + 200); // Small delay between examples
-
-      // Example 3: LENOIR (start after example 2 finishes)
-      const example2Cells = document.querySelectorAll('#example2-grid .cell');
-      const example2TotalTime = example2Cells.length * flipDelay + flipDuration;
-      setTimeout(() => {
-        const example3Cells = document.querySelectorAll('#example3-grid .cell');
-        example3Cells.forEach((cell, i) => {
-          setTimeout(() => {
-            cell.classList.add('flip');
-            const colorClass = cell.getAttribute('data-color');
-            if (colorClass) {
-              setTimeout(() => {
-                cell.classList.add(colorClass);
-              }, flipDuration / 2);
-            }
-            setTimeout(() => {
-              cell.classList.remove('flip');
-            }, flipDuration);
-          }, i * flipDelay);
-        });
-      }, example1TotalTime + example2TotalTime + 400); // Delay after example 2
     }
 
     // Start animation when page loads
