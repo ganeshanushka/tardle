@@ -102,12 +102,13 @@
 
   .cell.flip {
     animation: cellFlip 0.8s ease-in-out;
+    transform-origin: center;
   }
 
   @keyframes cellFlip {
-    0% { transform: rotateX(0); }
-    50% { transform: rotateX(-90deg); }
-    100% { transform: rotateX(0); }
+    0% { transform: rotateX(0) scale(1); }
+    50% { transform: rotateX(-90deg) scale(1); }
+    100% { transform: rotateX(0) scale(1); }
   }
 
   .cell.correct {
