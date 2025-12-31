@@ -88,6 +88,8 @@
   .cell {
     width: 40px; /* Adjust size as needed */
     height: 40px; /* Adjust size as needed */
+    min-width: 40px;
+    min-height: 40px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -98,17 +100,27 @@
     background-color: white;
     color: #000;
     transform-style: preserve-3d;
+    box-sizing: border-box;
   }
 
   .cell.flip {
     animation: cellFlip 0.8s ease-in-out;
-    transform-origin: center;
+    transform-origin: center center;
   }
 
   @keyframes cellFlip {
-    0% { transform: rotateX(0) scale(1); }
+    0% { transform: rotateX(0deg) scale(1); }
     50% { transform: rotateX(-90deg) scale(1); }
-    100% { transform: rotateX(0) scale(1); }
+    100% { transform: rotateX(0deg) scale(1); }
+  }
+
+  .cell.correct,
+  .cell.present,
+  .cell.absent {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
   }
 
   .cell.correct {
