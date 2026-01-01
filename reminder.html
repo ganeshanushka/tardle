@@ -207,8 +207,6 @@
 
   <!-- Firebase Config -->
   <script type="module" src="firebase-config.js"></script>
-  <!-- Login Modal Component -->
-  <script src="login-modal.js"></script>
 
   <script>
     // Handle logout
@@ -334,7 +332,7 @@
 
     function showSignupButton() {
       const loginStatus = document.getElementById('loginStatus');
-      loginStatus.innerHTML = '<button onclick="openLoginModal(\'reminder.html\')" class="signup-button">Sign Up</button><p class="small" style="margin-top: 12px; margin-bottom: 0;">Already have an account? <a href="#" onclick="openLoginModal(\'reminder.html\'); return false;" class="login-link">Log in to get it.</a></p>';
+      loginStatus.innerHTML = '<a href="login.html?return=reminder.html" class="signup-button">Sign Up</a><p class="small" style="margin-top: 12px; margin-bottom: 0;">Already have an account? <a href="login.html?return=reminder.html" class="login-link">Log in to get it.</a></p>';
     }
 
     // Prevent browser back/forward navigation
