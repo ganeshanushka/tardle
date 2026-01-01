@@ -69,7 +69,7 @@
     }
     h2 {
       font-size: 36px;
-      margin: 0 0 20px 0;
+      margin: 0 0 14px 0;
       font-weight: 400;
       line-height: 1.1;
       font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
@@ -82,8 +82,12 @@
     ul {
       font-size: 18px;
       padding-left: 20px;
-      margin: 14px 0 24px;
-      line-height: 1.5;
+      margin: 14px 0 32px;
+      line-height: 1.6;
+    }
+    ul li a {
+      color: #1a1a1a;
+      text-decoration: underline;
     }
     a {
       color: #1a1a1a;
@@ -92,7 +96,8 @@
     .small {
       font-size: 16px;
       line-height: 1.5;
-      margin-top: 16px;
+      margin-top: 0;
+      margin-bottom: 0;
     }
     .muted {
       color: #555;
@@ -101,23 +106,33 @@
     }
     .signup-button {
       display: inline-block;
-      background-color: #7BAFD4;
+      background-color: #000000;
       color: white;
       font-weight: bold;
       font-size: 15px;
-      padding: 10px 20px;
-      border-radius: 6px;
+      padding: 12px 24px;
+      border-radius: 4px;
       text-decoration: none;
-      margin-top: 8px;
+      margin-top: 0;
+      margin-bottom: 16px;
       border: none;
       cursor: pointer;
       font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+      text-align: center;
     }
     .signup-button:hover {
-      background-color: #6a9fc0;
+      background-color: #333333;
     }
     .login-status {
-      margin-top: 16px;
+      margin-top: 0;
+    }
+    .login-link {
+      text-decoration: underline;
+      border: 1px solid #007bff;
+      padding: 2px 6px;
+      border-radius: 3px;
+      color: #007bff;
+      display: inline-block;
     }
     
     .subscription-section {
@@ -174,7 +189,8 @@
     <h2>Keep your Tardle streak alive with a daily reminder to solve our carolina word puzzle.</h2>
 
     <ul>
-      <li>Sent to your inbox daily</li>
+      <li>Sent to Your Inbox Daily</li>
+      <li><a href="index.html" style="text-decoration: underline;">Read the Latest</a></li>
     </ul>
 
     <div class="login-status" id="loginStatus">
@@ -320,7 +336,7 @@
 
     function showSignupButton() {
       const loginStatus = document.getElementById('loginStatus');
-      loginStatus.innerHTML = '<a href="login.html?return=reminder.html" class="signup-button">Sign up</a><p class="small" style="margin-top: 12px;">Already have an account? <a href="login.html?return=reminder.html">Log in to get it.</a></p>';
+      loginStatus.innerHTML = '<a href="login.html?return=reminder.html" class="signup-button">Sign Up</a><p class="small" style="margin-top: 12px; margin-bottom: 0;">Already have an account? <a href="login.html?return=reminder.html" class="login-link">Log in to get it.</a></p>';
     }
 
     // Prevent browser back/forward navigation
