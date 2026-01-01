@@ -534,6 +534,21 @@
       const user = userCredential.user;
       console.log('User account created and logged in:', user.email);
       
+      // Store username in Firestore temporarily (persists across devices/browsers)
+      // This is more reliable than localStorage alone
+      try {
+        const pendingUsernameRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'pendingUsernames', user.uid);
+        await window.firebaseFirestoreFunctions.setDoc(pendingUsernameRef, {
+          username: username,
+          email: email,
+          createdAt: window.firebaseFirestoreFunctions.serverTimestamp()
+        });
+        console.log('✓ Username stored in Firestore for verification');
+      } catch (firestoreError) {
+        console.error('Error storing username in Firestore:', firestoreError);
+        // Continue even if this fails - we still have localStorage as backup
+      }
+      
       // NOTE: Firestore document will be created AFTER email verification
       // This ensures we only store user data once they verify their email
       

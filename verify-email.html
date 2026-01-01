@@ -236,11 +236,36 @@
       
       const accountNumber = await generateUniqueAccountNumber();
       
-      // Get username from localStorage (set during signup) or fallback to email prefix
-      let username = localStorage.getItem('pendingUsername');
+      // Get username from Firestore (most reliable) or localStorage (fallback) or email prefix (last resort)
+      let username = null;
+      
+      // First, try to get username from Firestore (persists across devices/browsers)
+      try {
+        const pendingUsernameRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'pendingUsernames', user.uid);
+        const pendingUsernameDoc = await window.firebaseFirestoreFunctions.getDoc(pendingUsernameRef);
+        if (pendingUsernameDoc.exists()) {
+          username = pendingUsernameDoc.data().username;
+          console.log('✓ Username retrieved from Firestore:', username);
+          // Delete the pending username document after retrieving it
+          await window.firebaseFirestoreFunctions.deleteDoc(pendingUsernameRef);
+          console.log('✓ Pending username document deleted');
+        }
+      } catch (firestoreError) {
+        console.error('Error retrieving username from Firestore:', firestoreError);
+        // Continue to try localStorage fallback
+      }
+      
+      // If not found in Firestore, try localStorage (fallback)
+      if (!username) {
+        username = localStorage.getItem('pendingUsername');
+        if (username) {
+          localStorage.removeItem('pendingUsername'); // Clean up after use
+          console.log('✓ Username retrieved from localStorage:', username);
+        }
+      }
+      
+      // If we found a username, validate it's still available
       if (username) {
-        localStorage.removeItem('pendingUsername'); // Clean up after use
-        
         // Double-check username is still available (race condition protection)
         const usersRef = window.firebaseFirestoreFunctions.collection(window.firebaseDb, 'users');
         const usernameQuery = window.firebaseFirestoreFunctions.query(
@@ -255,8 +280,9 @@
           throw new Error('This username is already taken. Please contact support or sign up again with a different username.');
         }
       } else {
-        // Fallback to email prefix if no username was stored
+        // Fallback to email prefix if no username was stored anywhere
         username = user.email?.split('@')[0] || 'User';
+        console.warn('⚠️ No username found in Firestore or localStorage, using email prefix:', username);
       }
       
       // Create user document in Firestore
