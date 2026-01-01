@@ -348,31 +348,12 @@
     }
     
     // If format is valid, check if username is already taken
-    try {
-      // Wait for Firebase Functions to be loaded (with timeout)
-      await new Promise((resolve, reject) => {
-        if (window.firebaseFunctionsFunctions && window.firebaseFunctionsInstance) {
-          resolve();
-        } else {
-          let attempts = 0;
-          const maxAttempts = 50; // 5 seconds max wait
-          const checkInterval = setInterval(() => {
-            attempts++;
-            if (window.firebaseFunctionsFunctions && window.firebaseFunctionsInstance) {
-              clearInterval(checkInterval);
-              resolve();
-            } else if (attempts >= maxAttempts) {
-              clearInterval(checkInterval);
-              reject(new Error('Firebase Functions not loaded'));
-            }
-          }, 100);
-        }
-      });
-      
-      console.log('Checking if username is taken:', username);
-      
-      // Use Cloud Function to check username availability (more secure)
+    // Only check if Firebase Functions is available (might not be if function isn't deployed yet)
+    if (window.firebaseFunctionsFunctions && window.firebaseFunctionsInstance) {
       try {
+        console.log('Checking if username is taken:', username);
+        
+        // Use Cloud Function to check username availability (more secure)
         const checkUsernameAvailability = window.firebaseFunctionsFunctions.httpsCallable(window.firebaseFunctionsInstance, 'checkUsernameAvailability');
         const result = await checkUsernameAvailability({ username: username });
         
@@ -393,10 +374,10 @@
         // The check will happen again on form submission
         console.warn('Cloud Function not available, skipping real-time check');
       }
-    } catch (error) {
-      console.error('Error checking username availability:', error);
-      // Don't show error to user - just log it
+    } else {
+      // Firebase Functions not loaded yet, skip the check
       // The check will happen on form submission
+      console.log('Firebase Functions not available, skipping real-time username check');
     }
   });
 
