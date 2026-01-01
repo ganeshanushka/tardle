@@ -372,25 +372,31 @@
       console.log('Checking if username is taken:', username);
       
       // Use Cloud Function to check username availability (more secure)
-      const checkUsernameAvailability = window.firebaseFunctionsFunctions.httpsCallable(window.firebaseFunctionsInstance, 'checkUsernameAvailability');
-      const result = await checkUsernameAvailability({ username: username });
-      
-      console.log('Username availability result:', result.data);
-      if (!result.data.available) {
-        console.log('Username is taken, showing error');
-        usernameError.textContent = 'This username is already taken. Please choose another.';
-        usernameError.style.display = 'block';
-      } else {
-        console.log('Username is available');
-        // Clear any previous error
-        usernameError.style.display = 'none';
-        usernameError.textContent = '';
+      try {
+        const checkUsernameAvailability = window.firebaseFunctionsFunctions.httpsCallable(window.firebaseFunctionsInstance, 'checkUsernameAvailability');
+        const result = await checkUsernameAvailability({ username: username });
+        
+        console.log('Username availability result:', result.data);
+        if (result.data && !result.data.available) {
+          console.log('Username is taken, showing error');
+          usernameError.textContent = 'This username is already taken. Please choose another.';
+          usernameError.style.display = 'block';
+        } else {
+          console.log('Username is available');
+          // Clear any previous error
+          usernameError.style.display = 'none';
+          usernameError.textContent = '';
+        }
+      } catch (functionError) {
+        console.error('Error calling Cloud Function:', functionError);
+        // If Cloud Function fails (e.g., not deployed), silently fail
+        // The check will happen again on form submission
+        console.warn('Cloud Function not available, skipping real-time check');
       }
     } catch (error) {
       console.error('Error checking username availability:', error);
-      // Show error to user if check fails
-      usernameError.textContent = 'Unable to check username availability. Please try again.';
-      usernameError.style.display = 'block';
+      // Don't show error to user - just log it
+      // The check will happen on form submission
     }
   });
 
