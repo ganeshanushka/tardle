@@ -430,13 +430,28 @@
     
     newForm.addEventListener('submit', async function(e) {
       e.preventDefault();
-      
-      const emailInput = document.getElementById('loginModalEmail');
-      const continueBtn = document.getElementById('loginModalContinueBtn');
-      
-      if (!emailInput) return;
-      
-      const email = emailInput.value.trim();
+      handleEmailSubmit();
+    });
+    
+    // Also handle button click as backup - EXACT from login.html
+    const continueBtn = document.getElementById('loginModalContinueBtn');
+    if (continueBtn) {
+      continueBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        console.log('Button clicked');
+        newForm.dispatchEvent(new Event('submit'));
+      });
+    }
+  }
+
+  // Handle email form submission (extracted to function for reuse)
+  async function handleEmailSubmit() {
+    const emailInput = document.getElementById('loginModalEmail');
+    const continueBtn = document.getElementById('loginModalContinueBtn');
+    
+    if (!emailInput) return;
+    
+    const email = emailInput.value.trim();
       
       // Validate email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -452,8 +467,9 @@
         continueBtn.value = 'Checking...';
       }
       
-      // Check if email exists
+      // Check if email exists - EXACT logic from login.html
       try {
+        // Wait for Firebase to be loaded
         await new Promise((resolve) => {
           if (window.firebaseAuthFunctions && window.firebaseAuth) {
             resolve();
@@ -467,40 +483,62 @@
           }
         });
         
+        // Check if email exists in Firebase
+        // Use createUserWithEmailAndPassword - it gives us a clear error if email exists
         let emailExistsCheck = false;
         
         try {
           const dummyPassword = 'DummyCheck123!@#';
           await window.firebaseAuthFunctions.createUserWithEmailAndPassword(window.firebaseAuth, email, dummyPassword);
+          
+          // If we get here, account was created (didn't exist before)
           emailExistsCheck = false;
+          console.log('✗ Account does NOT exist (created during check - will delete)');
           
           // Delete the account we just created
           const user = window.firebaseAuth.currentUser;
           if (user) {
             try {
               await user.delete();
+              console.log('✓ Deleted accidentally created account');
             } catch (deleteError) {
               console.error('Failed to delete account:', deleteError);
             }
           }
         } catch (createError) {
+          console.log('Create account check error code:', createError.code);
+          console.log('Create account check error message:', createError.message);
+          
           const errorCode = createError.code;
           const errorMsg = (createError.message || '').toLowerCase();
           
+          // Check if email is already in use - this is the most reliable indicator
           if (errorCode === 'auth/email-already-in-use' || 
               errorCode === 'auth/emailAlreadyInUse' ||
               errorMsg.includes('already in use') ||
               errorMsg.includes('email already exists')) {
+            // Account exists!
             emailExistsCheck = true;
+            console.log('✓ Account EXISTS (email-already-in-use)');
+          } else {
+            // Any other error - assume account doesn't exist
+            emailExistsCheck = false;
+            console.log('✗ Account does NOT exist (error: ' + errorCode + ')');
           }
         }
+        
+        // Route based on whether email has an account
+        console.log('=== FINAL ROUTING DECISION ===');
+        console.log('Email:', email);
+        console.log('emailExists:', emailExistsCheck);
         
         // Store state and show next step
         currentEmail = email;
         emailExists = emailExistsCheck;
         
         // Show appropriate step
-        if (emailExists) {
+        if (emailExistsCheck) {
+          console.log('→ Showing SIGNIN step (account exists)');
           // Pre-fill email in signin form
           const signinEmailInput = document.getElementById('loginModalSigninEmail');
           if (signinEmailInput) signinEmailInput.value = email;
@@ -510,6 +548,7 @@
             if (passwordInput) passwordInput.focus();
           }, 100);
         } else {
+          console.log('→ Showing SIGNUP step (account does not exist)');
           // Pre-fill email in signup form
           const signupEmailInput = document.getElementById('loginModalSignupEmail');
           if (signupEmailInput) signupEmailInput.value = email;
@@ -527,13 +566,22 @@
         }
       } catch (error) {
         console.error('Error checking email:', error);
+        // Re-enable button on error
         if (continueBtn) {
           continueBtn.disabled = false;
           continueBtn.value = 'Continue';
         }
-        alert('Error checking email. Please try again.');
+        // On error, default to signup (safer than assuming account exists)
+        currentEmail = email;
+        emailExists = false;
+        const signupEmailInput = document.getElementById('loginModalSignupEmail');
+        if (signupEmailInput) signupEmailInput.value = email;
+        showStep('signup');
+        setTimeout(() => {
+          const usernameInput = document.getElementById('loginModalSignupUsername');
+          if (usernameInput) usernameInput.focus();
+        }, 100);
       }
-    });
   }
 
   // Handle signin form submission
@@ -677,7 +725,7 @@
         return;
       }
       
-      // Disable submit button
+      // Show loading state on button - EXACT from signup.html
       if (submitBtn) {
         submitBtn.disabled = true;
         submitBtn.value = 'Creating account...';
@@ -697,39 +745,103 @@
           }
         });
         
-        // Create user account
+        // Create user account with Firebase Auth
         const userCredential = await window.firebaseAuthFunctions.createUserWithEmailAndPassword(window.firebaseAuth, email, password);
-        const user = userCredential.user;
         
-        // Send verification email
-        await window.firebaseAuthFunctions.sendEmailVerification(user);
+        // User created successfully
+        const user = userCredential.user;
+        console.log('User account created and logged in:', user.email);
+        
+        // Send verification email using Firebase Auth (free, built-in) - EXACT logic from signup.html
+        try {
+          console.log('Sending verification email to:', email);
+          // Get the correct URL for GitHub Pages
+          const currentPath = window.location.pathname;
+          const pathParts = currentPath.split('/').filter(p => p);
+          
+          // Remove the current filename and add verify-email.html
+          if (pathParts.length > 0) {
+            pathParts[pathParts.length - 1] = 'verify-email.html';
+          } else {
+            pathParts.push('verify-email.html');
+          }
+          
+          const continueUrl = window.location.origin + '/' + pathParts.join('/');
+          
+          const actionCodeSettings = {
+            url: continueUrl,
+            handleCodeInApp: false
+          };
+          console.log('Action code settings:', actionCodeSettings);
+          await window.firebaseAuthFunctions.sendEmailVerification(user, actionCodeSettings);
+          console.log('✓ Verification email sent successfully');
+        } catch (emailError) {
+          console.error('✗ Error sending verification email:', emailError);
+          // Show user-friendly error
+          if (emailError.code === 'auth/too-many-requests') {
+            alert('Too many verification emails sent. Please wait a few minutes and try again from the verification page.');
+          } else if (emailError.code === 'auth/missing-continue-uri') {
+            alert('Email verification is not properly configured. Please contact support.');
+          } else {
+            alert('Could not send verification email. Error: ' + (emailError.message || emailError.code || 'Unknown error') + '\n\nYou can request a new email on the verification page.');
+          }
+        }
+        
+        // Small delay to ensure auth state is set
+        await new Promise(resolve => setTimeout(resolve, 200));
         
         // Close modal and redirect to verification page
         closeLoginModal();
         window.location.href = 'verify-email.html';
       } catch (error) {
         console.error('Sign up error:', error);
+        console.error('Error code:', error.code);
+        console.error('Error message:', error.message);
+        
+        // If email is already in use, automatically switch to sign in step
+        // Check for both possible error code formats - EXACT logic from signup.html
+        if (error.code === 'auth/email-already-in-use' || 
+            error.code === 'auth/emailAlreadyInUse' ||
+            error.message && error.message.toLowerCase().includes('already in use')) {
+          console.log('Email already exists, switching to sign in step immediately');
+          emailExists = true;
+          showStep('signin');
+          const signinEmailInput = document.getElementById('loginModalSigninEmail');
+          if (signinEmailInput) signinEmailInput.value = email;
+          setTimeout(() => {
+            const passwordInput = document.getElementById('loginModalSigninPassword');
+            if (passwordInput) passwordInput.focus();
+          }, 100);
+          return;
+        }
+        
+        // Provide helpful error messages for other errors - EXACT messages from signup.html
+        let errorMsg = 'Error creating account. Please try again.';
+        
+        if (error.code === 'auth/configuration-not-found') {
+          errorMsg = 'Email/Password authentication is not enabled in Firebase. Please enable it in Firebase Console → Authentication → Sign-in method.';
+        } else if (error.code === 'auth/weak-password') {
+          errorMsg = 'Password is too weak. Please use a stronger password.';
+        } else if (error.code === 'auth/invalid-email') {
+          errorMsg = 'Invalid email address. Please enter a valid email.';
+        } else if (error.message) {
+          errorMsg = error.message;
+        }
+        
+        if (errorDiv) {
+          errorDiv.textContent = errorMsg;
+          errorDiv.style.display = 'block';
+        }
+        
+        // Remove loading state on error
         if (submitBtn) {
           submitBtn.disabled = false;
           submitBtn.value = 'Create account';
         }
         
-        // Show error
-        if (errorDiv) {
-          if (error.code === 'auth/email-already-in-use' || error.code === 'auth/emailAlreadyInUse') {
-            errorDiv.textContent = 'Email already in use. Please sign in instead.';
-            // Switch to signin step
-            setTimeout(() => {
-              emailExists = true;
-              showStep('signin');
-              const signinEmailInput = document.getElementById('loginModalSigninEmail');
-              if (signinEmailInput) signinEmailInput.value = email;
-            }, 2000);
-          } else {
-            errorDiv.textContent = 'Error creating account. Please try again.';
-          }
-          errorDiv.style.display = 'block';
-        }
+        // Log error details for debugging
+        console.error('Full error object:', error);
+        console.error('Error stack:', error.stack);
       }
     });
   }
