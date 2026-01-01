@@ -348,36 +348,57 @@
     }
     
     // If format is valid, check if username is already taken
-    // Only check if Firebase Functions is available (might not be if function isn't deployed yet)
-    if (window.firebaseFunctionsFunctions && window.firebaseFunctionsInstance) {
-      try {
-        console.log('Checking if username is taken:', username);
-        
-        // Use Cloud Function to check username availability (more secure)
-        const checkUsernameAvailability = window.firebaseFunctionsFunctions.httpsCallable(window.firebaseFunctionsInstance, 'checkUsernameAvailability');
-        const result = await checkUsernameAvailability({ username: username });
-        
-        console.log('Username availability result:', result.data);
-        if (result.data && !result.data.available) {
-          console.log('Username is taken, showing error');
-          usernameError.textContent = 'This username is already taken. Please choose another.';
-          usernameError.style.display = 'block';
-        } else {
-          console.log('Username is available');
-          // Clear any previous error
-          usernameError.style.display = 'none';
-          usernameError.textContent = '';
+    try {
+      let usernameTaken = false;
+      
+      // Try Cloud Function first (more secure)
+      if (window.firebaseFunctionsFunctions && window.firebaseFunctionsInstance) {
+        try {
+          console.log('Checking if username is taken (Cloud Function):', username);
+          const checkUsernameAvailability = window.firebaseFunctionsFunctions.httpsCallable(window.firebaseFunctionsInstance, 'checkUsernameAvailability');
+          const result = await checkUsernameAvailability({ username: username });
+          console.log('Username availability result:', result.data);
+          usernameTaken = result.data && !result.data.available;
+        } catch (functionError) {
+          console.warn('Cloud Function failed, trying Firestore fallback:', functionError);
+          // Fall through to Firestore fallback
         }
-      } catch (functionError) {
-        console.error('Error calling Cloud Function:', functionError);
-        // If Cloud Function fails (e.g., not deployed), silently fail
-        // The check will happen again on form submission
-        console.warn('Cloud Function not available, skipping real-time check');
       }
-    } else {
-      // Firebase Functions not loaded yet, skip the check
+      
+      // Fallback to Firestore if Cloud Function not available or failed
+      if (!usernameTaken && window.firebaseFirestoreFunctions && window.firebaseDb) {
+        try {
+          console.log('Checking if username is taken (Firestore fallback):', username);
+          const usersRef = window.firebaseFirestoreFunctions.collection(window.firebaseDb, 'users');
+          const usernameQuery = window.firebaseFirestoreFunctions.query(
+            usersRef,
+            window.firebaseFirestoreFunctions.where('username', '==', username)
+          );
+          const usernameSnapshot = await window.firebaseFirestoreFunctions.getDocs(usernameQuery);
+          usernameTaken = !usernameSnapshot.empty;
+          console.log('Firestore check result - username taken:', usernameTaken);
+        } catch (firestoreError) {
+          console.error('Error checking username in Firestore:', firestoreError);
+          // Don't show error if Firestore check fails - it might be a permissions issue
+          // The check will happen on form submission
+          return;
+        }
+      }
+      
+      if (usernameTaken) {
+        console.log('Username is taken, showing error');
+        usernameError.textContent = 'This username is already taken. Please choose another.';
+        usernameError.style.display = 'block';
+      } else {
+        console.log('Username is available');
+        // Clear any previous error
+        usernameError.style.display = 'none';
+        usernameError.textContent = '';
+      }
+    } catch (error) {
+      console.error('Error checking username availability:', error);
+      // Don't show error to user - just log it
       // The check will happen on form submission
-      console.log('Firebase Functions not available, skipping real-time username check');
     }
     });
   }
