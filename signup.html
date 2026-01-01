@@ -319,7 +319,8 @@
   const usernameInput = document.getElementById('username');
   const usernameError = document.getElementById('usernameError');
   
-  usernameInput.addEventListener('blur', async function() {
+  if (usernameInput && usernameError) {
+    usernameInput.addEventListener('blur', async function() {
     const username = usernameInput.value.trim();
     usernameError.style.display = 'none';
     usernameError.textContent = '';
@@ -348,20 +349,27 @@
     
     // If format is valid, check if username is already taken
     try {
-      // Wait for Firebase to be loaded
-      await new Promise((resolve) => {
+      // Wait for Firebase to be loaded (with timeout)
+      await new Promise((resolve, reject) => {
         if (window.firebaseFirestoreFunctions && window.firebaseDb) {
           resolve();
         } else {
+          let attempts = 0;
+          const maxAttempts = 50; // 5 seconds max wait
           const checkInterval = setInterval(() => {
+            attempts++;
             if (window.firebaseFirestoreFunctions && window.firebaseDb) {
               clearInterval(checkInterval);
               resolve();
+            } else if (attempts >= maxAttempts) {
+              clearInterval(checkInterval);
+              reject(new Error('Firebase not loaded'));
             }
           }, 100);
         }
       });
       
+      console.log('Checking if username is taken:', username);
       const usersRef = window.firebaseFirestoreFunctions.collection(window.firebaseDb, 'users');
       const usernameQuery = window.firebaseFirestoreFunctions.query(
         usersRef,
@@ -369,13 +377,22 @@
       );
       const usernameSnapshot = await window.firebaseFirestoreFunctions.getDocs(usernameQuery);
       
+      console.log('Username query result:', usernameSnapshot.empty ? 'available' : 'taken');
       if (!usernameSnapshot.empty) {
+        console.log('Username is taken, showing error');
         usernameError.textContent = 'This username is already taken. Please choose another.';
         usernameError.style.display = 'block';
+      } else {
+        console.log('Username is available');
+        // Clear any previous error
+        usernameError.style.display = 'none';
+        usernameError.textContent = '';
       }
     } catch (error) {
       console.error('Error checking username availability:', error);
-      // Don't show error to user if check fails - validation will happen on submit
+      // Show error to user if check fails
+      usernameError.textContent = 'Unable to check username availability. Please try again.';
+      usernameError.style.display = 'block';
     }
   });
 
