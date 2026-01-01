@@ -253,6 +253,7 @@
     <div class="input-group">
       <label for="username">Username</label>
       <input type="text" id="username" name="username" required>
+      <div class="error-message" id="usernameError" style="display: none;"></div>
     </div>
     <div class="input-group">
       <label for="email">Email</label>
@@ -313,6 +314,70 @@
   function goBack() {
     window.location.href = 'index.html';
   }
+
+  // Username validation on blur
+  const usernameInput = document.getElementById('username');
+  const usernameError = document.getElementById('usernameError');
+  
+  usernameInput.addEventListener('blur', async function() {
+    const username = usernameInput.value.trim();
+    usernameError.style.display = 'none';
+    usernameError.textContent = '';
+    
+    // Only validate if username is not empty
+    if (!username) {
+      return;
+    }
+    
+    // First check format validation
+    const usernameValidation = validateUsername(username);
+    if (!usernameValidation.isValid) {
+      const errorList = usernameValidation.errors;
+      let errorText = 'Username must contain ';
+      if (errorList.length === 1) {
+        errorText += errorList[0] + '.';
+      } else if (errorList.length === 2) {
+        errorText += errorList[0] + ' and ' + errorList[1] + '.';
+      } else {
+        errorText += errorList.slice(0, -1).join(', ') + ', and ' + errorList[errorList.length - 1] + '.';
+      }
+      usernameError.textContent = errorText;
+      usernameError.style.display = 'block';
+      return;
+    }
+    
+    // If format is valid, check if username is already taken
+    try {
+      // Wait for Firebase to be loaded
+      await new Promise((resolve) => {
+        if (window.firebaseFirestoreFunctions && window.firebaseDb) {
+          resolve();
+        } else {
+          const checkInterval = setInterval(() => {
+            if (window.firebaseFirestoreFunctions && window.firebaseDb) {
+              clearInterval(checkInterval);
+              resolve();
+            }
+          }, 100);
+        }
+      });
+      
+      const usersRef = window.firebaseFirestoreFunctions.collection(window.firebaseDb, 'users');
+      const usernameQuery = window.firebaseFirestoreFunctions.query(
+        usersRef,
+        window.firebaseFirestoreFunctions.where('username', '==', username)
+      );
+      const usernameSnapshot = await window.firebaseFirestoreFunctions.getDocs(usernameQuery);
+      
+      if (!usernameSnapshot.empty) {
+        usernameError.textContent = 'This username is already taken. Please choose another.';
+        usernameError.style.display = 'block';
+      }
+    } catch (error) {
+      console.error('Error checking username availability:', error);
+      // Don't show error to user if check fails - validation will happen on submit
+    }
+  });
 
   // Toggle password visibility
   const passwordInput = document.getElementById('password');
@@ -412,8 +477,10 @@
     const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
     const errorMessage = document.getElementById('errorMessage');
+    const usernameError = document.getElementById('usernameError');
     const submitButton = document.querySelector('input[type="submit"]');
     errorMessage.style.display = 'none';
+    usernameError.style.display = 'none';
     
     // Validate all required fields are filled
     if (!username) {
@@ -434,8 +501,8 @@
       } else {
         errorText += errorList.slice(0, -1).join(', ') + ', and ' + errorList[errorList.length - 1] + '.';
       }
-      errorMessage.textContent = errorText;
-      errorMessage.style.display = 'block';
+      usernameError.textContent = errorText;
+      usernameError.style.display = 'block';
       return;
     }
     
@@ -508,8 +575,8 @@
         const usernameSnapshot = await window.firebaseFirestoreFunctions.getDocs(usernameQuery);
         
         if (!usernameSnapshot.empty) {
-          errorMessage.textContent = 'This username is already taken. Please choose another.';
-          errorMessage.style.display = 'block';
+          usernameError.textContent = 'This username is already taken. Please choose another.';
+          usernameError.style.display = 'block';
           if (submitButton) {
             submitButton.disabled = false;
             submitButton.classList.remove('loading');
