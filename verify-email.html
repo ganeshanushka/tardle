@@ -235,7 +235,32 @@
       }
       
       const accountNumber = await generateUniqueAccountNumber();
-      const username = user.email?.split('@')[0] || 'User';
+      
+      // Get username from sessionStorage (set during signup) or fallback to email prefix
+      let username = sessionStorage.getItem('pendingUsername');
+      if (username) {
+        sessionStorage.removeItem('pendingUsername'); // Clean up after use
+        
+        // Double-check username is still available (race condition protection)
+        const usersRef = window.firebaseFirestoreFunctions.collection(window.firebaseDb, 'users');
+        const usernameQuery = window.firebaseFirestoreFunctions.query(
+          usersRef,
+          window.firebaseFirestoreFunctions.where('username', '==', username)
+        );
+        const usernameSnapshot = await window.firebaseFirestoreFunctions.getDocs(usernameQuery);
+        
+        if (!usernameSnapshot.empty) {
+          // Username was taken between signup and verification
+          // Fallback to email prefix with random number
+          console.warn('Username was taken, using fallback');
+          const emailPrefix = user.email?.split('@')[0] || 'User';
+          const randomNum = Math.floor(Math.random() * 1000);
+          username = emailPrefix + randomNum;
+        }
+      } else {
+        // Fallback to email prefix if no username was stored
+        username = user.email?.split('@')[0] || 'User';
+      }
       
       // Create user document in Firestore
       await window.firebaseFirestoreFunctions.setDoc(userDocRef, {

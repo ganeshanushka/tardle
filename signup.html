@@ -366,6 +366,46 @@
     };
   }
 
+  // Username validation function
+  function validateUsername(username) {
+    const errors = [];
+    
+    // Check length (3-20 characters)
+    if (username.length < 3) {
+      errors.push('at least 3 characters');
+    }
+    if (username.length > 20) {
+      errors.push('no more than 20 characters');
+    }
+    
+    // Check for underscores
+    if (username.includes('_')) {
+      errors.push('no underscores');
+    }
+    
+    // Check for allowed characters (alphanumeric only, no spaces, no special chars except maybe hyphens)
+    // Allow only letters, numbers, and hyphens
+    const usernameRegex = /^[a-zA-Z0-9-]+$/;
+    if (!usernameRegex.test(username)) {
+      errors.push('only letters, numbers, and hyphens');
+    }
+    
+    // Check it doesn't start or end with a hyphen
+    if (username.startsWith('-') || username.endsWith('-')) {
+      errors.push('cannot start or end with a hyphen');
+    }
+    
+    // Check it has at least one letter (not just numbers and hyphens)
+    if (!/[a-zA-Z]/.test(username)) {
+      errors.push('at least one letter');
+    }
+    
+    return {
+      isValid: errors.length === 0,
+      errors: errors
+    };
+  }
+
   // Account creation function
   async function createAccount() {
     const username = document.getElementById('username').value.trim();
@@ -378,6 +418,23 @@
     // Validate all required fields are filled
     if (!username) {
       errorMessage.textContent = 'Please enter your username.';
+      errorMessage.style.display = 'block';
+      return;
+    }
+    
+    // Validate username format
+    const usernameValidation = validateUsername(username);
+    if (!usernameValidation.isValid) {
+      const errorList = usernameValidation.errors;
+      let errorText = 'Username must contain ';
+      if (errorList.length === 1) {
+        errorText += errorList[0] + '.';
+      } else if (errorList.length === 2) {
+        errorText += errorList[0] + ' and ' + errorList[1] + '.';
+      } else {
+        errorText += errorList.slice(0, -1).join(', ') + ', and ' + errorList[errorList.length - 1] + '.';
+      }
+      errorMessage.textContent = errorText;
       errorMessage.style.display = 'block';
       return;
     }
@@ -440,6 +497,34 @@
           }, 100);
         }
       });
+      
+      // Check if username already exists
+      try {
+        const usersRef = window.firebaseFirestoreFunctions.collection(window.firebaseDb, 'users');
+        const usernameQuery = window.firebaseFirestoreFunctions.query(
+          usersRef,
+          window.firebaseFirestoreFunctions.where('username', '==', username)
+        );
+        const usernameSnapshot = await window.firebaseFirestoreFunctions.getDocs(usernameQuery);
+        
+        if (!usernameSnapshot.empty) {
+          errorMessage.textContent = 'This username is already taken. Please choose another.';
+          errorMessage.style.display = 'block';
+          if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.classList.remove('loading');
+            submitButton.value = 'Create account';
+          }
+          return;
+        }
+      } catch (usernameCheckError) {
+        console.error('Error checking username availability:', usernameCheckError);
+        // Continue with account creation even if username check fails
+        // The duplicate check will happen again in verify-email.html
+      }
+      
+      // Store username in sessionStorage to pass to verify-email.html
+      sessionStorage.setItem('pendingUsername', username);
       
       // Create user account with Firebase Auth
       const userCredential = await window.firebaseAuthFunctions.createUserWithEmailAndPassword(window.firebaseAuth, email, password);
