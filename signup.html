@@ -523,8 +523,9 @@
         // The duplicate check will happen again in verify-email.html
       }
       
-      // Store username in sessionStorage to pass to verify-email.html
-      sessionStorage.setItem('pendingUsername', username);
+      // Store username in localStorage to pass to verify-email.html
+      // Use localStorage instead of sessionStorage for better persistence
+      localStorage.setItem('pendingUsername', username);
       
       // Create user account with Firebase Auth
       const userCredential = await window.firebaseAuthFunctions.createUserWithEmailAndPassword(window.firebaseAuth, email, password);

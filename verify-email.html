@@ -236,10 +236,10 @@
       
       const accountNumber = await generateUniqueAccountNumber();
       
-      // Get username from sessionStorage (set during signup) or fallback to email prefix
-      let username = sessionStorage.getItem('pendingUsername');
+      // Get username from localStorage (set during signup) or fallback to email prefix
+      let username = localStorage.getItem('pendingUsername');
       if (username) {
-        sessionStorage.removeItem('pendingUsername'); // Clean up after use
+        localStorage.removeItem('pendingUsername'); // Clean up after use
         
         // Double-check username is still available (race condition protection)
         const usersRef = window.firebaseFirestoreFunctions.collection(window.firebaseDb, 'users');
