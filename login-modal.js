@@ -227,8 +227,8 @@
   function setupFormHandler() {
     const form = document.getElementById('loginModalForm');
     if (!form) return;
-
-    // Remove existing listeners by cloning the form
+    
+    // Remove any existing event listeners by cloning
     const newForm = form.cloneNode(true);
     form.parentNode.replaceChild(newForm, form);
 
