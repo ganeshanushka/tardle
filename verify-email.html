@@ -251,11 +251,8 @@
         
         if (!usernameSnapshot.empty) {
           // Username was taken between signup and verification
-          // Fallback to email prefix with random number
-          console.warn('Username was taken, using fallback');
-          const emailPrefix = user.email?.split('@')[0] || 'User';
-          const randomNum = Math.floor(Math.random() * 1000);
-          username = emailPrefix + randomNum;
+          // Throw error to prevent document creation and force user to pick new username
+          throw new Error('This username is already taken. Please contact support or sign up again with a different username.');
         }
       } else {
         // Fallback to email prefix if no username was stored
@@ -279,7 +276,11 @@
       console.log('✓ User Firestore document created successfully with account number:', accountNumber);
     } catch (error) {
       console.error('Error creating Firestore document:', error);
-      // Don't throw - verification is still successful even if Firestore creation fails
+      // If it's a username error, re-throw it so it can be handled by the caller
+      if (error.message && error.message.includes('username')) {
+        throw error;
+      }
+      // For other errors, don't throw - verification is still successful even if Firestore creation fails
     }
   }
 
@@ -313,13 +314,31 @@
           if (user.emailVerified) {
             console.log('✓ User email is already verified');
             // Create Firestore document if it doesn't exist
-            await createUserDocument(user);
-            document.getElementById('successMessage').textContent = 'Your email has been verified! Redirecting...';
-            document.getElementById('successMessage').classList.add('show');
-            setTimeout(() => {
-              window.location.href = 'index.html';
-            }, 2000);
-            return;
+            try {
+              await createUserDocument(user);
+              document.getElementById('successMessage').textContent = 'Your email has been verified! Redirecting...';
+              document.getElementById('successMessage').classList.add('show');
+              setTimeout(() => {
+                window.location.href = 'index.html';
+              }, 2000);
+              return;
+            } catch (docError) {
+              // If username error, show it to user
+              if (docError.message && docError.message.includes('username')) {
+                document.getElementById('errorMessage').textContent = docError.message;
+                document.getElementById('errorMessage').classList.add('show');
+                return;
+              }
+              // For other errors, continue (don't block verification)
+              console.error('Error creating user document:', docError);
+              // Still show success and redirect even if document creation failed (for non-username errors)
+              document.getElementById('successMessage').textContent = 'Your email has been verified! Redirecting...';
+              document.getElementById('successMessage').classList.add('show');
+              setTimeout(() => {
+                window.location.href = 'index.html';
+              }, 2000);
+              return;
+            }
           }
           
           // If not verified, try sending verification email automatically
@@ -476,13 +495,24 @@
               await user.reload();
               if (user.emailVerified) {
                 // Create Firestore document now that email is verified
-                await createUserDocument(user);
-                document.getElementById('successMessage').textContent = 'Email verified successfully! Redirecting...';
-                document.getElementById('successMessage').classList.add('show');
-                setTimeout(() => {
-                  window.location.href = 'index.html';
-                }, 2000);
-                return;
+                try {
+                  await createUserDocument(user);
+                  document.getElementById('successMessage').textContent = 'Email verified successfully! Redirecting...';
+                  document.getElementById('successMessage').classList.add('show');
+                  setTimeout(() => {
+                    window.location.href = 'index.html';
+                  }, 2000);
+                  return;
+                } catch (docError) {
+                  // If username error, show it to user
+                  if (docError.message && docError.message.includes('username')) {
+                    document.getElementById('errorMessage').textContent = docError.message;
+                    document.getElementById('errorMessage').classList.add('show');
+                    return;
+                  }
+                  // For other errors, continue (don't block verification)
+                  console.error('Error creating user document:', docError);
+                }
               }
             }
           }
