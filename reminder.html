@@ -485,7 +485,7 @@
 
     function showSignupButton() {
       const loginStatus = document.getElementById('loginStatus');
-      loginStatus.innerHTML = '<button onclick="openModal()" class="signup-button">Sign Up</button><p class="small" style="margin-top: 12px; margin-bottom: 0;">Already have an account? <a href="#" onclick="openModal(); return false;" class="login-link">Log in to get it.</a></p>';
+      loginStatus.innerHTML = '<a href="login.html?return=reminder.html" class="signup-button">Sign Up</a><p class="small" style="margin-top: 12px; margin-bottom: 0;">Already have an account? <a href="login.html?return=reminder.html" class="login-link">Log in to get it.</a></p>';
     }
     
     function openModal() {
