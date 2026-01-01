@@ -169,6 +169,8 @@
     // Add modal HTML if not already present
     if (!document.getElementById('loginModalOverlay')) {
       document.body.insertAdjacentHTML('beforeend', modalHTML);
+      // Setup form handler after modal HTML is injected
+      setTimeout(setupFormHandler, 50);
     }
   }
 
@@ -182,6 +184,15 @@
     
     const overlay = document.getElementById('loginModalOverlay');
     const emailInput = document.getElementById('loginModalEmail');
+    
+    // Ensure form handler is set up (it will be called from initModal if modal was just created)
+    // If modal already exists, ensure handler is set up
+    setTimeout(() => {
+      const form = document.getElementById('loginModalForm');
+      if (form) {
+        setupFormHandler();
+      }
+    }, 150);
     
     if (overlay) {
       overlay.classList.add('active');
@@ -336,13 +347,19 @@
     });
   }
 
-  // Setup form handler when DOM is ready
+  // Setup form handler when DOM is ready (will also be called when modal is initialized)
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function() {
-      setTimeout(setupFormHandler, 100);
+      // Only setup if modal already exists
+      if (document.getElementById('loginModalForm')) {
+        setTimeout(setupFormHandler, 100);
+      }
     });
   } else {
-    setTimeout(setupFormHandler, 100);
+    // Only setup if modal already exists
+    if (document.getElementById('loginModalForm')) {
+      setTimeout(setupFormHandler, 100);
+    }
   }
 
   // Close modal when clicking outside
