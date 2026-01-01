@@ -442,8 +442,9 @@
             <h3 class="subscription-title">Sign up for daily reminders</h3>
             <p class="subscription-description">Get notified when a new puzzle is released daily at midnight</p>
             <p class="subscription-subdescription">Never miss a Tardle puzzle with our daily email reminder.</p>
+            <div id="emailReminderStatus" style="margin-top: 8px; font-size: 14px; color: #666; display: none;"></div>
           </div>
-          <a href="reminder.html" class="subscription-button">Sign up</a>
+          <a href="reminder.html" class="subscription-button" id="reminderButton">Sign up</a>
         </div>
         <hr class="subscription-divider">
       </div>
@@ -914,6 +915,22 @@
             passwordEl.classList.remove('loading');
           }
 
+          // Display email reminder subscription status
+          const emailReminderStatusEl = document.getElementById('emailReminderStatus');
+          const reminderButtonEl = document.getElementById('reminderButton');
+          if (emailReminderStatusEl && reminderButtonEl) {
+            const isSubscribed = userData.emailSubscribed === true;
+            if (isSubscribed) {
+              emailReminderStatusEl.textContent = '✓ You are subscribed to daily reminder emails.';
+              emailReminderStatusEl.style.color = '#4caf50';
+              emailReminderStatusEl.style.display = 'block';
+              reminderButtonEl.textContent = 'Manage subscription';
+            } else {
+              emailReminderStatusEl.style.display = 'none';
+              reminderButtonEl.textContent = 'Sign up';
+            }
+          }
+
         } else {
           // User document doesn't exist - create it now
           console.log('User document does not exist, creating it now...');
@@ -1029,6 +1046,22 @@
                   passwordEl.style.color = '#999';
                 }
                 passwordEl.classList.remove('loading');
+              }
+              
+              // Display email reminder subscription status
+              const emailReminderStatusEl = document.getElementById('emailReminderStatus');
+              const reminderButtonEl = document.getElementById('reminderButton');
+              if (emailReminderStatusEl && reminderButtonEl) {
+                const isSubscribed = userData.emailSubscribed === true;
+                if (isSubscribed) {
+                  emailReminderStatusEl.textContent = '✓ You are subscribed to daily reminder emails.';
+                  emailReminderStatusEl.style.color = '#4caf50';
+                  emailReminderStatusEl.style.display = 'block';
+                  reminderButtonEl.textContent = 'Manage subscription';
+                } else {
+                  emailReminderStatusEl.style.display = 'none';
+                  reminderButtonEl.textContent = 'Sign up';
+                }
               }
               
               // Display member since date
@@ -1150,6 +1183,14 @@
                 passwordEl.style.color = '#999';
               }
               passwordEl.classList.remove('loading');
+            }
+            
+            // Display email reminder subscription status (default to not subscribed if document creation failed)
+            const emailReminderStatusEl = document.getElementById('emailReminderStatus');
+            const reminderButtonEl = document.getElementById('reminderButton');
+            if (emailReminderStatusEl && reminderButtonEl) {
+              emailReminderStatusEl.style.display = 'none';
+              reminderButtonEl.textContent = 'Sign up';
             }
           }
           
