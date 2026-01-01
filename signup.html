@@ -349,36 +349,34 @@
     
     // If format is valid, check if username is already taken
     try {
-      // Wait for Firebase to be loaded (with timeout)
+      // Wait for Firebase Functions to be loaded (with timeout)
       await new Promise((resolve, reject) => {
-        if (window.firebaseFirestoreFunctions && window.firebaseDb) {
+        if (window.firebaseFunctionsFunctions && window.firebaseFunctionsInstance) {
           resolve();
         } else {
           let attempts = 0;
           const maxAttempts = 50; // 5 seconds max wait
           const checkInterval = setInterval(() => {
             attempts++;
-            if (window.firebaseFirestoreFunctions && window.firebaseDb) {
+            if (window.firebaseFunctionsFunctions && window.firebaseFunctionsInstance) {
               clearInterval(checkInterval);
               resolve();
             } else if (attempts >= maxAttempts) {
               clearInterval(checkInterval);
-              reject(new Error('Firebase not loaded'));
+              reject(new Error('Firebase Functions not loaded'));
             }
           }, 100);
         }
       });
       
       console.log('Checking if username is taken:', username);
-      const usersRef = window.firebaseFirestoreFunctions.collection(window.firebaseDb, 'users');
-      const usernameQuery = window.firebaseFirestoreFunctions.query(
-        usersRef,
-        window.firebaseFirestoreFunctions.where('username', '==', username)
-      );
-      const usernameSnapshot = await window.firebaseFirestoreFunctions.getDocs(usernameQuery);
       
-      console.log('Username query result:', usernameSnapshot.empty ? 'available' : 'taken');
-      if (!usernameSnapshot.empty) {
+      // Use Cloud Function to check username availability (more secure)
+      const checkUsernameAvailability = window.firebaseFunctionsFunctions.httpsCallable(window.firebaseFunctionsInstance, 'checkUsernameAvailability');
+      const result = await checkUsernameAvailability({ username: username });
+      
+      console.log('Username availability result:', result.data);
+      if (!result.data.available) {
         console.log('Username is taken, showing error');
         usernameError.textContent = 'This username is already taken. Please choose another.';
         usernameError.style.display = 'block';
@@ -570,11 +568,11 @@
     try {
       // Wait for Firebase to be loaded
       await new Promise((resolve) => {
-        if (window.firebaseAuthFunctions && window.firebaseFirestoreFunctions) {
+        if (window.firebaseAuthFunctions && window.firebaseFirestoreFunctions && window.firebaseFunctionsFunctions && window.firebaseFunctionsInstance) {
           resolve();
         } else {
           const checkInterval = setInterval(() => {
-            if (window.firebaseAuthFunctions && window.firebaseFirestoreFunctions) {
+            if (window.firebaseAuthFunctions && window.firebaseFirestoreFunctions && window.firebaseFunctionsFunctions && window.firebaseFunctionsInstance) {
               clearInterval(checkInterval);
               resolve();
             }
@@ -582,16 +580,12 @@
         }
       });
       
-      // Check if username already exists
+      // Check if username already exists using Cloud Function
       try {
-        const usersRef = window.firebaseFirestoreFunctions.collection(window.firebaseDb, 'users');
-        const usernameQuery = window.firebaseFirestoreFunctions.query(
-          usersRef,
-          window.firebaseFirestoreFunctions.where('username', '==', username)
-        );
-        const usernameSnapshot = await window.firebaseFirestoreFunctions.getDocs(usernameQuery);
+        const checkUsernameAvailability = window.firebaseFunctionsFunctions.httpsCallable(window.firebaseFunctionsInstance, 'checkUsernameAvailability');
+        const result = await checkUsernameAvailability({ username: username });
         
-        if (!usernameSnapshot.empty) {
+        if (!result.data.available) {
           usernameError.textContent = 'This username is already taken. Please choose another.';
           usernameError.style.display = 'block';
           if (submitButton) {

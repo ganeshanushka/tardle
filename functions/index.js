@@ -503,3 +503,36 @@ exports.cleanupUnverifiedAccounts = functions.pubsub
     }
   });
 
+// Check if username is available (for signup validation)
+exports.checkUsernameAvailability = functions.https.onCall(async (data, context) => {
+  try {
+    const { username } = data;
+    
+    if (!username || typeof username !== 'string') {
+      throw new functions.https.HttpsError('invalid-argument', 'Username is required and must be a string');
+    }
+    
+    // Trim and validate username format
+    const trimmedUsername = username.trim();
+    if (trimmedUsername.length < 3 || trimmedUsername.length > 20) {
+      throw new functions.https.HttpsError('invalid-argument', 'Username must be between 3 and 20 characters');
+    }
+    
+    // Check if username already exists
+    const usersRef = db.collection('users');
+    const usernameQuery = usersRef.where('username', '==', trimmedUsername).limit(1);
+    const usernameSnapshot = await usernameQuery.get();
+    
+    // Return true if available (empty), false if taken
+    return {
+      available: usernameSnapshot.empty
+    };
+  } catch (error) {
+    console.error('Error checking username availability:', error);
+    if (error instanceof functions.https.HttpsError) {
+      throw error;
+    }
+    throw new functions.https.HttpsError('internal', 'Error checking username availability');
+  }
+});
+
