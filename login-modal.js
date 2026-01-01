@@ -608,6 +608,16 @@
       // Hide error
       if (errorDiv) errorDiv.style.display = 'none';
       
+      // Validate email format with regex - EXACT from signin.html
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!email || !emailRegex.test(email)) {
+        if (errorDiv) {
+          errorDiv.textContent = 'Please enter a valid email address';
+          errorDiv.style.display = 'block';
+        }
+        return;
+      }
+      
       // Disable submit button
       if (submitBtn) {
         submitBtn.disabled = true;
@@ -649,23 +659,34 @@
         }
       } catch (error) {
         console.error('Sign in error:', error);
+        console.error('Error code:', error.code);
         if (submitBtn) {
           submitBtn.disabled = false;
           submitBtn.value = 'Log in';
         }
         
-        // Show error
+        // Show error - EXACT error handling from signin.html
         if (errorDiv) {
-          if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential' || error.code === 'auth/invalid-login-credentials') {
-            errorDiv.textContent = 'Wrong password. Try again.';
-          } else if (error.code === 'auth/user-not-found') {
-            errorDiv.textContent = 'No account found with this email address.';
-          } else {
-            errorDiv.textContent = 'Wrong password. Try again.';
-          }
           errorDiv.style.display = 'block';
-          passwordInput.value = '';
-          passwordInput.focus();
+          if (error.code === 'auth/user-not-found') {
+            errorDiv.textContent = 'No account found with this email address.';
+          } else if (error.code === 'auth/wrong-password' || 
+                     error.code === 'auth/invalid-credential' || 
+                     error.code === 'auth/invalid-login-credentials') {
+            // Match the error message from delete account page
+            errorDiv.textContent = 'Wrong password. Try again.';
+            // Clear password field on wrong password
+            passwordInput.value = '';
+            passwordInput.focus();
+          } else if (error.code === 'auth/invalid-email') {
+            errorDiv.textContent = 'Invalid email address. Please enter a valid email.';
+          } else {
+            // For any other error, show a generic message
+            errorDiv.textContent = 'Wrong password. Try again.';
+            // Clear password field
+            passwordInput.value = '';
+            passwordInput.focus();
+          }
         }
       }
     });
@@ -697,6 +718,7 @@
       // Hide error
       if (errorDiv) errorDiv.style.display = 'none';
       
+      // Validate all required fields are filled - EXACT from signup.html
       // Validate username
       if (!username) {
         if (errorDiv) {
@@ -706,7 +728,33 @@
         return;
       }
       
-      // Validate password
+      // Validate email format with regex - EXACT from signup.html
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!email || !emailRegex.test(email)) {
+        if (errorDiv) {
+          errorDiv.textContent = 'Please enter a valid email address.';
+          errorDiv.style.display = 'block';
+        }
+        return;
+      }
+      
+      // Validate password requirements - EXACT validation from signup.html
+      if (!password) {
+        if (errorDiv) {
+          errorDiv.textContent = 'Please enter a password.';
+          errorDiv.style.display = 'block';
+        }
+        return;
+      }
+      
+      if (password.length > 128) {
+        if (errorDiv) {
+          errorDiv.textContent = 'Password must be 128 characters or less.';
+          errorDiv.style.display = 'block';
+        }
+        return;
+      }
+      
       const passwordValidation = validatePassword(password);
       if (!passwordValidation.isValid) {
         if (errorDiv) {
