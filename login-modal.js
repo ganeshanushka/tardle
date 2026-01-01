@@ -29,7 +29,7 @@
             </div>
           </form>
           <p class="login-modal-terms">
-            By continuing, you agree to the updated <a href="privacy-policy.html">Terms of Service</a>, 
+            By continuing, you agree to the updated <a href="terms-of-service.html">Terms of Service</a>, 
             and <a href="privacy-policy.html">Privacy Policy</a>.
           </p>
         </div>
@@ -64,7 +64,7 @@
             </div>
           </form>
           <p class="login-modal-terms">
-            By continuing, you agree to the updated <a href="privacy-policy.html">Terms of Service</a>, 
+            By continuing, you agree to the updated <a href="terms-of-service.html">Terms of Service</a>, 
             and <a href="privacy-policy.html">Privacy Policy</a>.
           </p>
         </div>
@@ -105,7 +105,7 @@
             </div>
           </form>
           <p class="login-modal-terms">
-            By continuing, you agree to the updated <a href="privacy-policy.html">Terms of Service</a>, 
+            By continuing, you agree to the updated <a href="terms-of-service.html">Terms of Service</a>, 
             and <a href="privacy-policy.html">Privacy Policy</a>.
           </p>
         </div>
