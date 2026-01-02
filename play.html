@@ -2910,10 +2910,7 @@
                         if (logoutButton) {
                           logoutButton.textContent = 'LOG OUT';
                         }
-                        // Show the same popup that appears when clicking the question mark button after 150ms
-                        setTimeout(() => {
-                          handleHelpClick();
-                        }, 150);
+                        // User is logged in - go directly to game grid without showing popup
                       } else {
                         // User is not logged in - hide PROFILE section and show login prompt after 150ms
                         const logoutButtonContainer = document.getElementById('logoutButtonContainer');
@@ -2971,10 +2968,7 @@
                           if (logoutButton) {
                             logoutButton.textContent = 'LOG OUT';
                           }
-                          // Show the same popup that appears when clicking the question mark button after 150ms
-                          setTimeout(() => {
-                            handleHelpClick();
-                          }, 150);
+                          // User is logged in - go directly to game grid without showing popup
                         } else {
                           // User is not logged in - hide PROFILE section
                           if (profileSection) {

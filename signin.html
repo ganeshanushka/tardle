@@ -295,8 +295,8 @@
         return;
       }
       
-      // Redirect to return URL if provided, otherwise to home page
-      const redirectUrl = returnUrl || 'index.html';
+      // Redirect to return URL if provided, otherwise to game page
+      const redirectUrl = returnUrl || 'play.html';
       window.location.href = redirectUrl;
     } catch (error) {
       console.error('Sign in error:', error);
