@@ -536,3 +536,252 @@ exports.checkUsernameAvailability = functions.https.onCall(async (data, context)
   }
 });
 
+// Send password reset code
+exports.sendPasswordResetCode = functions.https.onCall(async (data, context) => {
+  try {
+    const { email } = data;
+
+    if (!email) {
+      throw new functions.https.HttpsError('invalid-argument', 'Email is required');
+    }
+
+    // Find user by email
+    let user;
+    try {
+      user = await admin.auth().getUserByEmail(email);
+    } catch (authError) {
+      if (authError.code === 'auth/user-not-found') {
+        // Don't reveal that email doesn't exist - security best practice
+        // Still return success to prevent email enumeration
+        console.log(`Password reset requested for non-existent email: ${email}`);
+        return { success: true };
+      }
+      throw authError;
+    }
+
+    // Find user document in Firestore
+    const userDocRef = db.collection('users').doc(user.uid);
+    const userDoc = await userDocRef.get();
+
+    if (!userDoc.exists) {
+      // User exists in Auth but not in Firestore - still allow password reset
+      console.log(`Password reset for user ${user.uid} without Firestore document`);
+    }
+
+    // Generate 6-digit verification code
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = Date.now() + (10 * 60 * 1000); // 10 minutes from now
+
+    // Store verification code in Firestore
+    if (userDoc.exists) {
+      await userDocRef.update({
+        passwordResetVerification: {
+          code: verificationCode,
+          expiresAt: expiresAt,
+          createdAt: admin.firestore.FieldValue.serverTimestamp()
+        }
+      });
+    } else {
+      // Create user document if it doesn't exist
+      await userDocRef.set({
+        passwordResetVerification: {
+          code: verificationCode,
+          expiresAt: expiresAt,
+          createdAt: admin.firestore.FieldValue.serverTimestamp()
+        }
+      });
+    }
+
+    // Send email with code
+    if (!resend) {
+      throw new functions.https.HttpsError('failed-precondition', 'Resend API key is not configured');
+    }
+
+    await resend.emails.send({
+      from: "Tardle <no-reply@playtardle.com>",
+      to: email,
+      subject: "Reset your Tardle password",
+      html: `
+        <h2>Reset your password</h2>
+        <p>You requested to reset your password. Enter the following code to update your login:</p>
+        <div style="background-color: #f5f5f5; padding: 20px; text-align: center; margin: 20px 0; border-radius: 8px;">
+          <h1 style="font-size: 32px; letter-spacing: 8px; color: #001A57; margin: 0;">${verificationCode}</h1>
+        </div>
+        <p>This code expires in 10 minutes.</p>
+        <p>If you didn't request a password reset, please ignore this email.</p>
+        <p>Thanks,<br>The Tardle Team</p>
+      `,
+    });
+
+    console.log(`Password reset code sent to ${email}`);
+    return { success: true };
+  } catch (err) {
+    console.error("Error sending password reset code:", err);
+    if (err instanceof functions.https.HttpsError) {
+      throw err;
+    }
+    throw new functions.https.HttpsError('internal', 'Failed to send password reset code');
+  }
+});
+
+// Verify password reset code and generate reset token
+exports.verifyPasswordResetCode = functions.https.onCall(async (data, context) => {
+  try {
+    const { email, code } = data;
+
+    if (!email || !code) {
+      throw new functions.https.HttpsError('invalid-argument', 'Email and code are required');
+    }
+
+    // Find user by email
+    let user;
+    try {
+      user = await admin.auth().getUserByEmail(email);
+    } catch (authError) {
+      if (authError.code === 'auth/user-not-found') {
+        throw new functions.https.HttpsError('not-found', 'Invalid or expired verification code');
+      }
+      throw authError;
+    }
+
+    // Get user document from Firestore
+    const userDocRef = db.collection('users').doc(user.uid);
+    const userDoc = await userDocRef.get();
+
+    if (!userDoc.exists) {
+      throw new functions.https.HttpsError('not-found', 'Invalid or expired verification code');
+    }
+
+    const userData = userDoc.data();
+    const resetData = userData.passwordResetVerification;
+
+    if (!resetData) {
+      throw new functions.https.HttpsError('not-found', 'Invalid or expired verification code');
+    }
+
+    // Verify code matches
+    if (resetData.code !== code) {
+      throw new functions.https.HttpsError('invalid-argument', 'Invalid verification code');
+    }
+
+    // Check if code has expired
+    const expiresAt = resetData.expiresAt;
+    let isExpired = false;
+    if (expiresAt) {
+      if (expiresAt.toMillis) {
+        isExpired = expiresAt.toMillis() < Date.now();
+      } else if (typeof expiresAt === 'number') {
+        isExpired = expiresAt < Date.now();
+      }
+    }
+    
+    if (isExpired) {
+      throw new functions.https.HttpsError('deadline-exceeded', 'Verification code has expired');
+    }
+
+    // Generate reset token (secure random string)
+    const resetToken = require('crypto').randomBytes(32).toString('hex');
+    const tokenExpiresAt = Date.now() + (10 * 60 * 1000); // 10 minutes
+
+    // Store reset token
+    await userDocRef.update({
+      passwordResetToken: {
+        token: resetToken,
+        expiresAt: tokenExpiresAt,
+        createdAt: admin.firestore.FieldValue.serverTimestamp()
+      },
+      passwordResetVerification: admin.firestore.FieldValue.delete() // Remove code after verification
+    });
+
+    console.log(`Password reset code verified for ${email}`);
+    return { success: true, token: resetToken };
+  } catch (err) {
+    console.error("Error verifying password reset code:", err);
+    if (err instanceof functions.https.HttpsError) {
+      throw err;
+    }
+    throw new functions.https.HttpsError('internal', 'Failed to verify password reset code');
+  }
+});
+
+// Reset password with token
+exports.resetPasswordWithToken = functions.https.onCall(async (data, context) => {
+  try {
+    const { email, token, newPassword } = data;
+
+    if (!email || !token || !newPassword) {
+      throw new functions.https.HttpsError('invalid-argument', 'Email, token, and new password are required');
+    }
+
+    // Validate password (same rules as signup)
+    if (newPassword.length < 8 || newPassword.length > 128) {
+      throw new functions.https.HttpsError('invalid-argument', 'Password must be between 8 and 128 characters');
+    }
+
+    // Find user by email
+    let user;
+    try {
+      user = await admin.auth().getUserByEmail(email);
+    } catch (authError) {
+      if (authError.code === 'auth/user-not-found') {
+        throw new functions.https.HttpsError('not-found', 'Invalid reset token');
+      }
+      throw authError;
+    }
+
+    // Get user document from Firestore
+    const userDocRef = db.collection('users').doc(user.uid);
+    const userDoc = await userDocRef.get();
+
+    if (!userDoc.exists) {
+      throw new functions.https.HttpsError('not-found', 'Invalid reset token');
+    }
+
+    const userData = userDoc.data();
+    const tokenData = userData.passwordResetToken;
+
+    if (!tokenData) {
+      throw new functions.https.HttpsError('not-found', 'Invalid or expired reset token');
+    }
+
+    // Verify token matches
+    if (tokenData.token !== token) {
+      throw new functions.https.HttpsError('invalid-argument', 'Invalid reset token');
+    }
+
+    // Check if token has expired
+    const expiresAt = tokenData.expiresAt;
+    let isExpired = false;
+    if (expiresAt) {
+      if (expiresAt.toMillis) {
+        isExpired = expiresAt.toMillis() < Date.now();
+      } else if (typeof expiresAt === 'number') {
+        isExpired = expiresAt < Date.now();
+      }
+    }
+    
+    if (isExpired) {
+      throw new functions.https.HttpsError('deadline-exceeded', 'Reset token has expired');
+    }
+
+    // Update password using Admin SDK
+    await admin.auth().updateUser(user.uid, {
+      password: newPassword
+    });
+
+    // Remove reset token from Firestore
+    await userDocRef.update({
+      passwordResetToken: admin.firestore.FieldValue.delete()
+    });
+
+    console.log(`Password reset successful for ${email}`);
+    return { success: true };
+  } catch (err) {
+    console.error("Error resetting password:", err);
+    if (err instanceof functions.https.HttpsError) {
+      throw err;
+    }
+    throw new functions.https.HttpsError('internal', 'Failed to reset password');
+  }
+});
+
