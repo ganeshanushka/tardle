@@ -68,13 +68,30 @@
     
     <input type="email" id="email" placeholder="your@email.com" value="anushkag@unc.edu">
     <br>
-    <button id="getCodeBtn" onclick="getCode()">Get Code</button>
+    <button id="getCodeBtn">Get Code</button>
     
     <div id="result"></div>
 
-    <script src="firebase-config.js"></script>
-    <script>
-        async function getCode() {
+    <script type="module">
+        // Import Firebase config
+        await import('./firebase-config.js');
+        
+        // Wait for Firebase to initialize
+        await new Promise(resolve => {
+            if (window.firebaseFunctionsFunctions && window.firebaseFunctionsInstance) {
+                resolve();
+            } else {
+                const checkInterval = setInterval(() => {
+                    if (window.firebaseFunctionsFunctions && window.firebaseFunctionsInstance) {
+                        clearInterval(checkInterval);
+                        resolve();
+                    }
+                }, 100);
+            }
+        });
+        
+        // Make getCode function available globally
+        window.getCode = async function() {
             const email = document.getElementById('email').value.trim();
             const resultDiv = document.getElementById('result');
             const button = document.getElementById('getCodeBtn');
@@ -122,7 +139,17 @@
                 button.disabled = false;
                 button.textContent = 'Get Code';
             }
-        }
+        };
+    </script>
+    <script>
+        // Non-module script for button onclick
+        document.getElementById('getCodeBtn').addEventListener('click', function() {
+            if (window.getCode) {
+                window.getCode();
+            } else {
+                console.error('Firebase not loaded yet');
+            }
+        });
     </script>
 </body>
 </html>
