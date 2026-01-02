@@ -717,6 +717,54 @@ exports.verifyPasswordResetCode = functions.https.onCall(async (data, context) =
   }
 });
 
+// Temporary: Get password reset code (for debugging only - remove in production)
+exports.getPasswordResetCode = functions.https.onCall(async (data, context) => {
+  try {
+    const { email } = data;
+    
+    if (!email) {
+      throw new functions.https.HttpsError('invalid-argument', 'Email is required');
+    }
+    
+    // Find user by email
+    const user = await admin.auth().getUserByEmail(email);
+    
+    // Get user document from Firestore
+    const userDoc = await db.collection('users').doc(user.uid).get();
+    
+    if (!userDoc.exists) {
+      throw new functions.https.HttpsError('not-found', 'User document not found');
+    }
+    
+    const userData = userDoc.data();
+    const resetData = userData.passwordResetVerification;
+    
+    if (!resetData) {
+      throw new functions.https.HttpsError('not-found', 'No password reset code found');
+    }
+    
+    // Check expiration
+    const expiresAt = resetData.expiresAt;
+    let isExpired = false;
+    if (expiresAt) {
+      const expiresDate = typeof expiresAt === 'number' ? new Date(expiresAt) : (expiresAt.toDate ? expiresAt.toDate() : new Date(expiresAt));
+      isExpired = expiresDate < new Date();
+    }
+    
+    return {
+      code: resetData.code,
+      expiresAt: resetData.expiresAt,
+      isExpired: isExpired
+    };
+  } catch (error) {
+    console.error('Error getting password reset code:', error);
+    if (error instanceof functions.https.HttpsError) {
+      throw error;
+    }
+    throw new functions.https.HttpsError('internal', 'Failed to get password reset code');
+  }
+});
+
 // Reset password with token
 exports.resetPasswordWithToken = functions.https.onCall(async (data, context) => {
   try {

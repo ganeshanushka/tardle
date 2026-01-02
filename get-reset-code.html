@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Password Reset Code</title>
+    <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-functions.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        button {
+            background-color: #001A57;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #003080;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .code {
+            font-size: 32px;
+            font-weight: bold;
+            letter-spacing: 8px;
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Get Password Reset Code</h1>
+    <p>Enter your email address to retrieve your password reset code:</p>
+    
+    <input type="email" id="email" placeholder="your@email.com" value="anushkag@unc.edu">
+    <br>
+    <button id="getCodeBtn" onclick="getCode()">Get Code</button>
+    
+    <div id="result"></div>
+
+    <script src="firebase-config.js"></script>
+    <script>
+        async function getCode() {
+            const email = document.getElementById('email').value.trim();
+            const resultDiv = document.getElementById('result');
+            const button = document.getElementById('getCodeBtn');
+            
+            if (!email) {
+                resultDiv.className = 'error';
+                resultDiv.innerHTML = 'Please enter an email address';
+                return;
+            }
+            
+            button.disabled = true;
+            button.textContent = 'Loading...';
+            resultDiv.innerHTML = '';
+            
+            try {
+                const getPasswordResetCode = window.firebaseFunctionsFunctions.httpsCallable(
+                    window.firebaseFunctionsInstance,
+                    'getPasswordResetCode'
+                );
+                
+                const result = await getPasswordResetCode({ email: email });
+                
+                if (result.data.code) {
+                    const expiresDate = result.data.expiresAt 
+                        ? new Date(result.data.expiresAt).toLocaleString() 
+                        : 'Unknown';
+                    const isExpired = result.data.isExpired;
+                    
+                    resultDiv.className = isExpired ? 'error' : 'success';
+                    resultDiv.innerHTML = `
+                        <h3>${isExpired ? '⚠️ Expired Code' : '✓ Password Reset Code'}</h3>
+                        <div class="code">${result.data.code}</div>
+                        <p><strong>Expires:</strong> ${expiresDate}</p>
+                        <p><strong>Status:</strong> ${isExpired ? '❌ This code has expired. Please request a new one.' : '✅ This code is valid.'}</p>
+                    `;
+                } else {
+                    resultDiv.className = 'error';
+                    resultDiv.innerHTML = 'No code found for this email address.';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.className = 'error';
+                resultDiv.innerHTML = `<strong>Error:</strong> ${error.message || 'Failed to get code'}`;
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Get Code';
+            }
+        }
+    </script>
+</body>
+</html>
+
