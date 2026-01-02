@@ -750,7 +750,6 @@
       // Send verification email using Firebase Auth (free, built-in)
       try {
         console.log('Sending verification email to:', email);
-        console.log('Redirect URL:', window.location.origin + '/verify-email.html');
         // Get the correct URL for GitHub Pages
         // Build URL by removing the current filename and adding verify-email.html
         const currentPath = window.location.pathname;
@@ -764,6 +763,7 @@
         }
         
         const continueUrl = window.location.origin + '/' + pathParts.join('/');
+        console.log('Redirect URL:', continueUrl);
         
         const actionCodeSettings = {
           url: continueUrl,
