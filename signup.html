@@ -165,7 +165,8 @@
 
   .input-group input[type="submit"]:disabled {
     cursor: not-allowed;
-    opacity: 0.8;
+    opacity: 0.5;
+    background-color: #cccccc;
   }
 
   .input-group input[type="submit"].loading {
@@ -326,7 +327,10 @@
     usernameError.style.display = 'none';
     usernameError.textContent = '';
     
-    // Only validate if username is not empty
+    // Update submit button state even if username is empty
+    await validateFormAndUpdateButton();
+    
+    // Only validate format and availability if username is not empty
     if (!username) {
       return;
     }
@@ -401,6 +405,9 @@
       // Don't show error to user - just log it
       // The check will happen on form submission
     }
+    
+    // Update submit button state after username validation
+    await validateFormAndUpdateButton();
     });
   }
 
@@ -422,6 +429,34 @@
       eyeIcon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
     }
   });
+  
+  // Password validation on input and blur
+  if (passwordInput) {
+    passwordInput.addEventListener('input', function() {
+      validateFormAndUpdateButton();
+    });
+    passwordInput.addEventListener('blur', function() {
+      validateFormAndUpdateButton();
+    });
+  }
+  
+  // Email validation on input and blur
+  const emailInput = document.getElementById('email');
+  if (emailInput) {
+    emailInput.addEventListener('input', function() {
+      validateFormAndUpdateButton();
+    });
+    emailInput.addEventListener('blur', function() {
+      validateFormAndUpdateButton();
+    });
+  }
+  
+  // Username validation on input (not just blur)
+  if (usernameInput) {
+    usernameInput.addEventListener('input', function() {
+      validateFormAndUpdateButton();
+    });
+  }
 
   // Password validation function - returns object with validation results and missing requirements
   function validatePassword(password) {
@@ -454,6 +489,64 @@
       isValid: Object.values(requirements).every(req => req === true),
       missing: missing
     };
+  }
+
+  // Function to check if all fields are valid and update submit button state
+  async function validateFormAndUpdateButton() {
+    const username = document.getElementById('username').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const submitButton = document.querySelector('input[type="submit"]');
+    const usernameError = document.getElementById('usernameError');
+    const errorMessage = document.getElementById('errorMessage');
+    
+    // Check if all fields are filled
+    if (!username || !email || !password) {
+      if (submitButton) submitButton.disabled = true;
+      return false;
+    }
+    
+    // Validate username format
+    const usernameValidation = validateUsername(username);
+    if (!usernameValidation.isValid) {
+      if (submitButton) submitButton.disabled = true;
+      return false;
+    }
+    
+    // Check if username error is showing (e.g., already taken)
+    if (usernameError && usernameError.style.display !== 'none' && usernameError.textContent.trim() !== '') {
+      if (submitButton) submitButton.disabled = true;
+      return false;
+    }
+    
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      if (submitButton) submitButton.disabled = true;
+      return false;
+    }
+    
+    // Validate password
+    if (password.length > 128) {
+      if (submitButton) submitButton.disabled = true;
+      return false;
+    }
+    
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.isValid) {
+      if (submitButton) submitButton.disabled = true;
+      return false;
+    }
+    
+    // Check if general error message is showing
+    if (errorMessage && errorMessage.style.display !== 'none' && errorMessage.textContent.trim() !== '') {
+      if (submitButton) submitButton.disabled = true;
+      return false;
+    }
+    
+    // All validations passed
+    if (submitButton) submitButton.disabled = false;
+    return true;
   }
 
   // Username validation function
@@ -511,6 +604,8 @@
     if (!username) {
       errorMessage.textContent = 'Please enter your username.';
       errorMessage.style.display = 'block';
+      if (submitButton) submitButton.disabled = true;
+      await validateFormAndUpdateButton();
       return;
     }
     
@@ -528,6 +623,8 @@
       }
       usernameError.textContent = errorText;
       usernameError.style.display = 'block';
+      if (submitButton) submitButton.disabled = true;
+      await validateFormAndUpdateButton();
       return;
     }
     
@@ -536,6 +633,8 @@
     if (!email || !emailRegex.test(email)) {
       errorMessage.textContent = 'Please enter a valid email address.';
       errorMessage.style.display = 'block';
+      if (submitButton) submitButton.disabled = true;
+      await validateFormAndUpdateButton();
       return;
     }
     
@@ -543,12 +642,16 @@
     if (!password) {
       errorMessage.textContent = 'Please enter a password.';
       errorMessage.style.display = 'block';
+      if (submitButton) submitButton.disabled = true;
+      await validateFormAndUpdateButton();
       return;
     }
     
     if (password.length > 128) {
       errorMessage.textContent = 'Password must be 128 characters or less.';
       errorMessage.style.display = 'block';
+      if (submitButton) submitButton.disabled = true;
+      await validateFormAndUpdateButton();
       return;
     }
     
@@ -565,6 +668,8 @@
       }
       errorMessage.textContent = errorText;
       errorMessage.style.display = 'block';
+      if (submitButton) submitButton.disabled = true;
+      await validateFormAndUpdateButton();
       return;
     }
     
@@ -599,10 +704,12 @@
           usernameError.textContent = 'This username is already taken. Please choose another.';
           usernameError.style.display = 'block';
           if (submitButton) {
-            submitButton.disabled = false;
+            submitButton.disabled = true;
             submitButton.classList.remove('loading');
             submitButton.value = 'Create account';
           }
+          // Update button state to ensure it stays disabled
+          await validateFormAndUpdateButton();
           return;
         }
       } catch (usernameCheckError) {
@@ -728,12 +835,15 @@
       errorMessage.textContent = errorMsg;
       errorMessage.style.display = 'block';
       
-      // Remove loading state on error
+      // Remove loading state on error and disable button
       if (submitButton) {
-        submitButton.disabled = false;
+        submitButton.disabled = true;
         submitButton.classList.remove('loading');
         submitButton.value = 'Create account';
       }
+      
+      // Update button state to ensure it stays disabled
+      await validateFormAndUpdateButton();
       
       // Log error details for debugging
       console.error('Full error object:', error);
@@ -741,9 +851,25 @@
     }
   }
 
+  // Initialize submit button as disabled (run immediately since script is at end of body)
+  (function() {
+    const submitButton = document.querySelector('input[type="submit"]');
+    if (submitButton) {
+      submitButton.disabled = true;
+    }
+    // Initial validation check
+    validateFormAndUpdateButton();
+  })();
+  
   // Form submit handler
   document.getElementById('signupForm').addEventListener('submit', async function(e) {
     e.preventDefault();
+    const submitButton = document.querySelector('input[type="submit"]');
+    // Double-check validation before submitting
+    const isValid = await validateFormAndUpdateButton();
+    if (!isValid || (submitButton && submitButton.disabled)) {
+      return; // Prevent submission if validation fails or button is disabled
+    }
     await createAccount();
   });
 </script>
