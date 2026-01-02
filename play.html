@@ -1851,24 +1851,37 @@
 
   .how-to-play-content {
     background-color: white;
-    border-radius: 8px;
-    padding: 20px 30px 30px 30px;
-    max-width: 600px;
+    border-top: 4px solid #7BAFD4;
+    padding: 30px 40px 40px 40px;
+    max-width: 550px;
     width: 90%;
     max-height: 85vh;
     overflow-y: auto;
     overflow-x: hidden;
     position: relative;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
     box-sizing: border-box;
     margin: auto;
-    padding-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  @media (max-height: 700px) {
+    .how-to-play-content {
+      max-height: 95vh;
+      padding: 20px 30px 30px 30px;
+    }
+  }
+
+  .how-to-play-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
   }
 
   .how-to-play-close {
-    float: right;
     cursor: pointer;
-    font-size: 28px;
+    font-size: 36px;
     font-weight: bold;
     color: #000;
     background: none;
@@ -1876,6 +1889,8 @@
     padding: 0;
     line-height: 1;
     transition: opacity 0.2s ease;
+    margin: 0;
+    flex-shrink: 0;
   }
 
   .how-to-play-close:hover {
@@ -1883,26 +1898,26 @@
   }
 
   .how-to-play-title {
-    font-family: 'PT Serif', sans-serif;
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
     color: #000;
     line-height: 1.2;
-    margin-bottom: 0.25em;
-    font-size: 2em;
-    margin-top: 0;
+    margin: 0;
+    font-size: 36px;
+    font-weight: bold;
+    flex: 1;
   }
 
   .how-to-play-text {
-    font-family: 'PT Serif', sans-serif;
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
     color: #000;
-    line-height: 1.1;
-    margin-top: 0;
-    font-size: 1.5em;
-    margin-bottom: 15px;
+    line-height: 1.5;
+    margin: 0 0 20px 0;
+    font-size: 18px;
   }
 
   .how-to-play-list {
-    font-family: 'PT Serif', sans-serif;
-    font-size: 1em;
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 18px;
     color: #000;
     margin: 0 0 20px 0;
     padding-left: 20px;
@@ -1914,19 +1929,16 @@
   }
 
   .how-to-play-examples-title {
-    font-family: 'PT Serif', sans-serif;
-    font-size: 1.2em;
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 18px;
     font-weight: bold;
     color: #000;
-    margin: 20px 0 10px 0;
+    margin: 20px 0 15px 0;
   }
 
   .how-to-play-example {
-    font-family: Arial, sans-serif;
-    background-color: #ffffff;
-    border-radius: 10px;
-    padding: 6px;
-    margin: 10px 0;
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    margin: 15px 0;
   }
 
   .how-to-play-example:last-child {
@@ -1934,15 +1946,15 @@
   }
 
   .how-to-play-example p {
-    margin: 2px 0;
-    color: #333;
-    font-size: 1em;
+    margin: 10px 0 0 0;
+    color: #000;
+    font-size: 18px;
   }
 
   .how-to-play-word-grid {
     display: flex;
-    gap: 4px;
-    margin-bottom: 10px;
+    gap: 6px;
+    margin-bottom: 8px;
     perspective: 1000px;
   }
 
@@ -1952,11 +1964,11 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    border: 2px solid #333;
+    border: 2px solid #d3d3d3;
     border-radius: 4px;
     font-weight: bold;
-    font-size: 1.5em;
-    font-family: Arial, sans-serif;
+    font-size: 20px;
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
     background-color: white;
     color: #000;
     transform-style: preserve-3d;
@@ -1991,10 +2003,10 @@
   }
 
   .how-to-play-example-text {
-    font-family: Arial, sans-serif;
-    margin: 2px 0;
-    color: #333;
-    font-size: 1em;
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    margin: 0;
+    color: #000;
+    font-size: 18px;
   }
 
   .how-to-play-example-text b {
@@ -2004,43 +2016,58 @@
   .how-to-play-hr {
     border: none;
     border-top: 1px solid #e0e0e0;
-    margin: 20px 0;
+    margin: 25px 0;
   }
 
   .how-to-play-account-prompt {
     display: flex;
-    align-items: center;
-    gap: 15px;
-    margin: 20px 0;
-    font-family: Arial, sans-serif;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 0;
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
   }
 
   .how-to-play-account-prompt i {
     flex-shrink: 0;
+    margin-top: 2px;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .how-to-play-account-prompt p {
     margin: 0;
-    font-size: 1em;
+    font-size: 18px;
     color: #000;
     line-height: 1.5;
   }
 
   .how-to-play-account-prompt a {
-    color: #007bff;
+    color: #1a73e8;
+    text-decoration: none;
+  }
+
+  .how-to-play-account-prompt a:hover {
     text-decoration: underline;
   }
 
   .how-to-play-daily-reminder {
-    font-family: Arial, sans-serif;
-    font-size: 1em;
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 18px;
     color: #000;
     line-height: 1.5;
-    margin: 20px 0;
+    margin: 0;
   }
 
   .how-to-play-daily-reminder a {
-    color: #007bff;
+    color: #1a73e8;
+    text-decoration: none;
+  }
+
+  .how-to-play-daily-reminder a:hover {
     text-decoration: underline;
   }
 
@@ -2061,8 +2088,10 @@
   <!-- How to Play Modal -->
   <div id="howToPlayModal">
     <div class="how-to-play-content">
-      <button class="how-to-play-close" onclick="closeHowToPlay()">×</button>
-      <h1 class="how-to-play-title">How To Play</h1>
+      <div class="how-to-play-header">
+        <h1 class="how-to-play-title">How To Play</h1>
+        <button class="how-to-play-close" onclick="closeHowToPlay()">×</button>
+      </div>
       <p class="how-to-play-text">Guess the carolina word in 6 tries.</p>
       <ul class="how-to-play-list">
         <li>Each guess must be a valid word with the same number of letters as boxes.</li>
@@ -2100,7 +2129,7 @@
       </div>
       <hr class="how-to-play-hr">
       <div class="how-to-play-account-prompt">
-        <i class="fas fa-poll fa-2x" style="color: #7BAFD4;"></i>
+        <i class="fas fa-chart-bar" style="color: #000; font-size: 18px;"></i>
         <p>
           <a href="login.html">Log in or create a free account</a> to link your stats.
         </p>
