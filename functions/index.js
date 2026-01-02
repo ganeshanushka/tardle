@@ -597,7 +597,7 @@ exports.sendPasswordResetCode = functions.https.onCall(async (data, context) => 
       throw new functions.https.HttpsError('failed-precondition', 'Resend API key is not configured');
     }
 
-    await resend.emails.send({
+    const emailResult = await resend.emails.send({
       from: "Tardle <no-reply@playtardle.com>",
       to: email,
       subject: "Reset your Tardle password",
@@ -613,7 +613,20 @@ exports.sendPasswordResetCode = functions.https.onCall(async (data, context) => 
       `,
     });
 
-    console.log(`Password reset code sent to ${email}`);
+    console.log('Resend API response:', JSON.stringify(emailResult, null, 2));
+    
+    // Check if Resend returned an error
+    if (emailResult.error) {
+      console.error('Resend API error:', emailResult.error);
+      throw new functions.https.HttpsError('failed-precondition', `Email sending failed: ${emailResult.error.message}`);
+    }
+    
+    if (!emailResult.data || !emailResult.data.id) {
+      console.error('Resend API response missing email ID:', emailResult);
+      throw new functions.https.HttpsError('internal', 'Email sending failed: No email ID returned');
+    }
+
+    console.log(`Password reset code sent to ${email}, email ID: ${emailResult.data.id}`);
     return { success: true };
   } catch (err) {
     console.error("Error sending password reset code:", err);
