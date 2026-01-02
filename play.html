@@ -2985,11 +2985,13 @@
                             logoutButtonContainer.style.display = '';
                           }
                         }
-                        if (!userFound && !loginPromptShown) {
-                          setTimeout(() => {
-                            if (!userFound && !loginPromptShown) {
-                              showLoginPrompt();
-                              loginPromptShown = true;
+                        // Don't show login prompt automatically - Chrome flags this as intrusive ad
+                        // Only show on explicit user action (button click, etc.)
+                        // if (!userFound && !loginPromptShown) {
+                        //   setTimeout(() => {
+                        //     if (!userFound && !loginPromptShown) {
+                        //       showLoginPrompt();
+                        //       loginPromptShown = true;
                               const logoutButton = document.getElementById('logoutButton');
                               if (logoutButton) {
                                 logoutButton.textContent = 'LOG IN';
@@ -3048,12 +3050,13 @@
                               logoutButtonContainer.style.display = '';
                             }
                           }
-                          if (!userFound && !loginPromptShown) {
-                            // Show login prompt after 150ms
-                            setTimeout(() => {
-                              if (!userFound && !loginPromptShown) {
-                                showLoginPrompt();
-                                loginPromptShown = true;
+                          // Don't show login prompt automatically - Chrome flags this as intrusive ad
+                          // Only show on explicit user action (button click, etc.)
+                          // if (!userFound && !loginPromptShown) {
+                          //   setTimeout(() => {
+                          //     if (!userFound && !loginPromptShown) {
+                          //       showLoginPrompt();
+                          //       loginPromptShown = true;
                                 // Update button to "LOG IN"
                                 if (logoutButton) {
                                   logoutButton.textContent = 'LOG IN';
