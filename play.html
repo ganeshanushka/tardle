@@ -3326,7 +3326,7 @@
             // Store function on window object
             window.verificationCheck.removeOverlay = removeOverlay;
             
-            let authStateRestored = false;
+            // Note: authStateRestored is already declared above in the verificationCheck object
             
             async function checkVerification() {
               const isVerified = window.verificationCheck ? window.verificationCheck.getVerificationPassed() : verificationPassed;
