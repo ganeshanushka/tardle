@@ -2992,12 +2992,12 @@
                         //     if (!userFound && !loginPromptShown) {
                         //       showLoginPrompt();
                         //       loginPromptShown = true;
-                              const logoutButton = document.getElementById('logoutButton');
-                              if (logoutButton) {
-                                logoutButton.textContent = 'LOG IN';
-                              }
-                            }
-                          }, 150);
+                        //     }
+                        //   }, 150);
+                        // }
+                        const logoutButton = document.getElementById('logoutButton');
+                        if (logoutButton) {
+                          logoutButton.textContent = 'LOG IN';
                         }
                       }
                     }, 150);
@@ -3223,6 +3223,7 @@
               createOverlay: null,
               removeOverlay: null,
               setAuthStateRestored: (value) => { authStateRestored = value; },
+              getAuthStateRestored: () => authStateRestored,
               setVerificationPassed: (value) => { verificationPassed = value; },
               getVerificationPassed: () => verificationPassed
             };
@@ -3564,8 +3565,8 @@
             // This ensures unverified users can't bypass by waiting
           })();
         </script>
-        <!-- Profanity filter library -->
-        <script src="https://cdn.jsdelivr.net/npm/bad-words@3.0.4/lib/badwords.min.js"></script>
+        <!-- Profanity filter library - removed due to browser compatibility issues -->
+        <!-- App.js handles missing Filter gracefully, so profanity filtering is optional -->
         <script src="app.js"></script>
 
     </body>
