@@ -2434,6 +2434,12 @@
             </div>
           </div>
         <script>
+          // Make goBack available globally
+          window.goBack = function() {
+            window.history.back();
+          };
+          
+          // Also define as regular function for compatibility
           function goBack() {
             window.history.back();
           }
@@ -3057,12 +3063,12 @@
                           //     if (!userFound && !loginPromptShown) {
                           //       showLoginPrompt();
                           //       loginPromptShown = true;
-                                // Update button to "LOG IN"
-                                if (logoutButton) {
-                                  logoutButton.textContent = 'LOG IN';
-                                }
-                              }
-                            }, 150);
+                          //     }
+                          //   }, 150);
+                          // }
+                          // Update button to "LOG IN"
+                          if (logoutButton) {
+                            logoutButton.textContent = 'LOG IN';
                           }
                         }
                       });
@@ -3201,13 +3207,20 @@
           
           // Function to allow page to load
           function allowPageLoad() {
+            // Prevent multiple calls
+            if (window.verificationComplete) {
+              return;
+            }
             window.verificationComplete = true;
             document.body.style.pointerEvents = '';
             document.body.style.overflow = '';
-            // Now load app.js
-            const appScript = document.createElement('script');
-            appScript.src = 'app.js';
-            document.body.appendChild(appScript);
+            // Now load app.js (only once)
+            if (!window.appJsLoaded) {
+              window.appJsLoaded = true;
+              const appScript = document.createElement('script');
+              appScript.src = 'app.js';
+              document.body.appendChild(appScript);
+            }
           }
         </script>
         
@@ -3567,7 +3580,7 @@
         </script>
         <!-- Profanity filter library - removed due to browser compatibility issues -->
         <!-- App.js handles missing Filter gracefully, so profanity filtering is optional -->
-        <script src="app.js"></script>
+        <!-- app.js is loaded dynamically after verification check (see line ~3215) -->
 
     </body>
     </html>
