@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <link rel="stylesheet" href="styles.css">
 </head>
 <title>Tardle</title>
@@ -1997,6 +1998,48 @@
     font-weight: bold;
   }
 
+  .how-to-play-hr {
+    border: none;
+    border-top: 1px solid #e0e0e0;
+    margin: 20px 0;
+  }
+
+  .how-to-play-account-prompt {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 20px 0;
+    font-family: Arial, sans-serif;
+  }
+
+  .how-to-play-account-prompt i {
+    flex-shrink: 0;
+  }
+
+  .how-to-play-account-prompt p {
+    margin: 0;
+    font-size: 1em;
+    color: #000;
+    line-height: 1.5;
+  }
+
+  .how-to-play-account-prompt a {
+    color: #007bff;
+    text-decoration: underline;
+  }
+
+  .how-to-play-daily-reminder {
+    font-family: Arial, sans-serif;
+    font-size: 1em;
+    color: #000;
+    line-height: 1.5;
+    margin: 20px 0;
+  }
+
+  .how-to-play-daily-reminder a {
+    color: #007bff;
+    text-decoration: underline;
+  }
 
 </style>
 </head>
@@ -2051,6 +2094,17 @@
           <div class="how-to-play-cell">R</div>
         </div>
         <p class="how-to-play-example-text"><b>N</b> is not in the word in any spot.</p>
+      </div>
+      <hr class="how-to-play-hr">
+      <div class="how-to-play-account-prompt">
+        <i class="fas fa-poll fa-2x" style="color: #7BAFD4;"></i>
+        <p>
+          <a href="login.html">Log in or create a free account</a> to link your stats.
+        </p>
+      </div>
+      <hr class="how-to-play-hr">
+      <div class="how-to-play-daily-reminder">
+        A new puzzle is released daily at midnight. If you haven't already, you can <a href="reminder.html">sign up</a> for our daily reminder email.
       </div>
     </div>
   </div>
