@@ -63,10 +63,16 @@
     margin-bottom: 1em;
     display: none;
     font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    visibility: hidden;
+    opacity: 0;
+    min-height: 20px;
+    line-height: 1.4;
   }
 
   .error-message.show {
-    display: block;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
   }
 
   .terms {
@@ -146,39 +152,32 @@
         }
       })();
     }
-    if (emailParam && emailInput) {
-      emailInput.value = emailParam;
-      // Focus and position cursor at the end of the email
-      emailInput.focus();
-      // setSelectionRange doesn't work on email input types, so wrap in try-catch
-      try {
-        emailInput.setSelectionRange(emailParam.length, emailParam.length);
-      } catch (e) {
-        // Email input types don't support setSelectionRange - this is expected
-        // Just focus the field instead
-      }
-      
-      // Validate pre-filled email for .edu
-      setTimeout(() => {
-        validateEmailForEdu(emailInput.value);
-      }, 100);
-    }
-    
-    // Add real-time .edu email validation
+    // Add real-time .edu email validation function (defined before use)
     function validateEmailForEdu(email) {
+      if (!email) return true;
+      
       const emailLower = email.trim().toLowerCase();
       const emailError = document.getElementById('emailError');
       const continueBtn = document.getElementById('continueBtn');
       
+      console.log('validateEmailForEdu: checking email:', emailLower, 'is .edu:', emailLower.endsWith('.edu'));
+      
       if (emailLower.endsWith('.edu')) {
         // Show .edu error
+        console.log('validateEmailForEdu: .edu email detected, showing error');
         if (emailError) {
           emailError.textContent = 'We currently do not support .edu email addresses. Please use a different email address.';
           emailError.classList.add('show');
+          console.log('validateEmailForEdu: error element updated, display:', window.getComputedStyle(emailError).display);
+        } else {
+          console.error('validateEmailForEdu: emailError element not found!');
         }
         // Disable continue button
         if (continueBtn) {
           continueBtn.disabled = true;
+          console.log('validateEmailForEdu: continue button disabled');
+        } else {
+          console.error('validateEmailForEdu: continueBtn element not found!');
         }
         return false;
       } else {
@@ -218,12 +217,43 @@
       emailInput.addEventListener('change', function() {
         validateEmailForEdu(this.value);
       });
-      
-      // Validate immediately if email is already filled
-      if (emailInput.value) {
-        setTimeout(() => validateEmailForEdu(emailInput.value), 100);
+    }
+    
+    if (emailParam && emailInput) {
+      emailInput.value = emailParam;
+      // Focus and position cursor at the end of the email
+      emailInput.focus();
+      // setSelectionRange doesn't work on email input types, so wrap in try-catch
+      try {
+        emailInput.setSelectionRange(emailParam.length, emailParam.length);
+      } catch (e) {
+        // Email input types don't support setSelectionRange - this is expected
+        // Just focus the field instead
       }
     }
+    
+    // Validate immediately on page load (for pre-filled emails or autofill)
+    // Multiple timeouts to catch different scenarios
+    setTimeout(() => {
+      if (emailInput && emailInput.value) {
+        console.log('Initial validation check - email value:', emailInput.value);
+        validateEmailForEdu(emailInput.value);
+      }
+    }, 50);
+    
+    setTimeout(() => {
+      if (emailInput && emailInput.value) {
+        console.log('Delayed validation check - email value:', emailInput.value);
+        validateEmailForEdu(emailInput.value);
+      }
+    }, 200);
+    
+    setTimeout(() => {
+      if (emailInput && emailInput.value) {
+        console.log('Final validation check - email value:', emailInput.value);
+        validateEmailForEdu(emailInput.value);
+      }
+    }, 500);
     
     if (!loginForm) {
       console.error('Login form not found!');
