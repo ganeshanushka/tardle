@@ -593,7 +593,7 @@
                   window.location.href = 'index.html';
                 }, 2000);
                 return;
-            } catch (docError) {
+              } catch (docError) {
               // If username error, show it to user
               if (docError.message && docError.message.includes('username')) {
                 document.getElementById('errorMessage').textContent = docError.message;
