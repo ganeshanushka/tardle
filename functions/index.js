@@ -56,32 +56,79 @@ const BASE_URL = 'https://playtardle.com';
 // Fallback to Firebase Hosting URL if custom domain not ready:
 // const BASE_URL = 'https://tardle-c0c26.web.app';
 
-// Daily email function (runs at 8am ET)
+// Daily email function (runs at 7am ET)
 exports.sendDailyTardleEmail = functions.pubsub
-  .schedule("0 8 * * *")
+  .schedule("0 7 * * *")
   .timeZone("America/New_York")
   .onRun(async (context) => {
     try {
-      // Batch: get all subscribed emails in a single read
-      const emailsDoc = await db.collection("email_batches").doc("all_emails").get();
-
-      if (!emailsDoc.exists) {
-        console.log("No emails to send to.");
+      if (!resend) {
+        console.error("Resend API key is not configured. Cannot send emails.");
         return null;
       }
 
-      const emails = emailsDoc.data().emails || [];
+      // Query all users who have subscribed to daily reminder emails
+      const subscribedUsersSnapshot = await db.collection("users")
+        .where("emailSubscribed", "==", true)
+        .get();
+
+      if (subscribedUsersSnapshot.empty) {
+        console.log("No subscribed users found.");
+        return null;
+      }
+
+      // Extract email addresses from subscribed users
+      const emails = [];
+      const userIds = [];
+      
+      subscribedUsersSnapshot.forEach((doc) => {
+        const userData = doc.data();
+        if (userData.email) {
+          emails.push(userData.email);
+        } else {
+          // Store UID to get email from Auth if not in document
+          userIds.push(doc.id);
+        }
+      });
+
+      // If some users don't have email in document, get from Auth
+      if (userIds.length > 0) {
+        console.log(`Fetching ${userIds.length} emails from Firebase Auth...`);
+        const authEmails = await Promise.all(
+          userIds.map(async (uid) => {
+            try {
+              const userRecord = await admin.auth().getUser(uid);
+              return userRecord.email;
+            } catch (error) {
+              console.error(`Error getting email for user ${uid}:`, error);
+              return null;
+            }
+          })
+        );
+        
+        // Add valid emails to the list
+        authEmails.forEach((email) => {
+          if (email) {
+            emails.push(email);
+          }
+        });
+      }
 
       if (emails.length === 0) {
-        console.log("No subscribed emails.");
+        console.log("No email addresses found for subscribed users.");
         return null;
       }
+
+      console.log(`Found ${emails.length} subscribed users. Sending emails...`);
 
       // Send emails in batches of 500 to avoid hitting API limits
       const batchSize = 500;
+      let successCount = 0;
+      let errorCount = 0;
+
       for (let i = 0; i < emails.length; i += batchSize) {
         const batch = emails.slice(i, i + batchSize);
-        await Promise.all(
+        const results = await Promise.allSettled(
           batch.map(email =>
             resend.emails.send({
               from: "Tardle <no-reply@playtardle.com>",
@@ -96,9 +143,19 @@ exports.sendDailyTardleEmail = functions.pubsub
             })
           )
         );
+
+        // Count successes and errors
+        results.forEach((result) => {
+          if (result.status === 'fulfilled') {
+            successCount++;
+          } else {
+            errorCount++;
+            console.error("Error sending email:", result.reason);
+          }
+        });
       }
 
-      console.log(`Sent emails to ${emails.length} users.`);
+      console.log(`Sent emails to ${successCount} users. ${errorCount} errors.`);
     } catch (err) {
       console.error("Error sending Tardle emails:", err);
     }
