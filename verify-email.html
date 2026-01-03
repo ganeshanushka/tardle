@@ -661,31 +661,38 @@
               console.log('  Mode:', mode);
               console.log('  isEmailChange:', isEmailChange);
               
-              // CRITICAL: Verify that verification email was actually sent before allowing verification
+              // For .edu emails only: Verify that verification email was actually sent before allowing verification
               // This prevents auto-verification for .edu emails
-              const emailSentKey = `verificationEmailSent_${user.uid}`;
-              const emailSentTimestamp = localStorage.getItem(emailSentKey);
-              
-              if (!emailSentTimestamp) {
-                console.error('❌ Verification email sent timestamp not found - this should not happen');
-                console.error('   This might indicate auto-verification without email being sent');
-                // Still allow verification but log warning
-              } else {
-                const emailSentTime = parseInt(emailSentTimestamp);
-                const now = Date.now();
-                const timeSinceEmailSent = now - emailSentTime;
-                const isEduDomain = user.email?.toLowerCase().endsWith('.edu');
-                const minTimeSinceEmailSent = isEduDomain ? 5000 : 2000; // 5 seconds for .edu, 2 seconds for others
+              const isEduDomain = user.email?.toLowerCase().endsWith('.edu');
+              if (isEduDomain) {
+                const emailSentKey = `verificationEmailSent_${user.uid}`;
+                const emailSentTimestamp = localStorage.getItem(emailSentKey);
                 
-                if (timeSinceEmailSent < minTimeSinceEmailSent) {
-                  const errorMsg = `Verification attempted too quickly after email was sent (${Math.round(timeSinceEmailSent / 1000)}s, required: ${minTimeSinceEmailSent / 1000}s). This might be auto-verification.`;
-                  console.error('❌', errorMsg);
-                  document.getElementById('errorMessage').textContent = 'Verification link clicked too quickly. Please wait a few seconds and try again, or request a new verification email.';
-                  document.getElementById('errorMessage').classList.add('show');
-                  return; // Don't apply action code
+                if (!emailSentTimestamp) {
+                  console.warn('⚠️ .edu email: Verification email sent timestamp not found - allowing verification but logging warning');
+                  // Allow verification but log warning for .edu
+                } else {
+                  const emailSentTime = parseInt(emailSentTimestamp);
+                  const now = Date.now();
+                  const timeSinceEmailSent = now - emailSentTime;
+                  const minTimeSinceEmailSent = 3000; // 3 seconds for .edu
+                  
+                  if (timeSinceEmailSent < minTimeSinceEmailSent) {
+                    const errorMsg = `Verification attempted too quickly after email was sent (${Math.round(timeSinceEmailSent / 1000)}s, required: ${minTimeSinceEmailSent / 1000}s). This might be auto-verification.`;
+                    console.warn('⚠️', errorMsg);
+                    // For .edu, show warning but still allow if it's been at least 1 second
+                    if (timeSinceEmailSent < 1000) {
+                      document.getElementById('errorMessage').textContent = 'Verification link clicked too quickly. Please wait a moment and try again.';
+                      document.getElementById('errorMessage').classList.add('show');
+                      return; // Don't apply action code if less than 1 second
+                    }
+                  }
+                  
+                  console.log(`✓ .edu verification email was sent ${Math.round(timeSinceEmailSent / 1000)}s ago - allowing verification`);
                 }
-                
-                console.log(`✓ Verification email was sent ${Math.round(timeSinceEmailSent / 1000)}s ago - allowing verification${isEduDomain ? ' [.edu domain - stricter check]' : ''}`);
+              } else {
+                // For non-.edu emails, allow verification without time check
+                console.log('✓ Non-.edu email - allowing verification without time check');
               }
               
               // Apply the action code - this will update the email if mode is verifyAndChangeEmail
@@ -751,6 +758,21 @@
               } else if (user.emailVerified) {
                 console.log('✓ Email verified successfully!');
                 updateVerificationStatusDisplay(user);
+                
+                // Create Firestore document if it doesn't exist
+                try {
+                  await createUserDocument(user);
+                  console.log('✓ User document created after verification');
+                } catch (docError) {
+                  console.error('Error creating user document after verification:', docError);
+                  // Continue even if document creation fails (for non-username errors)
+                  if (docError.message && docError.message.includes('username')) {
+                    document.getElementById('errorMessage').textContent = docError.message;
+                    document.getElementById('errorMessage').classList.add('show');
+                    return;
+                  }
+                }
+                
                 document.getElementById('successMessage').textContent = 'Email verified successfully! Redirecting...';
                 document.getElementById('successMessage').classList.add('show');
               } else {
