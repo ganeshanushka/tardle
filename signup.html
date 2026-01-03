@@ -272,6 +272,7 @@
           </svg>
         </button>
       </div>
+      <div class="error-message" id="passwordError" style="display: none;"></div>
     </div>
     <div class="error-message" id="errorMessage"></div>
     <div class="input-group">
@@ -427,13 +428,56 @@
     }
   });
   
-  // Password validation on input and blur
+  // Password validation on input and blur with error messages
+  const passwordError = document.getElementById('passwordError');
   if (passwordInput) {
+    function validatePasswordAndShowError() {
+      const password = passwordInput.value;
+      
+      // Clear error if password is empty
+      if (!password) {
+        if (passwordError) {
+          passwordError.style.display = 'none';
+          passwordError.textContent = '';
+        }
+        return;
+      }
+      
+      // Validate password
+      const passwordValidation = validatePassword(password);
+      
+      if (!passwordValidation.isValid) {
+        const missingList = passwordValidation.missing;
+        let errorText = 'Password must contain ';
+        if (missingList.length === 1) {
+          errorText += missingList[0] + '.';
+        } else if (missingList.length === 2) {
+          errorText += missingList[0] + ' and ' + missingList[1] + '.';
+        } else {
+          errorText += missingList.slice(0, -1).join(', ') + ', and ' + missingList[missingList.length - 1] + '.';
+        }
+        
+        if (passwordError) {
+          passwordError.textContent = errorText;
+          passwordError.style.display = 'block';
+        }
+      } else {
+        // Password is valid, clear error
+        if (passwordError) {
+          passwordError.style.display = 'none';
+          passwordError.textContent = '';
+        }
+      }
+      
+      validateFormAndUpdateButton();
+    }
+    
     passwordInput.addEventListener('input', function() {
-      validateFormAndUpdateButton();
+      validatePasswordAndShowError();
     });
+    
     passwordInput.addEventListener('blur', function() {
-      validateFormAndUpdateButton();
+      validatePasswordAndShowError();
     });
   }
   
@@ -694,8 +738,16 @@
       } else {
         errorText += missingList.slice(0, -1).join(', ') + ', and ' + missingList[missingList.length - 1] + '.';
       }
-      errorMessage.textContent = errorText;
-      errorMessage.style.display = 'block';
+      // Show password error in the password error element
+      const passwordError = document.getElementById('passwordError');
+      if (passwordError) {
+        passwordError.textContent = errorText;
+        passwordError.style.display = 'block';
+      } else {
+        // Fallback to general error message if password error element doesn't exist
+        errorMessage.textContent = errorText;
+        errorMessage.style.display = 'block';
+      }
       if (submitButton) submitButton.disabled = true;
       await validateFormAndUpdateButton();
       return;
