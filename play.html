@@ -2161,7 +2161,10 @@
           <a href="privacy-policy.html" class="side-panel-link">Privacy Policy</a>
           <a href="cookie-policy.html" class="side-panel-link">Cookie Policy</a>
           <a href="privacy-faq.html" class="side-panel-link">Privacy FAQ</a>
-          <a href="#" class="side-panel-link" onclick="handleDeleteAccountClick(event)">Delete My Account</a>
+          <div id="accountActionsMenuItems" style="display: none;">
+            <a href="reminder.html" class="side-panel-link">Reminder Email Signup</a>
+            <a href="#" class="side-panel-link" onclick="handleDeleteAccountClick(event)">Delete My Account</a>
+          </div>
         </div>
         
         <div class="side-panel-divider"></div>
@@ -2882,6 +2885,7 @@
                   const logoutButton = document.getElementById('logoutButton');
                   const logoutButtonContainer = document.getElementById('logoutButtonContainer');
                   const profileSection = document.getElementById('profileSection');
+                  const accountActionsMenuItems = document.getElementById('accountActionsMenuItems');
                   
                   if (user && user.email) {
                     // Extract username from email (part before @)
@@ -2890,9 +2894,12 @@
                       greetingNameElement.textContent = username;
                       greetingElement.style.display = 'block';
                     }
-                    // User is logged in - show PROFILE section and "LOG OUT" button
+                    // User is logged in - show PROFILE section, account actions, and "LOG OUT" button
                     if (profileSection) {
                       profileSection.style.display = 'block';
+                    }
+                    if (accountActionsMenuItems) {
+                      accountActionsMenuItems.style.display = 'block';
                     }
                     if (logoutButtonContainer) {
                       // Only show if panel is open, otherwise CSS will handle it
@@ -2910,9 +2917,12 @@
                     if (greetingElement) {
                       greetingElement.style.display = 'none';
                     }
-                    // User is not logged in - hide PROFILE section
+                    // User is not logged in - hide PROFILE section and account actions
                     if (profileSection) {
                       profileSection.style.display = 'none';
+                    }
+                    if (accountActionsMenuItems) {
+                      accountActionsMenuItems.style.display = 'none';
                     }
                     // Keep logout button container visible but change text to LOG IN
                     if (logoutButtonContainer) {
