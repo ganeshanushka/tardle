@@ -2710,11 +2710,23 @@
           }
 
           function handleStatsClick() {
-            // Show stats popup
-            if (typeof showStatsPopup === 'function') {
-              showStatsPopup();
+            console.log('handleStatsClick called');
+            // Show stats popup - check both window.showStatsPopup and global showStatsPopup
+            const statsFunction = window.showStatsPopup || (typeof showStatsPopup !== 'undefined' ? showStatsPopup : null);
+            if (statsFunction && typeof statsFunction === 'function') {
+              console.log('Calling showStatsPopup');
+              statsFunction();
             } else {
-              console.error('showStatsPopup function not found');
+              console.error('showStatsPopup function not found. Available:', typeof showStatsPopup, typeof window.showStatsPopup);
+              // Fallback: try to show the login prompt popup directly if user is not logged in
+              if (!window.firebaseAuth || !window.firebaseAuth.currentUser) {
+                console.log('User not logged in - showing stats login prompt popup directly');
+                const loginPromptPopup = document.getElementById('statsLoginPromptPopup');
+                if (loginPromptPopup) {
+                  loginPromptPopup.classList.remove('hidden');
+                  loginPromptPopup.style.display = 'flex';
+                }
+              }
             }
           }
 
