@@ -371,18 +371,21 @@
         emailInput.value = prefillEmail;
         
         // CRITICAL: Validate .edu email immediately if pre-filled
-        const email = prefillEmail.trim().toLowerCase();
-        if (email.endsWith('.edu')) {
-          const emailError = document.getElementById('loginModalEmailError');
-          const continueBtn = document.getElementById('loginModalContinueBtn');
-          if (emailError) {
-            emailError.textContent = 'We currently do not support .edu email addresses. Please use a different email address.';
-            emailError.style.display = 'block';
+        // Use setTimeout to ensure error element exists
+        setTimeout(() => {
+          const email = prefillEmail.trim().toLowerCase();
+          if (email.endsWith('.edu')) {
+            const emailError = document.getElementById('loginModalEmailError');
+            const continueBtn = document.getElementById('loginModalContinueBtn');
+            if (emailError) {
+              emailError.textContent = 'We currently do not support .edu email addresses. Please use a different email address.';
+              emailError.style.display = 'block';
+            }
+            if (continueBtn) {
+              continueBtn.disabled = true;
+            }
           }
-          if (continueBtn) {
-            continueBtn.disabled = true;
-          }
-        }
+        }, 50);
       }
       
       // Focus email input
@@ -522,40 +525,53 @@
     const emailError = document.getElementById('loginModalEmailError');
     const continueBtnRef = document.getElementById('loginModalContinueBtn');
     
-    if (emailInput) {
-      emailInput.addEventListener('input', function() {
-        const email = emailInput.value.trim().toLowerCase();
-        // Clear .edu error message if user changes email
-        if (emailError && !email.endsWith('.edu')) {
-          if (emailError.textContent.includes('.edu')) {
-            emailError.style.display = 'none';
-          }
-          if (continueBtnRef) continueBtnRef.disabled = false;
-        } else if (email.endsWith('.edu')) {
-          // Show error immediately on input if .edu
-          if (emailError) {
-            emailError.textContent = 'We currently do not support .edu email addresses. Please use a different email address.';
-            emailError.style.display = 'block';
-          }
-          if (continueBtnRef) continueBtnRef.disabled = true;
-        }
-      });
+    // Function to validate email and show/hide error
+    function validateEmailInput() {
+      const email = emailInput.value.trim().toLowerCase();
       
-      emailInput.addEventListener('blur', function() {
-        const email = emailInput.value.trim().toLowerCase();
-        // Show error if .edu email
-        if (email.endsWith('.edu') && emailError) {
+      // Check if email ends with .edu
+      if (email.endsWith('.edu')) {
+        // Show error immediately
+        if (emailError) {
           emailError.textContent = 'We currently do not support .edu email addresses. Please use a different email address.';
           emailError.style.display = 'block';
-          if (continueBtnRef) continueBtnRef.disabled = true;
-        } else if (emailError && email) {
-          // Only clear error if there's a valid email (not empty)
+        }
+        // Disable continue button
+        if (continueBtnRef) {
+          continueBtnRef.disabled = true;
+        }
+      } else {
+        // Clear error if not .edu
+        if (emailError) {
           if (emailError.textContent.includes('.edu')) {
             emailError.style.display = 'none';
           }
-          if (continueBtnRef) continueBtnRef.disabled = false;
         }
+        // Enable continue button if email is valid format
+        if (continueBtnRef && email) {
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (emailRegex.test(email)) {
+            continueBtnRef.disabled = false;
+          }
+        }
+      }
+    }
+    
+    if (emailInput) {
+      // Validate on every input change (as user types)
+      emailInput.addEventListener('input', validateEmailInput);
+      
+      // Also validate on blur (when user leaves the field)
+      emailInput.addEventListener('blur', validateEmailInput);
+      
+      // Validate on paste
+      emailInput.addEventListener('paste', function() {
+        // Wait for paste to complete, then validate
+        setTimeout(validateEmailInput, 10);
       });
+      
+      // Validate on change (for autofill)
+      emailInput.addEventListener('change', validateEmailInput);
     }
   }
 
