@@ -462,7 +462,7 @@
       </div>
 
       <!-- Account Actions Section (only shown when signed in) -->
-      <div class="subscription-section" id="accountActionsSection" style="display: none;">
+      <div class="subscription-section" id="accountActionsSection">
         <hr class="subscription-divider">
         <div class="account-actions-content">
           <a href="reminder.html" class="account-action-link">
@@ -608,7 +608,7 @@
           return;
         }
 
-        // Show account actions section since user is signed in
+        // Show account actions section since user is signed in (already visible by default, but ensure it's shown)
         const accountActionsSection = document.getElementById('accountActionsSection');
         if (accountActionsSection) {
           accountActionsSection.style.display = 'block';
