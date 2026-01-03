@@ -287,7 +287,6 @@
         margin-top: 0.25em;
         margin-bottom: 1em;
         font-family: 'PT Serif', serif;
-        font-weight: bold;
         display: block !important;
         visibility: visible !important;
         opacity: 1 !important;
