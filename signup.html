@@ -814,14 +814,24 @@
       // This is more reliable than localStorage alone
       try {
         const pendingUsernameRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'pendingUsernames', user.uid);
+        console.log('💾 Storing username in Firestore pendingUsernames:', username, 'for UID:', user.uid);
         await window.firebaseFirestoreFunctions.setDoc(pendingUsernameRef, {
           username: username,
           email: email,
           createdAt: window.firebaseFirestoreFunctions.serverTimestamp()
         });
         console.log('✓ Username stored in Firestore for verification');
+        
+        // Verify it was stored correctly
+        const verifyDoc = await window.firebaseFirestoreFunctions.getDoc(pendingUsernameRef);
+        if (verifyDoc.exists()) {
+          console.log('✓ Verified: Username stored correctly in Firestore:', verifyDoc.data().username);
+        } else {
+          console.error('❌ ERROR: Username was not stored in Firestore!');
+        }
       } catch (firestoreError) {
-        console.error('Error storing username in Firestore:', firestoreError);
+        console.error('❌ Error storing username in Firestore:', firestoreError);
+        console.error('❌ Error details:', firestoreError.message, firestoreError.code);
         // Continue even if this fails - we still have localStorage as backup
       }
       

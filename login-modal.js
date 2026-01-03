@@ -1096,12 +1096,43 @@
           }
         });
         
+        // Store username and email in localStorage to pass to verify-email.html
+        // Use localStorage instead of sessionStorage for better persistence
+        localStorage.setItem('pendingUsername', username);
+        localStorage.setItem('pendingVerificationEmail', email);
+        console.log('💾 Stored username in localStorage:', username);
+        
         // Create user account with Firebase Auth
         const userCredential = await window.firebaseAuthFunctions.createUserWithEmailAndPassword(window.firebaseAuth, email, password);
         
         // User created successfully
         const user = userCredential.user;
         console.log('User account created and logged in:', user.email);
+        
+        // Store username in Firestore temporarily (persists across devices/browsers)
+        // This is more reliable than localStorage alone
+        try {
+          const pendingUsernameRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'pendingUsernames', user.uid);
+          console.log('💾 Storing username in Firestore pendingUsernames:', username, 'for UID:', user.uid);
+          await window.firebaseFirestoreFunctions.setDoc(pendingUsernameRef, {
+            username: username,
+            email: email,
+            createdAt: window.firebaseFirestoreFunctions.serverTimestamp()
+          });
+          console.log('✓ Username stored in Firestore for verification');
+          
+          // Verify it was stored correctly
+          const verifyDoc = await window.firebaseFirestoreFunctions.getDoc(pendingUsernameRef);
+          if (verifyDoc.exists()) {
+            console.log('✓ Verified: Username stored correctly in Firestore:', verifyDoc.data().username);
+          } else {
+            console.error('❌ ERROR: Username was not stored in Firestore!');
+          }
+        } catch (firestoreError) {
+          console.error('❌ Error storing username in Firestore:', firestoreError);
+          console.error('❌ Error details:', firestoreError.message, firebaseError.code);
+          // Continue even if this fails - we still have localStorage as backup
+        }
         
         // Send verification email using Firebase Auth (free, built-in) - EXACT logic from signup.html
         try {
@@ -1139,8 +1170,7 @@
           }
         }
         
-        // Store email in localStorage for verify-email.html to display
-        localStorage.setItem('pendingVerificationEmail', email);
+        // Email already stored above with username
         
         // Small delay to ensure auth state is set
         await new Promise(resolve => setTimeout(resolve, 200));
