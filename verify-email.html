@@ -362,12 +362,29 @@
     if (window.firebaseAuth && window.firebaseAuthFunctions && window.firebaseFirestoreFunctions && window.firebaseDb) {
       clearInterval(checkFirebase);
       
+      // Immediately check for current user and set email display
+      const immediateUser = window.firebaseAuth.currentUser;
+      if (immediateUser && immediateUser.email) {
+        currentUser = immediateUser;
+        userEmail = immediateUser.email;
+        document.getElementById('emailDisplay').textContent = userEmail;
+        console.log('Immediate email display set:', userEmail);
+      }
+      
       // Set up listener for auth state changes
       window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, async (user) => {
         if (user) {
           currentUser = user;
           userEmail = user.email || '';
-          document.getElementById('emailDisplay').textContent = userEmail;
+          
+          // Set email display immediately
+          if (userEmail) {
+            document.getElementById('emailDisplay').textContent = userEmail;
+            console.log('Email display set to:', userEmail);
+          } else {
+            console.warn('User email is empty, showing Loading...');
+            document.getElementById('emailDisplay').textContent = 'Loading...';
+          }
           
           console.log('Verification page loaded for user:', userEmail);
           console.log('Email verified status (initial):', user.emailVerified);
@@ -377,6 +394,12 @@
           // Always reload user data to get the latest verification status (don't trust cached value)
           try {
             await user.reload();
+            // Update email after reload in case it changed
+            if (user.email) {
+              userEmail = user.email;
+              document.getElementById('emailDisplay').textContent = userEmail;
+              console.log('Email display updated after reload to:', userEmail);
+            }
             console.log('Email verified status (after reload):', user.emailVerified);
             console.log('User metadata:', {
               creationTime: user.metadata.creationTime,
@@ -872,8 +895,18 @@
             }
           });
         } else {
-          // User is not logged in - redirect to login
-          window.location.href = 'login.html?return=' + encodeURIComponent('verify-email.html');
+          // User is not logged in - check for stored email before redirecting
+          const storedEmail = localStorage.getItem('pendingVerificationEmail');
+          if (storedEmail) {
+            document.getElementById('emailDisplay').textContent = storedEmail;
+            console.log('User not logged in, using stored email from localStorage:', storedEmail);
+          } else {
+            document.getElementById('emailDisplay').textContent = 'Email address not available';
+          }
+          // Redirect to login after a brief delay to show email if available
+          setTimeout(() => {
+            window.location.href = 'login.html?return=' + encodeURIComponent('verify-email.html');
+          }, 1000);
         }
       });
       
