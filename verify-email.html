@@ -386,6 +386,23 @@
     }
   }
 
+  // Immediately try to set email display from localStorage or URL params (before Firebase loads)
+  (function() {
+    const emailDisplayEl = document.getElementById('emailDisplay');
+    if (emailDisplayEl && emailDisplayEl.textContent === 'Loading...') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const emailParam = urlParams.get('email');
+      const storedEmail = localStorage.getItem('pendingVerificationEmail');
+      const hashParams = window.location.hash ? new URLSearchParams(window.location.hash.substring(1)) : null;
+      const hashEmail = hashParams ? hashParams.get('email') : null;
+      const emailToShow = emailParam || storedEmail || hashEmail;
+      if (emailToShow) {
+        emailDisplayEl.textContent = emailToShow;
+        console.log('Email display set immediately from localStorage/URL:', emailToShow);
+      }
+    }
+  })();
+
   // Wait for Firebase to load
   const checkFirebase = setInterval(() => {
     if (window.firebaseAuth && window.firebaseAuthFunctions && window.firebaseFirestoreFunctions && window.firebaseDb) {
@@ -594,21 +611,22 @@
                 }, 2000);
                 return;
               } catch (docError) {
-              // If username error, show it to user
-              if (docError.message && docError.message.includes('username')) {
-                document.getElementById('errorMessage').textContent = docError.message;
-                document.getElementById('errorMessage').classList.add('show');
+                // If username error, show it to user
+                if (docError.message && docError.message.includes('username')) {
+                  document.getElementById('errorMessage').textContent = docError.message;
+                  document.getElementById('errorMessage').classList.add('show');
+                  return;
+                }
+                // For other errors, continue (don't block verification)
+                console.error('Error creating user document:', docError);
+                // Still show success and redirect even if document creation failed (for non-username errors)
+                document.getElementById('successMessage').textContent = 'Your email has been verified! Redirecting...';
+                document.getElementById('successMessage').classList.add('show');
+                setTimeout(() => {
+                  window.location.href = 'index.html';
+                }, 2000);
                 return;
               }
-              // For other errors, continue (don't block verification)
-              console.error('Error creating user document:', docError);
-              // Still show success and redirect even if document creation failed (for non-username errors)
-              document.getElementById('successMessage').textContent = 'Your email has been verified! Redirecting...';
-              document.getElementById('successMessage').classList.add('show');
-              setTimeout(() => {
-                window.location.href = 'index.html';
-              }, 2000);
-              return;
             }
           } else if (user.emailVerified && isTooNew) {
             // Account is brand new but shows as verified - this is suspicious
