@@ -339,6 +339,8 @@
         modal.classList.remove('show', 'closing');
       }, 300); // Match animation duration
     }
+    // Explicitly prevent any navigation - stay on index.html
+    return false;
   }
   
   // Handle Play button click
@@ -381,18 +383,30 @@
   }
   
   // Prevent back navigation to signin.html after login
-  // Replace current history entry to prevent going back to signin page
+  // Replace current history entry and add a new one to prevent going back to signin page
   if (window.history && window.history.replaceState) {
+    // Replace current state
     window.history.replaceState(null, '', window.location.href);
+    // Push a new state so there's nothing to go back to
+    window.history.pushState(null, '', window.location.href);
   }
   
   // Listen for popstate (back/forward button) and prevent navigation to signin.html
   window.addEventListener('popstate', function(event) {
-    // If trying to go back to signin.html, redirect to index.html instead
-    if (document.referrer.includes('signin.html')) {
+    // Always redirect to index.html if trying to navigate away
+    const currentUrl = window.location.href;
+    if (!currentUrl.includes('index.html')) {
       window.history.pushState(null, '', 'index.html');
-      window.location.href = 'index.html';
+      window.location.replace('index.html');
+    } else if (document.referrer && document.referrer.includes('signin.html')) {
+      // If referrer was signin.html, push another state to prevent going back
+      window.history.pushState(null, '', 'index.html');
     }
+  });
+  
+  // Also prevent navigation on beforeunload if coming from signin
+  window.addEventListener('beforeunload', function(event) {
+    // This doesn't prevent navigation but can help with cleanup
   });
 </script>
 

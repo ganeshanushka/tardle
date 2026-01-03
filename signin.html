@@ -312,8 +312,9 @@
       }
       
       // Redirect to return URL if provided, otherwise to game page
+      // Use replace() instead of href to prevent adding to browser history
       const redirectUrl = returnUrl || 'play.html';
-      window.location.href = redirectUrl;
+      window.location.replace(redirectUrl);
     } catch (error) {
       console.error('Sign in error:', error);
       console.error('Error code:', error.code);
