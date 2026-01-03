@@ -1117,7 +1117,8 @@
             pathParts.push('verify-email.html');
           }
           
-          const continueUrl = window.location.origin + '/' + pathParts.join('/');
+          // Set continueUrl to index.html - Firebase will redirect here after verification
+          const continueUrl = window.location.origin + '/' + (pathParts.length > 1 ? pathParts.slice(0, -1).join('/') + '/' : '') + 'index.html';
           
           const actionCodeSettings = {
             url: continueUrl,
@@ -1137,6 +1138,9 @@
             alert('Could not send verification email. Error: ' + (emailError.message || emailError.code || 'Unknown error') + '\n\nYou can request a new email on the verification page.');
           }
         }
+        
+        // Store email in localStorage for verify-email.html to display
+        localStorage.setItem('pendingVerificationEmail', email);
         
         // Small delay to ensure auth state is set
         await new Promise(resolve => setTimeout(resolve, 200));

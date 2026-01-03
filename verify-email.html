@@ -409,8 +409,37 @@
         if (emailToShow) {
           document.getElementById('emailDisplay').textContent = emailToShow;
           console.log('Using email from URL or localStorage:', emailToShow);
+        } else {
+          // If no email found, try to get it from any available source
+          // Check if there's an email in the URL hash (Firebase sometimes puts it there)
+          const hashParams = window.location.hash ? new URLSearchParams(window.location.hash.substring(1)) : null;
+          const hashEmail = hashParams ? hashParams.get('email') : null;
+          if (hashEmail) {
+            document.getElementById('emailDisplay').textContent = hashEmail;
+            console.log('Using email from URL hash:', hashEmail);
+          }
         }
       }
+      
+      // Also set up a timeout to check again if email is still "Loading..."
+      setTimeout(() => {
+        const emailDisplayEl = document.getElementById('emailDisplay');
+        if (emailDisplayEl && emailDisplayEl.textContent === 'Loading...') {
+          // Try all sources again
+          const urlParams = new URLSearchParams(window.location.search);
+          const emailParam = urlParams.get('email');
+          const storedEmail = localStorage.getItem('pendingVerificationEmail');
+          const hashParams = window.location.hash ? new URLSearchParams(window.location.hash.substring(1)) : null;
+          const hashEmail = hashParams ? hashParams.get('email') : null;
+          const currentUserEmail = window.firebaseAuth.currentUser?.email;
+          
+          const emailToShow = currentUserEmail || emailParam || storedEmail || hashEmail;
+          if (emailToShow) {
+            emailDisplayEl.textContent = emailToShow;
+            console.log('Email display updated after timeout:', emailToShow);
+          }
+        }
+      }, 500);
       
       // Function to update verification status display
       function updateVerificationStatusDisplay(user) {
@@ -438,9 +467,24 @@
           if (userEmail) {
             document.getElementById('emailDisplay').textContent = userEmail;
             console.log('Email display set to:', userEmail);
+            // Store in localStorage as backup
+            localStorage.setItem('pendingVerificationEmail', userEmail);
           } else {
-            console.warn('User email is empty, showing Loading...');
-            document.getElementById('emailDisplay').textContent = 'Loading...';
+            // If user email is empty, try to get from other sources
+            const urlParams = new URLSearchParams(window.location.search);
+            const emailParam = urlParams.get('email');
+            const storedEmail = localStorage.getItem('pendingVerificationEmail');
+            const hashParams = window.location.hash ? new URLSearchParams(window.location.hash.substring(1)) : null;
+            const hashEmail = hashParams ? hashParams.get('email') : null;
+            const emailToShow = emailParam || storedEmail || hashEmail;
+            
+            if (emailToShow) {
+              document.getElementById('emailDisplay').textContent = emailToShow;
+              console.log('Using fallback email source:', emailToShow);
+            } else {
+              console.warn('User email is empty and no fallback found, showing Loading...');
+              document.getElementById('emailDisplay').textContent = 'Loading...';
+            }
           }
           
           // Update verification status display

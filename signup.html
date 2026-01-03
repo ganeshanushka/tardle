@@ -798,9 +798,10 @@
         // The duplicate check will happen again in verify-email.html
       }
       
-      // Store username in localStorage to pass to verify-email.html
+      // Store username and email in localStorage to pass to verify-email.html
       // Use localStorage instead of sessionStorage for better persistence
       localStorage.setItem('pendingUsername', username);
+      localStorage.setItem('pendingVerificationEmail', email);
       
       // Create user account with Firebase Auth
       const userCredential = await window.firebaseAuthFunctions.createUserWithEmailAndPassword(window.firebaseAuth, email, password);
@@ -842,8 +843,10 @@
           pathParts.push('verify-email.html');
         }
         
-        const continueUrl = window.location.origin + '/' + pathParts.join('/');
-        console.log('Redirect URL:', continueUrl);
+        // Set continueUrl to index.html - Firebase will redirect here after verification
+        // The verify-email.html page will handle processing the verification code
+        const continueUrl = window.location.origin + '/' + (pathParts.length > 1 ? pathParts.slice(0, -1).join('/') + '/' : '') + 'index.html';
+        console.log('Redirect URL (after verification):', continueUrl);
         
         const actionCodeSettings = {
           url: continueUrl,
