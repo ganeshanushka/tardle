@@ -282,11 +282,12 @@
       }
       
       .login-modal-error {
-        color: #d32f2f;
-        font-size: 14px;
-        margin-top: 8px;
-        margin-bottom: 0;
-        font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+        color: red;
+        font-size: 0.9rem;
+        margin-top: 0.25em;
+        margin-bottom: 1em;
+        font-family: 'PT Serif', serif;
+        font-weight: bold;
         display: block !important;
         visibility: visible !important;
         opacity: 1 !important;
