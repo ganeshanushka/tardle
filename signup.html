@@ -442,11 +442,27 @@
   
   // Email validation on input and blur
   const emailInput = document.getElementById('email');
+  const errorMessage = document.getElementById('errorMessage');
   if (emailInput) {
     emailInput.addEventListener('input', function() {
+      const email = emailInput.value.trim().toLowerCase();
+      // Clear .edu error message if user changes email
+      if (errorMessage && !email.endsWith('.edu')) {
+        if (errorMessage.textContent.includes('.edu')) {
+          errorMessage.style.display = 'none';
+        }
+      }
       validateFormAndUpdateButton();
     });
     emailInput.addEventListener('blur', function() {
+      const email = emailInput.value.trim().toLowerCase();
+      // Show error if .edu email
+      if (email.endsWith('.edu') && errorMessage) {
+        errorMessage.textContent = 'We currently do not support .edu email addresses. Please use a different email address.';
+        errorMessage.style.display = 'block';
+        const submitButton = document.querySelector('input[type="submit"]');
+        if (submitButton) submitButton.disabled = true;
+      }
       validateFormAndUpdateButton();
     });
   }
@@ -522,6 +538,12 @@
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
+      if (submitButton) submitButton.disabled = true;
+      return false;
+    }
+    
+    // Block .edu email domains
+    if (email.toLowerCase().endsWith('.edu')) {
       if (submitButton) submitButton.disabled = true;
       return false;
     }
@@ -632,6 +654,15 @@
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email || !emailRegex.test(email)) {
       errorMessage.textContent = 'Please enter a valid email address.';
+      errorMessage.style.display = 'block';
+      if (submitButton) submitButton.disabled = true;
+      await validateFormAndUpdateButton();
+      return;
+    }
+    
+    // Block .edu email domains
+    if (email.toLowerCase().endsWith('.edu')) {
+      errorMessage.textContent = 'We currently do not support .edu email addresses. Please use a different email address.';
       errorMessage.style.display = 'block';
       if (submitButton) submitButton.disabled = true;
       await validateFormAndUpdateButton();

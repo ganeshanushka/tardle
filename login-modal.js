@@ -738,6 +738,15 @@
         return;
       }
       
+      // Block .edu email domains
+      if (email.toLowerCase().endsWith('.edu')) {
+        if (errorDiv) {
+          errorDiv.textContent = 'We currently do not support .edu email addresses. Please use a different email address.';
+          errorDiv.style.display = 'block';
+        }
+        return;
+      }
+      
       // Validate password requirements - EXACT validation from signup.html
       if (!password) {
         if (errorDiv) {
