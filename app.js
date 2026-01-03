@@ -860,7 +860,8 @@ function closeGameOverPopup() {
     }
 }
 
-async function showStatsPopup() {
+// Make function globally accessible
+window.showStatsPopup = async function showStatsPopup() {
     // Check if user is logged in - if not, show login prompt popup
     // Also check Firebase auth directly in case of timing issues
     let userIsLoggedIn = isLoggedIn && currentUser;
@@ -969,7 +970,7 @@ async function showStatsPopup() {
             });
         }, 150); // Wait 0.15 seconds after popup appears
     }
-}
+};
 
 function closeStatsPopup() {
     const popup = document.getElementById('statsPopup');

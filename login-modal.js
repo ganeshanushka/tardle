@@ -327,6 +327,22 @@
 
   // Show specific step
   function showStep(step) {
+    // CRITICAL: Block signup step if email is .edu
+    if (step === 'signup' && currentEmail && currentEmail.toLowerCase().endsWith('.edu')) {
+      console.log('❌ Blocking signup step - .edu email detected');
+      const emailError = document.getElementById('loginModalEmailError');
+      if (emailError) {
+        emailError.textContent = 'We currently do not support .edu email addresses. Please use a different email address.';
+        emailError.style.display = 'block';
+      }
+      // Force back to email step
+      step = 'email';
+      const continueBtn = document.getElementById('loginModalContinueBtn');
+      if (continueBtn) {
+        continueBtn.disabled = true;
+      }
+    }
+    
     currentStep = step;
     document.getElementById('loginModalEmailStep').style.display = step === 'email' ? 'block' : 'none';
     document.getElementById('loginModalSigninStep').style.display = step === 'signin' ? 'block' : 'none';
@@ -725,11 +741,13 @@
           showStep('email');
           if (continueBtn) {
             continueBtn.disabled = true;
+            continueBtn.value = 'Continue';
           }
           return;
         }
         
         // On error, default to signup (safer than assuming account exists)
+        // BUT ONLY if not .edu email (already checked above)
         currentEmail = email;
         emailExists = false;
         const signupEmailInput = document.getElementById('loginModalSignupEmail');
