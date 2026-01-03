@@ -775,6 +775,13 @@
         await window.firebaseAuthFunctions.sendEmailVerification(user, actionCodeSettings);
         console.log('✓ Verification email sent successfully');
         console.log('Check your inbox at:', email);
+        
+        // CRITICAL: Store timestamp when verification email was sent
+        // This prevents auto-verification before email is actually sent
+        const emailSentTimestamp = Date.now();
+        const emailSentKey = `verificationEmailSent_${user.uid}`;
+        localStorage.setItem(emailSentKey, emailSentTimestamp.toString());
+        console.log('✓ Stored verification email sent timestamp:', emailSentTimestamp);
       } catch (emailError) {
         console.error('✗ Error sending verification email:', emailError);
         console.error('Error code:', emailError.code);
@@ -796,10 +803,43 @@
       const currentUser = window.firebaseAuth.currentUser;
       console.log('Current user after account creation:', currentUser ? currentUser.uid : 'null');
       
+      // CRITICAL: Check verification status before redirecting
+      // Reload user to get latest status (especially important for .edu emails)
+      if (currentUser) {
+        try {
+          await currentUser.reload();
+          console.log('User verification status after reload:', {
+            email: currentUser.email,
+            emailVerified: currentUser.emailVerified,
+            isEduDomain: currentUser.email?.toLowerCase().endsWith('.edu'),
+            creationTime: currentUser.metadata.creationTime
+          });
+          
+          // If somehow already verified (shouldn't happen, but check anyway)
+          if (currentUser.emailVerified) {
+            const userCreatedTime = currentUser.metadata.creationTime ? new Date(currentUser.metadata.creationTime).getTime() : 0;
+            const now = Date.now();
+            const timeSinceCreation = now - userCreatedTime;
+            const isRecentlyCreated = timeSinceCreation < 10000; // Less than 10 seconds old
+            
+            if (isRecentlyCreated) {
+              console.warn('⚠️ Account is brand new but shows as verified - this may be a false positive');
+              console.warn('   Forcing user to verification page regardless');
+            } else {
+              console.log('✓ User is verified and account is not brand new - this is unexpected but proceeding');
+            }
+          }
+        } catch (reloadError) {
+          console.error('Error reloading user after signup:', reloadError);
+          // Continue to verification page anyway
+        }
+      }
+      
       // Small delay to ensure auth state is set
       await new Promise(resolve => setTimeout(resolve, 200));
       
-      // Redirect to verification page instead of homepage
+      // ALWAYS redirect to verification page - even if somehow verified
+      // The verification page will handle the final check
       console.log('Redirecting to verification page');
       window.location.replace('verify-email.html');
     } catch (error) {

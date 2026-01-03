@@ -192,12 +192,58 @@
   // Function to create Firestore user document after verification
   async function createUserDocument(user) {
     try {
+      // CRITICAL: Verify email is actually verified before creating document
+      // Reload user to get the absolute latest verification status
+      try {
+        await user.reload();
+        console.log('User reloaded before document creation - emailVerified:', user.emailVerified);
+      } catch (reloadError) {
+        console.warn('Could not reload user before document creation:', reloadError);
+        // Continue but be extra cautious
+      }
+      
+      // Check verification status - must be verified
+      if (!user.emailVerified) {
+        const errorMsg = 'Cannot create user document: Email is not verified. emailVerified status: ' + user.emailVerified;
+        console.error('❌', errorMsg);
+        throw new Error(errorMsg);
+      }
+      
+      // Additional safety check: Verify account is not brand new
+      // This prevents false positives where Firebase might show verified before email is actually verified
+      // For .edu domains, use stricter threshold (15 seconds) due to delayed email delivery
+      const isEduDomain = user.email?.toLowerCase().endsWith('.edu');
+      const userCreatedTime = user.metadata.creationTime ? new Date(user.metadata.creationTime).getTime() : 0;
+      const now = Date.now();
+      const timeSinceCreation = now - userCreatedTime;
+      const threshold = isEduDomain ? 15000 : 10000; // 15 seconds for .edu, 10 seconds for others
+      const isRecentlyCreated = timeSinceCreation < threshold;
+      
+      if (isRecentlyCreated) {
+        const errorMsg = `Cannot create user document: Account is too new (${Math.round(timeSinceCreation / 1000)}s old, required: ${threshold / 1000}s). Email verification may be a false positive.${isEduDomain ? ' Using stricter threshold for .edu domain.' : ''}`;
+        console.error('❌', errorMsg);
+        throw new Error(errorMsg);
+      }
+      
+      console.log(`✓ Account age check passed: ${Math.round(timeSinceCreation / 1000)}s old (threshold: ${threshold / 1000}s)${isEduDomain ? ' [.edu domain - stricter check]' : ''}`);
+      
+      console.log('✓ Verification checks passed:', {
+        emailVerified: user.emailVerified,
+        accountAgeSeconds: Math.round(timeSinceCreation / 1000),
+        email: user.email
+      });
+      
       // Check if document already exists
       const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', user.uid);
       const userDoc = await window.firebaseFirestoreFunctions.getDoc(userDocRef);
       
       if (userDoc.exists()) {
         console.log('User document already exists, skipping creation');
+        // Verify the existing document was created after verification
+        const existingData = userDoc.data();
+        if (!existingData.verifiedAt) {
+          console.warn('⚠️ Existing document missing verifiedAt timestamp - this should not happen');
+        }
         return;
       }
       
@@ -331,23 +377,92 @@
           try {
             await user.reload();
             console.log('Email verified status (after reload):', user.emailVerified);
+            console.log('User metadata:', {
+              creationTime: user.metadata.creationTime,
+              lastSignInTime: user.metadata.lastSignInTime,
+              lastRefreshTime: user.metadata.lastRefreshTime,
+              email: user.email,
+              isEduDomain: user.email?.toLowerCase().endsWith('.edu')
+            });
           } catch (reloadError) {
             console.warn('Could not reload user data:', reloadError);
             // Continue with cached value if reload fails
           }
           
           // Check if already verified (this happens when Firebase redirects after verification)
-          if (user.emailVerified) {
-            console.log('✓ User email is already verified');
-            // Create Firestore document if it doesn't exist
-            try {
-              await createUserDocument(user);
-              document.getElementById('successMessage').textContent = 'Your email has been verified! Redirecting...';
-              document.getElementById('successMessage').classList.add('show');
-              setTimeout(() => {
-                window.location.href = 'index.html';
-              }, 2000);
-              return;
+          // IMPORTANT: Only trust emailVerified if user was created more than 10 seconds ago
+          // This prevents false positives from cached/incorrect verification status
+          // ESPECIALLY important for .edu emails which may have delayed verification
+          const userCreatedTime = user.metadata.creationTime ? new Date(user.metadata.creationTime).getTime() : 0;
+          const now = Date.now();
+          const timeSinceCreation = now - userCreatedTime;
+          const isRecentlyCreated = timeSinceCreation < 10000; // Less than 10 seconds old
+          const isEduDomain = user.email?.toLowerCase().endsWith('.edu');
+          
+          console.log('User account age check:', {
+            created: new Date(userCreatedTime).toISOString(),
+            now: new Date(now).toISOString(),
+            ageSeconds: Math.round(timeSinceCreation / 1000),
+            isRecentlyCreated: isRecentlyCreated,
+            isEduDomain: isEduDomain,
+            emailVerified: user.emailVerified
+          });
+          
+          // For .edu domains, be extra strict - require at least 15 seconds
+          const eduStrictThreshold = isEduDomain ? 15000 : 10000;
+          const isTooNew = timeSinceCreation < eduStrictThreshold;
+          
+          if (isEduDomain && isTooNew) {
+            console.warn('⚠️ .edu email account is too new - requiring verification regardless of status');
+            console.warn(`   Account age: ${Math.round(timeSinceCreation / 1000)}s, required: ${eduStrictThreshold / 1000}s`);
+          }
+          
+          // CRITICAL: Also check if verification link was actually clicked
+          // This prevents auto-verification for .edu emails
+          const verificationClickedKey = `verificationLinkClicked_${user.uid}`;
+          const verificationClickedTimestamp = localStorage.getItem(verificationClickedKey);
+          const emailSentKey = `verificationEmailSent_${user.uid}`;
+          const emailSentTimestamp = localStorage.getItem(emailSentKey);
+          
+          // For .edu domains, require that verification email was sent AND link was clicked
+          let canTrustVerification = true;
+          if (isEduDomain) {
+            if (!emailSentTimestamp) {
+              console.warn('⚠️ .edu email: No verification email sent timestamp found - treating as unverified');
+              canTrustVerification = false;
+            } else if (!verificationClickedTimestamp) {
+              console.warn('⚠️ .edu email: Verification email was sent but link was not clicked - treating as unverified');
+              canTrustVerification = false;
+            } else {
+              const emailSentTime = parseInt(emailSentTimestamp);
+              const clickedTime = parseInt(verificationClickedTimestamp);
+              if (clickedTime < emailSentTime) {
+                console.warn('⚠️ .edu email: Verification clicked before email was sent - this is suspicious');
+                canTrustVerification = false;
+              } else {
+                console.log(`✓ .edu email: Verification link was clicked ${Math.round((clickedTime - emailSentTime) / 1000)}s after email was sent`);
+              }
+            }
+          }
+          
+          if (user.emailVerified && !isTooNew && canTrustVerification) {
+            // Additional check for .edu: require that verification link was clicked
+            if (isEduDomain && (!verificationClickedTimestamp || !emailSentTimestamp)) {
+              console.warn('⚠️ .edu email: Email shows as verified but verification link was not clicked - blocking access');
+              // Don't allow access - treat as unverified
+            } else {
+              // Only trust verification if account is not brand new (more than 10 seconds old)
+              // This prevents false positives where Firebase might show verified before email is actually verified
+              console.log('✓ User email is already verified (account is not brand new)');
+              // Create Firestore document if it doesn't exist
+              try {
+                await createUserDocument(user);
+                document.getElementById('successMessage').textContent = 'Your email has been verified! Redirecting...';
+                document.getElementById('successMessage').classList.add('show');
+                setTimeout(() => {
+                  window.location.href = 'index.html';
+                }, 2000);
+                return;
             } catch (docError) {
               // If username error, show it to user
               if (docError.message && docError.message.includes('username')) {
@@ -365,45 +480,89 @@
               }, 2000);
               return;
             }
+          } else if (user.emailVerified && isTooNew) {
+            // Account is brand new but shows as verified - this is suspicious
+            // Force a fresh reload and don't trust the verification status
+            console.warn('⚠️ Account is brand new but shows as verified - this may be a false positive');
+            console.warn(`   Account age: ${Math.round(timeSinceCreation / 1000)}s, required: ${eduStrictThreshold / 1000}s`);
+            console.warn('   Forcing verification check - user must verify email');
+            // Don't create document or redirect - treat as unverified
           }
           
-          // If not verified, try sending verification email automatically
-          console.log('Email not verified. Attempting to send verification email...');
-          try {
-            // Build the correct URL for GitHub Pages (same logic as signup.html)
-            const currentPath = window.location.pathname;
-            const pathParts = currentPath.split('/').filter(p => p);
-            
-            // Remove the current filename (e.g., verify-email.html)
-            if (pathParts.length > 0) {
-              pathParts[pathParts.length - 1] = 'verify-email.html';
-            } else {
-              pathParts.push('verify-email.html');
+          // If not verified, check if we should auto-send verification email
+          // Only send if:
+          // 1. User is not verified
+          // 2. We haven't sent an email recently (within last 5 minutes)
+          // 3. User didn't just arrive from clicking a verification link (check URL params)
+          const urlParams = new URLSearchParams(window.location.search);
+          const urlHash = window.location.hash ? new URLSearchParams(window.location.hash.substring(1)) : null;
+          const hasActionCode = urlParams.get('oobCode') || (urlHash ? urlHash.get('oobCode') : null);
+          const hasMode = urlParams.get('mode') || (urlHash ? urlHash.get('mode') : null);
+          
+          // Check localStorage for last email send time
+          const lastEmailSendKey = `lastVerificationEmail_${user.uid}`;
+          const lastEmailSendTime = localStorage.getItem(lastEmailSendKey);
+          const now = Date.now();
+          const fiveMinutesAgo = now - (5 * 60 * 1000); // 5 minutes in milliseconds
+          const shouldAutoSend = !hasActionCode && !hasMode && (!lastEmailSendTime || parseInt(lastEmailSendTime) < fiveMinutesAgo);
+          
+          if (shouldAutoSend) {
+            console.log('Email not verified. Attempting to send verification email...');
+            try {
+              // Build the correct URL for GitHub Pages (same logic as signup.html)
+              const currentPath = window.location.pathname;
+              const pathParts = currentPath.split('/').filter(p => p);
+              
+              // Remove the current filename (e.g., verify-email.html)
+              if (pathParts.length > 0) {
+                pathParts[pathParts.length - 1] = 'verify-email.html';
+              } else {
+                pathParts.push('verify-email.html');
+              }
+              
+              const continueUrl = window.location.origin + '/' + pathParts.join('/');
+              console.log('Auto-sending verification email with continueUrl:', continueUrl);
+              
+              await window.firebaseAuthFunctions.sendEmailVerification(user, {
+                url: continueUrl,
+                handleCodeInApp: false
+              });
+              console.log('✓ Verification email sent from verification page');
+              
+              // Store the time we sent the email
+              localStorage.setItem(lastEmailSendKey, now.toString());
+              
+              // Clear any previous messages first
+              document.getElementById('errorMessage').classList.remove('show');
+              document.getElementById('successMessage').textContent = 'Verification email sent! Please check your inbox.';
+              document.getElementById('successMessage').classList.add('show');
+            } catch (autoSendError) {
+              console.error('✗ Could not auto-send verification email:', autoSendError);
+              console.error('Error code:', autoSendError.code);
+              console.error('Error message:', autoSendError.message);
+              
+              // Show helpful message for rate limiting
+              if (autoSendError.code === 'auth/too-many-requests') {
+                // Store a longer cooldown time (10 minutes) when rate limited
+                localStorage.setItem(lastEmailSendKey, (now + (10 * 60 * 1000)).toString());
+                document.getElementById('errorMessage').textContent = 'Too many verification emails sent recently. Please wait 5-10 minutes before trying again, or check your inbox (including spam folder) for previous verification emails.';
+                document.getElementById('errorMessage').classList.add('show');
+              }
+              // Don't show error for other cases on auto-send - user can manually resend if needed
             }
-            
-            const continueUrl = window.location.origin + '/' + pathParts.join('/');
-            console.log('Auto-sending verification email with continueUrl:', continueUrl);
-            
-            await window.firebaseAuthFunctions.sendEmailVerification(user, {
-              url: continueUrl,
-              handleCodeInApp: false
-            });
-            console.log('✓ Verification email sent from verification page');
-            // Clear any previous messages first
-            document.getElementById('errorMessage').classList.remove('show');
-            document.getElementById('successMessage').textContent = 'Verification email sent! Please check your inbox.';
-            document.getElementById('successMessage').classList.add('show');
-          } catch (autoSendError) {
-            console.error('✗ Could not auto-send verification email:', autoSendError);
-            console.error('Error code:', autoSendError.code);
-            console.error('Error message:', autoSendError.message);
-            
-            // Show helpful message for rate limiting
-            if (autoSendError.code === 'auth/too-many-requests') {
-              document.getElementById('errorMessage').textContent = 'Too many verification emails sent recently. Please wait 5-10 minutes before trying again, or check your inbox (including spam folder) for previous verification emails.';
-              document.getElementById('errorMessage').classList.add('show');
+          } else {
+            if (hasActionCode || hasMode) {
+              console.log('Skipping auto-send: User arrived from verification link');
+            } else if (lastEmailSendTime) {
+              const timeSinceLastSend = now - parseInt(lastEmailSendTime);
+              const minutesSinceLastSend = Math.round(timeSinceLastSend / 60000);
+              console.log(`Skipping auto-send: Email sent ${minutesSinceLastSend} minute(s) ago (cooldown: 5 minutes)`);
+              // Show a helpful message if email was recently sent
+              if (timeSinceLastSend < (5 * 60 * 1000)) {
+                document.getElementById('successMessage').textContent = `Verification email was sent ${minutesSinceLastSend} minute(s) ago. Please check your inbox (including spam folder).`;
+                document.getElementById('successMessage').classList.add('show');
+              }
             }
-            // Don't show error for other cases on auto-send - user can manually resend if needed
           }
           
           // Check for email verification link in URL (Firebase adds actionCode and oobCode)
@@ -429,10 +588,42 @@
               console.log('  Mode:', mode);
               console.log('  isEmailChange:', isEmailChange);
               
+              // CRITICAL: Verify that verification email was actually sent before allowing verification
+              // This prevents auto-verification for .edu emails
+              const emailSentKey = `verificationEmailSent_${user.uid}`;
+              const emailSentTimestamp = localStorage.getItem(emailSentKey);
+              
+              if (!emailSentTimestamp) {
+                console.error('❌ Verification email sent timestamp not found - this should not happen');
+                console.error('   This might indicate auto-verification without email being sent');
+                // Still allow verification but log warning
+              } else {
+                const emailSentTime = parseInt(emailSentTimestamp);
+                const now = Date.now();
+                const timeSinceEmailSent = now - emailSentTime;
+                const isEduDomain = user.email?.toLowerCase().endsWith('.edu');
+                const minTimeSinceEmailSent = isEduDomain ? 5000 : 2000; // 5 seconds for .edu, 2 seconds for others
+                
+                if (timeSinceEmailSent < minTimeSinceEmailSent) {
+                  const errorMsg = `Verification attempted too quickly after email was sent (${Math.round(timeSinceEmailSent / 1000)}s, required: ${minTimeSinceEmailSent / 1000}s). This might be auto-verification.`;
+                  console.error('❌', errorMsg);
+                  document.getElementById('errorMessage').textContent = 'Verification link clicked too quickly. Please wait a few seconds and try again, or request a new verification email.';
+                  document.getElementById('errorMessage').classList.add('show');
+                  return; // Don't apply action code
+                }
+                
+                console.log(`✓ Verification email was sent ${Math.round(timeSinceEmailSent / 1000)}s ago - allowing verification${isEduDomain ? ' [.edu domain - stricter check]' : ''}`);
+              }
+              
               // Apply the action code - this will update the email if mode is verifyAndChangeEmail
               console.log('  Applying action code...');
               await window.firebaseAuthFunctions.applyActionCode(window.firebaseAuth, actionCode);
               console.log('  ✓ Action code applied successfully');
+              
+              // Mark that verification link was actually clicked
+              const verificationClickedKey = `verificationLinkClicked_${user.uid}`;
+              localStorage.setItem(verificationClickedKey, Date.now().toString());
+              console.log('✓ Marked verification link as clicked');
               
               // Reload user to get updated verification status and email
               console.log('  Reloading user to get updated email...');
@@ -509,6 +700,36 @@
               console.error('Error verifying email link:', linkError);
               console.error('Error code:', linkError.code);
               console.error('Error message:', linkError.message);
+              
+              // Check if user is already verified (link was already used or expired, but email is verified)
+              try {
+                await user.reload();
+                if (user.emailVerified) {
+                  console.log('✓ Link error occurred, but user is already verified - showing success');
+                  // User is already verified, so show success message instead of error
+                  document.getElementById('errorMessage').classList.remove('show');
+                  document.getElementById('successMessage').textContent = 'Your email is already verified! Redirecting...';
+                  document.getElementById('successMessage').classList.add('show');
+                  
+                  // Create Firestore document if it doesn't exist
+                  try {
+                    await createUserDocument(user);
+                  } catch (docError) {
+                    console.error('Error creating user document after verification:', docError);
+                    // Continue even if document creation fails
+                  }
+                  
+                  setTimeout(() => {
+                    window.location.href = 'index.html';
+                  }, 2000);
+                  return; // Exit early since user is verified
+                }
+              } catch (reloadError) {
+                console.error('Error reloading user after link error:', reloadError);
+                // Continue to show error message
+              }
+              
+              // If user is not verified, show error message
               document.getElementById('errorMessage').textContent = 'Invalid or expired verification link. Please request a new verification email.';
               document.getElementById('errorMessage').classList.add('show');
             }
@@ -519,7 +740,14 @@
             if (referrer && referrer.includes('firebaseapp.com/__/auth/action')) {
               console.log('Arrived from Firebase auth handler, checking verification status...');
               await user.reload();
-              if (user.emailVerified) {
+              
+              // Additional safety check: Verify account is not brand new
+              const userCreatedTime = user.metadata.creationTime ? new Date(user.metadata.creationTime).getTime() : 0;
+              const now = Date.now();
+              const timeSinceCreation = now - userCreatedTime;
+              const isRecentlyCreated = timeSinceCreation < 5000;
+              
+              if (user.emailVerified && !isRecentlyCreated) {
                 // Create Firestore document now that email is verified
                 try {
                   await createUserDocument(user);
@@ -536,9 +764,20 @@
                     document.getElementById('errorMessage').classList.add('show');
                     return;
                   }
+                  // If verification error, show it to user
+                  if (docError.message && (docError.message.includes('not verified') || docError.message.includes('too new'))) {
+                    console.error('❌ Document creation blocked:', docError.message);
+                    document.getElementById('errorMessage').textContent = 'Email verification is required before creating your account. Please verify your email first.';
+                    document.getElementById('errorMessage').classList.add('show');
+                    return;
+                  }
                   // For other errors, continue (don't block verification)
                   console.error('Error creating user document:', docError);
                 }
+              } else if (user.emailVerified && isTooNew) {
+                console.warn(`⚠️ Account is brand new but shows as verified - treating as unverified`);
+                console.warn(`   Account age: ${Math.round(timeSinceCreation / 1000)}s, required: ${eduStrictThreshold / 1000}s${isEduDomain ? ' [.edu domain - stricter check]' : ''}`);
+                // Don't create document - user must wait for actual verification
               }
             }
           }
@@ -551,15 +790,55 @@
                 try {
                   await currentUser.reload();
                   console.log('Periodic check - emailVerified:', currentUser.emailVerified);
-                  if (currentUser.emailVerified) {
+                  
+                  // Additional safety check: Verify account is not brand new
+                  // For .edu domains, use stricter threshold (15 seconds) due to delayed email delivery
+                  const isEduDomain = currentUser.email?.toLowerCase().endsWith('.edu');
+                  const userCreatedTime = currentUser.metadata.creationTime ? new Date(currentUser.metadata.creationTime).getTime() : 0;
+                  const now = Date.now();
+                  const timeSinceCreation = now - userCreatedTime;
+                  const eduStrictThreshold = isEduDomain ? 15000 : 10000;
+                  const isTooNew = timeSinceCreation < eduStrictThreshold;
+                  
+                  if (currentUser.emailVerified && !isTooNew) {
                     clearInterval(checkInterval);
-                    console.log('✓ Email verified detected in periodic check');
+                    console.log('✓ Email verified detected in periodic check (account is not brand new)');
                     document.getElementById('errorMessage').classList.remove('show');
-                    document.getElementById('successMessage').textContent = 'Email verified successfully! Redirecting...';
-                    document.getElementById('successMessage').classList.add('show');
-                    setTimeout(() => {
-                      window.location.href = 'index.html';
-                    }, 2000);
+                    
+                    // Create Firestore document now that email is verified
+                    try {
+                      await createUserDocument(currentUser);
+                      document.getElementById('successMessage').textContent = 'Email verified successfully! Redirecting...';
+                      document.getElementById('successMessage').classList.add('show');
+                      setTimeout(() => {
+                        window.location.href = 'index.html';
+                      }, 2000);
+                    } catch (docError) {
+                      // If username error, show it to user
+                      if (docError.message && docError.message.includes('username')) {
+                        document.getElementById('errorMessage').textContent = docError.message;
+                        document.getElementById('errorMessage').classList.add('show');
+                        return;
+                      }
+                      // If verification error, show it to user
+                      if (docError.message && (docError.message.includes('not verified') || docError.message.includes('too new'))) {
+                        console.error('❌ Document creation blocked in periodic check:', docError.message);
+                        document.getElementById('errorMessage').textContent = 'Email verification is required before creating your account. Please verify your email first.';
+                        document.getElementById('errorMessage').classList.add('show');
+                        return;
+                      }
+                      // For other errors, still show success but log error
+                      console.error('Error creating user document in periodic check:', docError);
+                      document.getElementById('successMessage').textContent = 'Email verified successfully! Redirecting...';
+                      document.getElementById('successMessage').classList.add('show');
+                      setTimeout(() => {
+                        window.location.href = 'index.html';
+                      }, 2000);
+                    }
+                  } else if (currentUser.emailVerified && isTooNew) {
+                    console.warn(`⚠️ Periodic check: Account is brand new but shows as verified - waiting for actual verification`);
+                    console.warn(`   Account age: ${Math.round(timeSinceCreation / 1000)}s, required: ${eduStrictThreshold / 1000}s${isEduDomain ? ' [.edu domain - stricter check]' : ''}`);
+                    // Don't create document yet - keep checking
                   }
                 } catch (reloadError) {
                   console.error('Error in periodic verification check:', reloadError);
@@ -633,6 +912,38 @@
       return;
     }
     
+    // Check if user is already verified
+    try {
+      await currentUser.reload();
+      if (currentUser.emailVerified) {
+        document.getElementById('successMessage').textContent = 'Your email is already verified! Redirecting...';
+        document.getElementById('successMessage').classList.add('show');
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 2000);
+        return;
+      }
+    } catch (reloadError) {
+      console.error('Error checking verification status:', reloadError);
+    }
+    
+    // Check cooldown period (5 minutes)
+    const lastEmailSendKey = `lastVerificationEmail_${currentUser.uid}`;
+    const lastEmailSendTime = localStorage.getItem(lastEmailSendKey);
+    const now = Date.now();
+    const fiveMinutesAgo = now - (5 * 60 * 1000);
+    
+    if (lastEmailSendTime && parseInt(lastEmailSendTime) > fiveMinutesAgo) {
+      const timeSinceLastSend = now - parseInt(lastEmailSendTime);
+      const minutesSinceLastSend = Math.round(timeSinceLastSend / 60000);
+      const minutesRemaining = 5 - minutesSinceLastSend;
+      
+      const errorMessage = document.getElementById('errorMessage');
+      errorMessage.textContent = `Please wait ${minutesRemaining} more minute(s) before requesting another verification email. Check your inbox (including spam folder) for the previous email.`;
+      errorMessage.classList.add('show');
+      return;
+    }
+    
     const resendButton = this;
     const resendTimerEl = document.getElementById('resendTimer');
     const errorMessage = document.getElementById('errorMessage');
@@ -667,6 +978,15 @@
         handleCodeInApp: false
       });
       
+      // Store the time we sent the email
+      const now = Date.now();
+      localStorage.setItem(lastEmailSendKey, now.toString());
+      
+      // CRITICAL: Also store verification email sent timestamp (for .edu domain checks)
+      const emailSentKey = `verificationEmailSent_${currentUser.uid}`;
+      localStorage.setItem(emailSentKey, now.toString());
+      console.log('✓ Stored verification email sent timestamp:', now);
+      
       successMessage.textContent = 'Verification email sent! Please check your inbox.';
       successMessage.classList.add('show');
       
@@ -695,9 +1015,13 @@
       console.error('Error code:', error.code);
       console.error('Error message:', error.message);
       
+      const now = Date.now();
+      
       // Show specific error messages
       let errorMsg = 'Failed to send verification email. ';
       if (error.code === 'auth/too-many-requests') {
+        // Store a longer cooldown time (10 minutes) when rate limited
+        localStorage.setItem(lastEmailSendKey, (now + (10 * 60 * 1000)).toString());
         errorMsg = 'Too many verification emails sent recently. Firebase has temporarily blocked sending more emails to prevent abuse. Please wait 5-10 minutes before trying again. You can also check your inbox (including spam folder) for previous verification emails.';
       } else if (error.code === 'auth/user-not-found') {
         errorMsg = 'User account not found. Please try logging in again.';

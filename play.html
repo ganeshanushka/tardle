@@ -600,6 +600,114 @@
     display: none !important;
   }
 
+  /* Stats Login Prompt Popup */
+  #statsLoginPromptPopup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10001;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  #statsLoginPromptPopup.hidden {
+    display: none !important;
+  }
+
+  .stats-login-prompt-content {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 40px;
+    max-width: 500px;
+    width: 90%;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    box-sizing: border-box;
+  }
+
+  .stats-login-close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #000;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    line-height: 1;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+  }
+
+  .stats-login-close-btn:hover {
+    background-color: #f0f0f0;
+  }
+
+  .stats-login-title {
+    font-family: 'PT Serif', 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 28px;
+    font-weight: bold;
+    color: #000;
+    margin: 0 0 20px 0;
+    text-align: left;
+  }
+
+  .stats-login-illustration {
+    margin: 20px 0;
+    text-align: center;
+  }
+
+  .stats-login-subtitle {
+    font-family: 'PT Serif', 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 20px;
+    font-weight: bold;
+    color: #000;
+    margin: 20px 0 15px 0;
+    text-align: left;
+  }
+
+  .stats-login-text {
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 15px;
+    color: #333;
+    margin: 0 0 30px 0;
+    text-align: left;
+    line-height: 1.6;
+  }
+
+  .stats-login-button {
+    width: 100%;
+    padding: 16px 24px;
+    background-color: #000;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    display: block;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    box-sizing: border-box;
+  }
+
+  .stats-login-button:hover {
+    background-color: #333;
+  }
+
   /* Settings Modal */
   #settingsModal {
     position: fixed;
@@ -1421,7 +1529,8 @@
 #notEnoughLettersPopup.hidden,
 #customPopup.hidden,
 #gameOverPopup.hidden,
-#statsPopup.hidden {
+#statsPopup.hidden,
+#statsLoginPromptPopup.hidden {
   display: none !important;
 }
 
@@ -2257,6 +2366,52 @@
             </div>      
           </div>
 
+          <!-- Stats Login Prompt Popup (shown when user is not logged in) -->
+          <div id="statsLoginPromptPopup" class="hidden">
+            <div class="stats-login-prompt-content">
+              <button class="stats-login-close-btn" onclick="closeStatsLoginPrompt()">×</button>
+              <h1 class="stats-login-title">Statistics</h1>
+              <div class="stats-login-illustration">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 280" style="max-width: 100%; height: auto;">
+                  <!-- Person figure (simplified stick figure) -->
+                  <circle cx="80" cy="180" r="20" fill="#001A57" stroke="#000" stroke-width="2"/>
+                  <line x1="80" y1="200" x2="80" y2="240" stroke="#000" stroke-width="3" stroke-linecap="round"/>
+                  <line x1="80" y1="220" x2="60" y2="235" stroke="#000" stroke-width="2" stroke-linecap="round"/>
+                  <line x1="80" y1="220" x2="100" y2="235" stroke="#000" stroke-width="2" stroke-linecap="round"/>
+                  <line x1="80" y1="240" x2="65" y2="260" stroke="#000" stroke-width="2" stroke-linecap="round"/>
+                  <line x1="80" y1="240" x2="95" y2="260" stroke="#000" stroke-width="2" stroke-linecap="round"/>
+                  
+                  <!-- Stats board/easel -->
+                  <rect x="140" y="80" width="200" height="160" fill="#ffffff" stroke="#000" stroke-width="3" rx="5"/>
+                  
+                  <!-- Bar graphs on board (Tardle colors) -->
+                  <rect x="160" y="180" width="25" height="50" fill="#7BAFD4" stroke="#000" stroke-width="1.5"/>
+                  <rect x="195" y="130" width="25" height="100" fill="#7BAFD4" stroke="#000" stroke-width="1.5"/>
+                  <rect x="230" y="150" width="25" height="80" fill="#7BAFD4" stroke="#000" stroke-width="1.5"/>
+                  <rect x="265" y="140" width="25" height="90" fill="#7BAFD4" stroke="#000" stroke-width="1.5"/>
+                  <rect x="300" y="160" width="25" height="70" fill="#c9b458" stroke="#000" stroke-width="1.5"/>
+                  
+                  <!-- Ranking badges/icons around board (Tardle theme) -->
+                  <circle cx="110" cy="100" r="18" fill="#c9b458" stroke="#000" stroke-width="2"/>
+                  <text x="110" y="108" text-anchor="middle" font-size="14" font-weight="bold" fill="#000">#</text>
+                  
+                  <polygon points="320,60 340,80 320,100 300,80" fill="#001A57" stroke="#000" stroke-width="2"/>
+                  <text x="320" y="85" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">1</text>
+                  
+                  <polygon points="360,120 375,135 360,150 345,135" fill="#7BAFD4" stroke="#000" stroke-width="2"/>
+                  <text x="360" y="140" text-anchor="middle" font-size="11" font-weight="bold" fill="#fff">10</text>
+                  
+                  <!-- Additional ranking indicator -->
+                  <rect x="110" y="200" width="20" height="20" fill="#7BAFD4" stroke="#000" stroke-width="1.5" rx="3"/>
+                  <text x="120" y="214" text-anchor="middle" font-size="10" font-weight="bold" fill="#000">%</text>
+                </svg>
+              </div>
+              <h2 class="stats-login-subtitle">Track your stats and see how you rank</h2>
+              <p class="stats-login-text">Access your Tardle statistics, win percentage, streaks, and see how you compare to other players with a free account.</p>
+              <a href="login.html?return=play.html" class="stats-login-button">Create a free account</a>
+            </div>
+          </div>
+
           <div id="statsPopup" class="hidden">
             <div class="popup-content">
               <div class="stats-modal-header">
@@ -2771,6 +2926,15 @@
               }
             }
 
+            // Close stats login prompt popup when clicking outside
+            const statsLoginPromptPopup = document.getElementById('statsLoginPromptPopup');
+            if (statsLoginPromptPopup && !statsLoginPromptPopup.classList.contains('hidden')) {
+              const statsLoginPromptContent = statsLoginPromptPopup.querySelector('.stats-login-prompt-content');
+              if (statsLoginPromptContent && !statsLoginPromptContent.contains(event.target) && !event.target.closest('.stats-icon')) {
+                closeStatsLoginPrompt();
+              }
+            }
+
             // Close high contrast modal when clicking outside
             const highContrastModal = document.getElementById('highContrastModal');
             if (highContrastModal && !highContrastModal.classList.contains('hidden')) {
@@ -2832,8 +2996,66 @@
                     try {
                       await user.reload(); // Refresh user data to get latest verification status
                       console.log('onAuthStateChanged - emailVerified:', user.emailVerified);
-                      if (!user.emailVerified) {
-                        console.log('User email not verified, showing overlay');
+                      
+                      // CRITICAL: Check account age even if emailVerified is true (especially for .edu domains)
+                      const isEduDomain = user.email?.toLowerCase().endsWith('.edu');
+                      const userCreatedTime = user.metadata.creationTime ? new Date(user.metadata.creationTime).getTime() : 0;
+                      const now = Date.now();
+                      const timeSinceCreation = now - userCreatedTime;
+                      const eduStrictThreshold = isEduDomain ? 15000 : 10000; // 15 seconds for .edu, 10 seconds for others
+                      const isTooNew = timeSinceCreation < eduStrictThreshold;
+                      
+                      console.log('onAuthStateChanged - Account age check:', {
+                        email: user.email,
+                        isEduDomain: isEduDomain,
+                        created: new Date(userCreatedTime).toISOString(),
+                        ageSeconds: Math.round(timeSinceCreation / 1000),
+                        threshold: eduStrictThreshold / 1000,
+                        isTooNew: isTooNew,
+                        emailVerified: user.emailVerified
+                      });
+                      
+                      // STRICT REQUIREMENT: Email MUST be verified AND account must be old enough
+                      // For .edu domains: Also require that verification link was actually clicked
+                      // Only allow access if ALL conditions are met
+                      const isEmailVerified = user.emailVerified === true;
+                      const isAccountOldEnough = !isTooNew;
+                      
+                      // For .edu domains, also check if verification link was clicked
+                      let verificationLinkClicked = true; // Default to true for non-.edu
+                      if (isEduDomain) {
+                        const verificationClickedKey = `verificationLinkClicked_${user.uid}`;
+                        const emailSentKey = `verificationEmailSent_${user.uid}`;
+                        const verificationClickedTimestamp = localStorage.getItem(verificationClickedKey);
+                        const emailSentTimestamp = localStorage.getItem(emailSentKey);
+                        
+                        if (!emailSentTimestamp) {
+                          console.warn('⚠️ .edu email: No verification email sent timestamp - blocking access');
+                          verificationLinkClicked = false;
+                        } else if (!verificationClickedTimestamp) {
+                          console.warn('⚠️ .edu email: Verification email was sent but link was not clicked - blocking access');
+                          verificationLinkClicked = false;
+                        } else {
+                          const emailSentTime = parseInt(emailSentTimestamp);
+                          const clickedTime = parseInt(verificationClickedTimestamp);
+                          if (clickedTime < emailSentTime) {
+                            console.warn('⚠️ .edu email: Verification clicked before email was sent - blocking access');
+                            verificationLinkClicked = false;
+                          } else {
+                            console.log(`✓ .edu email: Verification link was clicked ${Math.round((clickedTime - emailSentTime) / 1000)}s after email was sent`);
+                          }
+                        }
+                      }
+                      
+                      const canAccess = isEmailVerified && isAccountOldEnough && verificationLinkClicked;
+                      
+                      if (!canAccess) {
+                        if (!isEmailVerified) {
+                          console.log('❌ User email is NOT verified - blocking access');
+                        } else if (isTooNew) {
+                          console.warn(`⚠️ Account is brand new (< ${eduStrictThreshold / 1000}s old) - not trusting verification status${isEduDomain ? ' [.edu domain - stricter check]' : ''}`);
+                        }
+                        console.log('Blocking access - email verification required');
                         // Don't redirect - show overlay instead so they can navigate
                         if (window.verificationCheck && window.verificationCheck.createOverlay) {
                           window.verificationCheck.createOverlay();
@@ -2843,8 +3065,8 @@
                         }
                         return;
                       } else {
-                        // Email is verified, allow access
-                        console.log('Email verified in onAuthStateChanged - allowing page load');
+                        // Email is verified AND account is old enough - allow access
+                        console.log('✓ Email verified and account age check passed - allowing page load');
                         if (typeof allowPageLoad === 'function') {
                           allowPageLoad();
                         }
@@ -2857,8 +3079,25 @@
                       }
                     } catch (reloadError) {
                       console.error('Error reloading user:', reloadError);
-                      // If reload fails, check current status
-                      if (!user.emailVerified) {
+                      // If reload fails, check current status with age check
+                      const isEduDomain = user.email?.toLowerCase().endsWith('.edu');
+                      const userCreatedTime = user.metadata.creationTime ? new Date(user.metadata.creationTime).getTime() : 0;
+                      const now = Date.now();
+                      const timeSinceCreation = now - userCreatedTime;
+                      const eduStrictThreshold = isEduDomain ? 15000 : 10000;
+                      const isTooNew = timeSinceCreation < eduStrictThreshold;
+                      
+                      // STRICT REQUIREMENT: Email MUST be verified AND account must be old enough
+                      const isEmailVerified = user.emailVerified === true;
+                      const isAccountOldEnough = !isTooNew;
+                      const canAccess = isEmailVerified && isAccountOldEnough;
+                      
+                      if (!canAccess) {
+                        if (!isEmailVerified) {
+                          console.log('❌ User email is NOT verified (reload error path) - blocking access');
+                        } else if (isTooNew) {
+                          console.warn(`⚠️ Account is brand new (< ${eduStrictThreshold / 1000}s old) - not trusting verification status${isEduDomain ? ' [.edu domain - stricter check]' : ''}`);
+                        }
                         if (window.verificationCheck && window.verificationCheck.createOverlay) {
                           window.verificationCheck.createOverlay();
                         } else {
@@ -2971,15 +3210,61 @@
                         // Check if email is verified - redirect if not
                         try {
                           await currentUser.reload(); // Refresh user data to get latest verification status
-                          if (!currentUser.emailVerified) {
-                            console.log('User email not verified, redirecting to verification page');
+                          
+                          // CRITICAL: Check account age even if emailVerified is true (especially for .edu domains)
+                          const isEduDomain = currentUser.email?.toLowerCase().endsWith('.edu');
+                          const userCreatedTime = currentUser.metadata.creationTime ? new Date(currentUser.metadata.creationTime).getTime() : 0;
+                          const now = Date.now();
+                          const timeSinceCreation = now - userCreatedTime;
+                          const eduStrictThreshold = isEduDomain ? 15000 : 10000; // 15 seconds for .edu, 10 seconds for others
+                          const isTooNew = timeSinceCreation < eduStrictThreshold;
+                          
+                          console.log('checkLoginOnPageLoad - Account age check:', {
+                            email: currentUser.email,
+                            isEduDomain: isEduDomain,
+                            created: new Date(userCreatedTime).toISOString(),
+                            ageSeconds: Math.round(timeSinceCreation / 1000),
+                            threshold: eduStrictThreshold / 1000,
+                            isTooNew: isTooNew,
+                            emailVerified: currentUser.emailVerified
+                          });
+                          
+                          // STRICT REQUIREMENT: Email MUST be verified AND account must be old enough
+                          const isEmailVerified = currentUser.emailVerified === true;
+                          const isAccountOldEnough = !isTooNew;
+                          const canAccess = isEmailVerified && isAccountOldEnough;
+                          
+                          if (!canAccess) {
+                            if (!isEmailVerified) {
+                              console.log('❌ User email is NOT verified - redirecting to verification page');
+                            } else if (isTooNew) {
+                              console.warn(`⚠️ Account is brand new (< ${eduStrictThreshold / 1000}s old) - not trusting verification status${isEduDomain ? ' [.edu domain - stricter check]' : ''}`);
+                            }
+                            console.log('Blocking access - email verification required');
                             window.location.replace('verify-email.html');
                             return;
                           }
                         } catch (reloadError) {
                           console.error('Error reloading user:', reloadError);
-                          // If reload fails, check current status
-                          if (!currentUser.emailVerified) {
+                          // If reload fails, check current status AND account age (especially for .edu domains)
+                          const isEduDomain = currentUser.email?.toLowerCase().endsWith('.edu');
+                          const userCreatedTime = currentUser.metadata.creationTime ? new Date(currentUser.metadata.creationTime).getTime() : 0;
+                          const now = Date.now();
+                          const timeSinceCreation = now - userCreatedTime;
+                          const eduStrictThreshold = isEduDomain ? 15000 : 10000;
+                          const isTooNew = timeSinceCreation < eduStrictThreshold;
+                          
+                          // STRICT REQUIREMENT: Email MUST be verified AND account must be old enough
+                          const isEmailVerified = currentUser.emailVerified === true;
+                          const isAccountOldEnough = !isTooNew;
+                          const canAccess = isEmailVerified && isAccountOldEnough;
+                          
+                          if (!canAccess) {
+                            if (!isEmailVerified) {
+                              console.log('❌ User email is NOT verified (reload error path) - redirecting');
+                            } else if (isTooNew) {
+                              console.warn(`⚠️ Account is brand new (< ${eduStrictThreshold / 1000}s old) - not trusting verification status${isEduDomain ? ' [.edu domain - stricter check]' : ''}`);
+                            }
                             window.location.replace('verify-email.html');
                             return;
                           }
@@ -3411,8 +3696,36 @@
                   await currentUser.reload(); // Get latest verification status
                   console.log('Verification check - emailVerified:', currentUser.emailVerified, 'email:', currentUser.email);
                   
-                  if (!currentUser.emailVerified) {
-                    console.log('Email not verified - showing overlay with options');
+                  // CRITICAL: Check account age even if emailVerified is true (especially for .edu domains)
+                  const isEduDomain = currentUser.email?.toLowerCase().endsWith('.edu');
+                  const userCreatedTime = currentUser.metadata.creationTime ? new Date(currentUser.metadata.creationTime).getTime() : 0;
+                  const now = Date.now();
+                  const timeSinceCreation = now - userCreatedTime;
+                  const eduStrictThreshold = isEduDomain ? 15000 : 10000; // 15 seconds for .edu, 10 seconds for others
+                  const isTooNew = timeSinceCreation < eduStrictThreshold;
+                  
+                  console.log('Account age check:', {
+                    email: currentUser.email,
+                    isEduDomain: isEduDomain,
+                    created: new Date(userCreatedTime).toISOString(),
+                    ageSeconds: Math.round(timeSinceCreation / 1000),
+                    threshold: eduStrictThreshold / 1000,
+                    isTooNew: isTooNew,
+                    emailVerified: currentUser.emailVerified
+                  });
+                  
+                  // STRICT REQUIREMENT: Email MUST be verified AND account must be old enough
+                  const isEmailVerified = currentUser.emailVerified === true;
+                  const isAccountOldEnough = !isTooNew;
+                  const canAccess = isEmailVerified && isAccountOldEnough;
+                  
+                  if (!canAccess) {
+                    if (!isEmailVerified) {
+                      console.log('❌ User email is NOT verified - showing overlay');
+                    } else if (isTooNew) {
+                      console.warn(`⚠️ Account is brand new (< ${eduStrictThreshold / 1000}s old) - not trusting verification status${isEduDomain ? ' [.edu domain - stricter check]' : ''}`);
+                    }
+                    console.log('Blocking access - email verification required');
                     // Update blocking overlay to show options
                     const blockingOverlay = document.getElementById('blocking-verification-overlay');
                     if (blockingOverlay) {
@@ -3494,8 +3807,26 @@
                     createOverlay(); // Show overlay with navigation options
                     return false;
                   }
-                  // If we can't reload but cached status says verified, allow through
-                  console.log('Cannot reload user, but cached status shows verified - allowing access');
+                  
+                  // CRITICAL: Even if cached status says verified, check account age
+                  // Brand new accounts (< 10 seconds old) should not be trusted as verified
+                  const userCreatedTime = currentUser.metadata.creationTime ? new Date(currentUser.metadata.creationTime).getTime() : 0;
+                  const now = Date.now();
+                  const timeSinceCreation = now - userCreatedTime;
+                  const isRecentlyCreated = timeSinceCreation < 10000; // Less than 10 seconds old
+                  
+                  if (isRecentlyCreated) {
+                    console.warn('⚠️ Account is brand new (< 10s old) - requiring verification even if cached status says verified');
+                    console.warn('   Account age:', Math.round(timeSinceCreation / 1000), 'seconds');
+                    // Block body interactions
+                    document.body.style.pointerEvents = 'none';
+                    document.body.style.overflow = 'hidden';
+                    createOverlay(); // Show overlay with navigation options
+                    return false;
+                  }
+                  
+                  // If we can't reload but cached status says verified AND account is not brand new, allow through
+                  console.log('Cannot reload user, but cached status shows verified and account is not brand new - allowing access');
                   if (typeof allowPageLoad === 'function') {
                     allowPageLoad();
                   } else {

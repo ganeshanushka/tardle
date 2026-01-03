@@ -861,6 +861,16 @@ function closeGameOverPopup() {
 }
 
 async function showStatsPopup() {
+    // Check if user is logged in - if not, show login prompt popup
+    if (!isLoggedIn || !currentUser) {
+        const loginPromptPopup = document.getElementById('statsLoginPromptPopup');
+        if (loginPromptPopup) {
+            loginPromptPopup.classList.remove('hidden');
+            loginPromptPopup.style.display = 'flex';
+            return;
+        }
+    }
+    
     // Reload stats from Firestore before showing popup (in case they were updated elsewhere)
     if (isLoggedIn && currentUser) {
         await loadUserStats();
@@ -958,6 +968,17 @@ function closeStatsPopup() {
     }
     // Possibly reset the game or redirect the user here
 }
+
+function closeStatsLoginPrompt() {
+    const popup = document.getElementById('statsLoginPromptPopup');
+    if (popup) {
+        popup.classList.add('hidden');
+        popup.style.display = '';
+    }
+}
+
+// Make function globally accessible
+window.closeStatsLoginPrompt = closeStatsLoginPrompt;
 
 // Update these functions as necessary to handle user's stats updates
 async function updateStatsOnWin() {
