@@ -23,6 +23,7 @@
             <div class="login-modal-input-group">
               <label for="loginModalEmail">Email Address</label>
               <input type="email" id="loginModalEmail" name="email" required autocomplete="email">
+              <div class="login-modal-error" id="loginModalEmailError" style="display: none;"></div>
             </div>
             <div class="login-modal-input-group">
               <input type="submit" id="loginModalContinueBtn" value="Continue">
@@ -442,6 +443,35 @@
         newForm.dispatchEvent(new Event('submit'));
       });
     }
+    
+    // Add real-time email validation for .edu emails
+    const emailInput = document.getElementById('loginModalEmail');
+    const emailError = document.getElementById('loginModalEmailError');
+    if (emailInput) {
+      emailInput.addEventListener('input', function() {
+        const email = emailInput.value.trim().toLowerCase();
+        // Clear .edu error message if user changes email
+        if (emailError && !email.endsWith('.edu')) {
+          if (emailError.textContent.includes('.edu')) {
+            emailError.style.display = 'none';
+          }
+          if (continueBtn) continueBtn.disabled = false;
+        }
+      });
+      
+      emailInput.addEventListener('blur', function() {
+        const email = emailInput.value.trim().toLowerCase();
+        // Show error if .edu email
+        if (email.endsWith('.edu') && emailError) {
+          emailError.textContent = 'We currently do not support .edu email addresses. Please use a different email address.';
+          emailError.style.display = 'block';
+          if (continueBtn) continueBtn.disabled = true;
+        } else if (emailError) {
+          emailError.style.display = 'none';
+          if (continueBtn) continueBtn.disabled = false;
+        }
+      });
+    }
   }
 
   // Handle email form submission (extracted to function for reuse)
@@ -456,9 +486,32 @@
       // Validate email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!email || !emailRegex.test(email)) {
-        alert('Please enter a valid email address');
+        const emailError = document.getElementById('loginModalEmailError');
+        if (emailError) {
+          emailError.textContent = 'Please enter a valid email address';
+          emailError.style.display = 'block';
+        } else {
+          alert('Please enter a valid email address');
+        }
         emailInput.focus();
         return;
+      }
+      
+      // Block .edu email domains
+      if (email.toLowerCase().endsWith('.edu')) {
+        const emailError = document.getElementById('loginModalEmailError');
+        if (emailError) {
+          emailError.textContent = 'We currently do not support .edu email addresses. Please use a different email address.';
+          emailError.style.display = 'block';
+        }
+        emailInput.focus();
+        return;
+      }
+      
+      // Clear any error messages
+      const emailError = document.getElementById('loginModalEmailError');
+      if (emailError) {
+        emailError.style.display = 'none';
       }
       
       // Disable submit button
