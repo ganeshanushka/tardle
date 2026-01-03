@@ -431,6 +431,28 @@
     
     newForm.addEventListener('submit', async function(e) {
       e.preventDefault();
+      
+      // Check if button is disabled (e.g., .edu email detected)
+      const continueBtn = document.getElementById('loginModalContinueBtn');
+      if (continueBtn && continueBtn.disabled) {
+        console.log('Form submission blocked - button is disabled');
+        return;
+      }
+      
+      // Also check email before submitting
+      const emailInput = document.getElementById('loginModalEmail');
+      if (emailInput) {
+        const email = emailInput.value.trim().toLowerCase();
+        if (email.endsWith('.edu')) {
+          const emailError = document.getElementById('loginModalEmailError');
+          if (emailError) {
+            emailError.textContent = 'We currently do not support .edu email addresses. Please use a different email address.';
+            emailError.style.display = 'block';
+          }
+          return;
+        }
+      }
+      
       handleEmailSubmit();
     });
     
@@ -439,6 +461,27 @@
     if (continueBtn) {
       continueBtn.addEventListener('click', function(e) {
         e.preventDefault();
+        
+        // Check if button is disabled
+        if (this.disabled) {
+          console.log('Button click blocked - button is disabled');
+          return;
+        }
+        
+        // Also check email before submitting
+        const emailInput = document.getElementById('loginModalEmail');
+        if (emailInput) {
+          const email = emailInput.value.trim().toLowerCase();
+          if (email.endsWith('.edu')) {
+            const emailError = document.getElementById('loginModalEmailError');
+            if (emailError) {
+              emailError.textContent = 'We currently do not support .edu email addresses. Please use a different email address.';
+              emailError.style.display = 'block';
+            }
+            return;
+          }
+        }
+        
         console.log('Button clicked');
         newForm.dispatchEvent(new Event('submit'));
       });
@@ -447,6 +490,8 @@
     // Add real-time email validation for .edu emails
     const emailInput = document.getElementById('loginModalEmail');
     const emailError = document.getElementById('loginModalEmailError');
+    const continueBtnRef = document.getElementById('loginModalContinueBtn');
+    
     if (emailInput) {
       emailInput.addEventListener('input', function() {
         const email = emailInput.value.trim().toLowerCase();
@@ -455,7 +500,14 @@
           if (emailError.textContent.includes('.edu')) {
             emailError.style.display = 'none';
           }
-          if (continueBtn) continueBtn.disabled = false;
+          if (continueBtnRef) continueBtnRef.disabled = false;
+        } else if (email.endsWith('.edu')) {
+          // Show error immediately on input if .edu
+          if (emailError) {
+            emailError.textContent = 'We currently do not support .edu email addresses. Please use a different email address.';
+            emailError.style.display = 'block';
+          }
+          if (continueBtnRef) continueBtnRef.disabled = true;
         }
       });
       
@@ -465,10 +517,13 @@
         if (email.endsWith('.edu') && emailError) {
           emailError.textContent = 'We currently do not support .edu email addresses. Please use a different email address.';
           emailError.style.display = 'block';
-          if (continueBtn) continueBtn.disabled = true;
-        } else if (emailError) {
-          emailError.style.display = 'none';
-          if (continueBtn) continueBtn.disabled = false;
+          if (continueBtnRef) continueBtnRef.disabled = true;
+        } else if (emailError && email) {
+          // Only clear error if there's a valid email (not empty)
+          if (emailError.textContent.includes('.edu')) {
+            emailError.style.display = 'none';
+          }
+          if (continueBtnRef) continueBtnRef.disabled = false;
         }
       });
     }
