@@ -89,14 +89,27 @@
 
   .success-message {
     color: #2e7d32;
-    font-size: 14px;
-    margin-top: 10px;
+    font-size: 16px;
+    margin-top: 20px;
+    margin-bottom: 20px;
     min-height: 20px;
     display: none;
+    font-weight: 500;
+    text-align: center;
+    padding: 15px;
+    background-color: #e8f5e9;
+    border-radius: 4px;
+    border-left: 4px solid #2e7d32;
   }
 
   .success-message.show {
     display: block;
+  }
+  
+  .success-message.processing {
+    color: #1976d2;
+    background-color: #e3f2fd;
+    border-left-color: #1976d2;
   }
 
 
@@ -653,6 +666,27 @@
             // User clicked the verification link - apply the action code
             const isEmailChange = mode === 'verifyAndChangeEmail';
             console.log('Processing email verification link...', isEmailChange ? '(email change)' : '(initial verification)');
+            
+            // Show processing message immediately
+            const successMessage = document.getElementById('successMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            if (successMessage) {
+              successMessage.textContent = '✓ Verifying your email... Please wait while we process your verification.';
+              successMessage.classList.add('show', 'processing');
+            }
+            if (errorMessage) {
+              errorMessage.classList.remove('show');
+            }
+            
+            // Update verification status to show processing
+            const statusEl = document.getElementById('verificationStatus');
+            if (statusEl) {
+              statusEl.textContent = '⏳ Verifying...';
+              statusEl.className = 'verification-status';
+              statusEl.style.color = '#1976d2';
+              statusEl.style.display = 'block';
+            }
+            
             try {
               // Store old email before applying action code
               const oldEmail = user.email;
@@ -773,8 +807,18 @@
                   }
                 }
                 
-                document.getElementById('successMessage').textContent = 'Email verified successfully! Redirecting...';
-                document.getElementById('successMessage').classList.add('show');
+                // Update success message to show completion
+                const successMessage = document.getElementById('successMessage');
+                if (successMessage) {
+                  successMessage.textContent = '✓ Email verified successfully! Redirecting you to the home page...';
+                  successMessage.classList.remove('processing');
+                }
+                
+                // Redirect immediately after successful verification
+                setTimeout(() => {
+                  window.location.href = isEmailChange ? 'account-details.html' : 'index.html';
+                }, 1500);
+                return; // Exit early since verification is complete
               } else {
                 // If email didn't change and not verified, something went wrong
                 if (isEmailChange && !emailChanged) {
@@ -787,11 +831,11 @@
                   return; // Don't redirect
                 }
                 console.warn('Email verification applied but user.emailVerified is still false');
+                // Still redirect even if status shows false (might be a timing issue)
+                setTimeout(() => {
+                  window.location.href = isEmailChange ? 'account-details.html' : 'index.html';
+                }, 2000);
               }
-              
-              setTimeout(() => {
-                window.location.href = isEmailChange ? 'account-details.html' : 'index.html';
-              }, 2000);
             } catch (linkError) {
               console.error('Error verifying email link:', linkError);
               console.error('Error code:', linkError.code);
@@ -1069,7 +1113,8 @@
       const currentPath = window.location.pathname;
       const pathParts = currentPath.split('/').filter(p => p);
       
-      // Remove the current filename (e.g., verify-email.html)
+      // Set continueUrl to verify-email.html so it can process the verification code
+      // After processing, it will redirect to index.html
       if (pathParts.length > 0) {
         pathParts[pathParts.length - 1] = 'verify-email.html';
       } else {
