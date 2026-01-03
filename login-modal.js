@@ -302,8 +302,57 @@
       document.body.insertAdjacentHTML('beforeend', modalHTML);
       // Setup form handlers after modal HTML is injected
       setTimeout(setupFormHandlers, 50);
+    } else {
+      // Modal already exists, ensure handlers are set up
+      setTimeout(setupFormHandlers, 50);
     }
   }
+  
+  // Global validation function that can be called from anywhere
+  window.validateLoginModalEmail = function() {
+    const emailInput = document.getElementById('loginModalEmail');
+    const emailError = document.getElementById('loginModalEmailError');
+    const continueBtn = document.getElementById('loginModalContinueBtn');
+    
+    if (!emailInput) {
+      console.warn('validateLoginModalEmail: emailInput not found');
+      return;
+    }
+    
+    const email = emailInput.value.trim().toLowerCase();
+    console.log('validateLoginModalEmail: checking email:', email);
+    
+    if (email.endsWith('.edu')) {
+      console.log('validateLoginModalEmail: .edu email detected, showing error');
+      if (emailError) {
+        emailError.textContent = 'We currently do not support .edu email addresses. Please use a different email address.';
+        emailError.style.display = 'block';
+        emailError.style.visibility = 'visible';
+        emailError.style.opacity = '1';
+        // Force a reflow to ensure display change takes effect
+        emailError.offsetHeight;
+        console.log('validateLoginModalEmail: error element updated, display:', emailError.style.display);
+      } else {
+        console.error('validateLoginModalEmail: emailError element not found!');
+      }
+      if (continueBtn) {
+        continueBtn.disabled = true;
+        console.log('validateLoginModalEmail: continue button disabled');
+      } else {
+        console.error('validateLoginModalEmail: continueBtn element not found!');
+      }
+    } else {
+      if (emailError && emailError.textContent.includes('.edu')) {
+        emailError.style.display = 'none';
+      }
+      if (continueBtn && email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (emailRegex.test(email)) {
+          continueBtn.disabled = false;
+        }
+      }
+    }
+  };
 
   // Toggle password visibility
   window.loginModalTogglePassword = function(inputId, toggleId) {
@@ -369,28 +418,20 @@
       // Pre-fill email if provided
       if (prefillEmail && emailInput) {
         emailInput.value = prefillEmail;
-        
-        // CRITICAL: Validate .edu email immediately if pre-filled
-        // Use setTimeout to ensure error element exists
-        setTimeout(() => {
-          const email = prefillEmail.trim().toLowerCase();
-          if (email.endsWith('.edu')) {
-            const emailError = document.getElementById('loginModalEmailError');
-            const continueBtn = document.getElementById('loginModalContinueBtn');
-            if (emailError) {
-              emailError.textContent = 'We currently do not support .edu email addresses. Please use a different email address.';
-              emailError.style.display = 'block';
-            }
-            if (continueBtn) {
-              continueBtn.disabled = true;
-            }
-          }
-        }, 50);
       }
       
-      // Focus email input
-      setTimeout(() => {
+      // Focus email input and validate - multiple attempts to catch all scenarios
+      const validateAndFocus = () => {
         if (emailInput) {
+          // Use global validation function
+          if (typeof window.validateLoginModalEmail === 'function') {
+            window.validateLoginModalEmail();
+          }
+          
+          // Also trigger input event to ensure validation runs
+          emailInput.dispatchEvent(new Event('input', { bubbles: true }));
+          emailInput.dispatchEvent(new Event('change', { bubbles: true }));
+          
           emailInput.focus();
           if (prefillEmail) {
             try {
@@ -400,7 +441,14 @@
             }
           }
         }
-      }, 100);
+      };
+      
+      // Validate immediately
+      setTimeout(validateAndFocus, 100);
+      // Validate again after handlers are set up
+      setTimeout(validateAndFocus, 300);
+      // Final validation after everything is ready
+      setTimeout(validateAndFocus, 500);
     }
   };
 
@@ -527,6 +575,15 @@
     
     // Function to validate email and show/hide error
     function validateEmailInput() {
+      // Use global validation function if available, otherwise use local logic
+      if (typeof window.validateLoginModalEmail === 'function') {
+        window.validateLoginModalEmail();
+        return;
+      }
+      
+      // Fallback local validation
+      if (!emailInput) return;
+      
       const email = emailInput.value.trim().toLowerCase();
       
       // Check if email ends with .edu
@@ -535,6 +592,7 @@
         if (emailError) {
           emailError.textContent = 'We currently do not support .edu email addresses. Please use a different email address.';
           emailError.style.display = 'block';
+          emailError.style.visibility = 'visible';
         }
         // Disable continue button
         if (continueBtnRef) {
@@ -572,6 +630,11 @@
       
       // Validate on change (for autofill)
       emailInput.addEventListener('change', validateEmailInput);
+      
+      // Validate immediately if email is already filled (e.g., from autofill or pre-fill)
+      if (emailInput.value) {
+        setTimeout(validateEmailInput, 100);
+      }
     }
   }
 
