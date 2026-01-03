@@ -285,7 +285,17 @@
         color: #d32f2f;
         font-size: 14px;
         margin-top: 8px;
+        margin-bottom: 0;
         font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        min-height: 20px;
+        line-height: 1.4;
+      }
+      
+      .login-modal-error:empty {
+        display: none !important;
       }
     </style>
   `;
@@ -326,12 +336,16 @@
       console.log('validateLoginModalEmail: .edu email detected, showing error');
       if (emailError) {
         emailError.textContent = 'We currently do not support .edu email addresses. Please use a different email address.';
+        // Remove inline style that might be hiding it
+        emailError.removeAttribute('style');
         emailError.style.display = 'block';
         emailError.style.visibility = 'visible';
         emailError.style.opacity = '1';
+        emailError.style.color = '#d32f2f';
+        emailError.classList.add('show');
         // Force a reflow to ensure display change takes effect
         emailError.offsetHeight;
-        console.log('validateLoginModalEmail: error element updated, display:', emailError.style.display);
+        console.log('validateLoginModalEmail: error element updated, display:', emailError.style.display, 'text:', emailError.textContent, 'computed display:', window.getComputedStyle(emailError).display);
       } else {
         console.error('validateLoginModalEmail: emailError element not found!');
       }
@@ -342,8 +356,12 @@
         console.error('validateLoginModalEmail: continueBtn element not found!');
       }
     } else {
-      if (emailError && emailError.textContent.includes('.edu')) {
-        emailError.style.display = 'none';
+      if (emailError) {
+        if (emailError.textContent.includes('.edu')) {
+          emailError.textContent = '';
+          emailError.style.display = 'none';
+          emailError.classList.remove('show');
+        }
       }
       if (continueBtn && email) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -382,7 +400,11 @@
       const emailError = document.getElementById('loginModalEmailError');
       if (emailError) {
         emailError.textContent = 'We currently do not support .edu email addresses. Please use a different email address.';
+        emailError.removeAttribute('style');
         emailError.style.display = 'block';
+        emailError.style.visibility = 'visible';
+        emailError.style.opacity = '1';
+        emailError.style.color = '#d32f2f';
       }
       // Force back to email step
       step = 'email';
@@ -528,7 +550,11 @@
           const emailError = document.getElementById('loginModalEmailError');
           if (emailError) {
             emailError.textContent = 'We currently do not support .edu email addresses. Please use a different email address.';
+            emailError.removeAttribute('style');
             emailError.style.display = 'block';
+            emailError.style.visibility = 'visible';
+            emailError.style.opacity = '1';
+            emailError.style.color = '#d32f2f';
           }
           return;
         }
