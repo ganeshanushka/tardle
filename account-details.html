@@ -250,32 +250,6 @@
       color: white;
     }
 
-    /* Account Actions Section */
-    .account-actions-content {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      padding: 24px 0;
-    }
-
-    .account-action-link {
-      display: block;
-      padding: 12px 0;
-      color: #1a1a1b;
-      text-decoration: none;
-      font-size: 16px;
-      transition: color 0.2s;
-    }
-
-    .account-action-link:hover {
-      color: #7BAFD4;
-      text-decoration: underline;
-    }
-
-    .account-action-text {
-      font-weight: 500;
-    }
-
     /* Privacy Section */
     .privacy-section {
       margin: 48px 0;
@@ -461,19 +435,6 @@
         <div id="errorMessage" class="error-message" style="display: none;"></div>
       </div>
 
-      <!-- Account Actions Section (only shown when signed in) -->
-      <div class="subscription-section" id="accountActionsSection">
-        <hr class="subscription-divider">
-        <div class="account-actions-content">
-          <a href="reminder.html" class="account-action-link">
-            <div class="account-action-text">Reminder Email Signup</div>
-          </a>
-          <a href="delete-account.html" class="account-action-link">
-            <div class="account-action-text">Delete My Account</div>
-          </a>
-        </div>
-        <hr class="subscription-divider">
-      </div>
 
       <!-- Privacy Section -->
       <div class="section privacy-section">
@@ -606,12 +567,6 @@
           console.log('User email not verified, redirecting to verification page');
           window.location.href = 'verify-email.html';
           return;
-        }
-
-        // Show account actions section since user is signed in (already visible by default, but ensure it's shown)
-        const accountActionsSection = document.getElementById('accountActionsSection');
-        if (accountActionsSection) {
-          accountActionsSection.style.display = 'block';
         }
 
         console.log('Current user found:', currentUser.uid, currentUser.email);
