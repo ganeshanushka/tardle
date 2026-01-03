@@ -2161,6 +2161,7 @@
           <a href="privacy-policy.html" class="side-panel-link">Privacy Policy</a>
           <a href="cookie-policy.html" class="side-panel-link">Cookie Policy</a>
           <a href="privacy-faq.html" class="side-panel-link">Privacy FAQ</a>
+          <div class="side-panel-divider" id="privacyAccountDivider" style="display: none;"></div>
           <div id="accountActionsMenuItems" style="display: none;">
             <a href="reminder.html" class="side-panel-link">Reminder Email Signup</a>
             <a href="#" class="side-panel-link" onclick="handleDeleteAccountClick(event)">Delete My Account</a>
@@ -2886,6 +2887,7 @@
                   const logoutButtonContainer = document.getElementById('logoutButtonContainer');
                   const profileSection = document.getElementById('profileSection');
                   const accountActionsMenuItems = document.getElementById('accountActionsMenuItems');
+                  const privacyAccountDivider = document.getElementById('privacyAccountDivider');
                   
                   if (user && user.email) {
                     // Extract username from email (part before @)
@@ -2900,6 +2902,9 @@
                     }
                     if (accountActionsMenuItems) {
                       accountActionsMenuItems.style.display = 'block';
+                    }
+                    if (privacyAccountDivider) {
+                      privacyAccountDivider.style.display = 'block';
                     }
                     if (logoutButtonContainer) {
                       // Only show if panel is open, otherwise CSS will handle it
@@ -2923,6 +2928,9 @@
                     }
                     if (accountActionsMenuItems) {
                       accountActionsMenuItems.style.display = 'none';
+                    }
+                    if (privacyAccountDivider) {
+                      privacyAccountDivider.style.display = 'none';
                     }
                     // Keep logout button container visible but change text to LOG IN
                     if (logoutButtonContainer) {
