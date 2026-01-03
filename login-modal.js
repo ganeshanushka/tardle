@@ -537,37 +537,41 @@
     if (!emailInput) return;
     
     const email = emailInput.value.trim();
-      
-      // Validate email format
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!email || !emailRegex.test(email)) {
-        const emailError = document.getElementById('loginModalEmailError');
-        if (emailError) {
-          emailError.textContent = 'Please enter a valid email address';
-          emailError.style.display = 'block';
-        } else {
-          alert('Please enter a valid email address');
-        }
-        emailInput.focus();
-        return;
-      }
-      
-      // Block .edu email domains
-      if (email.toLowerCase().endsWith('.edu')) {
-        const emailError = document.getElementById('loginModalEmailError');
-        if (emailError) {
-          emailError.textContent = 'We currently do not support .edu email addresses. Please use a different email address.';
-          emailError.style.display = 'block';
-        }
-        emailInput.focus();
-        return;
-      }
-      
-      // Clear any error messages
+    
+    // CRITICAL: Check .edu FIRST before any other processing
+    if (email.toLowerCase().endsWith('.edu')) {
+      console.log('❌ .edu email detected - blocking submission');
       const emailError = document.getElementById('loginModalEmailError');
       if (emailError) {
-        emailError.style.display = 'none';
+        emailError.textContent = 'We currently do not support .edu email addresses. Please use a different email address.';
+        emailError.style.display = 'block';
       }
+      if (continueBtn) {
+        continueBtn.disabled = true;
+      }
+      emailInput.focus();
+      return; // CRITICAL: Stop here, don't proceed
+    }
+      
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+      const emailError = document.getElementById('loginModalEmailError');
+      if (emailError) {
+        emailError.textContent = 'Please enter a valid email address';
+        emailError.style.display = 'block';
+      } else {
+        alert('Please enter a valid email address');
+      }
+      emailInput.focus();
+      return;
+    }
+      
+    // Clear any error messages
+    const emailError = document.getElementById('loginModalEmailError');
+    if (emailError) {
+      emailError.style.display = 'none';
+    }
       
       // Disable submit button
       if (continueBtn) {
@@ -640,6 +644,22 @@
         console.log('Email:', email);
         console.log('emailExists:', emailExistsCheck);
         
+        // CRITICAL: Double-check .edu before showing any step
+        if (email.toLowerCase().endsWith('.edu')) {
+          console.log('❌ .edu email detected after Firebase check - blocking');
+          const emailError = document.getElementById('loginModalEmailError');
+          if (emailError) {
+            emailError.textContent = 'We currently do not support .edu email addresses. Please use a different email address.';
+            emailError.style.display = 'block';
+          }
+          // Go back to email step
+          showStep('email');
+          if (continueBtn) {
+            continueBtn.disabled = true;
+          }
+          return; // Don't proceed to signin/signup
+        }
+        
         // Store state and show next step
         currentEmail = email;
         emailExists = emailExistsCheck;
@@ -679,6 +699,22 @@
           continueBtn.disabled = false;
           continueBtn.value = 'Continue';
         }
+        // On error, check if .edu before defaulting to signup
+        if (email.toLowerCase().endsWith('.edu')) {
+          console.log('❌ .edu email detected in error handler - blocking');
+          const emailError = document.getElementById('loginModalEmailError');
+          if (emailError) {
+            emailError.textContent = 'We currently do not support .edu email addresses. Please use a different email address.';
+            emailError.style.display = 'block';
+          }
+          // Stay on email step
+          showStep('email');
+          if (continueBtn) {
+            continueBtn.disabled = true;
+          }
+          return;
+        }
+        
         // On error, default to signup (safer than assuming account exists)
         currentEmail = email;
         emailExists = false;
