@@ -40,7 +40,22 @@
   .email-display {
     font-weight: bold;
     color: #001A57;
+    margin-bottom: 10px;
+    font-size: 18px;
+  }
+  
+  .verification-status {
+    font-size: 16px;
     margin-bottom: 30px;
+    font-weight: 500;
+  }
+  
+  .verification-status.verified {
+    color: #2e7d32;
+  }
+  
+  .verification-status.not-verified {
+    color: #d32f2f;
   }
 
   .instructions {
@@ -143,6 +158,7 @@
   <h1>Verify your email</h1>
   <p class="subtitle">We've sent a verification email to</p>
   <div class="email-display" id="emailDisplay">Loading...</div>
+  <div class="verification-status" id="verificationStatus" style="display: none;"></div>
   
   <div class="instructions">
     <p>Please check your inbox and click the verification link in the email we sent you.</p>
@@ -368,7 +384,35 @@
         currentUser = immediateUser;
         userEmail = immediateUser.email;
         document.getElementById('emailDisplay').textContent = userEmail;
+        // Show verification status immediately
+        updateVerificationStatusDisplay(immediateUser);
         console.log('Immediate email display set:', userEmail);
+      } else {
+        // Check for email in localStorage or URL params as fallback
+        const urlParams = new URLSearchParams(window.location.search);
+        const emailParam = urlParams.get('email');
+        const storedEmail = localStorage.getItem('pendingVerificationEmail');
+        const emailToShow = emailParam || storedEmail;
+        if (emailToShow) {
+          document.getElementById('emailDisplay').textContent = emailToShow;
+          console.log('Using email from URL or localStorage:', emailToShow);
+        }
+      }
+      
+      // Function to update verification status display
+      function updateVerificationStatusDisplay(user) {
+        const statusEl = document.getElementById('verificationStatus');
+        if (!statusEl || !user) return;
+        
+        if (user.emailVerified) {
+          statusEl.textContent = '✓ Email verified';
+          statusEl.className = 'verification-status verified';
+          statusEl.style.display = 'block';
+        } else {
+          statusEl.textContent = '✗ Email not verified';
+          statusEl.className = 'verification-status not-verified';
+          statusEl.style.display = 'block';
+        }
       }
       
       // Set up listener for auth state changes
@@ -386,6 +430,9 @@
             document.getElementById('emailDisplay').textContent = 'Loading...';
           }
           
+          // Update verification status display
+          updateVerificationStatusDisplay(user);
+          
           console.log('Verification page loaded for user:', userEmail);
           console.log('Email verified status (initial):', user.emailVerified);
           console.log('User creation time:', user.metadata.creationTime);
@@ -400,6 +447,8 @@
               document.getElementById('emailDisplay').textContent = userEmail;
               console.log('Email display updated after reload to:', userEmail);
             }
+            // Update verification status after reload
+            updateVerificationStatusDisplay(user);
             console.log('Email verified status (after reload):', user.emailVerified);
             console.log('User metadata:', {
               creationTime: user.metadata.creationTime,
@@ -701,6 +750,7 @@
                 }
               } else if (user.emailVerified) {
                 console.log('✓ Email verified successfully!');
+                updateVerificationStatusDisplay(user);
                 document.getElementById('successMessage').textContent = 'Email verified successfully! Redirecting...';
                 document.getElementById('successMessage').classList.add('show');
               } else {
@@ -827,6 +877,7 @@
                   if (currentUser.emailVerified && !isTooNew) {
                     clearInterval(checkInterval);
                     console.log('✓ Email verified detected in periodic check (account is not brand new)');
+                    updateVerificationStatusDisplay(currentUser);
                     document.getElementById('errorMessage').classList.remove('show');
                     
                     // Create Firestore document now that email is verified
