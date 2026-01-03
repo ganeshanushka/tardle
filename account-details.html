@@ -931,7 +931,42 @@
           // User document doesn't exist - create it now
           console.log('User document does not exist, creating it now...');
           
-          const username = currentUser.email?.split('@')[0] || 'User';
+          // Try to retrieve username from pendingUsernames or localStorage (same logic as verify-email.html)
+          let username = null;
+          
+          // First, try to get username from Firestore (persists across devices/browsers)
+          try {
+            const pendingUsernameRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'pendingUsernames', currentUser.uid);
+            const pendingUsernameDoc = await window.firebaseFirestoreFunctions.getDoc(pendingUsernameRef);
+            if (pendingUsernameDoc.exists()) {
+              username = pendingUsernameDoc.data().username;
+              console.log('✓ Username retrieved from Firestore pendingUsernames:', username);
+              // Delete the pending username document after retrieving it
+              await window.firebaseFirestoreFunctions.deleteDoc(pendingUsernameRef);
+              console.log('✓ Pending username document deleted');
+            }
+          } catch (firestoreError) {
+            console.error('Error retrieving username from Firestore:', firestoreError);
+            // Continue to try localStorage fallback
+          }
+          
+          // If not found in Firestore, try localStorage (fallback)
+          if (!username) {
+            username = localStorage.getItem('pendingUsername');
+            if (username) {
+              localStorage.removeItem('pendingUsername'); // Clean up after use
+              console.log('✓ Username retrieved from localStorage:', username);
+            }
+          }
+          
+          // If still no username found, use email prefix as last resort
+          if (!username) {
+            username = currentUser.email?.split('@')[0] || 'User';
+            console.warn('⚠️ No username found in Firestore or localStorage, using email prefix:', username);
+            console.warn('⚠️ This means the username was not properly stored during signup or was cleared');
+          }
+          
+          console.log('✓ Final username to be stored in Firestore:', username);
           updateGreeting(username);
           
           // Show loading state
@@ -950,6 +985,22 @@
             }
             
             const accountNumber = generateAccountNumber();
+            
+            // Validate username is still available before creating document
+            if (username && username !== currentUser.email?.split('@')[0]) {
+              const usersRef = window.firebaseFirestoreFunctions.collection(window.firebaseDb, 'users');
+              const usernameQuery = window.firebaseFirestoreFunctions.query(
+                usersRef,
+                window.firebaseFirestoreFunctions.where('username', '==', username)
+              );
+              const usernameSnapshot = await window.firebaseFirestoreFunctions.getDocs(usernameQuery);
+              
+              if (!usernameSnapshot.empty) {
+                // Username was taken - use email prefix instead
+                console.warn('⚠️ Username was taken, using email prefix instead');
+                username = currentUser.email?.split('@')[0] || 'User';
+              }
+            }
             
             // Create user document in Firestore
             const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
