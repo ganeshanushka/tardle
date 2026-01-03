@@ -67,7 +67,7 @@ exports.sendDailyTardleEmail = functions.pubsub
         return null;
       }
 
-      // Query all users who have subscribed to daily reminder emails
+      // Query all users where emailSubscribed === true
       const subscribedUsersSnapshot = await db.collection("users")
         .where("emailSubscribed", "==", true)
         .get();
@@ -77,57 +77,39 @@ exports.sendDailyTardleEmail = functions.pubsub
         return null;
       }
 
-      // Extract email addresses from subscribed users
-      const emails = [];
-      const userIds = [];
-      
-      subscribedUsersSnapshot.forEach((doc) => {
-        const userData = doc.data();
-        if (userData.email) {
-          emails.push(userData.email);
-        } else {
-          // Store UID to get email from Auth if not in document
-          userIds.push(doc.id);
+      console.log(`Found ${subscribedUsersSnapshot.size} subscribed users.`);
+
+      // Get email addresses from Firebase Auth using the UIDs
+      const auth = admin.auth();
+      const emailPromises = subscribedUsersSnapshot.docs.map(async (doc) => {
+        try {
+          const user = await auth.getUser(doc.id);
+          return user.email;
+        } catch (error) {
+          console.error(`Error getting user ${doc.id} from Auth:`, error);
+          // Fallback to email from Firestore if available
+          const userData = doc.data();
+          return userData.email || null;
         }
       });
 
-      // If some users don't have email in document, get from Auth
-      if (userIds.length > 0) {
-        console.log(`Fetching ${userIds.length} emails from Firebase Auth...`);
-        const authEmails = await Promise.all(
-          userIds.map(async (uid) => {
-            try {
-              const userRecord = await admin.auth().getUser(uid);
-              return userRecord.email;
-            } catch (error) {
-              console.error(`Error getting email for user ${uid}:`, error);
-              return null;
-            }
-          })
-        );
-        
-        // Add valid emails to the list
-        authEmails.forEach((email) => {
-          if (email) {
-            emails.push(email);
-          }
-        });
-      }
+      const emails = await Promise.all(emailPromises);
+      const uniqueEmails = emails.filter(email => email !== null && email !== undefined);
 
-      if (emails.length === 0) {
-        console.log("No email addresses found for subscribed users.");
+      if (uniqueEmails.length === 0) {
+        console.log("No valid email addresses found for subscribed users.");
         return null;
       }
 
-      console.log(`Found ${emails.length} subscribed users. Sending emails...`);
+      console.log(`Found ${uniqueEmails.length} subscribed users to email.`);
 
       // Send emails in batches of 500 to avoid hitting API limits
       const batchSize = 500;
       let successCount = 0;
       let errorCount = 0;
 
-      for (let i = 0; i < emails.length; i += batchSize) {
-        const batch = emails.slice(i, i + batchSize);
+      for (let i = 0; i < uniqueEmails.length; i += batchSize) {
+        const batch = uniqueEmails.slice(i, i + batchSize);
         const results = await Promise.allSettled(
           batch.map(email =>
             resend.emails.send({
@@ -145,12 +127,12 @@ exports.sendDailyTardleEmail = functions.pubsub
         );
 
         // Count successes and errors
-        results.forEach((result) => {
+        results.forEach((result, index) => {
           if (result.status === 'fulfilled') {
             successCount++;
           } else {
             errorCount++;
-            console.error("Error sending email:", result.reason);
+            console.error(`Failed to send email to ${batch[index]}:`, result.reason);
           }
         });
       }
