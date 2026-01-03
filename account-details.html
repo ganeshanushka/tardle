@@ -706,9 +706,12 @@
           const userData = userDoc.data();
           console.log('User data loaded:', userData);
           console.log('Account number in userData:', userData.accountNumber);
+          console.log('Username in userData:', userData.username);
+          console.log('Email prefix (fallback):', currentUser.email?.split('@')[0]);
           
           // Get username for greeting
           const username = userData.username || currentUser.email?.split('@')[0] || 'User';
+          console.log('Using username for greeting:', username);
           updateGreeting(username);
           
           // Get member since date from createdAt or Firebase Auth metadata
@@ -872,7 +875,21 @@
           // Display username
           const usernameDisplayEl = document.getElementById('usernameDisplay');
           if (usernameDisplayEl) {
-            usernameDisplayEl.textContent = userData.username || currentUser.email?.split('@')[0] || 'Not set';
+            // Check if username exists and is not just the email prefix
+            const storedUsername = userData.username;
+            const emailPrefix = currentUser.email?.split('@')[0];
+            
+            // Only use email prefix if username is missing or if username equals email prefix (likely a fallback)
+            if (storedUsername && storedUsername !== emailPrefix) {
+              usernameDisplayEl.textContent = storedUsername;
+            } else if (storedUsername) {
+              // Username exists but is same as email prefix - might be a fallback, show it anyway
+              usernameDisplayEl.textContent = storedUsername;
+            } else {
+              // No username stored - show email prefix as fallback
+              usernameDisplayEl.textContent = emailPrefix || 'Not set';
+              console.warn('⚠️ Username not found in userData, using email prefix:', emailPrefix);
+            }
             usernameDisplayEl.classList.remove('loading');
           }
 
@@ -1009,7 +1026,20 @@
               // Display username
               const usernameDisplayEl = document.getElementById('usernameDisplay');
               if (usernameDisplayEl) {
-                usernameDisplayEl.textContent = userData.username || username;
+                // Prefer userData.username if it exists and is different from email prefix
+                const storedUsername = userData.username;
+                const emailPrefix = currentUser.email?.split('@')[0];
+                
+                console.log('Username display - storedUsername:', storedUsername, 'emailPrefix:', emailPrefix);
+                
+                if (storedUsername && storedUsername !== emailPrefix) {
+                  usernameDisplayEl.textContent = storedUsername;
+                } else if (storedUsername) {
+                  usernameDisplayEl.textContent = storedUsername;
+                } else {
+                  usernameDisplayEl.textContent = username || emailPrefix || 'Not set';
+                  console.warn('⚠️ Username not found in userData, using fallback:', username || emailPrefix);
+                }
                 usernameDisplayEl.classList.remove('loading');
               }
               

@@ -359,7 +359,11 @@
         // Fallback to email prefix if no username was stored anywhere
         username = user.email?.split('@')[0] || 'User';
         console.warn('⚠️ No username found in Firestore or localStorage, using email prefix:', username);
+        console.warn('⚠️ This means the username was not properly stored during signup or was cleared');
+        console.warn('⚠️ User will need to update their username manually on the account details page');
       }
+      
+      console.log('✓ Final username to be stored in Firestore:', username);
       
       // Create user document in Firestore
       await window.firebaseFirestoreFunctions.setDoc(userDocRef, {
