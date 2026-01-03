@@ -57,11 +57,12 @@
   }
 
   .error-message {
-    color: red;
-    font-size: 0.9rem;
-    margin-top: 0.25em;
+    color: #d32f2f;
+    font-size: 14px;
+    margin-top: 8px;
     margin-bottom: 1em;
     display: none;
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
   }
 
   .error-message.show {
@@ -156,6 +157,72 @@
         // Email input types don't support setSelectionRange - this is expected
         // Just focus the field instead
       }
+      
+      // Validate pre-filled email for .edu
+      setTimeout(() => {
+        validateEmailForEdu(emailInput.value);
+      }, 100);
+    }
+    
+    // Add real-time .edu email validation
+    function validateEmailForEdu(email) {
+      const emailLower = email.trim().toLowerCase();
+      const emailError = document.getElementById('emailError');
+      const continueBtn = document.getElementById('continueBtn');
+      
+      if (emailLower.endsWith('.edu')) {
+        // Show .edu error
+        if (emailError) {
+          emailError.textContent = 'We currently do not support .edu email addresses. Please use a different email address.';
+          emailError.classList.add('show');
+        }
+        // Disable continue button
+        if (continueBtn) {
+          continueBtn.disabled = true;
+        }
+        return false;
+      } else {
+        // Clear .edu error if email changed
+        if (emailError && emailError.textContent.includes('.edu')) {
+          emailError.classList.remove('show');
+          emailError.textContent = '';
+        }
+        // Enable continue button if email is valid
+        if (continueBtn && emailLower) {
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (emailRegex.test(emailLower)) {
+            continueBtn.disabled = false;
+          }
+        }
+        return true;
+      }
+    }
+    
+    // Validate on input (as user types)
+    if (emailInput) {
+      emailInput.addEventListener('input', function() {
+        validateEmailForEdu(this.value);
+      });
+      
+      // Validate on blur (when user leaves field)
+      emailInput.addEventListener('blur', function() {
+        validateEmailForEdu(this.value);
+      });
+      
+      // Validate on paste
+      emailInput.addEventListener('paste', function() {
+        setTimeout(() => validateEmailForEdu(this.value), 10);
+      });
+      
+      // Validate on change (for autofill)
+      emailInput.addEventListener('change', function() {
+        validateEmailForEdu(this.value);
+      });
+      
+      // Validate immediately if email is already filled
+      if (emailInput.value) {
+        setTimeout(() => validateEmailForEdu(emailInput.value), 100);
+      }
     }
     
     if (!loginForm) {
@@ -177,6 +244,20 @@
       if (emailError) {
         emailError.classList.remove('show');
         emailError.textContent = '';
+      }
+      
+      // Check for .edu email first
+      if (email.toLowerCase().endsWith('.edu')) {
+        if (emailError) {
+          emailError.textContent = 'We currently do not support .edu email addresses. Please use a different email address.';
+          emailError.classList.add('show');
+        }
+        const continueBtn = document.getElementById('continueBtn');
+        if (continueBtn) {
+          continueBtn.disabled = true;
+        }
+        emailInput.focus();
+        return;
       }
       
       // Validate email format with regex
@@ -290,6 +371,25 @@
     if (continueBtn) {
       continueBtn.addEventListener('click', function(e) {
         e.preventDefault();
+        
+        // Check if button is disabled (e.g., .edu email detected)
+        if (this.disabled) {
+          console.log('Button click blocked - button is disabled');
+          return;
+        }
+        
+        // Also check email before submitting
+        const email = emailInput.value.trim().toLowerCase();
+        if (email.endsWith('.edu')) {
+          const emailError = document.getElementById('emailError');
+          if (emailError) {
+            emailError.textContent = 'We currently do not support .edu email addresses. Please use a different email address.';
+            emailError.classList.add('show');
+          }
+          this.disabled = true;
+          return;
+        }
+        
         console.log('Button clicked');
         loginForm.dispatchEvent(new Event('submit'));
       });
