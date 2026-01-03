@@ -353,6 +353,20 @@
       // Pre-fill email if provided
       if (prefillEmail && emailInput) {
         emailInput.value = prefillEmail;
+        
+        // CRITICAL: Validate .edu email immediately if pre-filled
+        const email = prefillEmail.trim().toLowerCase();
+        if (email.endsWith('.edu')) {
+          const emailError = document.getElementById('loginModalEmailError');
+          const continueBtn = document.getElementById('loginModalContinueBtn');
+          if (emailError) {
+            emailError.textContent = 'We currently do not support .edu email addresses. Please use a different email address.';
+            emailError.style.display = 'block';
+          }
+          if (continueBtn) {
+            continueBtn.disabled = true;
+          }
+        }
       }
       
       // Focus email input
@@ -872,20 +886,33 @@
         return;
       }
       
+      // CRITICAL: Check .edu FIRST before any other validation
+      if (email.toLowerCase().endsWith('.edu')) {
+        console.log('❌ .edu email detected in signup form - blocking');
+        if (errorDiv) {
+          errorDiv.textContent = 'We currently do not support .edu email addresses. Please use a different email address.';
+          errorDiv.style.display = 'block';
+        }
+        // Go back to email step
+        showStep('email');
+        // Show error on email step too
+        const emailError = document.getElementById('loginModalEmailError');
+        if (emailError) {
+          emailError.textContent = 'We currently do not support .edu email addresses. Please use a different email address.';
+          emailError.style.display = 'block';
+        }
+        const continueBtn = document.getElementById('loginModalContinueBtn');
+        if (continueBtn) {
+          continueBtn.disabled = true;
+        }
+        return;
+      }
+      
       // Validate email format with regex - EXACT from signup.html
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!email || !emailRegex.test(email)) {
         if (errorDiv) {
           errorDiv.textContent = 'Please enter a valid email address.';
-          errorDiv.style.display = 'block';
-        }
-        return;
-      }
-      
-      // Block .edu email domains
-      if (email.toLowerCase().endsWith('.edu')) {
-        if (errorDiv) {
-          errorDiv.textContent = 'We currently do not support .edu email addresses. Please use a different email address.';
           errorDiv.style.display = 'block';
         }
         return;
