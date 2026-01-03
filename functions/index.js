@@ -138,11 +138,13 @@ exports.sendDailyTardleEmail = functions.pubsub
       }
 
       console.log(`Sent emails to ${successCount} users. ${errorCount} errors.`);
+
     } catch (err) {
       console.error("Error sending Tardle emails:", err);
     }
     return null;
   });
+
 
 // Send verification code email
 exports.sendVerificationCode = functions.https.onCall(async (data, context) => {
@@ -179,6 +181,157 @@ exports.sendVerificationCode = functions.https.onCall(async (data, context) => {
   } catch (err) {
     console.error("Error sending verification code:", err);
     throw new functions.https.HttpsError('internal', 'Failed to send verification code');
+  }
+});
+
+// Send professional verification email using Resend (with Firebase action code)
+// This gives full control over email design while using Firebase's verification system
+exports.sendProfessionalVerificationEmail = functions.https.onCall(async (data, context) => {
+  try {
+    const { email, continueUrl } = data;
+
+    if (!email) {
+      throw new functions.https.HttpsError('invalid-argument', 'Email is required');
+    }
+
+    if (!resend) {
+      throw new functions.https.HttpsError('failed-precondition', 'Resend API key is not configured.');
+    }
+
+    // Get user by email to generate action code
+    let user;
+    try {
+      user = await admin.auth().getUserByEmail(email);
+    } catch (error) {
+      if (error.code === 'auth/user-not-found') {
+        throw new functions.https.HttpsError('not-found', 'User not found with this email');
+      }
+      throw error;
+    }
+
+    // Generate Firebase action code for email verification
+    const actionCodeSettings = {
+      url: continueUrl || `${BASE_URL}/verify-email.html`,
+      handleCodeInApp: false,
+    };
+
+    const actionLink = await admin.auth().generateEmailVerificationLink(email, actionCodeSettings);
+
+    // Send professional email via Resend
+    await resend.emails.send({
+      from: "Tardle <no-reply@playtardle.com>",
+      to: email,
+      subject: "Verify your Tardle account",
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <style>
+            body {
+              font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+              line-height: 1.6;
+              color: #333;
+              max-width: 600px;
+              margin: 0 auto;
+              padding: 20px;
+              background-color: #f5f5f5;
+            }
+            .email-container {
+              background: #ffffff;
+              border-radius: 8px;
+              padding: 40px;
+              box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            }
+            .header {
+              text-align: center;
+              margin-bottom: 30px;
+            }
+            .logo {
+              font-size: 32px;
+              font-weight: bold;
+              color: #7BAFD4;
+              margin-bottom: 10px;
+            }
+            .button {
+              display: inline-block;
+              background-color: #7BAFD4;
+              color: white;
+              padding: 14px 28px;
+              text-decoration: none;
+              border-radius: 4px;
+              font-weight: bold;
+              margin: 20px 0;
+              text-align: center;
+            }
+            .button:hover {
+              background-color: #5a9bc4;
+            }
+            .button-container {
+              text-align: center;
+              margin: 30px 0;
+            }
+            .footer {
+              margin-top: 30px;
+              padding-top: 20px;
+              border-top: 1px solid #e0e0e0;
+              font-size: 14px;
+              color: #666;
+              text-align: center;
+            }
+            .link-fallback {
+              font-size: 12px;
+              color: #999;
+              word-break: break-all;
+              margin-top: 20px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="email-container">
+            <div class="header">
+              <div class="logo">Tardle</div>
+            </div>
+            
+            <h2 style="color: #1a1a1a; margin-top: 0;">Welcome to Tardle!</h2>
+            
+            <p>Thank you for creating your account. To complete your registration and start playing, please verify your email address by clicking the button below:</p>
+            
+            <div class="button-container">
+              <a href="${actionLink}" class="button">Verify Email Address</a>
+            </div>
+            
+            <p style="font-size: 14px; color: #666; margin-top: 30px;">
+              Or copy and paste this link into your browser:<br>
+              <span class="link-fallback">${actionLink}</span>
+            </p>
+            
+            <p style="font-size: 14px; color: #666; margin-top: 20px;">
+              This verification link will expire in 3 days. If you didn't create a Tardle account, you can safely ignore this email.
+            </p>
+          </div>
+          
+          <div class="footer">
+            <p>Happy playing!</p>
+            <p><strong>The Tardle Team</strong></p>
+            <p style="font-size: 12px; color: #999;">
+              <a href="${BASE_URL}" style="color: #7BAFD4; text-decoration: none;">playtardle.com</a> | 
+              <a href="${BASE_URL}/privacy-policy.html" style="color: #7BAFD4; text-decoration: none;">Privacy Policy</a>
+            </p>
+          </div>
+        </body>
+        </html>
+      `,
+    });
+
+    console.log(`Professional verification email sent to ${email}`);
+    return { success: true };
+  } catch (err) {
+    console.error("Error sending professional verification email:", err);
+    if (err instanceof functions.https.HttpsError) {
+      throw err;
+    }
+    throw new functions.https.HttpsError('internal', 'Failed to send verification email');
   }
 });
 
@@ -636,6 +789,42 @@ exports.sendPasswordResetCode = functions.https.onCall(async (data, context) => 
       throw new functions.https.HttpsError('failed-precondition', 'Resend API key is not configured');
     }
 
+    // Check if email is .edu domain for logging
+    const isEduDomain = email.toLowerCase().endsWith('.edu');
+    if (isEduDomain) {
+      console.log(`Sending password reset to .edu domain: ${email}`);
+      console.warn('Note: .edu domains often have strict spam filters. Email may be filtered even if Resend shows "Delivered".');
+    }
+
+    // For .edu domains, also try Firebase's built-in password reset as backup
+    // This has better deliverability to institutional emails
+    if (isEduDomain) {
+      try {
+        console.log(`Attempting Firebase password reset link for .edu domain: ${email}`);
+        const actionCodeSettings = {
+          url: `${BASE_URL}/reset-password.html?email=${encodeURIComponent(email)}`,
+          handleCodeInApp: false
+        };
+        
+        const resetLink = await admin.auth().generatePasswordResetLink(email, actionCodeSettings);
+        console.log(`Firebase password reset link generated for ${email}`);
+        
+        // Store the reset link in Firestore so we can use it if Resend fails
+        await userDocRef.set({
+          passwordResetFirebaseLink: {
+            link: resetLink,
+            expiresAt: Date.now() + (10 * 60 * 1000), // 10 minutes
+            createdAt: admin.firestore.FieldValue.serverTimestamp()
+          }
+        }, { merge: true });
+        
+        console.log(`Firebase reset link stored as backup for ${email}`);
+      } catch (firebaseError) {
+        console.error(`Failed to generate Firebase reset link for ${email}:`, firebaseError);
+        // Continue with Resend attempt
+      }
+    }
+
     const emailResult = await resend.emails.send({
       from: "Tardle <no-reply@playtardle.com>",
       to: email,
@@ -647,6 +836,7 @@ exports.sendPasswordResetCode = functions.https.onCall(async (data, context) => 
           <h1 style="font-size: 32px; letter-spacing: 8px; color: #001A57; margin: 0;">${verificationCode}</h1>
         </div>
         <p>This code expires in 10 minutes.</p>
+        ${isEduDomain ? `<p><strong>Note:</strong> If you don't see this email, check your spam/junk folder or email quarantine. Institutional email systems may filter automated emails.</p>` : ''}
         <p>If you didn't request a password reset, please ignore this email.</p>
         <p>Thanks,<br>The Tardle Team</p>
       `,
@@ -657,15 +847,32 @@ exports.sendPasswordResetCode = functions.https.onCall(async (data, context) => 
     // Check if Resend returned an error
     if (emailResult.error) {
       console.error('Resend API error:', emailResult.error);
-      throw new functions.https.HttpsError('failed-precondition', `Email sending failed: ${emailResult.error.message}`);
+      const errorMessage = emailResult.error.message || 'Unknown error';
+      
+      // Provide more specific error message for .edu domains
+      if (isEduDomain) {
+        console.warn(`Email delivery issue to .edu domain ${email}: ${errorMessage}`);
+        console.warn('This may be due to strict spam filters. Check Resend dashboard for delivery status.');
+      }
+      
+      throw new functions.https.HttpsError('failed-precondition', `Email sending failed: ${errorMessage}`);
     }
     
     if (!emailResult.data || !emailResult.data.id) {
       console.error('Resend API response missing email ID:', emailResult);
+      if (isEduDomain) {
+        console.warn(`No email ID returned for .edu domain ${email} - email may have been queued but not accepted`);
+      }
       throw new functions.https.HttpsError('internal', 'Email sending failed: No email ID returned');
     }
 
     console.log(`Password reset code sent to ${email}, email ID: ${emailResult.data.id}`);
+    
+    // Log warning for .edu domains about potential deliverability issues
+    if (isEduDomain) {
+      console.log(`✓ Email accepted by Resend for .edu domain ${email}. Check Resend dashboard if email is not received (may be in spam folder or blocked by institution).`);
+    }
+    
     return { success: true };
   } catch (err) {
     console.error("Error sending password reset code:", err);
@@ -864,9 +1071,13 @@ exports.resetPasswordWithToken = functions.https.onCall(async (data, context) =>
       throw new functions.https.HttpsError('deadline-exceeded', 'Reset token has expired');
     }
 
+    // Preserve email verification status before password reset
+    const wasEmailVerified = user.emailVerified;
+
     // Update password using Admin SDK
     await admin.auth().updateUser(user.uid, {
-      password: newPassword
+      password: newPassword,
+      emailVerified: wasEmailVerified // Preserve email verification status
     });
 
     // Remove reset token from Firestore
