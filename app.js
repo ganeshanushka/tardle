@@ -862,12 +862,23 @@ function closeGameOverPopup() {
 
 async function showStatsPopup() {
     // Check if user is logged in - if not, show login prompt popup
-    if (!isLoggedIn || !currentUser) {
+    // Also check Firebase auth directly in case of timing issues
+    let userIsLoggedIn = isLoggedIn && currentUser;
+    
+    // Double-check with Firebase auth if available
+    if (window.firebaseAuth && window.firebaseAuth.currentUser) {
+        userIsLoggedIn = true;
+    }
+    
+    if (!userIsLoggedIn) {
+        console.log('User not logged in - showing stats login prompt popup');
         const loginPromptPopup = document.getElementById('statsLoginPromptPopup');
         if (loginPromptPopup) {
             loginPromptPopup.classList.remove('hidden');
             loginPromptPopup.style.display = 'flex';
             return;
+        } else {
+            console.error('statsLoginPromptPopup element not found');
         }
     }
     
