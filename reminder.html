@@ -6,194 +6,239 @@
   <title>Tardle Reminder</title>
   <style>
     body {
+      font-family: 'PT Serif', sans-serif;
+      background-color: white;
       margin: 0;
-      font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
-      color: #333333;
-      background: #f5f5f5;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      padding: 0;
+      color: #1a1a1a;
       min-height: 100vh;
-      padding: 20px;
-    }
-    .wrapper {
-      max-width: 600px;
-      width: 100%;
-      text-align: left;
-      background: #ffffff;
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
-      padding: 40px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      margin: 0 auto;
     }
-    .icon {
-      width: 100px;
-      height: 100px;
-      border-radius: 8px;
-      background: #f2f2f2;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 24px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+
+    .container {
+      max-width: 600px;
+      width: 100%;
+      margin: 60px auto;
+      padding: 0 20px;
+      box-sizing: border-box;
     }
-    .icon-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 22px);
-      grid-template-rows: repeat(3, 22px);
-      gap: 5px;
-    }
-    .square {
-      width: 22px;
-      height: 22px;
-      border-radius: 4px;
-      background: #e4e4e4;
-      border: 1px solid #d0d0d0;
-    }
-    /* Brand colors: Carolina blue for correct, gold for present, Duke blue for absent */
-    .square.carolina { background: #7BAFD4; border-color: #7BAFD4; }
-    .square.gold { background: #c9b458; border-color: #c9b458; }
-    .square.duke { background: #001A57; border-color: #001A57; }
-    .square.light { background: #ffffff; border-color: #d0d0d0; }
+
     h1 {
-      font-size: 40px;
-      margin: 0 0 10px 0;
-      font-weight: 800;
+      font-size: 32px;
+      font-weight: bold;
+      margin-bottom: 20px;
       color: #1a1a1a;
-      font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
     }
-    h2 {
-      font-size: 36px;
-      margin: 0 0 14px 0;
-      font-weight: 400;
-      line-height: 1.1;
-      font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+
+    .header-tile-grid {
+      display: flex;
+      gap: 3px;
+      margin-bottom: 20px;
+      perspective: 1000px;
     }
-    p {
-      font-size: 18px;
-      margin: 10px 0;
-      line-height: 1.5;
+
+    .header-tile {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 2px solid #333333;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 1.3em;
+      color: #000000;
+      font-family: Arial, sans-serif;
+      background-color: #ffffff;
+      transition: background-color 0s, color 0s, border-color 0s;
     }
-    ul {
-      font-size: 18px;
-      padding-left: 20px;
-      margin: 14px 0 24px;
-      line-height: 1.6;
+
+    /* Flip animation for header tiles */
+    .header-tile.flip {
+      animation: headerTileFlip 0.8s ease-in-out;
     }
-    a {
-      color: #1a1a1a;
-      font-weight: 600;
+
+    @keyframes headerTileFlip {
+      0% { transform: rotateX(0); }
+      50% { transform: rotateX(-90deg); }
+      100% { transform: rotateX(0); }
     }
-    .small {
+
+    /* Initial state: tiles start as white */
+    .header-tile.correct,
+    .header-tile.present,
+    .header-tile.absent {
+      background-color: #ffffff;
+      color: #000000;
+      border-color: #d3d6da;
+    }
+
+    /* Revealed state: tiles show their colors */
+    .header-tile.correct.revealed {
+      background-color: #7BAFD4;
+      color: white;
+      border-color: transparent;
+    }
+
+    .header-tile.present.revealed {
+      background-color: #c9b458;
+      color: white;
+      border-color: transparent;
+    }
+
+    .header-tile.absent.revealed {
+      background-color: #001A57;
+      color: white;
+      border-color: transparent;
+    }
+
+    .account-info {
+      margin-bottom: 30px;
       font-size: 16px;
       line-height: 1.5;
-      margin-top: 0;
-      margin-bottom: 0;
     }
-    .muted {
-      color: #555;
-      font-size: 15px;
-      margin-top: 28px;
-    }
-    .signup-button {
-      display: inline-block;
-      background-color: #000000;
-      color: white;
+
+    .account-info strong {
       font-weight: bold;
-      font-size: 15px;
-      padding: 12px 24px;
-      border-radius: 4px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 30px;
+      margin-bottom: 15px;
+      color: #1a1a1a;
+    }
+
+    .section-content {
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 30px;
+    }
+
+    p {
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 15px;
+    }
+
+    ul {
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 30px;
+      padding-left: 20px;
+    }
+
+    .return-link {
+      color: #333;
       text-decoration: none;
-      margin-top: 0;
-      margin-bottom: 16px;
-      border: none;
-      cursor: pointer;
-      font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
-      text-align: center;
-      width: auto;
-    }
-    .signup-button:hover {
-      background-color: #333333;
-    }
-    .login-status {
-      margin-top: 0;
-    }
-    .login-link {
-      text-decoration: underline;
-      border: 1px solid #007bff;
-      padding: 2px 6px;
-      border-radius: 3px;
-      color: #007bff;
+      font-size: 16px;
+      padding: 12px 0;
       display: inline-block;
     }
-    
+
+    .return-link:hover {
+      text-decoration: underline;
+    }
+
     .subscription-section {
-      margin-top: 20px;
-      padding: 14px;
+      margin-top: 30px;
+      padding: 20px;
       background-color: #f5f5f5;
-      border-radius: 8px;
+      border-left: 4px solid #7BAFD4;
+      border-radius: 4px;
     }
     
     .subscription-toggle {
       display: flex;
-      align-items: center;
-      gap: 12px;
+      align-items: flex-start;
+      gap: 10px;
       margin-top: 12px;
     }
     
     .subscription-toggle input[type="checkbox"] {
-      width: 20px;
-      height: 20px;
+      margin-top: 3px;
+      width: 18px;
+      height: 18px;
       cursor: pointer;
     }
     
     .subscription-toggle label {
       font-size: 16px;
+      line-height: 1.5;
       cursor: pointer;
-      font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+      color: #1a1a1a;
     }
     
     .subscription-status {
-      font-size: 14px;
+      font-size: 16px;
       color: #666;
-      margin-top: 8px;
-      font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+      margin-top: 12px;
+      line-height: 1.5;
+    }
+
+    .login-status {
+      margin-top: 20px;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .login-status a {
+      color: #333;
+      text-decoration: underline;
+    }
+
+    .signup-button {
+      display: inline-block;
+      background-color: #7BAFD4;
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+      padding: 12px 24px;
+      border-radius: 4px;
+      text-decoration: none;
+      margin-top: 20px;
+      margin-bottom: 16px;
+      border: none;
+      cursor: pointer;
+      font-family: 'PT Serif', sans-serif;
+      transition: background-color 0.2s ease;
+    }
+
+    .signup-button:hover {
+      background-color: #6a9fc0;
+    }
+
+    .login-link {
+      color: #333;
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
-  <div class="wrapper">
-    <div class="icon" aria-hidden="true">
-      <div class="icon-grid">
-        <div class="square light"></div>
-        <div class="square gold"></div>
-        <div class="square light"></div>
-        <div class="square carolina"></div>
-        <div class="square light"></div>
-        <div class="square carolina"></div>
-        <div class="square duke"></div>
-        <div class="square light"></div>
-        <div class="square carolina"></div>
-      </div>
+  <div class="container">
+    <div class="header-tile-grid" id="headerTiles"></div>
+  
+    <h1>Reminder Email</h1>
+
+    <div class="account-info">
+      Keep your Tardle streak alive with a daily reminder to solve our carolina word puzzle.
     </div>
 
-    <h1>Tardle Reminder</h1>
-    <h2>Keep your Tardle streak alive with a daily reminder to solve our carolina word puzzle.</h2>
-
-    <ul>
-      <li>Sent to Your Inbox Daily</li>
-    </ul>
+    <div class="section-title">What to expect</div>
+    <div class="section-content">
+      <ul>
+        <li>Sent to Your Inbox Daily</li>
+      </ul>
+    </div>
 
     <div class="login-status" id="loginStatus">
-      <p class="small">You're logged in. Not you? <a href="login.html">Log out.</a></p>
+      <p>You're logged in. Not you? <a href="#" onclick="handleLogout(event)">Log out.</a></p>
     </div>
     
     <div class="subscription-section" id="subscriptionSection" style="display: none;">
-      <h3 style="font-size: 18px; margin: 0 0 10px 0; font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;">Daily Email Reminders</h3>
+      <div class="section-title">Daily Email Reminders</div>
       <div class="subscription-toggle">
         <input type="checkbox" id="emailSubscriptionToggle">
         <label for="emailSubscriptionToggle">Subscribe to daily reminder emails</label>
@@ -201,13 +246,67 @@
       <div class="subscription-status" id="subscriptionStatus"></div>
     </div>
     
-    <p class="muted"><a href="index.html">Back to home page</a></p>
+    <a href="index.html" class="return-link">Return to home page</a>
   </div>
 
   <!-- Firebase Config -->
   <script type="module" src="firebase-config.js"></script>
 
   <script>
+    // Create header tiles and animate them
+    function initHeaderTiles() {
+      const headerTilesContainer = document.getElementById('headerTiles');
+      if (!headerTilesContainer) return;
+
+      // Create tiles spelling "REMINDER EMAIL"
+      const text = "REMINDER EMAIL";
+      const letters = text.split('');
+      const colorClasses = ['correct', 'present', 'absent'];
+      
+      letters.forEach((letter) => {
+        if (letter === ' ') {
+          // Add a spacer for spaces
+          const spacer = document.createElement('div');
+          spacer.style.width = '8px';
+          headerTilesContainer.appendChild(spacer);
+        } else {
+          const tile = document.createElement('div');
+          // Randomly assign a color class
+          const randomColor = colorClasses[Math.floor(Math.random() * colorClasses.length)];
+          tile.className = `header-tile ${randomColor}`;
+          tile.textContent = letter; // Show letter from start
+          headerTilesContainer.appendChild(tile);
+        }
+      });
+
+      // Trigger flip animation after a short delay
+      setTimeout(() => {
+        const tiles = headerTilesContainer.querySelectorAll('.header-tile');
+        const flipDelay = 100; // Delay between each flip
+        const flipDuration = 800; // Duration of flip animation
+
+        tiles.forEach((tile, index) => {
+          setTimeout(() => {
+            // Add flip animation
+            tile.classList.add('flip');
+            
+            // Reveal the color at the midpoint of the flip
+            setTimeout(() => {
+              tile.classList.add('revealed');
+            }, flipDuration / 2); // Half of the flip duration (400ms)
+            
+            // Remove flip class after animation completes
+            setTimeout(() => {
+              tile.classList.remove('flip');
+            }, flipDuration);
+          }, index * flipDelay);
+        });
+      }, 150); // Wait 0.15 seconds after page loads
+    }
+
+    // Initialize header tiles when page loads
+    document.addEventListener('DOMContentLoaded', initHeaderTiles);
+
     // Handle logout
     function handleLogout(event) {
       event.preventDefault();
@@ -331,7 +430,7 @@
 
     function showSignupButton() {
       const loginStatus = document.getElementById('loginStatus');
-      loginStatus.innerHTML = '<a href="login.html?return=reminder.html" class="signup-button">Sign Up</a><p class="small" style="margin-top: 12px; margin-bottom: 0;">Already have an account? <a href="login.html?return=reminder.html" class="login-link">Log in to get it.</a></p>';
+      loginStatus.innerHTML = '<a href="login.html?return=reminder.html" class="signup-button">Sign Up</a><p style="margin-top: 12px; margin-bottom: 0;">Already have an account? <a href="login.html?return=reminder.html" class="login-link">Log in to get it.</a></p>';
     }
 
     // Prevent browser back/forward navigation
