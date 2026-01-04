@@ -138,6 +138,7 @@ exports.sendDailyTardleEmail = functions.pubsub
                       margin: 0 auto;
                       padding: 20px;
                       background-color: #fff;
+                      text-align: center;
                     }
                     .header {
                       margin-bottom: 20px;
@@ -193,13 +194,17 @@ exports.sendDailyTardleEmail = functions.pubsub
                     .grid-square.empty {
                       background-color: #fff;
                     }
+                    .grid-square.light-blue {
+                      background-color: #B8D4E8;
+                      border-color: #B8D4E8;
+                    }
                     .grid-square.yellow {
                       background-color: #c9b458;
                       border-color: #c9b458;
                     }
-                    .grid-square.green {
-                      background-color: #7BAFD4;
-                      border-color: #7BAFD4;
+                    .grid-square.dark-blue {
+                      background-color: #001A57;
+                      border-color: #001A57;
                     }
                     .logo {
                       font-size: 36px;
@@ -226,19 +231,19 @@ exports.sendDailyTardleEmail = functions.pubsub
                   
                   <div class="game-grid">
                     <div class="grid-row">
-                      <div class="grid-square empty"></div>
-                      <div class="grid-square empty"></div>
-                      <div class="grid-square empty"></div>
+                      <div class="grid-square light-blue"></div>
+                      <div class="grid-square light-blue"></div>
+                      <div class="grid-square light-blue"></div>
                     </div>
                     <div class="grid-row">
-                      <div class="grid-square green"></div>
+                      <div class="grid-square light-blue"></div>
                       <div class="grid-square yellow"></div>
-                      <div class="grid-square green"></div>
+                      <div class="grid-square dark-blue"></div>
                     </div>
                     <div class="grid-row">
-                      <div class="grid-square green"></div>
-                      <div class="grid-square green"></div>
-                      <div class="grid-square green"></div>
+                      <div class="grid-square dark-blue"></div>
+                      <div class="grid-square light-blue"></div>
+                      <div class="grid-square dark-blue"></div>
                     </div>
                   </div>
                   
