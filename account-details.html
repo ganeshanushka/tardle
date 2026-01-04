@@ -243,6 +243,57 @@
       font-family: 'PT Serif', serif;
     }
     
+    /* Account Actions Styling */
+    .account-actions-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    
+    .account-action-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 20px;
+      background: white;
+      border: 2px solid #e5e5e5;
+      border-radius: 8px;
+      text-decoration: none;
+      color: #1a1a1b;
+      font-size: 15px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    
+    .account-action-link:hover {
+      background: #f8fbff;
+      border-color: #7BAFD4;
+      transform: translateX(4px);
+      box-shadow: 0 2px 8px rgba(123, 175, 212, 0.15);
+    }
+    
+    .account-action-link.account-action-danger {
+      border-color: #ffcccc;
+    }
+    
+    .account-action-link.account-action-danger:hover {
+      background: #fff5f5;
+      border-color: #ff9999;
+      box-shadow: 0 2px 8px rgba(255, 153, 153, 0.15);
+    }
+    
+    .account-action-icon {
+      font-size: 20px;
+      width: 24px;
+      text-align: center;
+    }
+    
+    .account-action-text {
+      flex: 1;
+    }
+    
     /* Subscription Section */
     .subscription-section {
       margin: 48px 0;
