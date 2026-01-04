@@ -405,21 +405,46 @@
   }
 
   // Immediately try to set email display from localStorage or URL params (before Firebase loads)
-  (function() {
+  function setEmailDisplayImmediately() {
     const emailDisplayEl = document.getElementById('emailDisplay');
-    if (emailDisplayEl && emailDisplayEl.textContent === 'Loading...') {
+    if (!emailDisplayEl) {
+      console.warn('emailDisplay element not found yet, will retry');
+      return false;
+    }
+    
+    if (emailDisplayEl.textContent === 'Loading...') {
       const urlParams = new URLSearchParams(window.location.search);
       const emailParam = urlParams.get('email');
       const storedEmail = localStorage.getItem('pendingVerificationEmail');
       const hashParams = window.location.hash ? new URLSearchParams(window.location.hash.substring(1)) : null;
       const hashEmail = hashParams ? hashParams.get('email') : null;
       const emailToShow = emailParam || storedEmail || hashEmail;
+      
+      console.log('🔍 Checking email sources - URL param:', emailParam, 'localStorage:', storedEmail, 'hash:', hashEmail);
+      
       if (emailToShow) {
         emailDisplayEl.textContent = emailToShow;
-        console.log('Email display set immediately from localStorage/URL:', emailToShow);
+        console.log('✓ Email display set immediately from localStorage/URL:', emailToShow);
+        return true;
+      } else {
+        console.warn('⚠️ No email found in URL params, localStorage, or hash');
       }
+    } else {
+      console.log('Email already set to:', emailDisplayEl.textContent);
     }
-  })();
+    return false;
+  }
+  
+  // Try immediately if DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setEmailDisplayImmediately);
+  } else {
+    setEmailDisplayImmediately();
+  }
+  
+  // Also try after a short delay to catch any timing issues
+  setTimeout(setEmailDisplayImmediately, 100);
+  setTimeout(setEmailDisplayImmediately, 300);
 
   // Wait for Firebase to load
   const checkFirebase = setInterval(() => {
