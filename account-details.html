@@ -1255,8 +1255,12 @@
           }
           
           const nameEl = document.getElementById('displayName');
-          nameEl.textContent = username;
-          nameEl.classList.remove('loading');
+          if (nameEl) {
+            nameEl.textContent = username;
+            nameEl.classList.remove('loading');
+          } else {
+            console.warn('displayName element not found');
+          }
         }
       } catch (error) {
         console.error('Error loading account details:', error);
