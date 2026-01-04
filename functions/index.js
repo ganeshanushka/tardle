@@ -108,6 +108,14 @@ exports.sendDailyTardleEmail = functions.pubsub
       let successCount = 0;
       let errorCount = 0;
 
+      // Get current date and time in Eastern time
+      const now = new Date();
+      const easternTime = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
+      const dateOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+      const timeOptions = { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' };
+      const dateStr = easternTime.toLocaleDateString("en-US", dateOptions);
+      const timeStr = easternTime.toLocaleTimeString("en-US", timeOptions);
+
       for (let i = 0; i < uniqueEmails.length; i += batchSize) {
         const batch = uniqueEmails.slice(i, i + batchSize);
         const results = await Promise.allSettled(
@@ -115,12 +123,128 @@ exports.sendDailyTardleEmail = functions.pubsub
             resend.emails.send({
               from: "Tardle <no-reply@playtardle.com>",
               to: email,
-              subject: "Your Daily Tardle Challenge!",
+              subject: "Tardle Reminder",
               html: `
-                <h2>Good morning! 🌞</h2>
-                <p>Here's today's Tardle puzzle:</p>
-                <a href="${BASE_URL}/play.html">Play Tardle</a>
-                <p>If you want to unsubscribe, click <a href="${BASE_URL}/unsubscribe.html?email=${encodeURIComponent(email)}">here</a>.</p>
+                <!DOCTYPE html>
+                <html>
+                <head>
+                  <meta charset="UTF-8">
+                  <style>
+                    body {
+                      font-family: 'Georgia', 'Times New Roman', serif;
+                      line-height: 1.6;
+                      color: #000;
+                      max-width: 600px;
+                      margin: 0 auto;
+                      padding: 20px;
+                      background-color: #fff;
+                    }
+                    .header {
+                      margin-bottom: 20px;
+                    }
+                    .masthead {
+                      font-size: 18px;
+                      font-weight: bold;
+                      margin-bottom: 10px;
+                      color: #000;
+                    }
+                    .divider {
+                      border-top: 1px solid #000;
+                      margin: 15px 0;
+                    }
+                    .reminder-heading {
+                      font-size: 28px;
+                      font-weight: bold;
+                      margin: 20px 0 5px 0;
+                      color: #000;
+                    }
+                    .date-time {
+                      font-size: 14px;
+                      color: #000;
+                      margin-bottom: 15px;
+                    }
+                    .call-to-action {
+                      font-size: 16px;
+                      margin: 20px 0;
+                      color: #000;
+                    }
+                    .play-link {
+                      color: #0000EE;
+                      text-decoration: underline;
+                    }
+                    .game-grid {
+                      display: inline-block;
+                      margin: 20px 0;
+                      border-collapse: separate;
+                      border-spacing: 3px;
+                    }
+                    .grid-row {
+                      display: flex;
+                      gap: 3px;
+                      margin-bottom: 3px;
+                    }
+                    .grid-square {
+                      width: 40px;
+                      height: 40px;
+                      border: 2px solid #000;
+                      display: inline-block;
+                      box-sizing: border-box;
+                    }
+                    .grid-square.empty {
+                      background-color: #fff;
+                    }
+                    .grid-square.yellow {
+                      background-color: #c9b458;
+                      border-color: #c9b458;
+                    }
+                    .grid-square.green {
+                      background-color: #7BAFD4;
+                      border-color: #7BAFD4;
+                    }
+                    .logo {
+                      font-size: 36px;
+                      font-weight: bold;
+                      margin-top: 10px;
+                      color: #000;
+                      font-family: Arial, sans-serif;
+                    }
+                  </style>
+                </head>
+                <body>
+                  <div class="header">
+                    <div class="masthead">Tardle</div>
+                    <div class="divider"></div>
+                  </div>
+                  
+                  <div class="reminder-heading">Tardle Reminder</div>
+                  <div class="date-time">${dateStr}, ${timeStr} Eastern time</div>
+                  <div class="divider"></div>
+                  
+                  <div class="call-to-action">
+                    Can you guess today's five-letter word? <a href="${BASE_URL}/play.html" class="play-link">Play now.</a>
+                  </div>
+                  
+                  <div class="game-grid">
+                    <div class="grid-row">
+                      <div class="grid-square empty"></div>
+                      <div class="grid-square empty"></div>
+                      <div class="grid-square empty"></div>
+                    </div>
+                    <div class="grid-row">
+                      <div class="grid-square green"></div>
+                      <div class="grid-square yellow"></div>
+                      <div class="grid-square green"></div>
+                    </div>
+                    <div class="grid-row">
+                      <div class="grid-square green"></div>
+                      <div class="grid-square green"></div>
+                      <div class="grid-square green"></div>
+                    </div>
+                  </div>
+                  
+                  <div class="logo">Tardle</div>
+                </body>
+                </html>
               `,
             })
           )
