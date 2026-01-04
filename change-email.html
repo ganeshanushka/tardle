@@ -1477,11 +1477,18 @@
   });
 
   // Handle forgot password link
-  document.getElementById('forgotPasswordLink').addEventListener('click', function(e) {
-    e.preventDefault();
-    // TODO: Implement forgot password functionality
-    alert('Forgot password functionality coming soon!');
-  });
+  const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+  if (forgotPasswordLink) {
+    forgotPasswordLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      // Redirect to reset password page (forgot password page)
+      if (currentUser && userEmail) {
+        window.location.href = 'reset-password.html?email=' + encodeURIComponent(userEmail);
+      } else {
+        window.location.href = 'reset-password.html';
+      }
+    });
+  }
 </script>
 
 </body>
