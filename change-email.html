@@ -206,13 +206,24 @@
 
   .success-message {
     color: #2e7d32;
-    font-size: 14px;
-    margin-top: 10px;
+    font-size: 16px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    padding: 16px;
+    background-color: #e8f5e9;
+    border-left: 4px solid #2e7d32;
+    border-radius: 4px;
     display: none;
+    line-height: 1.5;
   }
 
   .success-message.show {
     display: block;
+  }
+
+  .success-message strong {
+    font-weight: bold;
+    color: #1a1a1a;
   }
 </style>
 </head>
@@ -1222,9 +1233,7 @@
         
         // Show success message - verification email has been sent
         // IMPORTANT: Make it clear that the email has NOT been changed yet
-        successMessage.textContent = 'Verification email sent!\n\n⚠️ Your email has NOT been changed yet.\n\nPlease check your inbox at ' + newEmail + ' (including spam/junk folder) and click the verification link to complete the email change.\n\nYour email will remain ' + refreshedUser.email + ' until you click the verification link.';
-        successMessage.style.color = '#2e7d32';
-        successMessage.style.whiteSpace = 'pre-line';
+        successMessage.innerHTML = '✓ Verification email sent to <strong>' + newEmail + '</strong>. Check your inbox and click the link to complete the change. Your email remains <strong>' + refreshedUser.email + '</strong> until verified.';
         successMessage.classList.add('show');
         
         // Clear form
