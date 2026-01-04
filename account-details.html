@@ -351,6 +351,22 @@
         <div id="errorMessage" class="error-message" style="display: none;"></div>
       </div>
 
+      <!-- Account Actions Section -->
+      <div class="section" id="accountActionsSection">
+        <h2 class="section-title">Account Actions</h2>
+        <div class="info-item">
+          <div class="info-label"></div>
+          <div class="info-value-container">
+            <a href="reminder.html" class="info-action" style="text-decoration: none; color: #1a1a1b; font-weight: 500;">Reminder Email Signup</a>
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="info-label"></div>
+          <div class="info-value-container">
+            <a href="#" class="info-action" onclick="handleDeleteAccountClick(event); return false;" style="text-decoration: none; color: #1a1a1b; font-weight: 500;">Delete My Account</a>
+          </div>
+        </div>
+      </div>
 
     </main>
   </div>
@@ -1271,6 +1287,30 @@
           setTimeout(updateEmailVerificationStatus, 500);
         }
       });
+    }
+
+    // Handle delete account click
+    function handleDeleteAccountClick(event) {
+      event.preventDefault();
+      
+      // Wait for Firebase to be available, then check auth state
+      const checkAuth = () => {
+        if (window.firebaseAuth && window.firebaseAuthFunctions) {
+          // Check if user is logged in
+          if (window.firebaseAuth.currentUser) {
+            // User is logged in - go directly to delete account page
+            window.location.href = 'delete-account.html';
+          } else {
+            // User is not logged in - go to login page with return URL
+            window.location.href = 'login.html?return=' + encodeURIComponent('delete-account.html');
+          }
+        } else {
+          // Firebase not loaded yet, wait a bit and try again
+          setTimeout(checkAuth, 100);
+        }
+      };
+      
+      checkAuth();
     }
 
   </script>

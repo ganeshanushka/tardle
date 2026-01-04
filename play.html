@@ -3141,8 +3141,31 @@
                   const privacyAccountDivider = document.getElementById('privacyAccountDivider');
                   
                   if (user && user.email) {
-                    // Extract username from email (part before @)
-                    const username = user.email.split('@')[0];
+                    // Get username from Firestore, fallback to email prefix
+                    let username = user.email.split('@')[0]; // Default to email prefix
+                    
+                    // Try to get username from Firestore
+                    if (window.firebaseDb && window.firebaseFirestoreFunctions) {
+                      try {
+                        const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', user.uid);
+                        const userDoc = await window.firebaseFirestoreFunctions.getDoc(userDocRef);
+                        if (userDoc.exists()) {
+                          const userData = userDoc.data();
+                          if (userData.username) {
+                            username = userData.username;
+                            console.log('Using username from Firestore:', username);
+                          } else {
+                            console.log('No username in Firestore, using email prefix:', username);
+                          }
+                        } else {
+                          console.log('User document not found, using email prefix:', username);
+                        }
+                      } catch (firestoreError) {
+                        console.warn('Error fetching username from Firestore, using email prefix:', firestoreError);
+                        // Continue with email prefix as fallback
+                      }
+                    }
+                    
                     if (greetingElement && greetingNameElement) {
                       greetingNameElement.textContent = username;
                       greetingElement.style.display = 'block';
