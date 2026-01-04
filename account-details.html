@@ -247,52 +247,52 @@
     .account-actions-list {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 0;
       margin-top: 8px;
     }
     
-    .account-action-link {
+    .account-action-item {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 16px 20px;
-      background: white;
-      border: 2px solid #7BAFD4;
-      border-radius: 8px;
+      justify-content: space-between;
+      padding: 20px 0;
       text-decoration: none;
-      color: #7BAFD4;
-      font-size: 15px;
-      font-weight: bold;
-      transition: all 0.2s ease;
+      color: #1a1a1b;
+      border-bottom: 1px solid #e5e5e5;
+      transition: background-color 0.2s ease;
       cursor: pointer;
     }
     
-    .account-action-link:hover {
-      background: #f8fbff;
-      border-color: #7BAFD4;
-      transform: translateX(4px);
-      box-shadow: 0 2px 8px rgba(123, 175, 212, 0.15);
+    .account-action-item:last-child {
+      border-bottom: none;
     }
     
-    .account-action-link.account-action-danger {
-      border-color: #7BAFD4;
-      color: #7BAFD4;
+    .account-action-item:hover {
+      background-color: #f8fbff;
     }
     
-    .account-action-link.account-action-danger:hover {
-      background: #f8fbff;
-      border-color: #7BAFD4;
-      box-shadow: 0 2px 8px rgba(123, 175, 212, 0.15);
-    }
-    
-    .account-action-icon {
-      font-size: 20px;
-      width: 24px;
-      text-align: center;
-    }
-    
-    .account-action-text {
+    .account-action-content {
       flex: 1;
+    }
+    
+    .account-action-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #1a1a1b;
+      margin-bottom: 4px;
+    }
+    
+    .account-action-description {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.4;
+    }
+    
+    .account-action-chevron {
+      font-size: 18px;
+      color: #666;
+      margin-left: 16px;
+      font-weight: bold;
     }
     
     /* Subscription Section */
@@ -461,13 +461,19 @@
       <div class="section" id="accountActionsSection">
         <h2 class="section-title">Account Actions</h2>
         <div class="account-actions-list">
-          <a href="reminder.html" class="account-action-link">
-            <span class="account-action-icon">📧</span>
-            <span class="account-action-text">Reminder Email Signup</span>
+          <a href="reminder.html" class="account-action-item">
+            <div class="account-action-content">
+              <div class="account-action-title">Reminder Email Signup</div>
+              <div class="account-action-description">Sign up to receive daily reminder emails for new puzzles.</div>
+            </div>
+            <div class="account-action-chevron">></div>
           </a>
-          <a href="#" class="account-action-link account-action-danger" onclick="handleDeleteAccountClick(event); return false;">
-            <span class="account-action-icon">🗑️</span>
-            <span class="account-action-text">Delete My Account</span>
+          <a href="#" class="account-action-item" onclick="handleDeleteAccountClick(event); return false;">
+            <div class="account-action-content">
+              <div class="account-action-title">Delete your account</div>
+              <div class="account-action-description">You will lose access to all history associated with this account.</div>
+            </div>
+            <div class="account-action-chevron">></div>
           </a>
         </div>
       </div>
