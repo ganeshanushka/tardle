@@ -584,10 +584,32 @@
   };
   
   if (newEmailInput) {
+    // Real-time .edu email validation
+    newEmailInput.addEventListener('input', function() {
+      validateEmailForEdu();
+    });
+    
+    newEmailInput.addEventListener('blur', function() {
+      validateEmailForEdu();
+    });
+    
+    newEmailInput.addEventListener('paste', function() {
+      setTimeout(validateEmailForEdu, 10);
+    });
+    
+    newEmailInput.addEventListener('change', function() {
+      validateEmailForEdu();
+    });
+    
     // Check when user leaves the email field (moves to password field or clicks away)
     newEmailInput.addEventListener('blur', async function(e) {
       // Don't prevent default or stop propagation - let the blur happen naturally
       const email = newEmailInput.value.trim();
+      
+      // Block .edu emails
+      if (email.toLowerCase().endsWith('.edu')) {
+        return; // Don't proceed with Firebase check if .edu
+      }
       
       // Only check if email is not empty and is valid format
       if (email && email.length > 0) {
