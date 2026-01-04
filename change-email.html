@@ -415,6 +415,37 @@
   const emailError = document.getElementById('emailError');
   const emailErrorText = document.getElementById('emailErrorText');
   
+  // Function to validate email (including .edu check) - same as signup
+  const validateEmailForEdu = function() {
+    const email = newEmailInput.value.trim().toLowerCase();
+    if (email.endsWith('.edu')) {
+      if (emailError && emailErrorText) {
+        emailErrorText.textContent = 'We currently do not support .edu email addresses. Please use a different email address.';
+        emailError.classList.add('show');
+        newEmailInput.classList.add('error');
+      }
+      // Disable save button if it exists
+      const saveButton = document.getElementById('saveButton');
+      if (saveButton) {
+        saveButton.disabled = true;
+      }
+      return false;
+    } else {
+      // Clear .edu error if email changes
+      if (emailError && emailErrorText && emailErrorText.textContent.includes('.edu')) {
+        emailError.classList.remove('show');
+        emailErrorText.textContent = '';
+        newEmailInput.classList.remove('error');
+      }
+      // Enable save button
+      const saveButton = document.getElementById('saveButton');
+      if (saveButton) {
+        saveButton.disabled = false;
+      }
+      return true;
+    }
+  };
+  
   // Function to check if email is already in use
   const checkEmailAvailability = async function(email) {
     // Basic validation first
@@ -926,6 +957,18 @@
       newEmailInput.focus();
       saveButton.disabled = false;
       saveButton.textContent = 'Save';
+      return;
+    }
+    
+    // Block .edu email domains (same as signup)
+    if (newEmail.toLowerCase().endsWith('.edu')) {
+      emailErrorText.textContent = 'We currently do not support .edu email addresses. Please use a different email address.';
+      emailError.classList.add('show');
+      newEmailInput.classList.add('error');
+      newEmailInput.focus();
+      saveButton.disabled = false;
+      saveButton.textContent = 'Save';
+      isProcessingForm = false;
       return;
     }
     
