@@ -408,17 +408,15 @@
       <!-- Account Actions Section -->
       <div class="section" id="accountActionsSection">
         <h2 class="section-title">Account Actions</h2>
-        <div class="info-item">
-          <div class="info-label"></div>
-          <div class="info-value-container">
-            <a href="reminder.html" class="info-action" style="text-decoration: none; color: #1a1a1b; font-weight: 500;">Reminder Email Signup</a>
-          </div>
-        </div>
-        <div class="info-item">
-          <div class="info-label"></div>
-          <div class="info-value-container">
-            <a href="#" class="info-action" onclick="handleDeleteAccountClick(event); return false;" style="text-decoration: none; color: #1a1a1b; font-weight: 500;">Delete My Account</a>
-          </div>
+        <div class="account-actions-list">
+          <a href="reminder.html" class="account-action-link">
+            <span class="account-action-icon">📧</span>
+            <span class="account-action-text">Reminder Email Signup</span>
+          </a>
+          <a href="#" class="account-action-link account-action-danger" onclick="handleDeleteAccountClick(event); return false;">
+            <span class="account-action-icon">🗑️</span>
+            <span class="account-action-text">Delete My Account</span>
+          </a>
         </div>
       </div>
 
