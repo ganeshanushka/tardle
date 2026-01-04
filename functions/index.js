@@ -377,17 +377,12 @@ exports.sendEmailChangeVerification = functions.https.onCall(async (data, contex
       to: email,
       subject: "Verify your new email address for Tardle",
       html: `
-        <h2>Hello ${username || 'there'}!</h2>
-        <p>You requested to change your email address from <strong>${currentEmail}</strong> to <strong>${email}</strong>.</p>
-        <p>Click the button below to verify your new email address:</p>
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="${verificationUrl}" style="background-color: #001A57; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Verify Email Address</a>
-        </div>
-        <p>Or copy and paste this link into your browser:</p>
-        <p style="word-break: break-all; color: #666;">${verificationUrl}</p>
-        <p>Your verification code is: <strong style="font-size: 18px; letter-spacing: 2px;">${code}</strong></p>
+        <p>Hi ${username || 'there'},</p>
+        <p>You requested to change your email from <strong>${currentEmail}</strong> to <strong>${email}</strong>.</p>
+        <p>Please verify your new email by visiting the link below:</p>
+        <p><a href="${verificationUrl}" style="word-break: break-all; color: #7BAFD4;">${verificationUrl}</a></p>
         <p>This link will expire in 15 minutes.</p>
-        <p>If you didn't request this email change, please ignore this email or contact support if you're concerned.</p>
+        <p>If you didn't request this change, you can safely ignore this email.</p>
         <p>Thanks,<br>The Tardle Team</p>
       `,
     });
