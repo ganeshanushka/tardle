@@ -633,11 +633,11 @@
     position: absolute;
     top: 20px;
     right: 20px;
-    font-size: 28px;
+    font-size: 20px;
     font-weight: bold;
-    color: #000;
+    color: #fff;
     cursor: pointer;
-    background: none;
+    background-color: #7BAFD4;
     border: none;
     padding: 0;
     line-height: 1;
@@ -651,7 +651,7 @@
   }
 
   .stats-login-close-btn:hover {
-    background-color: #f0f0f0;
+    background-color: #6a9fc0;
   }
 
   .stats-login-title {
@@ -669,20 +669,20 @@
   }
 
   .stats-login-subtitle {
-    font-family: 'PT Serif', 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
-    font-size: 20px;
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 24px;
     font-weight: bold;
     color: #000;
     margin: 20px 0 15px 0;
-    text-align: left;
+    text-align: center;
   }
 
   .stats-login-text {
     font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
     font-size: 15px;
-    color: #333;
+    color: #000;
     margin: 0 0 30px 0;
-    text-align: left;
+    text-align: center;
     line-height: 1.6;
   }
 
@@ -2401,8 +2401,8 @@
                   <text x="120" y="214" text-anchor="middle" font-size="10" font-weight="bold" fill="#000">%</text>
                 </svg>
               </div>
-              <h2 class="stats-login-subtitle">Track your stats and see how you rank</h2>
-              <p class="stats-login-text">Access your Tardle statistics, win percentage, streaks, and see how you compare to other players with a free account.</p>
+              <h2 class="stats-login-subtitle">Track your stats and view rankings.</h2>
+              <p class="stats-login-text">Access your Tardle win percentage, streaks, and more with a free account.</p>
               <a href="login.html?return=play.html" class="stats-login-button">Create a free account</a>
             </div>
           </div>
@@ -2984,6 +2984,14 @@
               setTimeout(() => {
                 modal.classList.remove('show', 'closing');
               }, 300); // Match animation duration
+            }
+          }
+
+          function closeStatsLoginPrompt() {
+            const popup = document.getElementById('statsLoginPromptPopup');
+            if (popup) {
+              popup.classList.add('hidden');
+              popup.style.display = 'none';
             }
           }
 
