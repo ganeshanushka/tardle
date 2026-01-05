@@ -3,11 +3,38 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700;800&display=swap" rel="stylesheet">
 <title>Tardle</title>
 <style>
+  /* Field Gothic Narrow Font Face */
+  @font-face {
+    font-family: 'Field Gothic Narrow';
+    src: url('fonts/FieldGothicNarrow-Regular.woff2') format('woff2'),
+         url('fonts/FieldGothicNarrow-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Field Gothic Narrow';
+    src: url('fonts/FieldGothicNarrow-Bold.woff2') format('woff2'),
+         url('fonts/FieldGothicNarrow-Bold.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  /* Ensure headings use bold */
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: bold;
+  }
+  
+  /* Ensure body/content uses regular */
+  body {
+    font-weight: normal;
+  }
+
+
   body, html {
     height: 100%;
     width: 100%;
@@ -17,7 +44,8 @@
     margin: 0;
     overflow: hidden;
     background-color:#7BAFD4; 
-    font-family: 'Source Serif 4', serif; 
+    font-family: 'Field Gothic Narrow', sans-serif;
+    font-weight: normal; 
     font-weight: bold;
   }
 
@@ -165,7 +193,7 @@
 }
 
   .login-prompt-heading {
-    font-family: 'Source Serif 4', serif;
+    font-family: 'Field Gothic Narrow', sans-serif;
     font-size: 22px;
     font-weight: bold;
     color: white;
@@ -178,7 +206,7 @@
   }
 
   .login-prompt-text {
-    font-family: 'Source Serif 4', serif;
+    font-family: 'Field Gothic Narrow', sans-serif;
     font-size: 15px;
     color: white;
     margin: 0 0 30px 0;
@@ -197,7 +225,7 @@
     color: #000;
     border: 3px solid #000;
     border-radius: 30px;
-    font-family: 'Source Serif 4', serif;
+    font-family: 'Field Gothic Narrow', sans-serif;
     font-size: 15px;
     font-weight: bold;
     text-align: center;
