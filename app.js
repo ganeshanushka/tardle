@@ -493,10 +493,11 @@ let words = [
     // Create date string in YYYY-MM-DD format
     const dateString = `${year}-${month}-${day}`;
     
-    // Special override: Today's word is "CAROLINA"
+    // Special override: Today's word (2026-01-05) is "CAROLINA"
     // TODO: Remove this override after today to use the mapping below
-    // For now, always return CAROLINA for today's date
-    return 'CAROLINA';
+    if (dateString === '2026-01-05') {
+      return 'CAROLINA';
+    }
     
     // Check if we have a word for this date in the mapping
     if (dailyWordMap[dateString]) {
