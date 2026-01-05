@@ -1306,6 +1306,26 @@ window.showResultsPopup = function showResultsPopup() {
     }
 };
 
+// Helper function to show appropriate popup based on login status
+window.showResultsOrStatsPopup = function showResultsOrStatsPopup() {
+    // Check if user is logged in
+    const isLoggedIn = (window.firebaseAuth && window.firebaseAuth.currentUser) || 
+                      window.isLoggedIn || 
+                      window.currentUser;
+    
+    if (isLoggedIn) {
+        // Logged in: show stats popup
+        if (window.showStatsPopup) {
+            window.showStatsPopup();
+        }
+    } else {
+        // Not logged in: show results popup
+        if (window.showResultsPopup) {
+            window.showResultsPopup();
+        }
+    }
+};
+
 window.showStatsPopup = async function showStatsPopup() {
     // Check if user is logged in - if not, show login prompt popup
     // Also check Firebase auth directly in case of timing issues
