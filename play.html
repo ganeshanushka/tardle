@@ -1771,6 +1771,13 @@
 #statsPopup .stats-content .leaderboard-cell:has(.leaderboard-username) {
     min-width: 150px;
     max-width: none;
+    white-space: nowrap;
+}
+
+#statsPopup .stats-content .leaderboard-cell:has(.leaderboard-username) .leaderboard-username {
+    display: inline-block;
+    width: auto;
+    max-width: 100%;
 }
 
 #statsPopup .stats-content .leaderboard-rank {
@@ -1793,6 +1800,10 @@
     display: inline-block;
     width: 100%;
     max-width: 100%;
+    line-height: 1.5;
+    /* Ensure no flex layout that could cause vertical stacking */
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
 }
 
 #statsPopup .stats-content .leaderboard-letter-box {

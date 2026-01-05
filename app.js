@@ -921,7 +921,13 @@ window.showStatsPopup = async function showStatsPopup() {
         // Populate leaderboard with dummy data
         function renderUsername(element, username) {
             if (element) {
+                // Clear any existing content (including letter boxes from previous renders)
+                element.innerHTML = '';
                 element.textContent = username;
+                // Ensure no flex or column layout
+                element.style.display = 'inline-block';
+                element.style.flexDirection = '';
+                element.style.flexWrap = '';
             }
         }
         
