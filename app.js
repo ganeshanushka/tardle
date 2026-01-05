@@ -157,7 +157,8 @@ let words = [
         gamesWon = data.gamesWon || 0;
         currentStreak = data.currentStreak || 0;
         maxStreak = data.maxStreak || 0;
-        console.log('Stats loaded from Firestore:', { gamesPlayed, gamesWon, currentStreak, maxStreak });
+        totalPoints = data.points || 0;
+        console.log('Stats loaded from Firestore:', { gamesPlayed, gamesWon, currentStreak, maxStreak, totalPoints });
       } else {
         // User document doesn't exist yet - initialize stats to 0
         console.log('User document not found, initializing stats to 0');
@@ -165,6 +166,7 @@ let words = [
         gamesWon = 0;
         currentStreak = 0;
         maxStreak = 0;
+        totalPoints = 0;
       }
     } catch (error) {
       console.error('Error loading user stats:', error);
@@ -173,6 +175,7 @@ let words = [
       gamesWon = 0;
       currentStreak = 0;
       maxStreak = 0;
+      totalPoints = 0;
     }
   }
 
@@ -911,12 +914,42 @@ window.showStatsPopup = async function showStatsPopup() {
         currentStreakEl.innerText = currentStreak;
         maxStreakEl.innerText = maxStreak;
         
-        // Dummy leaderboard data
-        const leaderboardData = [
-            { username: 'TarHeelFan99', points: 1250 },
-            { username: 'CarolinaBlue42', points: 980 },
-            { username: 'UNCChampion', points: 750 }
-        ];
+        // Fetch real leaderboard data from Firestore
+        let leaderboardData = [];
+        if (window.firebaseFirestoreFunctions && window.firebaseDb) {
+            try {
+                const usersRef = window.firebaseFirestoreFunctions.collection(window.firebaseDb, 'users');
+                const usersSnapshot = await window.firebaseFirestoreFunctions.getDocs(usersRef);
+                
+                leaderboardData = usersSnapshot.docs
+                    .map(doc => {
+                        const data = doc.data();
+                        return {
+                            username: data.username || data.email?.split('@')[0] || 'User',
+                            points: data.points || 0,
+                            uid: doc.id
+                        };
+                    })
+                    .filter(user => user.points > 0) // Only show users with points
+                    .sort((a, b) => b.points - a.points) // Sort by points descending
+                    .slice(0, 3); // Get top 3
+                
+                console.log('Leaderboard data fetched:', leaderboardData);
+            } catch (error) {
+                console.error('Error fetching leaderboard data:', error);
+                // Fallback to empty array - will show empty leaderboard
+                leaderboardData = [];
+            }
+        }
+        
+        // If no real data, show placeholder
+        if (leaderboardData.length === 0) {
+            leaderboardData = [
+                { username: 'No players yet', points: 0 },
+                { username: '', points: 0 },
+                { username: '', points: 0 }
+            ];
+        }
         
         // Populate leaderboard with dummy data
         function renderUsername(element, username) {
@@ -987,28 +1020,47 @@ window.showStatsPopup = async function showStatsPopup() {
                 const userDoc = await window.firebaseFirestoreFunctions.getDoc(userDocRef);
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
-                    // Calculate points based on games won (or use points field if it exists)
-                    // For now, use a simple calculation: points = gamesWon * 100 + currentStreak * 10
-                    const currentUserPoints = userData.points || ((userData.gamesWon || 0) * 100 + (userData.currentStreak || 0) * 10);
+                    // Use actual points from Firestore
+                    const currentUserPoints = userData.points || 0;
                     currentUserData = {
                         username: userData.username || currentUser.email?.split('@')[0] || 'User',
                         points: currentUserPoints
                     };
                     
-                    // Find user's rank in leaderboard (assuming sorted by points descending)
-                    // Check if they're in top 3 by comparing with top 3 points
-                    const top3Points = leaderboardData.map(entry => entry.points);
-                    const isInTop3 = top3Points.some(points => currentUserPoints >= points) && 
-                                    currentUserPoints > Math.min(...top3Points);
-                    
-                    if (!isInTop3) {
-                        // Calculate rank: count how many have more points
-                        const allLeaderboardData = [...leaderboardData];
-                        allLeaderboardData.push(currentUserData);
-                        allLeaderboardData.sort((a, b) => b.points - a.points);
-                        currentUserRank = allLeaderboardData.findIndex(entry => 
-                            entry.username === currentUserData.username && entry.points === currentUserData.points
-                        ) + 1;
+                    // Find user's rank by fetching all users and sorting
+                    if (window.firebaseFirestoreFunctions && window.firebaseDb) {
+                        try {
+                            const usersRef = window.firebaseFirestoreFunctions.collection(window.firebaseDb, 'users');
+                            const allUsersSnapshot = await window.firebaseFirestoreFunctions.getDocs(usersRef);
+                            
+                            const allUsers = allUsersSnapshot.docs
+                                .map(doc => {
+                                    const data = doc.data();
+                                    return {
+                                        username: data.username || data.email?.split('@')[0] || 'User',
+                                        points: data.points || 0,
+                                        uid: doc.id
+                                    };
+                                })
+                                .filter(user => user.points > 0)
+                                .sort((a, b) => b.points - a.points);
+                            
+                            // Check if user is in top 3
+                            const top3Points = allUsers.slice(0, 3).map(u => u.points);
+                            const isInTop3 = top3Points.length > 0 && currentUserPoints >= Math.min(...top3Points) && 
+                                            currentUserPoints > 0;
+                            
+                            if (!isInTop3 && currentUserPoints > 0) {
+                                // Find rank
+                                currentUserRank = allUsers.findIndex(user => user.uid === currentUser.uid) + 1;
+                                if (currentUserRank === 0) {
+                                    // User not found in sorted list, calculate rank
+                                    currentUserRank = allUsers.filter(u => u.points > currentUserPoints).length + 1;
+                                }
+                            }
+                        } catch (rankError) {
+                            console.error('Error calculating user rank:', rankError);
+                        }
                     }
                 }
             } catch (error) {
@@ -1102,24 +1154,52 @@ function closeStatsLoginPrompt() {
 // Make function globally accessible
 window.closeStatsLoginPrompt = closeStatsLoginPrompt;
 
+// Calculate points for a win
+function calculateWinPoints(guessesUsed, currentStreak) {
+    // Base points for winning
+    let points = 3;
+    
+    // Guess bonus: fewer guesses = more points
+    // 6 guesses = +0, 5 = +1, 4 = +2, 3 = +3, 2 = +3, 1 = +3
+    const guessBonus = Math.max(0, Math.min(3, 7 - guessesUsed));
+    points += guessBonus;
+    
+    // Streak bonus: 1 point per day, capped at 5 points per game
+    const streakBonus = Math.min(5, currentStreak);
+    points += streakBonus;
+    
+    return points;
+}
+
 // Update these functions as necessary to handle user's stats updates
 async function updateStatsOnWin() {
+    const guessesUsed = guesses.length; // Number of guesses it took to win
+    
     if (isLoggedIn && currentUser && window.firebaseFirestoreFunctions) {
         gamesPlayed++;
         gamesWon++;
+        const oldStreak = currentStreak;
         currentStreak++;
         maxStreak = Math.max(maxStreak, currentStreak);
+        
+        // Calculate points for this win
+        const pointsEarned = calculateWinPoints(guessesUsed, oldStreak);
         
         // Update stats in Firestore
         try {
             const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
+            const userDoc = await window.firebaseFirestoreFunctions.getDoc(userDocRef);
+            const currentPoints = userDoc.exists() ? (userDoc.data().points || 0) : 0;
+            const newPoints = currentPoints + pointsEarned;
+            
             await window.firebaseFirestoreFunctions.updateDoc(userDocRef, {
                 gamesPlayed: gamesPlayed,
                 gamesWon: gamesWon,
                 currentStreak: currentStreak,
-                maxStreak: maxStreak
+                maxStreak: maxStreak,
+                points: newPoints
             });
-            console.log('Stats updated on win:', { gamesPlayed, gamesWon, currentStreak, maxStreak });
+            console.log('Stats updated on win:', { gamesPlayed, gamesWon, currentStreak, maxStreak, pointsEarned, totalPoints: newPoints });
         } catch (error) {
             console.error('Error updating stats on win:', error);
         }
@@ -1138,14 +1218,22 @@ async function updateStatsOnLoss() {
         gamesPlayed++;
         currentStreak = 0;
         
+        // Give 1 participation point for playing (even if lost)
+        const pointsEarned = 1;
+        
         // Update stats in Firestore (preserve gamesWon and maxStreak)
         try {
             const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
+            const userDoc = await window.firebaseFirestoreFunctions.getDoc(userDocRef);
+            const currentPoints = userDoc.exists() ? (userDoc.data().points || 0) : 0;
+            const newPoints = currentPoints + pointsEarned;
+            
             await window.firebaseFirestoreFunctions.updateDoc(userDocRef, {
                 gamesPlayed: gamesPlayed,
-                currentStreak: currentStreak
+                currentStreak: currentStreak,
+                points: newPoints
             });
-            console.log('Stats updated on loss:', { gamesPlayed, gamesWon, currentStreak, maxStreak });
+            console.log('Stats updated on loss:', { gamesPlayed, gamesWon, currentStreak, maxStreak, pointsEarned, totalPoints: newPoints });
         } catch (error) {
             console.error('Error updating stats on loss:', error);
         }
