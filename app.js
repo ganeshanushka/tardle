@@ -1248,12 +1248,19 @@ function showGameOverPopup() {
     const popup = document.getElementById('gameOverPopup');
     const messageEl = document.getElementById('gameOverMessage');
     const buttonsContainer = document.getElementById('gameOverButtons');
+    const keyboard = document.getElementById('keyboard');
+    
     if (popup && messageEl) {
         messageEl.innerText = SecretWord;
         popup.classList.remove('hidden');
         popup.style.display = 'flex'; // Set inline style to show
     }
-    // Show buttons below the grid
+    
+    // Hide keyboard and show buttons below the grid
+    if (keyboard) {
+        keyboard.style.display = 'none';
+    }
+    
     if (buttonsContainer) {
         buttonsContainer.classList.remove('hidden');
         buttonsContainer.style.display = 'flex';
