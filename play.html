@@ -1797,13 +1797,24 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    display: inline-block;
-    width: 100%;
+    display: inline-block !important;
+    width: auto !important;
     max-width: 100%;
     line-height: 1.5;
     /* Ensure no flex layout that could cause vertical stacking */
     flex-direction: row !important;
     flex-wrap: nowrap !important;
+    /* Prevent any tile-like styling */
+    background-color: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Hide any letter boxes that might still exist in username containers */
+#statsPopup .stats-content .leaderboard-username .leaderboard-letter-box {
+    display: none !important;
 }
 
 #statsPopup .stats-content .leaderboard-letter-box {

@@ -921,13 +921,22 @@ window.showStatsPopup = async function showStatsPopup() {
         // Populate leaderboard with dummy data
         function renderUsername(element, username) {
             if (element) {
-                // Clear any existing content (including letter boxes from previous renders)
+                // Completely clear any existing content (including letter boxes from previous renders)
                 element.innerHTML = '';
+                // Remove any letter-box classes that might be on child elements
+                const letterBoxes = element.querySelectorAll('.leaderboard-letter-box');
+                letterBoxes.forEach(box => box.remove());
+                // Set as plain text
                 element.textContent = username;
                 // Ensure no flex or column layout
                 element.style.display = 'inline-block';
                 element.style.flexDirection = '';
                 element.style.flexWrap = '';
+                element.style.flex = '';
+                // Remove any classes that might cause tile display
+                element.classList.remove('leaderboard-letter-box');
+                // Ensure it's not a flex container
+                element.style.flexDirection = 'row';
             }
         }
         
