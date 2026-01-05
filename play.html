@@ -2786,8 +2786,14 @@
             }
           }
 
-          function handlePodiumClick() {
+          function handlePodiumClick(event) {
             console.log('handlePodiumClick called');
+            
+            // Prevent event from bubbling to document click handler
+            if (event) {
+              event.stopPropagation();
+              event.preventDefault();
+            }
             
             // Check if user is logged in - try multiple methods
             let isLoggedIn = false;
@@ -2982,7 +2988,7 @@
             const statsLoginPromptPopup = document.getElementById('statsLoginPromptPopup');
             if (statsLoginPromptPopup && !statsLoginPromptPopup.classList.contains('hidden')) {
               const statsLoginPromptContent = statsLoginPromptPopup.querySelector('.stats-login-prompt-content');
-              if (statsLoginPromptContent && !statsLoginPromptContent.contains(event.target) && !event.target.closest('.stats-icon')) {
+              if (statsLoginPromptContent && !statsLoginPromptContent.contains(event.target) && !event.target.closest('.stats-icon') && !event.target.closest('.podium-icon')) {
                 closeStatsLoginPrompt();
               }
             }
