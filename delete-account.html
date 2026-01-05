@@ -733,6 +733,16 @@
             try {
               await Promise.race([firestoreDeletePromise, firestoreTimeoutPromise]);
           console.log('User document deleted from Firestore');
+          
+          // Also delete pendingUsernames document if it exists (to free up the username)
+          try {
+            const pendingUsernameRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'pendingUsernames', currentUser.uid);
+            await window.firebaseFirestoreFunctions.deleteDoc(pendingUsernameRef);
+            console.log('Pending username document deleted from Firestore');
+          } catch (pendingUsernameError) {
+            // It's OK if this doesn't exist - it might have already been deleted
+            console.log('Pending username document not found or already deleted (this is OK)');
+          }
         } catch (firestoreError) {
               // Handle all Firestore errors - we continue regardless
               const errorMessage = firestoreError?.message || '';
