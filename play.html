@@ -2818,9 +2818,14 @@
               const loginPromptPopup = document.getElementById('statsLoginPromptPopup');
               if (loginPromptPopup) {
                 console.log('Found popup element, removing hidden class and showing');
+                // Remove hidden class
                 loginPromptPopup.classList.remove('hidden');
-                loginPromptPopup.style.display = 'flex';
-                console.log('Popup should now be visible');
+                // Force display with !important to override any CSS
+                loginPromptPopup.style.setProperty('display', 'flex', 'important');
+                // Also ensure visibility
+                loginPromptPopup.style.setProperty('visibility', 'visible', 'important');
+                loginPromptPopup.style.setProperty('opacity', '1', 'important');
+                console.log('Popup should now be visible. Display:', window.getComputedStyle(loginPromptPopup).display);
                 return;
               } else {
                 console.error('statsLoginPromptPopup element not found');
