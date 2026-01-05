@@ -2901,6 +2901,78 @@
             }
           }
 
+          // Define handlePodiumClick as a global function immediately
+          window.handlePodiumClick = function(event) {
+            console.log('handlePodiumClick called', event);
+            
+            // Get event if not passed
+            if (!event) {
+              event = window.event || {};
+            }
+            
+            // Prevent event from bubbling to document click handler
+            if (event && event.stopPropagation) {
+              event.stopPropagation();
+            }
+            if (event && event.preventDefault) {
+              event.preventDefault();
+            }
+            
+            // Check if user is logged in - try multiple methods
+            let isLoggedIn = false;
+            
+            // Method 1: Check window.firebaseAuth
+            if (window.firebaseAuth && window.firebaseAuth.currentUser) {
+              isLoggedIn = true;
+              console.log('User logged in (via firebaseAuth.currentUser)');
+            }
+            
+            // Method 2: Check window.isLoggedIn (set by app.js)
+            if (!isLoggedIn && window.isLoggedIn) {
+              isLoggedIn = true;
+              console.log('User logged in (via window.isLoggedIn)');
+            }
+            
+            // Method 3: Check window.currentUser (set by app.js)
+            if (!isLoggedIn && window.currentUser) {
+              isLoggedIn = true;
+              console.log('User logged in (via window.currentUser)');
+            }
+            
+            console.log('Final login status:', isLoggedIn);
+            
+            // If user is not logged in, show the login prompt popup
+            if (!isLoggedIn) {
+              console.log('User not logged in - showing stats login prompt popup');
+              const loginPromptPopup = document.getElementById('statsLoginPromptPopup');
+              if (loginPromptPopup) {
+                console.log('Found popup element, removing hidden class and showing');
+                // Remove hidden class
+                loginPromptPopup.classList.remove('hidden');
+                // Force display with !important to override any CSS
+                loginPromptPopup.style.setProperty('display', 'flex', 'important');
+                // Also ensure visibility
+                loginPromptPopup.style.setProperty('visibility', 'visible', 'important');
+                loginPromptPopup.style.setProperty('opacity', '1', 'important');
+                console.log('Popup should now be visible. Display:', window.getComputedStyle(loginPromptPopup).display);
+                return;
+              } else {
+                console.error('statsLoginPromptPopup element not found');
+                alert('Popup element not found. Please refresh the page.');
+              }
+            }
+            
+            // If user is logged in, show the stats popup (which includes leaderboard)
+            const statsFunction = window.showStatsPopup || (typeof showStatsPopup !== 'undefined' ? showStatsPopup : null);
+            if (statsFunction && typeof statsFunction === 'function') {
+              console.log('Calling showStatsPopup');
+              statsFunction();
+            } else {
+              console.error('showStatsPopup function not found. User is logged in but stats function unavailable.');
+              alert('Statistics are loading. Please try again in a moment.');
+            }
+          };
+
           function handleHelpClick() {
             const helpModal = document.getElementById('helpModal');
             if (helpModal) {
