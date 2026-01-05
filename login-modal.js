@@ -297,44 +297,6 @@
       .login-modal-error:empty {
         display: none !important;
       }
-      
-      /* Logged in popup - matches "not enough letters" popup style */
-      #loggedInPopup {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 99999;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        pointer-events: none;
-      }
-
-      #loggedInPopup.hidden {
-        display: none !important;
-      }
-
-      #loggedInPopup .popup-content {
-        font-family: 'Source Serif 4', serif;
-        position: relative;
-        background-color: #121213; /* Dark background like Wordle */
-        color: white; 
-        padding: clamp(6px, 1vh, 8px) clamp(12px, 2vw, 16px);
-        border-radius: 4px;
-        z-index: 100000;
-        font-size: clamp(12px, 1.8vw, 14px);
-        font-weight: bold;
-        text-align: center;
-        border: none;
-        pointer-events: auto;
-      }
-
-      /* Dark theme: white background with black text */
-      :root.dark-mode #loggedInPopup .popup-content {
-        background-color: white !important;
-        color: #000000 !important; /* Black text */
-      }
     </style>
   `;
 
@@ -354,36 +316,7 @@
       // Modal already exists, ensure handlers are set up
       setTimeout(setupFormHandlers, 50);
     }
-    
-    // Add logged in popup HTML if not already present
-    if (!document.getElementById('loggedInPopup')) {
-      document.body.insertAdjacentHTML('beforeend', '<div id="loggedInPopup" class="hidden"><div class="popup-content"><span>You are logged into your account</span></div></div>');
-    }
   }
-  
-  // Function to show logged in popup
-  function showLoggedInPopup() {
-    const popup = document.getElementById('loggedInPopup');
-    if (popup) {
-      popup.classList.remove('hidden');
-      // Auto-hide after 3 seconds
-      setTimeout(() => {
-        hideLoggedInPopup();
-      }, 3000);
-    }
-  }
-
-  // Function to hide logged in popup
-  function hideLoggedInPopup() {
-    const popup = document.getElementById('loggedInPopup');
-    if (popup) {
-      popup.classList.add('hidden');
-    }
-  }
-  
-  // Make functions globally accessible
-  window.showLoggedInPopup = showLoggedInPopup;
-  window.hideLoggedInPopup = hideLoggedInPopup;
   
   // Global validation function that can be called from anywhere
   window.validateLoginModalEmail = function() {
@@ -1241,12 +1174,6 @@
         
         // Small delay to ensure auth state is set
         await new Promise(resolve => setTimeout(resolve, 200));
-        
-        // Show logged in popup
-        showLoggedInPopup();
-        
-        // Wait a bit for popup to be visible, then close modal and redirect
-        await new Promise(resolve => setTimeout(resolve, 1500));
         
         // Close modal and redirect to verification page
         closeLoginModal();
