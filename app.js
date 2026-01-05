@@ -1297,6 +1297,15 @@ function closeGameOverPopup() {
 }
 
 // Make function globally accessible
+// Global function to show results popup (for logged-out users)
+window.showResultsPopup = function showResultsPopup() {
+    const resultsPopup = document.getElementById('resultsPopup');
+    if (resultsPopup) {
+        resultsPopup.classList.remove('hidden');
+        resultsPopup.style.display = 'flex';
+    }
+};
+
 window.showStatsPopup = async function showStatsPopup() {
     // Check if user is logged in - if not, show login prompt popup
     // Also check Firebase auth directly in case of timing issues
