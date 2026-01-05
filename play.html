@@ -733,34 +733,35 @@
   }
 
   .results-heading {
-    font-family: 'Field Gothic Narrow', sans-serif;
+    font-family: 'Field Gothic Narrow', serif;
     font-size: 1.8em;
     font-weight: bold;
-    color: #2d5016;
+    color: #000000;
     margin: 0 0 12px 0;
   }
 
   .results-text {
-    font-family: 'Field Gothic Narrow', sans-serif;
+    font-family: 'Field Gothic Narrow', serif;
     font-size: 1em;
-    color: #2d5016;
+    font-weight: normal;
+    color: #000000;
     margin: 0 0 24px 0;
     line-height: 1.5;
   }
 
   .results-create-account-btn {
-    font-family: 'Field Gothic Narrow', sans-serif;
+    font-family: 'Field Gothic Narrow', serif;
     background-color: #000000;
     color: white;
     border: none;
-    border-radius: 8px;
-    padding: 12px 24px;
+    border-radius: 20px;
+    padding: 12px 32px;
     font-size: 16px;
-    font-weight: bold;
+    font-weight: normal;
     cursor: pointer;
     margin-bottom: 12px;
-    width: 100%;
-    max-width: 300px;
+    width: auto;
+    min-width: 200px;
     transition: background-color 0.2s ease;
   }
 
@@ -769,8 +770,8 @@
   }
 
   .results-login-link {
-    font-family: 'Field Gothic Narrow', sans-serif;
-    color: #2d5016;
+    font-family: 'Field Gothic Narrow', serif;
+    color: #000000;
     text-decoration: underline;
     font-size: 14px;
     margin-bottom: 32px;
@@ -809,14 +810,24 @@
     width: 24px;
     height: 24px;
     stroke: #333;
+    fill: none;
+  }
+
+  .results-feature-icon.tv-icon {
+    background-color: #f0f0f0;
+  }
+
+  .results-feature-icon.tv-icon svg {
+    stroke: #333;
   }
 
   .results-feature-icon.custom-puzzle-icon {
-    background-color: #c9b458;
+    background-color: #90EE90;
   }
 
   .results-feature-icon.custom-puzzle-icon svg {
     stroke: white;
+    stroke-width: 3;
   }
 
   .results-feature-content {
@@ -824,15 +835,16 @@
   }
 
   .results-feature-text {
-    font-family: 'Field Gothic Narrow', sans-serif;
+    font-family: 'Field Gothic Narrow', serif;
     font-size: 14px;
-    color: #2d5016;
+    font-weight: normal;
+    color: #000000;
     margin: 0 0 4px 0;
   }
 
   .results-feature-link {
-    font-family: 'Field Gothic Narrow', sans-serif;
-    color: #2d5016;
+    font-family: 'Field Gothic Narrow', serif;
+    color: #000000;
     text-decoration: underline;
     font-size: 14px;
     cursor: pointer;
@@ -843,17 +855,17 @@
   }
 
   .results-share-btn {
-    font-family: 'Field Gothic Narrow', sans-serif;
-    background-color: #6c757d;
+    font-family: 'Field Gothic Narrow', serif;
+    background-color: #90EE90;
     color: white;
     border: none;
-    border-radius: 8px;
-    padding: 12px 24px;
+    border-radius: 20px;
+    padding: 12px 32px;
     font-size: 16px;
-    font-weight: bold;
+    font-weight: normal;
     cursor: pointer;
-    width: 100%;
-    max-width: 300px;
+    width: auto;
+    min-width: 200px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2891,22 +2903,24 @@
               <a href="login.html?return=play.html" class="results-login-link">Already Registered? Log In</a>
               <div class="results-features">
                 <div class="results-feature-item">
-                  <div class="results-feature-icon">
+                  <div class="results-feature-icon tv-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <rect x="2" y="7" width="20" height="15" rx="2" ry="2"/>
                       <polyline points="17 2 12 7 7 2"/>
-                      <circle cx="12" cy="12" r="2"/>
-                      <path d="M8 12h8"/>
+                      <circle cx="12" cy="13" r="1"/>
+                      <circle cx="9" cy="13" r="1"/>
+                      <circle cx="15" cy="13" r="1"/>
+                      <rect x="8" y="16" width="8" height="2" rx="1"/>
                     </svg>
                   </div>
                   <div class="results-feature-content">
                     <p class="results-feature-text">Tardle Bot gives an analysis of your guesses.</p>
-                    <a href="#" class="results-feature-link">Did you beat the bot? ›</a>
+                    <a href="#" class="results-feature-link">Did you beat the bot? ></a>
                   </div>
                 </div>
                 <div class="results-feature-item">
                   <div class="results-feature-icon custom-puzzle-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                       <line x1="12" y1="5" x2="12" y2="19"/>
                       <line x1="5" y1="12" x2="19" y2="12"/>
                     </svg>
