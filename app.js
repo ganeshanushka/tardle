@@ -931,6 +931,19 @@ window.showStatsPopup = async function showStatsPopup() {
             }
         }
         
+        function renderPoints(element, points) {
+            if (element) {
+                element.innerHTML = ''; // Clear existing content
+                const pointsStr = points.toString();
+                for (let i = 0; i < pointsStr.length; i++) {
+                    const pointBox = document.createElement('div');
+                    pointBox.className = 'leaderboard-point-box';
+                    pointBox.textContent = pointsStr[i];
+                    element.appendChild(pointBox);
+                }
+            }
+        }
+        
         if (leaderboardUser1 && leaderboardUser2 && leaderboardUser3) {
             renderUsername(leaderboardUser1, leaderboardData[0].username);
             renderUsername(leaderboardUser2, leaderboardData[1].username);
@@ -938,21 +951,21 @@ window.showStatsPopup = async function showStatsPopup() {
         }
         
         if (leaderboardPoints1 && leaderboardPoints2 && leaderboardPoints3) {
-            leaderboardPoints1.innerText = leaderboardData[0].points;
-            leaderboardPoints2.innerText = leaderboardData[1].points;
-            leaderboardPoints3.innerText = leaderboardData[2].points;
+            renderPoints(leaderboardPoints1, leaderboardData[0].points);
+            renderPoints(leaderboardPoints2, leaderboardData[1].points);
+            renderPoints(leaderboardPoints3, leaderboardData[2].points);
         }
         
         popup.classList.remove('hidden');
         popup.style.display = 'flex'; // Set inline style to show
         
-        // Trigger flip animation for leaderboard letter boxes
+        // Trigger flip animation for leaderboard letter boxes and point boxes
         setTimeout(() => {
-            const allLetterBoxes = popup.querySelectorAll('.stats-content .leaderboard-letter-box');
+            const allBoxes = popup.querySelectorAll('.stats-content .leaderboard-letter-box, .stats-content .leaderboard-point-box');
             const flipDelay = 50; // Delay between each flip (in milliseconds)
             const flipDuration = 800; // Duration of each flip animation (in milliseconds)
             
-            allLetterBoxes.forEach((box, index) => {
+            allBoxes.forEach((box, index) => {
                 setTimeout(() => {
                     // Add flip animation
                     box.classList.add('flip');

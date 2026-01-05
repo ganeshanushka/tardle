@@ -1254,8 +1254,16 @@
     color: #ffffff; /* White text */
   }
 
-  :root.dark-mode #statsPopup .stats-content .leaderboard-points {
+  :root.dark-mode #statsPopup .stats-content .leaderboard-point-box {
+    background-color: var(--bg-secondary); /* Dark secondary background */
+    border-color: #3a3a3c; /* Dark border */
     color: #ffffff; /* White text */
+  }
+
+  :root.dark-mode #statsPopup .stats-content .leaderboard-point-box.revealed {
+    background-color: #7BAFD4;
+    color: white;
+    border-color: transparent;
   }
 
   :root.dark-mode #statsPopup .stats-content .leaderboard-letter-box {
@@ -1714,7 +1722,7 @@
 
 #statsPopup .stats-content .leaderboard-rank {
     font-size: 1em;
-    font-weight: bold;
+    font-weight: normal;
     color: #000000;
     width: 40px;
     text-align: center;
@@ -1766,13 +1774,47 @@
 }
 
 #statsPopup .stats-content .leaderboard-points {
-    font-size: 1em;
-    font-weight: bold;
-    color: #000000;
     text-align: right;
-    width: 60px;
-    white-space: nowrap;
+    width: auto;
     font-family: 'Source Serif 4', serif;
+}
+
+#statsPopup .stats-content .leaderboard-points-container {
+    display: flex;
+    gap: 2px;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    perspective: 1000px; /* For 3D flip effect */
+}
+
+#statsPopup .stats-content .leaderboard-point-box {
+    background-color: #ffffff;
+    color: #000000;
+    width: 24px;
+    height: 24px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75em;
+    font-weight: bold;
+    border: 2px solid #d3d6da;
+    flex-shrink: 0;
+    transition: background-color 0s, color 0s, border-color 0s;
+    font-family: 'Source Serif 4', serif;
+}
+
+/* Flip animation for leaderboard point boxes */
+#statsPopup .stats-content .leaderboard-point-box.flip {
+    animation: leaderboardFlip 0.8s ease-in-out;
+}
+
+/* Revealed state: show the Carolina blue color */
+#statsPopup .stats-content .leaderboard-point-box.revealed {
+    background-color: #7BAFD4;
+    color: white;
+    border-color: transparent;
 }
 
 /* Standard close button for popups - consistent across all pages */
@@ -2471,21 +2513,27 @@
                       <td class="leaderboard-cell">
                         <div class="leaderboard-username" id="leaderboardUser1"></div>
                       </td>
-                      <td class="leaderboard-cell leaderboard-points" id="leaderboardPoints1">0</td>
+                      <td class="leaderboard-cell leaderboard-points">
+                        <div class="leaderboard-points-container" id="leaderboardPoints1"></div>
+                      </td>
                     </tr>
                     <tr class="leaderboard-row">
                       <td class="leaderboard-cell leaderboard-rank">2</td>
                       <td class="leaderboard-cell">
                         <div class="leaderboard-username" id="leaderboardUser2"></div>
                       </td>
-                      <td class="leaderboard-cell leaderboard-points" id="leaderboardPoints2">0</td>
+                      <td class="leaderboard-cell leaderboard-points">
+                        <div class="leaderboard-points-container" id="leaderboardPoints2"></div>
+                      </td>
                     </tr>
                     <tr class="leaderboard-row">
                       <td class="leaderboard-cell leaderboard-rank">3</td>
                       <td class="leaderboard-cell">
                         <div class="leaderboard-username" id="leaderboardUser3"></div>
                       </td>
-                      <td class="leaderboard-cell leaderboard-points" id="leaderboardPoints3">0</td>
+                      <td class="leaderboard-cell leaderboard-points">
+                        <div class="leaderboard-points-container" id="leaderboardPoints3"></div>
+                      </td>
                     </tr>
                   </tbody>
                 </table>
