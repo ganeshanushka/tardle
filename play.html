@@ -3523,9 +3523,22 @@
 
           function closeResultsPopup() {
             const popup = document.getElementById('resultsPopup');
+            const keyboard = document.getElementById('keyboard');
+            const seeResultsBtn = document.getElementById('seeResultsBtn');
+            
             if (popup) {
               popup.classList.add('hidden');
               popup.style.display = '';
+            }
+            
+            // Hide keyboard and show "See results" button
+            if (keyboard) {
+              keyboard.style.display = 'none';
+            }
+            
+            if (seeResultsBtn) {
+              seeResultsBtn.classList.remove('hidden');
+              seeResultsBtn.style.display = 'flex';
             }
           }
 
