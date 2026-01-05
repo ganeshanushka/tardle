@@ -201,6 +201,44 @@
     font-family: 'Source Serif 4', serif;
   }
 
+  /* Logged in popup - matches "not enough letters" popup style */
+  #loggedInPopup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+  }
+
+  #loggedInPopup.hidden {
+    display: none !important;
+  }
+
+  #loggedInPopup .popup-content {
+    font-family: 'Source Serif 4', serif;
+    position: relative;
+    background-color: #121213; /* Dark background like Wordle */
+    color: white; 
+    padding: clamp(6px, 1vh, 8px) clamp(12px, 2vw, 16px);
+    border-radius: 4px;
+    z-index: 1000;
+    font-size: clamp(12px, 1.8vw, 14px);
+    font-weight: bold;
+    text-align: center;
+    border: none;
+    pointer-events: auto;
+  }
+
+  /* Dark theme: white background with black text */
+  :root.dark-mode #loggedInPopup .popup-content {
+    background-color: white !important;
+    color: #000000 !important; /* Black text */
+  }
+
   .password-requirements {
     margin-top: 10px;
     font-size: 0.85em;
@@ -934,6 +972,12 @@
       // Small delay to ensure auth state is set
       await new Promise(resolve => setTimeout(resolve, 200));
       
+      // Show logged in popup
+      showLoggedInPopup();
+      
+      // Wait a bit for popup to be visible, then redirect
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
       // ALWAYS redirect to verification page - even if somehow verified
       // The verification page will handle the final check
       console.log('Redirecting to verification page');
@@ -1008,7 +1052,33 @@
     }
     await createAccount();
   });
+
+  // Function to show logged in popup
+  function showLoggedInPopup() {
+    const popup = document.getElementById('loggedInPopup');
+    if (popup) {
+      popup.classList.remove('hidden');
+      // Auto-hide after 3 seconds
+      setTimeout(() => {
+        hideLoggedInPopup();
+      }, 3000);
+    }
+  }
+
+  // Function to hide logged in popup
+  function hideLoggedInPopup() {
+    const popup = document.getElementById('loggedInPopup');
+    if (popup) {
+      popup.classList.add('hidden');
+    }
+  }
 </script>
+
+<div id="loggedInPopup" class="hidden">
+  <div class="popup-content">
+    <span>You are logged into your account</span>
+  </div>
+</div>
 
 </body>
 </html>
