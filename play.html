@@ -1742,6 +1742,11 @@
     font-family: 'Source Serif 4', serif;
 }
 
+#statsPopup .stats-content .leaderboard-cell:has(.leaderboard-username) {
+    min-width: 150px;
+    max-width: none;
+}
+
 #statsPopup .stats-content .leaderboard-rank {
     font-size: 1em;
     font-weight: normal;
@@ -1759,7 +1764,9 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    display: block;
+    display: inline-block;
+    width: 100%;
+    max-width: 100%;
 }
 
 #statsPopup .stats-content .leaderboard-letter-box {
