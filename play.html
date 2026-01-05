@@ -3507,6 +3507,30 @@
             }
           }
 
+          function closeResultsPopup() {
+            const popup = document.getElementById('resultsPopup');
+            if (popup) {
+              popup.classList.add('hidden');
+              popup.style.display = '';
+            }
+          }
+
+          function shareResults() {
+            // Share functionality - can be implemented later
+            if (navigator.share) {
+              navigator.share({
+                title: 'Tardle',
+                text: 'I just played Tardle!',
+                url: window.location.href
+              }).catch(err => console.log('Error sharing:', err));
+            } else {
+              // Fallback: copy to clipboard
+              navigator.clipboard.writeText(window.location.href).then(() => {
+                alert('Link copied to clipboard!');
+              }).catch(err => console.log('Error copying:', err));
+            }
+          }
+
           function closeStatsLoginPrompt() {
             const popup = document.getElementById('statsLoginPromptPopup');
             if (popup) {
