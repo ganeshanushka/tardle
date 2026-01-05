@@ -2706,33 +2706,13 @@
 
           function handleStatsClick() {
             console.log('handleStatsClick called');
-            
-            // First, check if user is logged in
-            const isLoggedIn = window.firebaseAuth && window.firebaseAuth.currentUser;
-            console.log('User logged in:', isLoggedIn);
-            
-            // If user is not logged in, show the login prompt popup
-            if (!isLoggedIn) {
-              console.log('User not logged in - showing stats login prompt popup');
-              const loginPromptPopup = document.getElementById('statsLoginPromptPopup');
-              if (loginPromptPopup) {
-                loginPromptPopup.classList.remove('hidden');
-                loginPromptPopup.style.display = 'flex';
-                return;
-              } else {
-                console.error('statsLoginPromptPopup element not found');
-              }
-            }
-            
-            // If user is logged in, try to show the stats popup
+            // Show stats popup - check both window.showStatsPopup and global showStatsPopup
             const statsFunction = window.showStatsPopup || (typeof showStatsPopup !== 'undefined' ? showStatsPopup : null);
             if (statsFunction && typeof statsFunction === 'function') {
               console.log('Calling showStatsPopup');
               statsFunction();
             } else {
-              console.error('showStatsPopup function not found. User is logged in but stats function unavailable.');
-              // If logged in but stats function not available, show error or fallback
-              alert('Statistics are loading. Please try again in a moment.');
+              console.error('showStatsPopup function not found. Available:', typeof showStatsPopup, typeof window.showStatsPopup);
             }
           }
 
