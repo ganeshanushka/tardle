@@ -529,7 +529,7 @@ let words = [
   
   function initialize() {
     // Ensure all popups are hidden on page load
-    const popupIds = ['customPopup', 'invalidWordPopup', 'notEnoughLettersPopup', 'gameOverPopup', 'statsPopup'];
+    const popupIds = ['customPopup', 'invalidWordPopup', 'notEnoughLettersPopup', 'gameOverPopup', 'statsPopup', 'resultsPopup'];
     popupIds.forEach(popupId => {
       const popup = document.getElementById(popupId);
       if (popup) {
