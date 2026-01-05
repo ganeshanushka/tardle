@@ -920,38 +920,48 @@ window.showStatsPopup = async function showStatsPopup() {
         
         // Populate leaderboard with dummy data
         function renderUsername(element, username) {
-            if (element) {
+            if (element && username) {
                 console.log('renderUsername called for:', username, 'element:', element);
-                // Completely clear any existing content (including letter boxes from previous renders)
-                element.innerHTML = '';
-                // Remove any letter-box classes that might be on child elements
+                // Remove any letter-box classes that might be on child elements first
                 const letterBoxes = element.querySelectorAll('.leaderboard-letter-box');
                 console.log('Found letter boxes to remove:', letterBoxes.length);
                 letterBoxes.forEach(box => {
                     console.log('Removing letter box:', box);
                     box.remove();
                 });
-                // Set as plain text
+                // Completely clear any existing content
+                element.innerHTML = '';
+                // Set as plain text - use both textContent and innerText to ensure it displays
                 element.textContent = username;
-                console.log('Set textContent to:', username, 'Current innerHTML:', element.innerHTML);
+                element.innerText = username;
+                console.log('Set textContent to:', username, 'Current textContent:', element.textContent, 'Current innerHTML:', element.innerHTML);
                 // Ensure no flex or column layout
                 element.style.display = 'inline-block';
                 element.style.flexDirection = '';
                 element.style.flexWrap = '';
                 element.style.flex = '';
+                element.style.width = 'auto';
                 // Remove any classes that might cause tile display
                 element.classList.remove('leaderboard-letter-box');
-                // Ensure it's not a flex container
-                element.style.flexDirection = 'row';
-                // Force remove any remaining letter boxes after a short delay
+                // Ensure visibility
+                element.style.visibility = 'visible';
+                element.style.opacity = '1';
+                // Force remove any remaining letter boxes after a short delay and re-set text
                 setTimeout(() => {
                     const remainingBoxes = element.querySelectorAll('.leaderboard-letter-box');
                     if (remainingBoxes.length > 0) {
                         console.warn('Found remaining letter boxes after render, removing:', remainingBoxes.length);
                         remainingBoxes.forEach(box => box.remove());
-                        element.textContent = username; // Reset text
+                    }
+                    // Ensure text is still set
+                    if (element.textContent !== username) {
+                        console.warn('Text was lost, resetting to:', username);
+                        element.textContent = username;
+                        element.innerText = username;
                     }
                 }, 100);
+            } else {
+                console.error('renderUsername called with invalid parameters:', {element, username});
             }
         }
         
