@@ -2978,7 +2978,13 @@
             if (event) {
               event.stopPropagation();
               event.preventDefault();
+            } else {
+              // If no event passed, create a synthetic one
+              event = window.event || {};
             }
+            
+            // Make function globally accessible
+            window.handlePodiumClick = handlePodiumClick;
             
             // Check if user is logged in - try multiple methods
             let isLoggedIn = false;
