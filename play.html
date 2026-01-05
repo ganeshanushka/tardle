@@ -1266,10 +1266,12 @@
     border-color: transparent;
   }
 
-  :root.dark-mode #statsPopup .stats-content .leaderboard-letter-box {
-    background-color: var(--bg-secondary); /* Dark secondary background */
-    border-color: #3a3a3c; /* Dark border */
+  :root.dark-mode #statsPopup .stats-content .leaderboard-username {
     color: #ffffff; /* White text */
+  }
+
+  :root.dark-mode #statsPopup .stats-content .leaderboard-separator {
+    border-top-color: #666666; /* Darker grey for separator */
   }
 
   /* High Contrast Mode modal - dark theme */
@@ -1714,6 +1716,26 @@
     border-bottom: 1px solid #e0e0e0;
 }
 
+#statsPopup .stats-content .leaderboard-separator-row {
+    border-bottom: none;
+}
+
+#statsPopup .stats-content .leaderboard-separator-cell {
+    padding: 8px 0;
+    border-bottom: none;
+}
+
+#statsPopup .stats-content .leaderboard-separator {
+    border: none;
+    border-top: 2px solid #666666;
+    margin: 0;
+    width: 100%;
+}
+
+#statsPopup .stats-content .leaderboard-current-user {
+    border-bottom: 1px solid #e0e0e0;
+}
+
 #statsPopup .stats-content .leaderboard-cell {
     padding: 8px 4px;
     vertical-align: middle;
@@ -1730,12 +1752,10 @@
 }
 
 #statsPopup .stats-content .leaderboard-username {
-    display: flex;
-    gap: 2px;
-    align-items: center;
-    justify-content: flex-start;
-    flex-wrap: wrap;
-    perspective: 1000px; /* For 3D flip effect */
+    font-size: 1em;
+    color: #000000;
+    font-family: 'Source Serif 4', serif;
+    font-weight: normal;
 }
 
 #statsPopup .stats-content .leaderboard-letter-box {
@@ -2533,6 +2553,20 @@
                       </td>
                       <td class="leaderboard-cell leaderboard-points">
                         <div class="leaderboard-points-container" id="leaderboardPoints3"></div>
+                      </td>
+                    </tr>
+                    <tr class="leaderboard-separator-row" id="leaderboardSeparator" style="display: none;">
+                      <td colspan="3" class="leaderboard-separator-cell">
+                        <hr class="leaderboard-separator">
+                      </td>
+                    </tr>
+                    <tr class="leaderboard-row leaderboard-current-user" id="leaderboardCurrentUser" style="display: none;">
+                      <td class="leaderboard-cell leaderboard-rank" id="leaderboardCurrentUserRank"></td>
+                      <td class="leaderboard-cell">
+                        <div class="leaderboard-username" id="leaderboardCurrentUserUsername">You</div>
+                      </td>
+                      <td class="leaderboard-cell leaderboard-points">
+                        <div class="leaderboard-points-container" id="leaderboardCurrentUserPoints"></div>
                       </td>
                     </tr>
                   </tbody>

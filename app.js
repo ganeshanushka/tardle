@@ -921,13 +921,7 @@ window.showStatsPopup = async function showStatsPopup() {
         // Populate leaderboard with dummy data
         function renderUsername(element, username) {
             if (element) {
-                element.innerHTML = ''; // Clear existing content
-                for (let i = 0; i < username.length; i++) {
-                    const letterBox = document.createElement('div');
-                    letterBox.className = 'leaderboard-letter-box';
-                    letterBox.textContent = username[i].toUpperCase();
-                    element.appendChild(letterBox);
-                }
+                element.textContent = username;
             }
         }
         
@@ -944,6 +938,44 @@ window.showStatsPopup = async function showStatsPopup() {
             }
         }
         
+        // Get current user's data if logged in
+        let currentUserData = null;
+        let currentUserRank = null;
+        if (isLoggedIn && currentUser && window.firebaseFirestoreFunctions) {
+            try {
+                const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
+                const userDoc = await window.firebaseFirestoreFunctions.getDoc(userDocRef);
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    // Calculate points based on games won (or use points field if it exists)
+                    // For now, use a simple calculation: points = gamesWon * 100 + currentStreak * 10
+                    const currentUserPoints = userData.points || ((userData.gamesWon || 0) * 100 + (userData.currentStreak || 0) * 10);
+                    currentUserData = {
+                        username: userData.username || currentUser.email?.split('@')[0] || 'User',
+                        points: currentUserPoints
+                    };
+                    
+                    // Find user's rank in leaderboard (assuming sorted by points descending)
+                    // Check if they're in top 3 by comparing with top 3 points
+                    const top3Points = leaderboardData.map(entry => entry.points);
+                    const isInTop3 = top3Points.some(points => currentUserPoints >= points) && 
+                                    currentUserPoints > Math.min(...top3Points);
+                    
+                    if (!isInTop3) {
+                        // Calculate rank: count how many have more points
+                        const allLeaderboardData = [...leaderboardData];
+                        allLeaderboardData.push(currentUserData);
+                        allLeaderboardData.sort((a, b) => b.points - a.points);
+                        currentUserRank = allLeaderboardData.findIndex(entry => 
+                            entry.username === currentUserData.username && entry.points === currentUserData.points
+                        ) + 1;
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching current user data for leaderboard:', error);
+            }
+        }
+        
         if (leaderboardUser1 && leaderboardUser2 && leaderboardUser3) {
             renderUsername(leaderboardUser1, leaderboardData[0].username);
             renderUsername(leaderboardUser2, leaderboardData[1].username);
@@ -956,16 +988,32 @@ window.showStatsPopup = async function showStatsPopup() {
             renderPoints(leaderboardPoints3, leaderboardData[2].points);
         }
         
+        // Show current user row if logged in and not in top 3
+        const separatorRow = document.getElementById('leaderboardSeparator');
+        const currentUserRow = document.getElementById('leaderboardCurrentUser');
+        const currentUserRankEl = document.getElementById('leaderboardCurrentUserRank');
+        const currentUserPointsEl = document.getElementById('leaderboardCurrentUserPoints');
+        
+        if (currentUserData && currentUserRank && currentUserRank > 3 && separatorRow && currentUserRow && currentUserRankEl && currentUserPointsEl) {
+            separatorRow.style.display = '';
+            currentUserRow.style.display = '';
+            currentUserRankEl.textContent = currentUserRank;
+            renderPoints(currentUserPointsEl, currentUserData.points);
+        } else if (separatorRow && currentUserRow) {
+            separatorRow.style.display = 'none';
+            currentUserRow.style.display = 'none';
+        }
+        
         popup.classList.remove('hidden');
         popup.style.display = 'flex'; // Set inline style to show
         
-        // Trigger flip animation for leaderboard letter boxes and point boxes
+        // Trigger flip animation for point boxes only (usernames are now plain text)
         setTimeout(() => {
-            const allBoxes = popup.querySelectorAll('.stats-content .leaderboard-letter-box, .stats-content .leaderboard-point-box');
+            const allPointBoxes = popup.querySelectorAll('.stats-content .leaderboard-point-box');
             const flipDelay = 50; // Delay between each flip (in milliseconds)
             const flipDuration = 800; // Duration of each flip animation (in milliseconds)
             
-            allBoxes.forEach((box, index) => {
+            allPointBoxes.forEach((box, index) => {
                 setTimeout(() => {
                     // Add flip animation
                     box.classList.add('flip');
