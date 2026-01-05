@@ -162,7 +162,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-family: 'Open Sans', sans-serif;
+        font-family: 'Source Serif 4', serif;
         line-height: 1;
       }
       
@@ -176,11 +176,11 @@
         margin: 0 0 24px 0;
         text-align: center;
         color: #000;
-        font-family: 'Open Sans', sans-serif;
+        font-family: 'Source Serif 4', serif;
       }
       
       .login-modal-step p {
-        font-family: 'Open Sans', sans-serif;
+        font-family: 'Source Serif 4', serif;
       }
       
       .login-modal-input-group {
@@ -193,7 +193,7 @@
         font-weight: bold;
         margin-bottom: 8px;
         color: #000;
-        font-family: 'Open Sans', sans-serif;
+        font-family: 'Source Serif 4', serif;
         text-align: left;
       }
       
@@ -206,7 +206,7 @@
         border: 1px solid #ccc;
         border-radius: 4px;
         box-sizing: border-box;
-        font-family: 'Open Sans', sans-serif;
+        font-family: 'Source Serif 4', serif;
       }
       
       .login-modal-input-group input:focus {
@@ -224,7 +224,7 @@
         border: none;
         border-radius: 4px;
         cursor: pointer;
-        font-family: 'Open Sans', sans-serif;
+        font-family: 'Source Serif 4', serif;
         margin-top: 8px;
       }
       
@@ -244,7 +244,7 @@
         margin-top: 24px;
         margin-bottom: 0;
         line-height: 1.5;
-        font-family: 'Open Sans', sans-serif;
+        font-family: 'Source Serif 4', serif;
       }
       
       .login-modal-terms a {
@@ -260,7 +260,7 @@
         cursor: pointer;
         font-size: 14px;
         white-space: nowrap;
-        font-family: 'Open Sans', sans-serif;
+        font-family: 'Source Serif 4', serif;
       }
       
       .login-modal-edit-btn:hover {
@@ -286,7 +286,7 @@
         font-size: 0.9rem;
         margin-top: 0.25em;
         margin-bottom: 1em;
-        font-family: 'Open Sans', sans-serif;
+        font-family: 'Source Serif 4', serif;
         display: block !important;
         visibility: visible !important;
         opacity: 1 !important;
