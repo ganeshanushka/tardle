@@ -354,17 +354,152 @@ let words = [
   }
 
   
+  // Daily word mapping based on spreadsheet (dates in 2026)
+  const dailyWordMap = {
+    '2026-01-06': 'DAVIS',
+    '2026-01-07': 'FDOC',
+    '2026-01-08': 'KENAN',
+    '2026-01-09': 'FRATCOURT',
+    '2026-01-10': 'SUPDOGS',
+    '2026-01-11': 'LENOIR',
+    '2026-01-12': 'HOJO',
+    '2026-01-13': 'GDTBATH',
+    '2026-01-14': 'CAMPUSREC',
+    '2026-01-15': 'WILSON',
+    '2026-01-16': 'PIT',
+    '2026-01-17': 'CUAB',
+    '2026-01-18': 'CANVAS',
+    '2026-01-19': 'GENOME',
+    '2026-01-20': 'YOPO',
+    '2026-01-21': 'GREENLAW',
+    '2026-01-22': 'RAMESES',
+    '2026-01-23': 'EHAUS',
+    '2026-01-24': 'WELL',
+    '2026-01-25': 'COBB',
+    '2026-01-26': 'ROTC',
+    '2026-01-27': 'GARDNER',
+    '2026-01-28': 'CHASE',
+    '2026-01-29': 'PID',
+    '2026-01-30': 'UNION',
+    '2026-01-31': 'BLUE',
+    '2026-02-01': 'TOPO',
+    '2026-02-02': 'CRAIGE',
+    '2026-02-03': 'SUTTONS',
+    '2026-02-04': 'SPENCER',
+    '2026-02-05': 'MAW',
+    '2026-02-06': 'HEELS',
+    '2026-02-07': 'FOOKDOOK',
+    '2026-02-08': 'FETZER',
+    '2026-02-09': 'CCS',
+    '2026-02-10': 'QUAD',
+    '2026-02-11': 'WOOLLEN',
+    '2026-02-12': 'CAROLINA',
+    '2026-02-13': 'COSMIC',
+    '2026-02-14': 'PHILIPS',
+    '2026-02-15': 'KOURY',
+    '2026-02-16': 'BUNS',
+    '2026-02-17': 'HOOKER',
+    '2026-02-18': 'CAUDILL',
+    '2026-02-19': 'BOLO',
+    '2026-02-20': 'RAMS',
+    '2026-02-21': 'BAITY',
+    '2026-02-22': 'DARTY',
+    '2026-02-23': 'MOGE',
+    '2026-02-24': 'TEAGUE',
+    '2026-02-25': 'SASB',
+    '2026-02-26': 'CALEB',
+    '2026-02-27': 'MURPHEY',
+    '2026-02-28': 'SENIOR',
+    '2026-03-01': 'NCAA',
+    '2026-03-02': 'BILL',
+    '2026-03-03': 'UNC',
+    '2026-03-04': 'MAYE',
+    '2026-03-05': 'FRANKLIN',
+    '2026-03-06': 'CHAPMAN',
+    '2026-03-07': 'SAFEWALK',
+    '2026-03-08': 'PARKER',
+    '2026-03-09': 'GPA',
+    '2026-03-10': 'HUBERT',
+    '2026-03-11': 'AGORA',
+    '2026-03-12': 'HORTON',
+    '2026-03-13': 'BREAK',
+    '2026-03-14': 'MATSON',
+    '2026-03-15': 'HES',
+    '2026-03-16': 'COCKER',
+    '2026-03-17': 'ONYEN',
+    '2026-03-18': 'FRAT',
+    '2026-03-19': 'YIKYAK',
+    '2026-03-20': 'GRAHAM',
+    '2026-03-21': 'SCOOP',
+    '2026-03-22': 'ALUMNI',
+    '2026-03-23': 'CONNOR',
+    '2026-03-24': 'TRU',
+    '2026-03-25': 'HARDIN',
+    '2026-03-26': 'POLK',
+    '2026-03-27': 'WINSTON',
+    '2026-03-28': 'JORDAN',
+    '2026-03-29': 'BONCHON',
+    '2026-03-30': 'ROY',
+    '2026-03-31': 'MOREHEAD',
+    '2026-04-01': 'PLAYA',
+    '2026-04-02': 'DEAN',
+    '2026-04-03': 'MANLY',
+    '2026-04-04': 'SUBWAY',
+    '2026-04-05': 'WHISTLER',
+    '2026-04-06': 'DAVIE',
+    '2026-04-07': 'KURAMA',
+    '2026-04-08': 'BACOT',
+    '2026-04-09': 'GRIMES',
+    '2026-04-10': 'MACK',
+    '2026-04-11': 'CRUMBL',
+    '2026-04-12': 'MEANTIME',
+    '2026-04-13': 'STACY',
+    '2026-04-14': 'CAMPUS',
+    '2026-04-15': 'HYDE',
+    '2026-04-16': 'ZAYKA',
+    '2026-04-17': 'CALEB',
+    '2026-04-18': 'SWAIN',
+    '2026-04-19': 'SENIOR',
+    '2026-04-20': 'RUFFIN',
+    '2026-04-21': 'BOSH',
+    '2026-04-22': 'HUSSMAN',
+    '2026-04-23': 'LWOC',
+    '2026-04-24': 'JOYNER',
+    '2026-04-25': 'HIBACHI',
+    '2026-04-26': 'HANES',
+    '2026-04-27': 'LDOC',
+    '2026-04-28': 'STREAK',
+    '2026-04-29': 'FINALS',
+    '2026-04-30': 'DORRANCE',
+    '2026-05-01': 'AYCOCK',
+    '2026-05-02': 'BINGHAM',
+    '2026-05-03': 'MANGUM',
+    '2026-05-04': 'BSCHOOL',
+    '2026-05-05': 'SHELTON',
+    '2026-05-06': 'ARS',
+    '2026-05-07': 'HOWELL',
+    '2026-05-08': 'COKER',
+    '2026-05-09': 'GRAD'
+  };
+  
   // Get daily word based on date (deterministic - same date = same word)
   function getDailyWord() {
     const today = new Date();
     // Use UTC date to ensure consistency across timezones
     const year = today.getUTCFullYear();
-    const month = today.getUTCMonth();
-    const day = today.getUTCDate();
+    const month = String(today.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(today.getUTCDate()).padStart(2, '0');
     
-    // Create a seed based on the date
-    // Using a simple hash of the date to get a consistent index
+    // Create date string in YYYY-MM-DD format
     const dateString = `${year}-${month}-${day}`;
+    
+    // Check if we have a word for this date in the mapping
+    if (dailyWordMap[dateString]) {
+      return dailyWordMap[dateString];
+    }
+    
+    // Fallback: if date is not in mapping, use hash-based selection from words array
+    // This handles dates beyond the spreadsheet range
     let hash = 0;
     for (let i = 0; i < dateString.length; i++) {
       const char = dateString.charCodeAt(i);
@@ -372,7 +507,6 @@ let words = [
       hash = hash & hash; // Convert to 32-bit integer
     }
     
-    // Use absolute value and modulo to get index
     const index = Math.abs(hash) % words.length;
     return words[index].toUpperCase();
   }
