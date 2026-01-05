@@ -633,9 +633,9 @@
     position: absolute;
     top: 20px;
     right: 20px;
-    font-size: 24px;
-    font-weight: normal;
-    color: #B8D4E8;
+    font-size: 28px;
+    font-weight: bold;
+    color: #000;
     cursor: pointer;
     background: none;
     border: none;
@@ -646,12 +646,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: opacity 0.2s ease, color 0.2s ease;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
   }
 
   .stats-login-close-btn:hover {
-    opacity: 0.7;
-    color: #7BAFD4;
+    background-color: #f0f0f0;
   }
 
   .stats-login-title {
@@ -789,21 +789,28 @@
   }
 
   .help-close-btn {
-    /* Match standalone how-to-play.html close button */
+    position: absolute;
+    top: 20px;
+    right: 20px;
     font-size: 28px;
-    font-weight: normal;
-    color: #B8D4E8;
+    font-weight: bold;
+    color: #000;
     cursor: pointer;
     background: none;
     border: none;
     padding: 0;
     line-height: 1;
-    transition: opacity 0.2s ease, color 0.2s ease;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
   }
 
   .help-close-btn:hover {
-    opacity: 0.7;
-    color: #7BAFD4;
+    background-color: #f0f0f0;
   }
 
   .help-content {
@@ -1990,22 +1997,30 @@
   }
 
   .how-to-play-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #000;
     cursor: pointer;
-    font-size: 36px;
-    font-weight: normal;
-    color: #B8D4E8;
     background: none;
     border: none;
     padding: 0;
     line-height: 1;
-    transition: opacity 0.2s ease, color 0.2s ease;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
     margin: 0;
     flex-shrink: 0;
   }
 
   .how-to-play-close:hover {
-    opacity: 0.7;
-    color: #7BAFD4;
+    background-color: #f0f0f0;
   }
 
   .how-to-play-title {
