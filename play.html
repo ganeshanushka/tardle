@@ -2357,45 +2357,43 @@
           <div id="statsLoginPromptPopup" class="hidden">
             <div class="stats-login-prompt-content">
               <button class="stats-login-close-btn" onclick="closeStatsLoginPrompt()">×</button>
-              <h1 class="stats-login-title">Statistics</h1>
+              <h1 class="stats-login-title">Tardle</h1>
               <div class="stats-login-illustration">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 280" style="max-width: 100%; height: auto;">
-                  <!-- Person figure (stick figure with dark blue head) -->
-                  <circle cx="80" cy="180" r="20" fill="#001A57" stroke="#000" stroke-width="2"/>
-                  <!-- Body -->
-                  <line x1="80" y1="200" x2="80" y2="240" stroke="#000" stroke-width="3" stroke-linecap="round"/>
-                  <!-- Arms -->
-                  <line x1="80" y1="220" x2="60" y2="235" stroke="#000" stroke-width="2.5" stroke-linecap="round"/>
-                  <line x1="80" y1="220" x2="100" y2="235" stroke="#000" stroke-width="2.5" stroke-linecap="round"/>
-                  <!-- Legs -->
-                  <line x1="80" y1="240" x2="65" y2="260" stroke="#000" stroke-width="2.5" stroke-linecap="round"/>
-                  <line x1="80" y1="240" x2="95" y2="260" stroke="#000" stroke-width="2.5" stroke-linecap="round"/>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" style="max-width: 100%; height: auto;">
+                  <!-- Dark blue person silhouette on the left -->
+                  <path d="M 50 180 Q 50 160 60 150 Q 70 140 80 145 Q 90 140 100 150 Q 110 160 110 180 L 110 250 Q 110 260 105 265 Q 100 270 95 270 L 85 270 Q 80 270 75 265 Q 70 260 70 250 Z" fill="#001A57" stroke="#001A57" stroke-width="1"/>
                   
-                  <!-- Stats board/easel with rounded corners -->
-                  <rect x="140" y="80" width="200" height="160" fill="#ffffff" stroke="#000" stroke-width="3" rx="6"/>
+                  <!-- White clipboard with rounded corners -->
+                  <rect x="150" y="100" width="180" height="140" fill="#ffffff" stroke="#001A57" stroke-width="3" rx="8"/>
                   
-                  <!-- Bar graphs on board (improved heights and spacing) -->
-                  <rect x="160" y="200" width="28" height="30" fill="#B8D4E8" stroke="#000" stroke-width="2"/>
-                  <rect x="198" y="100" width="28" height="130" fill="#B8D4E8" stroke="#000" stroke-width="2"/>
-                  <rect x="236" y="130" width="28" height="100" fill="#B8D4E8" stroke="#000" stroke-width="2"/>
-                  <rect x="274" y="120" width="28" height="110" fill="#B8D4E8" stroke="#000" stroke-width="2"/>
-                  <rect x="312" y="140" width="28" height="90" fill="#c9b458" stroke="#000" stroke-width="2"/>
+                  <!-- Dark gray clipboard clip at the top -->
+                  <rect x="200" y="85" width="80" height="25" fill="#666666" stroke="#001A57" stroke-width="2" rx="4"/>
+                  <rect x="205" y="90" width="70" height="15" fill="#444444" rx="2"/>
                   
-                  <!-- Gold circle with hashtag (above person's head) -->
-                  <circle cx="110" cy="100" r="20" fill="#c9b458" stroke="#000" stroke-width="2.5"/>
-                  <text x="110" y="108" text-anchor="middle" font-size="16" font-weight="bold" fill="#000">#</text>
+                  <!-- Five horizontal bar graphs on clipboard (varying heights, light blue) -->
+                  <rect x="170" y="220" width="140" height="12" fill="#B8D4E8" stroke="#001A57" stroke-width="1.5" rx="2"/>
+                  <rect x="170" y="200" width="110" height="12" fill="#B8D4E8" stroke="#001A57" stroke-width="1.5" rx="2"/>
+                  <rect x="170" y="180" width="90" height="12" fill="#B8D4E8" stroke="#001A57" stroke-width="1.5" rx="2"/>
+                  <rect x="170" y="160" width="125" height="12" fill="#B8D4E8" stroke="#001A57" stroke-width="1.5" rx="2"/>
+                  <rect x="170" y="140" width="100" height="12" fill="#B8D4E8" stroke="#001A57" stroke-width="1.5" rx="2"/>
                   
-                  <!-- Light blue square with percent sign (next to person) -->
-                  <rect x="110" y="200" width="22" height="22" fill="#B8D4E8" stroke="#000" stroke-width="2" rx="3"/>
-                  <text x="121" y="216" text-anchor="middle" font-size="12" font-weight="bold" fill="#000">%</text>
+                  <!-- Gold circle/medal with dark blue outline and inner circle (to the left of clipboard) -->
+                  <circle cx="130" cy="170" r="22" fill="#c9b458" stroke="#001A57" stroke-width="2.5"/>
+                  <circle cx="130" cy="170" r="12" fill="#001A57" stroke="#001A57" stroke-width="1"/>
                   
-                  <!-- Dark blue diamond with '1' (top right of chart) -->
-                  <polygon points="320,60 345,80 320,100 295,80" fill="#001A57" stroke="#000" stroke-width="2.5"/>
-                  <text x="320" y="88" text-anchor="middle" font-size="14" font-weight="bold" fill="#fff">1</text>
+                  <!-- Light blue shield with dark blue outline (to the right of clipboard) -->
+                  <path d="M 350 150 L 360 140 L 370 145 L 370 165 L 360 175 L 350 175 L 340 165 L 340 145 Z" fill="#B8D4E8" stroke="#001A57" stroke-width="2.5"/>
                   
-                  <!-- Light blue diamond with '10' (right of chart) -->
-                  <polygon points="360,120 378,135 360,150 342,135" fill="#B8D4E8" stroke="#000" stroke-width="2.5"/>
-                  <text x="360" y="142" text-anchor="middle" font-size="12" font-weight="bold" fill="#000">10</text>
+                  <!-- Geometric shapes at the bottom: two hexagons -->
+                  <polygon points="80,250 95,240 110,250 110,270 95,280 80,270" fill="#B8D4E8" stroke="#001A57" stroke-width="2"/>
+                  <polygon points="120,260 130,255 140,260 140,275 130,280 120,275" fill="#7BAFD4" stroke="#001A57" stroke-width="2"/>
+                  
+                  <!-- Shield shape at the bottom -->
+                  <path d="M 200 260 L 210 250 L 220 255 L 220 270 L 210 275 L 200 275 L 190 270 L 190 255 Z" fill="#B8D4E8" stroke="#001A57" stroke-width="2"/>
+                  
+                  <!-- Two pentagons at the bottom -->
+                  <polygon points="250,265 265,255 275,260 270,275 255,280" fill="#7BAFD4" stroke="#001A57" stroke-width="2"/>
+                  <polygon points="290,270 300,262 310,268 305,282 290,285" fill="#B8D4E8" stroke="#001A57" stroke-width="2"/>
                 </svg>
               </div>
               <h2 class="stats-login-subtitle">Track your stats and view rankings.</h2>
