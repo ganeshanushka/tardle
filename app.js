@@ -123,6 +123,8 @@ let words = [
             isLoggedIn = true;
             currentUser = user;
             await loadUserStats();
+            // Load game state after stats are loaded
+            await loadGameState();
           } else {
             isLoggedIn = false;
             currentUser = null;
@@ -130,6 +132,11 @@ let words = [
             gamesWon = 0;
             currentStreak = 0;
             maxStreak = 0;
+            // Reset game state for logged out users
+            guesses = [];
+            currentGuess = [];
+            gameStatus = 'in_progress';
+            gameCompleted = false;
           }
         });
       }
@@ -178,13 +185,207 @@ let words = [
       totalPoints = 0;
     }
   }
+  
+  // Get today's date string (YYYY-MM-DD in UTC)
+  function getTodayDateString() {
+    const today = new Date();
+    const year = today.getUTCFullYear();
+    const month = String(today.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(today.getUTCDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+  
+  // Load saved game state from Firestore
+  async function loadGameState() {
+    if (!currentUser || !window.firebaseFirestoreFunctions) {
+      console.log('User not logged in, starting fresh game');
+      return;
+    }
+    
+    try {
+      const today = getTodayDateString();
+      const gameStateRef = window.firebaseFirestoreFunctions.doc(
+        window.firebaseDb, 
+        'users', 
+        currentUser.uid,
+        'dailyGames',
+        today
+      );
+      const gameStateDoc = await window.firebaseFirestoreFunctions.getDoc(gameStateRef);
+      
+      if (gameStateDoc.exists()) {
+        const gameData = gameStateDoc.data();
+        console.log('Loading saved game state:', gameData);
+        
+        // Verify the secret word matches (in case date changed)
+        if (gameData.secretWord && gameData.secretWord !== SecretWord) {
+          console.log('Secret word mismatch - date changed, starting fresh game');
+          return;
+        }
+        
+        // Restore game state
+        if (gameData.guesses && Array.isArray(gameData.guesses)) {
+          guesses = gameData.guesses.map(guess => {
+            return guess.map(item => ({
+              key: item.key,
+              result: item.result
+            }));
+          });
+        }
+        
+        if (gameData.currentGuess && Array.isArray(gameData.currentGuess)) {
+          currentGuess = gameData.currentGuess.map(item => ({
+            key: item.key,
+            result: item.result
+          }));
+        }
+        
+        gameStatus = gameData.gameStatus || 'in_progress';
+        gameCompleted = gameData.gameCompleted || false;
+        
+        // Restore keyboard state
+        if (gameData.keys) {
+          Object.keys(gameData.keys).forEach(key => {
+            keys[key] = gameData.keys[key];
+          });
+        }
+        
+        // Display the saved game grid
+        displaySavedGame();
+        
+        console.log('Game state loaded:', { guesses, currentGuess, gameStatus, gameCompleted });
+      } else {
+        console.log('No saved game state found for today, starting fresh');
+      }
+    } catch (error) {
+      console.error('Error loading game state:', error);
+    }
+  }
+  
+  // Save game state to Firestore
+  async function saveGameState() {
+    if (!currentUser || !window.firebaseFirestoreFunctions) {
+      console.log('User not logged in, not saving game state');
+      return;
+    }
+    
+    try {
+      const today = getTodayDateString();
+      const gameStateRef = window.firebaseFirestoreFunctions.doc(
+        window.firebaseDb, 
+        'users', 
+        currentUser.uid,
+        'dailyGames',
+        today
+      );
+      
+      // Prepare game state data
+      const gameStateData = {
+        guesses: guesses.map(guess => guess.map(item => ({
+          key: item.key,
+          result: item.result
+        }))),
+        currentGuess: currentGuess.map(item => ({
+          key: item.key,
+          result: item.result
+        })),
+        gameStatus: gameStatus,
+        gameCompleted: gameCompleted,
+        keys: { ...keys }, // Save keyboard state
+        secretWord: SecretWord, // Save the word for verification
+        date: today,
+        lastUpdated: window.firebaseFirestoreFunctions.serverTimestamp()
+      };
+      
+      await window.firebaseFirestoreFunctions.setDoc(gameStateRef, gameStateData, { merge: true });
+      console.log('Game state saved:', gameStateData);
+    } catch (error) {
+      console.error('Error saving game state:', error);
+    }
+  }
+  
+  // Display saved game grid
+  function displaySavedGame() {
+    // Display all previous guesses
+    guesses.forEach((guess, rowIndex) => {
+      guess.forEach((item, colIndex) => {
+        const cell = document.getElementById(`${rowIndex}${colIndex}`);
+        if (cell) {
+          cell.textContent = item.key;
+          cell.classList.add('filled');
+          // Add result class (correct, found, wrong)
+          if (item.result) {
+            cell.classList.add(item.result);
+            cell.classList.remove('filled');
+          }
+        }
+      });
+    });
+    
+    // Display current guess if in progress
+    if (currentGuess.length > 0 && !gameCompleted) {
+      const rowIndex = guesses.length;
+      currentGuess.forEach((item, colIndex) => {
+        const cell = document.getElementById(`${rowIndex}${colIndex}`);
+        if (cell && item.key) {
+          cell.textContent = item.key;
+          cell.classList.add('filled');
+        }
+      });
+    }
+    
+    // Update keyboard
+    updateKeyboard();
+    
+    // If game is completed, show appropriate popup
+    if (gameCompleted) {
+      if (gameStatus === 'won') {
+        // Game was won - show success (but don't show alert again)
+        console.log('Game was already won today');
+      } else if (gameStatus === 'lost') {
+        // Game was lost - show game over popup
+        const popup = document.getElementById('gameOverPopup');
+        if (popup) {
+          popup.classList.remove('hidden');
+          popup.style.display = 'flex';
+        }
+      }
+    }
+  }
 
   
-  let SecretWord = words[Math.floor(Math.random() * words.length)]
+  // Get daily word based on date (deterministic - same date = same word)
+  function getDailyWord() {
+    const today = new Date();
+    // Use UTC date to ensure consistency across timezones
+    const year = today.getUTCFullYear();
+    const month = today.getUTCMonth();
+    const day = today.getUTCDate();
+    
+    // Create a seed based on the date
+    // Using a simple hash of the date to get a consistent index
+    const dateString = `${year}-${month}-${day}`;
+    let hash = 0;
+    for (let i = 0; i < dateString.length; i++) {
+      const char = dateString.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    
+    // Use absolute value and modulo to get index
+    const index = Math.abs(hash) % words.length;
+    return words[index].toUpperCase();
+  }
+  
+  let SecretWord = getDailyWord();
   const NumberOfGuesses = 6;
   const Correct = 'correct';
   const Found = 'found';
   const Wrong = 'wrong';
+  
+  // Game state variables
+  let gameStatus = 'in_progress'; // 'in_progress', 'won', 'lost'
+  let gameCompleted = false;
   
   function initialize() {
     // Ensure all popups are hidden on page load
@@ -213,11 +414,25 @@ let words = [
         keyboard.innerHTML += `<button id="${key}" class="key" onclick="keyClick('${key}')">` + key + '</button>';
       }
     });
+    
+    // Load saved game state if user is logged in
+    // Wait a bit for auth to initialize
+    setTimeout(async () => {
+      if (currentUser || (window.firebaseAuth && window.firebaseAuth.currentUser)) {
+        if (!currentUser && window.firebaseAuth.currentUser) {
+          currentUser = window.firebaseAuth.currentUser;
+          isLoggedIn = true;
+        }
+        await loadGameState();
+      }
+    }, 500);
   }
   
   // Wait for DOM to be ready before initializing
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initialize);
+    document.addEventListener('DOMContentLoaded', () => {
+      initialize();
+    });
   } else {
     initialize();
   }
@@ -424,6 +639,12 @@ let words = [
   function keyClick(key) {
     console.log('keyClick called with:', key);
     
+    // Prevent input if game is completed
+    if (gameCompleted && key !== 'enter') {
+      console.log('Game completed, ignoring key input');
+      return;
+    }
+    
     // Debounce: prevent same key from being processed twice within 50ms
     const now = Date.now();
     if (lastKeyClick === key && (now - lastKeyClickTime) < 50) {
@@ -435,7 +656,9 @@ let words = [
     
     switch (key) {
       case '⌫':
-        backspace();
+        if (!gameCompleted) {
+          backspace();
+        }
         break;
       case 'enter':
         enter().catch(error => {
@@ -444,18 +667,31 @@ let words = [
         });
         break;
       default:
-        if (currentGuess.length < SecretWord.length
+        if (!gameCompleted && currentGuess.length < SecretWord.length
           && guesses.length < NumberOfGuesses) {
           currentGuess.push({ key: key, result: '' });
           updateCurrentGuess();
+          // Save game state after typing
+          setTimeout(() => {
+            saveGameState();
+          }, 300);
         }
     }
   }
   
   function backspace() {
+    // Prevent backspace if game is completed
+    if (gameCompleted) {
+      return;
+    }
+    
     if (currentGuess.length > 0) {
       currentGuess.pop();
       updateCurrentGuess();
+      // Save game state after backspace
+      setTimeout(() => {
+        saveGameState();
+      }, 100);
     }
   }
   
@@ -564,6 +800,12 @@ let words = [
   }
 
   async function enter() {
+    // Prevent guesses if game is already completed
+    if (gameCompleted) {
+        console.log('Game already completed, cannot make more guesses');
+        return;
+    }
+    
     // Check if user has entered enough letters
     if (currentGuess.length < SecretWord.length) {
         showNotEnoughLettersAlert();
@@ -628,6 +870,7 @@ let words = [
         // Set up the guess with letters but no colors yet
         updateCurrentGuess(false);
         guesses.push([...currentGuess]);
+        const previousGuess = [...currentGuess];
         currentGuess = [];
         
         // Then add flip animation to each cell and reveal colors during flip
@@ -635,16 +878,33 @@ let words = [
         flipAndRevealGuess(isCorrect);
 
         if (isCorrect) {
+            // Game won
+            gameStatus = 'won';
+            gameCompleted = true;
             // Show alert after flip animation completes
             // flipAndRevealGuess will handle showing the alert
             updateStatsOnWin(); // Update stats as a win
+            // Save game state after a delay to ensure flip animation completes
+            setTimeout(() => {
+                saveGameState();
+            }, 2000);
+        } else if (guesses.length >= NumberOfGuesses) {
+            // Game lost
+            gameStatus = 'lost';
+            gameCompleted = true;
+            showGameOverPopup(); // Exceeded max tries
+            updateStatsOnLoss(); // Update stats as a loss
+            // Save game state
+            setTimeout(() => {
+                saveGameState();
+            }, 500);
+        } else {
+            currentGuess = []; // Prepare for the next guess
+            // Save game state after flip animation
+            setTimeout(() => {
+                saveGameState();
+            }, 1500);
         }
-     else if (guesses.length >= NumberOfGuesses) {
-        showGameOverPopup(); // Exceeded max tries
-        updateStatsOnLoss(); // Update stats as a loss
-      } else {
-        currentGuess = []; // Prepare for the next guess
-      }
         // Keyboard will be updated after flip animation completes in flipAndRevealGuess()
     }
 }
