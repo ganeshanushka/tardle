@@ -1045,18 +1045,17 @@ window.showStatsPopup = async function showStatsPopup() {
                                 .filter(user => user.points > 0)
                                 .sort((a, b) => b.points - a.points);
                             
-                            // Check if user is in top 3
-                            const top3Points = allUsers.slice(0, 3).map(u => u.points);
-                            const isInTop3 = top3Points.length > 0 && currentUserPoints >= Math.min(...top3Points) && 
-                                            currentUserPoints > 0;
-                            
-                            if (!isInTop3 && currentUserPoints > 0) {
+                            // Always calculate user's rank, even if they're in top 3
+                            if (currentUserPoints > 0) {
                                 // Find rank
                                 currentUserRank = allUsers.findIndex(user => user.uid === currentUser.uid) + 1;
                                 if (currentUserRank === 0) {
                                     // User not found in sorted list, calculate rank
                                     currentUserRank = allUsers.filter(u => u.points > currentUserPoints).length + 1;
                                 }
+                            } else {
+                                // User has 0 points, rank is total users + 1
+                                currentUserRank = allUsers.length + 1;
                             }
                         } catch (rankError) {
                             console.error('Error calculating user rank:', rankError);
@@ -1089,13 +1088,13 @@ window.showStatsPopup = async function showStatsPopup() {
             renderPoints(leaderboardPoints3, leaderboardData[2].points);
         }
         
-        // Show current user row if logged in and not in top 3
+        // Always show current user row if logged in (even if in top 3, show it again after rank 3)
         const separatorRow = document.getElementById('leaderboardSeparator');
         const currentUserRow = document.getElementById('leaderboardCurrentUser');
         const currentUserRankEl = document.getElementById('leaderboardCurrentUserRank');
         const currentUserPointsEl = document.getElementById('leaderboardCurrentUserPoints');
         
-        if (currentUserData && currentUserRank && currentUserRank > 3 && separatorRow && currentUserRow && currentUserRankEl && currentUserPointsEl) {
+        if (currentUserData && currentUserRank && separatorRow && currentUserRow && currentUserRankEl && currentUserPointsEl) {
             separatorRow.style.display = '';
             currentUserRow.style.display = '';
             currentUserRankEl.textContent = currentUserRank;
