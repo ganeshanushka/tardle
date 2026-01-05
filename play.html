@@ -2807,6 +2807,35 @@
           }
 
           function handlePodiumClick() {
+            console.log('handlePodiumClick called');
+            
+            // First, check if user is logged in
+            const isLoggedIn = window.firebaseAuth && window.firebaseAuth.currentUser;
+            console.log('User logged in:', isLoggedIn);
+            
+            // If user is not logged in, show the login prompt popup
+            if (!isLoggedIn) {
+              console.log('User not logged in - showing stats login prompt popup');
+              const loginPromptPopup = document.getElementById('statsLoginPromptPopup');
+              if (loginPromptPopup) {
+                loginPromptPopup.classList.remove('hidden');
+                loginPromptPopup.style.display = 'flex';
+                return;
+              } else {
+                console.error('statsLoginPromptPopup element not found');
+              }
+            }
+            
+            // If user is logged in, show the stats popup (which includes leaderboard)
+            const statsFunction = window.showStatsPopup || (typeof showStatsPopup !== 'undefined' ? showStatsPopup : null);
+            if (statsFunction && typeof statsFunction === 'function') {
+              console.log('Calling showStatsPopup');
+              statsFunction();
+            } else {
+              console.error('showStatsPopup function not found. User is logged in but stats function unavailable.');
+              alert('Statistics are loading. Please try again in a moment.');
+            }
+          }
             showStatsPopup();
           }
 
