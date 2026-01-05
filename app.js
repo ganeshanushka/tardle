@@ -921,13 +921,19 @@ window.showStatsPopup = async function showStatsPopup() {
         // Populate leaderboard with dummy data
         function renderUsername(element, username) {
             if (element) {
+                console.log('renderUsername called for:', username, 'element:', element);
                 // Completely clear any existing content (including letter boxes from previous renders)
                 element.innerHTML = '';
                 // Remove any letter-box classes that might be on child elements
                 const letterBoxes = element.querySelectorAll('.leaderboard-letter-box');
-                letterBoxes.forEach(box => box.remove());
+                console.log('Found letter boxes to remove:', letterBoxes.length);
+                letterBoxes.forEach(box => {
+                    console.log('Removing letter box:', box);
+                    box.remove();
+                });
                 // Set as plain text
                 element.textContent = username;
+                console.log('Set textContent to:', username, 'Current innerHTML:', element.innerHTML);
                 // Ensure no flex or column layout
                 element.style.display = 'inline-block';
                 element.style.flexDirection = '';
@@ -937,6 +943,15 @@ window.showStatsPopup = async function showStatsPopup() {
                 element.classList.remove('leaderboard-letter-box');
                 // Ensure it's not a flex container
                 element.style.flexDirection = 'row';
+                // Force remove any remaining letter boxes after a short delay
+                setTimeout(() => {
+                    const remainingBoxes = element.querySelectorAll('.leaderboard-letter-box');
+                    if (remainingBoxes.length > 0) {
+                        console.warn('Found remaining letter boxes after render, removing:', remainingBoxes.length);
+                        remainingBoxes.forEach(box => box.remove());
+                        element.textContent = username; // Reset text
+                    }
+                }, 100);
             }
         }
         
@@ -992,9 +1007,18 @@ window.showStatsPopup = async function showStatsPopup() {
         }
         
         if (leaderboardUser1 && leaderboardUser2 && leaderboardUser3) {
+            console.log('Rendering usernames for leaderboard');
+            console.log('Element 1 before:', leaderboardUser1.innerHTML);
             renderUsername(leaderboardUser1, leaderboardData[0].username);
+            console.log('Element 1 after:', leaderboardUser1.innerHTML);
+            console.log('Element 2 before:', leaderboardUser2.innerHTML);
             renderUsername(leaderboardUser2, leaderboardData[1].username);
+            console.log('Element 2 after:', leaderboardUser2.innerHTML);
+            console.log('Element 3 before:', leaderboardUser3.innerHTML);
             renderUsername(leaderboardUser3, leaderboardData[2].username);
+            console.log('Element 3 after:', leaderboardUser3.innerHTML);
+        } else {
+            console.error('Leaderboard user elements not found:', {leaderboardUser1, leaderboardUser2, leaderboardUser3});
         }
         
         if (leaderboardPoints1 && leaderboardPoints2 && leaderboardPoints3) {
