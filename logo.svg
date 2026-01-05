@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="200" height="200">
+  <!-- Thick black border with rounded corners -->
+  <rect x="2" y="2" width="116" height="116" fill="none" stroke="#000000" stroke-width="4" rx="5" ry="5"/>
+  
+  <!-- Grid squares with white separators -->
+  <!-- Top row: all light blue -->
+  <rect x="6" y="6" width="36" height="36" fill="#B8D4E8" stroke="#ffffff" stroke-width="1" rx="3"/>
+  <rect x="42" y="6" width="36" height="36" fill="#B8D4E8" stroke="#ffffff" stroke-width="1" rx="3"/>
+  <rect x="78" y="6" width="36" height="36" fill="#B8D4E8" stroke="#ffffff" stroke-width="1" rx="3"/>
+  
+  <!-- Middle row: light blue, gold, dark navy blue -->
+  <rect x="6" y="42" width="36" height="36" fill="#B8D4E8" stroke="#ffffff" stroke-width="1" rx="3"/>
+  <rect x="42" y="42" width="36" height="36" fill="#c9b458" stroke="#ffffff" stroke-width="1" rx="3"/>
+  <rect x="78" y="42" width="36" height="36" fill="#001A57" stroke="#ffffff" stroke-width="1" rx="3"/>
+  
+  <!-- Bottom row: all dark navy blue -->
+  <rect x="6" y="78" width="36" height="36" fill="#001A57" stroke="#ffffff" stroke-width="1" rx="3"/>
+  <rect x="42" y="78" width="36" height="36" fill="#001A57" stroke="#ffffff" stroke-width="1" rx="3"/>
+  <rect x="78" y="78" width="36" height="36" fill="#001A57" stroke="#ffffff" stroke-width="1" rx="3"/>
+</svg>
+
