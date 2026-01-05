@@ -1247,12 +1247,18 @@ function showGameOverPopup() {
     // Include the correct word in the game over message
     const popup = document.getElementById('gameOverPopup');
     const messageEl = document.getElementById('gameOverMessage');
+    const buttonsContainer = document.getElementById('gameOverButtons');
     if (popup && messageEl) {
         messageEl.innerText = SecretWord;
         popup.classList.remove('hidden');
         popup.style.display = 'flex'; // Set inline style to show
     }
-    setTimeout(showStatsPopup, 2000); // Adjust the delay as needed
+    // Show buttons below the grid
+    if (buttonsContainer) {
+        buttonsContainer.classList.remove('hidden');
+        buttonsContainer.style.display = 'flex';
+    }
+    // Don't auto-show stats popup - let user click "See results" button
 }
 
 function closeGameOverPopup() {
