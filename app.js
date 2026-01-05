@@ -1326,6 +1326,124 @@ window.showResultsOrStatsPopup = function showResultsOrStatsPopup() {
     }
 };
 
+// Load game history for calendar
+async function loadGameHistory() {
+    if (!currentUser || !window.firebaseFirestoreFunctions) {
+        return new Set();
+    }
+    
+    try {
+        const dailyGamesRef = window.firebaseFirestoreFunctions.collection(
+            window.firebaseDb,
+            'users',
+            currentUser.uid,
+            'dailyGames'
+        );
+        
+        // Get all daily games (document IDs are dates in YYYY-MM-DD format)
+        const querySnapshot = await window.firebaseFirestoreFunctions.getDocs(dailyGamesRef);
+        const winDates = new Set();
+        
+        // Date range for calendar
+        const startDate = '2026-01-01';
+        const endDate = '2026-05-31';
+        
+        querySnapshot.forEach((doc) => {
+            const docId = doc.id; // Document ID is the date string
+            const data = doc.data();
+            
+            // Check if date is in range and game was won
+            if (docId >= startDate && docId <= endDate) {
+                // Check if game was won
+                if (data.gameStatus === 'won' || (data.gameCompleted && data.gameStatus === 'won')) {
+                    winDates.add(docId);
+                }
+            }
+        });
+        
+        return winDates;
+    } catch (error) {
+        console.error('Error loading game history:', error);
+        return new Set();
+    }
+}
+
+// Render calendar for Jan 2026 to May 2026
+function renderCalendar(winDates) {
+    const container = document.getElementById('statsCalendarContainer');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    const calendarDiv = document.createElement('div');
+    calendarDiv.className = 'stats-calendar';
+    
+    const weekdays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+    const months = [
+        { name: 'January', days: 31 },
+        { name: 'February', days: 28 }, // 2026 is not a leap year
+        { name: 'March', days: 31 },
+        { name: 'April', days: 30 },
+        { name: 'May', days: 31 }
+    ];
+    
+    // Calculate day of week for Jan 1, 2026 (0 = Sunday, 1 = Monday, etc.)
+    const jan1Date = new Date('2026-01-01');
+    let dayOfWeek = jan1Date.getDay();
+    
+    months.forEach((month, monthIndex) => {
+        const monthDiv = document.createElement('div');
+        monthDiv.className = 'stats-calendar-month';
+        
+        const title = document.createElement('div');
+        title.className = 'stats-calendar-month-title';
+        title.textContent = `${month.name} 2026`;
+        monthDiv.appendChild(title);
+        
+        const weekdaysDiv = document.createElement('div');
+        weekdaysDiv.className = 'stats-calendar-weekdays';
+        weekdays.forEach(day => {
+            const weekdayDiv = document.createElement('div');
+            weekdayDiv.className = 'stats-calendar-weekday';
+            weekdayDiv.textContent = day;
+            weekdaysDiv.appendChild(weekdayDiv);
+        });
+        monthDiv.appendChild(weekdaysDiv);
+        
+        const daysDiv = document.createElement('div');
+        daysDiv.className = 'stats-calendar-days';
+        
+        // Add empty cells for days before the first day of the month
+        for (let i = 0; i < dayOfWeek; i++) {
+            const emptyDay = document.createElement('div');
+            emptyDay.className = 'stats-calendar-day empty';
+            daysDiv.appendChild(emptyDay);
+        }
+        
+        // Add days of the month
+        for (let day = 1; day <= month.days; day++) {
+            const dayDiv = document.createElement('div');
+            dayDiv.className = 'stats-calendar-day';
+            
+            const dateStr = `2026-${String(monthIndex + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            
+            if (winDates.has(dateStr)) {
+                dayDiv.classList.add('win');
+            }
+            
+            dayDiv.textContent = day;
+            daysDiv.appendChild(dayDiv);
+            
+            dayOfWeek = (dayOfWeek + 1) % 7;
+        }
+        
+        monthDiv.appendChild(daysDiv);
+        calendarDiv.appendChild(monthDiv);
+    });
+    
+    container.appendChild(calendarDiv);
+}
+
 window.showStatsPopup = async function showStatsPopup() {
     // Check if user is logged in - if not, show login prompt popup
     // Also check Firebase auth directly in case of timing issues
@@ -1367,6 +1485,18 @@ window.showStatsPopup = async function showStatsPopup() {
         winPercentageEl.innerText = winPercentage;
         currentStreakEl.innerText = currentStreak;
         maxStreakEl.innerText = maxStreak;
+        
+        // Load and render calendar
+        if (isLoggedIn && currentUser) {
+            const winDates = await loadGameHistory();
+            renderCalendar(winDates);
+        } else {
+            // Clear calendar if not logged in
+            const container = document.getElementById('statsCalendarContainer');
+            if (container) {
+                container.innerHTML = '';
+            }
+        }
         
         popup.classList.remove('hidden');
         popup.style.display = 'flex'; // Set inline style to show

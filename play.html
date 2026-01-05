@@ -1909,6 +1909,109 @@
     font-family: 'Field Gothic Narrow', sans-serif;
 }
 
+/* Calendar styles */
+#statsPopup .stats-calendar-container {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid #d3d6da;
+}
+
+.stats-calendar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.stats-calendar-month {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.stats-calendar-month-title {
+    font-family: 'Field Gothic Narrow', sans-serif;
+    font-size: 0.9em;
+    font-weight: bold;
+    color: #000000;
+    margin-bottom: 4px;
+}
+
+.stats-calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: 4px;
+}
+
+.stats-calendar-weekday {
+    font-family: 'Field Gothic Narrow', sans-serif;
+    font-size: 0.7em;
+    color: #666666;
+    text-align: center;
+    font-weight: normal;
+}
+
+.stats-calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.stats-calendar-day {
+    aspect-ratio: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Field Gothic Narrow', sans-serif;
+    font-size: 0.75em;
+    color: #666666;
+    background-color: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    cursor: default;
+}
+
+.stats-calendar-day.win {
+    background-color: #7BAFD4;
+    border-color: #7BAFD4;
+    color: #ffffff;
+}
+
+.stats-calendar-day.empty {
+    background-color: transparent;
+    border: none;
+}
+
+/* Dark mode calendar styles */
+:root.dark-mode #statsPopup .stats-calendar-container {
+    border-top-color: #3a3a3c;
+}
+
+:root.dark-mode .stats-calendar-month-title {
+    color: #ffffff;
+}
+
+:root.dark-mode .stats-calendar-weekday {
+    color: #999999;
+}
+
+:root.dark-mode .stats-calendar-day {
+    background-color: #2a2a2c;
+    border-color: #3a3a3c;
+    color: #999999;
+}
+
+:root.dark-mode .stats-calendar-day.win {
+    background-color: #7BAFD4;
+    border-color: #7BAFD4;
+    color: #ffffff;
+}
+
+:root.dark-mode .stats-calendar-day.empty {
+    background-color: transparent;
+    border: none;
+}
 
 .game-over-button {
     font-family: 'Field Gothic Narrow', sans-serif;
@@ -2613,6 +2716,7 @@
                     <div class="stat-label">Max Streak</div>
                   </div>
                 </div>
+                <div class="stats-calendar-container" id="statsCalendarContainer"></div>
               </div>
             </div>
           </div>
