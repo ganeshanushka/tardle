@@ -131,7 +131,7 @@ exports.sendDailyTardleEmail = functions.pubsub
                   <meta charset="UTF-8">
                   <style>
                     body {
-                      font-family: 'Georgia', 'Times New Roman', serif;
+                      font-family: 'Open Sans', sans-serif;
                       line-height: 1.6;
                       color: #000;
                       max-width: 600px;
@@ -211,7 +211,7 @@ exports.sendDailyTardleEmail = functions.pubsub
                       font-weight: bold;
                       margin-top: 10px;
                       color: #000;
-                      font-family: Arial, sans-serif;
+                      font-family: 'Open Sans', sans-serif;
                     }
                   </style>
                 </head>
@@ -358,7 +358,7 @@ exports.sendProfessionalVerificationEmail = functions.https.onCall(async (data, 
           <meta charset="UTF-8">
           <style>
             body {
-              font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+              font-family: 'Open Sans', sans-serif;
               line-height: 1.6;
               color: #333;
               max-width: 600px;

@@ -162,7 +162,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-family: sans-serif;
+        font-family: 'Open Sans', sans-serif;
         line-height: 1;
       }
       
@@ -176,11 +176,11 @@
         margin: 0 0 24px 0;
         text-align: center;
         color: #000;
-        font-family: 'PT Serif', serif;
+        font-family: 'Open Sans', sans-serif;
       }
       
       .login-modal-step p {
-        font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+        font-family: 'Open Sans', sans-serif;
       }
       
       .login-modal-input-group {
@@ -193,7 +193,7 @@
         font-weight: bold;
         margin-bottom: 8px;
         color: #000;
-        font-family: 'PT Serif', serif;
+        font-family: 'Open Sans', sans-serif;
         text-align: left;
       }
       
@@ -206,7 +206,7 @@
         border: 1px solid #ccc;
         border-radius: 4px;
         box-sizing: border-box;
-        font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+        font-family: 'Open Sans', sans-serif;
       }
       
       .login-modal-input-group input:focus {
@@ -224,7 +224,7 @@
         border: none;
         border-radius: 4px;
         cursor: pointer;
-        font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+        font-family: 'Open Sans', sans-serif;
         margin-top: 8px;
       }
       
@@ -244,7 +244,7 @@
         margin-top: 24px;
         margin-bottom: 0;
         line-height: 1.5;
-        font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+        font-family: 'Open Sans', sans-serif;
       }
       
       .login-modal-terms a {
@@ -260,7 +260,7 @@
         cursor: pointer;
         font-size: 14px;
         white-space: nowrap;
-        font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+        font-family: 'Open Sans', sans-serif;
       }
       
       .login-modal-edit-btn:hover {
@@ -286,7 +286,7 @@
         font-size: 0.9rem;
         margin-top: 0.25em;
         margin-bottom: 1em;
-        font-family: 'PT Serif', serif;
+        font-family: 'Open Sans', sans-serif;
         display: block !important;
         visibility: visible !important;
         opacity: 1 !important;
