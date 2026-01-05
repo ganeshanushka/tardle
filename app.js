@@ -1201,7 +1201,27 @@ function updateKeyboard() {
     if (isCorrect) {
       setTimeout(() => {
         showAlert("Rah Rah Right answer!");
-        setTimeout(showStatsPopup, 2000); // Show the stats popup after 2 seconds
+        // Show results popup or stats popup after 1-2 seconds
+        setTimeout(() => {
+          // Check if user is logged in
+          const isLoggedIn = (window.firebaseAuth && window.firebaseAuth.currentUser) || 
+                            window.isLoggedIn || 
+                            window.currentUser;
+          
+          if (isLoggedIn) {
+            // Logged in: show stats popup
+            if (window.showStatsPopup) {
+              window.showStatsPopup();
+            }
+          } else {
+            // Not logged in: show results popup
+            const resultsPopup = document.getElementById('resultsPopup');
+            if (resultsPopup) {
+              resultsPopup.classList.remove('hidden');
+              resultsPopup.style.display = 'flex';
+            }
+          }
+        }, 1500); // 1.5 seconds delay
       }, totalFlipTime);
     }
   }

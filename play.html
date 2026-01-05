@@ -649,6 +649,227 @@
     display: none !important;
   }
 
+  /* Results Popup (shown after win for logged-out users) */
+  #resultsPopup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10001;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  #resultsPopup.hidden {
+    display: none !important;
+  }
+
+  .results-popup-content {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 40px;
+    max-width: 500px;
+    width: 90%;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .results-close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #7BAFD4;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    line-height: 1;
+    transition: opacity 0.2s ease;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #7BAFD4;
+    border-radius: 4px;
+  }
+
+  .results-close-btn:hover {
+    opacity: 0.7;
+  }
+
+  .results-close-btn::before {
+    content: '×';
+    color: white;
+    font-size: 24px;
+  }
+
+  .results-icon {
+    width: 60px;
+    height: 60px;
+    background-color: #90EE90;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .results-icon svg {
+    width: 40px;
+    height: 40px;
+    stroke: white;
+    fill: white;
+  }
+
+  .results-heading {
+    font-family: 'Field Gothic Narrow', sans-serif;
+    font-size: 1.8em;
+    font-weight: bold;
+    color: #2d5016;
+    margin: 0 0 12px 0;
+  }
+
+  .results-text {
+    font-family: 'Field Gothic Narrow', sans-serif;
+    font-size: 1em;
+    color: #2d5016;
+    margin: 0 0 24px 0;
+    line-height: 1.5;
+  }
+
+  .results-create-account-btn {
+    font-family: 'Field Gothic Narrow', sans-serif;
+    background-color: #000000;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 12px;
+    width: 100%;
+    max-width: 300px;
+    transition: background-color 0.2s ease;
+  }
+
+  .results-create-account-btn:hover {
+    background-color: #333333;
+  }
+
+  .results-login-link {
+    font-family: 'Field Gothic Narrow', sans-serif;
+    color: #2d5016;
+    text-decoration: underline;
+    font-size: 14px;
+    margin-bottom: 32px;
+    cursor: pointer;
+  }
+
+  .results-login-link:hover {
+    color: #1a3009;
+  }
+
+  .results-features {
+    width: 100%;
+    margin-bottom: 24px;
+    text-align: left;
+  }
+
+  .results-feature-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    gap: 12px;
+  }
+
+  .results-feature-icon {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+  }
+
+  .results-feature-icon svg {
+    width: 24px;
+    height: 24px;
+    stroke: #333;
+  }
+
+  .results-feature-icon.custom-puzzle-icon {
+    background-color: #c9b458;
+  }
+
+  .results-feature-icon.custom-puzzle-icon svg {
+    stroke: white;
+  }
+
+  .results-feature-content {
+    flex: 1;
+  }
+
+  .results-feature-text {
+    font-family: 'Field Gothic Narrow', sans-serif;
+    font-size: 14px;
+    color: #2d5016;
+    margin: 0 0 4px 0;
+  }
+
+  .results-feature-link {
+    font-family: 'Field Gothic Narrow', sans-serif;
+    color: #2d5016;
+    text-decoration: underline;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .results-feature-link:hover {
+    color: #1a3009;
+  }
+
+  .results-share-btn {
+    font-family: 'Field Gothic Narrow', sans-serif;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    max-width: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background-color 0.2s ease;
+  }
+
+  .results-share-btn:hover {
+    background-color: #5a6268;
+  }
+
+  .results-share-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+
   .stats-login-prompt-content {
     background-color: #ffffff;
     border-radius: 12px;
@@ -2652,6 +2873,60 @@
                   </tbody>
                 </table>
               </div>
+            </div>
+          </div>
+
+          <!-- Results Popup (shown after win for logged-out users) -->
+          <div id="resultsPopup" class="hidden">
+            <div class="results-popup-content">
+              <button class="results-close-btn" onclick="closeResultsPopup()">×</button>
+              <div class="results-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+              </div>
+              <h1 class="results-heading">Thanks for playing today!</h1>
+              <p class="results-text">Track your Tardle win percentage and earn badges for big achievements.</p>
+              <button class="results-create-account-btn" onclick="window.location.href='login.html?return=play.html'">Create a free account</button>
+              <a href="login.html?return=play.html" class="results-login-link">Already Registered? Log In</a>
+              <div class="results-features">
+                <div class="results-feature-item">
+                  <div class="results-feature-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="2" y="7" width="20" height="15" rx="2" ry="2"/>
+                      <polyline points="17 2 12 7 7 2"/>
+                      <circle cx="12" cy="12" r="2"/>
+                      <path d="M8 12h8"/>
+                    </svg>
+                  </div>
+                  <div class="results-feature-content">
+                    <p class="results-feature-text">Tardle Bot gives an analysis of your guesses.</p>
+                    <a href="#" class="results-feature-link">Did you beat the bot? ›</a>
+                  </div>
+                </div>
+                <div class="results-feature-item">
+                  <div class="results-feature-icon custom-puzzle-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="12" y1="5" x2="12" y2="19"/>
+                      <line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                  </div>
+                  <div class="results-feature-content">
+                    <p class="results-feature-text">Want to make a custom puzzle to share with friends?</p>
+                    <a href="#" class="results-feature-link">Create one</a>
+                  </div>
+                </div>
+              </div>
+              <button class="results-share-btn" onclick="shareResults()">
+                <span>Share</span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="18" cy="5" r="3"/>
+                  <circle cx="6" cy="12" r="3"/>
+                  <circle cx="18" cy="19" r="3"/>
+                  <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                  <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                </svg>
+              </button>
             </div>
           </div>
 
