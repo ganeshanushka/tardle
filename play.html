@@ -1178,14 +1178,12 @@
   :root.dark-mode #statsPopup .popup-content {
     background-color: var(--bg-primary); /* Same as screen background */
     color: #ffffff; /* White text */
-    border-radius: 0;
-    max-width: 550px; /* Slightly larger to fit all content */
-    width: min(550px, 90vw);
-    height: min(550px, 90vw); /* Make it square */
-    max-height: min(550px, 90vw, 90vh);
-    aspect-ratio: 1 / 1; /* Ensure square shape */
-    overflow: hidden; /* No scrollbar */
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    padding: 40px;
+    overflow-y: auto;
     position: relative;
     transition: background-color 0.3s ease, color 0.3s ease;
     padding: 1cm; /* 1cm margin on all sides */
@@ -1574,20 +1572,17 @@
 
 /* Statistics Modal Content - match help modal exactly */
 #statsPopup .popup-content {
-    /* Match standalone how-to-play.html exactly */
+    /* Match stats login prompt popup dimensions */
     background-color: #ffffff;
     color: #000000;
-    border-radius: 0;
-    max-width: 550px; /* Slightly larger to fit all content */
-    width: min(550px, 90vw);
-    height: min(550px, 90vw); /* Make it square */
-    max-height: min(550px, 90vw, 90vh);
-    aspect-ratio: 1 / 1; /* Ensure square shape */
-    overflow: hidden; /* No scrollbar */
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
     position: relative;
-    transition: background-color 0.3s ease, color 0.3s ease;
-    padding: 1cm; /* 1cm margin on all sides */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    box-sizing: border-box;
+    padding: 40px;
+    overflow-y: auto;
     margin: auto;
     box-sizing: border-box;
     /* Reset font-size to browser default (16px) so em units match standalone page */
