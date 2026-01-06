@@ -1329,7 +1329,7 @@ window.showResultsOrStatsPopup = function showResultsOrStatsPopup() {
 // Load game history for calendar
 async function loadGameHistory() {
     if (!currentUser || !window.firebaseFirestoreFunctions) {
-        return new Set();
+        return { wins: new Set(), losses: new Set() };
     }
     
     try {
@@ -1343,6 +1343,7 @@ async function loadGameHistory() {
         // Get all daily games (document IDs are dates in YYYY-MM-DD format)
         const querySnapshot = await window.firebaseFirestoreFunctions.getDocs(dailyGamesRef);
         const winDates = new Set();
+        const lossDates = new Set();
         
         // Date range for calendar
         const startDate = '2026-01-01';
@@ -1352,33 +1353,35 @@ async function loadGameHistory() {
             const docId = doc.id; // Document ID is the date string
             const data = doc.data();
             
-            // Check if date is in range and game was won
+            // Check if date is in range
             if (docId >= startDate && docId <= endDate) {
-                // Check if game was won
+                // Check game status
                 if (data.gameStatus === 'won' || (data.gameCompleted && data.gameStatus === 'won')) {
                     winDates.add(docId);
+                } else if (data.gameStatus === 'lost' || (data.gameCompleted && data.gameStatus === 'lost')) {
+                    lossDates.add(docId);
                 }
             }
         });
         
-        return winDates;
+        return { wins: winDates, losses: lossDates };
     } catch (error) {
         console.error('Error loading game history:', error);
-        return new Set();
+        return { wins: new Set(), losses: new Set() };
     }
 }
 
 // Calendar state
 let currentCalendarMonth = 0; // 0 = January, 4 = May
-let calendarWinDates = new Set();
+let calendarGameHistory = { wins: new Set(), losses: new Set() };
 
 // Render calendar for Jan 2026 to May 2026 (one month at a time)
-function renderCalendar(winDates) {
+function renderCalendar(gameHistory) {
     const container = document.getElementById('statsCalendarContainer');
     if (!container) return;
     
-    // Store win dates for navigation
-    calendarWinDates = winDates || new Set();
+    // Store game history for navigation
+    calendarGameHistory = gameHistory || { wins: new Set(), losses: new Set() };
     
     container.innerHTML = '';
     
@@ -1405,7 +1408,7 @@ function renderCalendar(winDates) {
     prevButton.onclick = () => {
         if (currentCalendarMonth > 0) {
             currentCalendarMonth--;
-            renderCalendar(calendarWinDates);
+            renderCalendar(calendarGameHistory);
         }
     };
     navDiv.appendChild(prevButton);
@@ -1422,7 +1425,7 @@ function renderCalendar(winDates) {
     nextButton.onclick = () => {
         if (currentCalendarMonth < months.length - 1) {
             currentCalendarMonth++;
-            renderCalendar(calendarWinDates);
+            renderCalendar(calendarGameHistory);
         }
     };
     navDiv.appendChild(nextButton);
@@ -1464,8 +1467,14 @@ function renderCalendar(winDates) {
         
         const dateStr = `2026-${String(currentCalendarMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         
-        if (calendarWinDates.has(dateStr)) {
+        // Check game status for this date
+        if (calendarGameHistory.wins.has(dateStr)) {
             dayDiv.classList.add('win');
+        } else if (calendarGameHistory.losses.has(dateStr)) {
+            dayDiv.classList.add('loss');
+        } else {
+            // Didn't play - Carolina blue (same as win per user request)
+            dayDiv.classList.add('no-play');
         }
         
         dayDiv.textContent = day;
@@ -1525,11 +1534,11 @@ window.showStatsPopup = async function showStatsPopup() {
         // Load and render calendar (always show, even if no data)
         // Reset to first month when opening popup
         currentCalendarMonth = 0;
-        let winDates = new Set();
+        let gameHistory = { wins: new Set(), losses: new Set() };
         if (isLoggedIn && currentUser) {
-            winDates = await loadGameHistory();
+            gameHistory = await loadGameHistory();
         }
-        renderCalendar(winDates);
+        renderCalendar(gameHistory);
         
         popup.classList.remove('hidden');
         popup.style.display = 'flex'; // Set inline style to show
