@@ -1300,9 +1300,15 @@ function closeGameOverPopup() {
 // Global function to show results popup (for logged-out users)
 window.showResultsPopup = function showResultsPopup() {
     const resultsPopup = document.getElementById('resultsPopup');
+    const gameOverButtons = document.getElementById('gameOverButtons');
     if (resultsPopup) {
         resultsPopup.classList.remove('hidden');
         resultsPopup.style.display = 'flex';
+    }
+    // Hide the game over buttons when showing results
+    if (gameOverButtons) {
+        gameOverButtons.classList.add('hidden');
+        gameOverButtons.style.display = 'none';
     }
 };
 
@@ -1312,6 +1318,14 @@ window.showResultsOrStatsPopup = function showResultsOrStatsPopup() {
     const isLoggedIn = (window.firebaseAuth && window.firebaseAuth.currentUser) || 
                       window.isLoggedIn || 
                       window.currentUser;
+    
+    const gameOverButtons = document.getElementById('gameOverButtons');
+    
+    // Hide the game over buttons when showing popup
+    if (gameOverButtons) {
+        gameOverButtons.classList.add('hidden');
+        gameOverButtons.style.display = 'none';
+    }
     
     if (isLoggedIn) {
         // Logged in: show stats popup

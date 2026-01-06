@@ -3448,21 +3448,22 @@
           function closeResultsPopup() {
             const popup = document.getElementById('resultsPopup');
             const keyboard = document.getElementById('keyboard');
-            const seeResultsBtn = document.getElementById('seeResultsBtn');
+            const gameOverButtons = document.getElementById('gameOverButtons');
             
             if (popup) {
               popup.classList.add('hidden');
               popup.style.display = '';
             }
             
-            // Hide keyboard and show "See results" button
+            // Hide keyboard and show game over buttons
             if (keyboard) {
               keyboard.style.display = 'none';
             }
             
-            if (seeResultsBtn) {
-              seeResultsBtn.classList.remove('hidden');
-              seeResultsBtn.style.display = 'flex';
+            // Show the game over buttons again when closing results popup
+            if (gameOverButtons) {
+              gameOverButtons.classList.remove('hidden');
+              gameOverButtons.style.display = 'flex';
             }
           }
 
