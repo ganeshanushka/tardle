@@ -587,12 +587,23 @@
 
 /* Popup container styles */
 #invalidWordPopup,
-#notEnoughLettersPopup,
-#transferApplicationPopup {
+#notEnoughLettersPopup {
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  z-index: 999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+}
+
+#transferApplicationPopup {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 999;
   display: flex;
   justify-content: center;
@@ -2721,11 +2732,6 @@
     </div>
   </div>
 
-  <div id="transferApplicationPopup" class="hidden">
-    <div class="popup-content">
-      <span>Time to start that transfer application</span>
-    </div>
-  </div> 
 
           <div id="gameOverPopup" class="hidden">
             <div class="popup-content">
