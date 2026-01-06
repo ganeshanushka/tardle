@@ -1368,10 +1368,17 @@ async function loadGameHistory() {
     }
 }
 
-// Render calendar for Jan 2026 to May 2026
+// Calendar state
+let currentCalendarMonth = 0; // 0 = January, 4 = May
+let calendarWinDates = new Set();
+
+// Render calendar for Jan 2026 to May 2026 (one month at a time)
 function renderCalendar(winDates) {
     const container = document.getElementById('statsCalendarContainer');
     if (!container) return;
+    
+    // Store win dates for navigation
+    calendarWinDates = winDates || new Set();
     
     container.innerHTML = '';
     
@@ -1387,59 +1394,88 @@ function renderCalendar(winDates) {
         { name: 'May', days: 31 }
     ];
     
-    // Calculate day of week for Jan 1, 2026 (0 = Sunday, 1 = Monday, etc.)
-    const jan1Date = new Date('2026-01-01');
-    let dayOfWeek = jan1Date.getDay();
+    // Navigation header
+    const navDiv = document.createElement('div');
+    navDiv.className = 'stats-calendar-nav';
     
-    months.forEach((month, monthIndex) => {
-        const monthDiv = document.createElement('div');
-        monthDiv.className = 'stats-calendar-month';
-        
-        const title = document.createElement('div');
-        title.className = 'stats-calendar-month-title';
-        title.textContent = `${month.name} 2026`;
-        monthDiv.appendChild(title);
-        
-        const weekdaysDiv = document.createElement('div');
-        weekdaysDiv.className = 'stats-calendar-weekdays';
-        weekdays.forEach(day => {
-            const weekdayDiv = document.createElement('div');
-            weekdayDiv.className = 'stats-calendar-weekday';
-            weekdayDiv.textContent = day;
-            weekdaysDiv.appendChild(weekdayDiv);
-        });
-        monthDiv.appendChild(weekdaysDiv);
-        
-        const daysDiv = document.createElement('div');
-        daysDiv.className = 'stats-calendar-days';
-        
-        // Add empty cells for days before the first day of the month
-        for (let i = 0; i < dayOfWeek; i++) {
-            const emptyDay = document.createElement('div');
-            emptyDay.className = 'stats-calendar-day empty';
-            daysDiv.appendChild(emptyDay);
+    const prevButton = document.createElement('button');
+    prevButton.className = 'stats-calendar-nav-button';
+    prevButton.textContent = '←';
+    prevButton.disabled = currentCalendarMonth === 0;
+    prevButton.onclick = () => {
+        if (currentCalendarMonth > 0) {
+            currentCalendarMonth--;
+            renderCalendar(calendarWinDates);
         }
-        
-        // Add days of the month
-        for (let day = 1; day <= month.days; day++) {
-            const dayDiv = document.createElement('div');
-            dayDiv.className = 'stats-calendar-day';
-            
-            const dateStr = `2026-${String(monthIndex + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            
-            if (winDates.has(dateStr)) {
-                dayDiv.classList.add('win');
-            }
-            
-            dayDiv.textContent = day;
-            daysDiv.appendChild(dayDiv);
-            
-            dayOfWeek = (dayOfWeek + 1) % 7;
+    };
+    navDiv.appendChild(prevButton);
+    
+    const title = document.createElement('div');
+    title.className = 'stats-calendar-month-title';
+    title.textContent = `${months[currentCalendarMonth].name} 2026`;
+    navDiv.appendChild(title);
+    
+    const nextButton = document.createElement('button');
+    nextButton.className = 'stats-calendar-nav-button';
+    nextButton.textContent = '→';
+    nextButton.disabled = currentCalendarMonth === months.length - 1;
+    nextButton.onclick = () => {
+        if (currentCalendarMonth < months.length - 1) {
+            currentCalendarMonth++;
+            renderCalendar(calendarWinDates);
         }
-        
-        monthDiv.appendChild(daysDiv);
-        calendarDiv.appendChild(monthDiv);
+    };
+    navDiv.appendChild(nextButton);
+    
+    calendarDiv.appendChild(navDiv);
+    
+    // Calculate day of week for the first day of the current month
+    const firstDayOfMonth = new Date(2026, currentCalendarMonth, 1);
+    let dayOfWeek = firstDayOfMonth.getDay();
+    
+    const month = months[currentCalendarMonth];
+    const monthDiv = document.createElement('div');
+    monthDiv.className = 'stats-calendar-month';
+    
+    const weekdaysDiv = document.createElement('div');
+    weekdaysDiv.className = 'stats-calendar-weekdays';
+    weekdays.forEach(day => {
+        const weekdayDiv = document.createElement('div');
+        weekdayDiv.className = 'stats-calendar-weekday';
+        weekdayDiv.textContent = day;
+        weekdaysDiv.appendChild(weekdayDiv);
     });
+    monthDiv.appendChild(weekdaysDiv);
+    
+    const daysDiv = document.createElement('div');
+    daysDiv.className = 'stats-calendar-days';
+    
+    // Add empty cells for days before the first day of the month
+    for (let i = 0; i < dayOfWeek; i++) {
+        const emptyDay = document.createElement('div');
+        emptyDay.className = 'stats-calendar-day empty';
+        daysDiv.appendChild(emptyDay);
+    }
+    
+    // Add days of the month
+    for (let day = 1; day <= month.days; day++) {
+        const dayDiv = document.createElement('div');
+        dayDiv.className = 'stats-calendar-day';
+        
+        const dateStr = `2026-${String(currentCalendarMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        
+        if (calendarWinDates.has(dateStr)) {
+            dayDiv.classList.add('win');
+        }
+        
+        dayDiv.textContent = day;
+        daysDiv.appendChild(dayDiv);
+        
+        dayOfWeek = (dayOfWeek + 1) % 7;
+    }
+    
+    monthDiv.appendChild(daysDiv);
+    calendarDiv.appendChild(monthDiv);
     
     container.appendChild(calendarDiv);
 }
@@ -1486,17 +1522,14 @@ window.showStatsPopup = async function showStatsPopup() {
         currentStreakEl.innerText = currentStreak;
         maxStreakEl.innerText = maxStreak;
         
-        // Load and render calendar
+        // Load and render calendar (always show, even if no data)
+        // Reset to first month when opening popup
+        currentCalendarMonth = 0;
+        let winDates = new Set();
         if (isLoggedIn && currentUser) {
-            const winDates = await loadGameHistory();
-            renderCalendar(winDates);
-        } else {
-            // Clear calendar if not logged in
-            const container = document.getElementById('statsCalendarContainer');
-            if (container) {
-                container.innerHTML = '';
-            }
+            winDates = await loadGameHistory();
         }
+        renderCalendar(winDates);
         
         popup.classList.remove('hidden');
         popup.style.display = 'flex'; // Set inline style to show
