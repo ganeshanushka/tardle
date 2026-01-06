@@ -1293,9 +1293,11 @@ function showAnswerPopup() {
     const popup = document.getElementById('answerPopup');
     const answerMessage = document.getElementById('answerMessage');
     if (popup && answerMessage) {
+        // Access SecretWord - it should be in scope from the outer function
         answerMessage.innerText = SecretWord;
         popup.classList.remove('hidden');
         popup.style.display = 'flex';
+        popup.style.visibility = 'visible';
         // This popup does not auto-hide
     }
 }
