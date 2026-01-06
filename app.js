@@ -1378,12 +1378,17 @@ let calendarGameHistory = { wins: new Set(), losses: new Set() };
 // Render calendar for Jan 2026 to May 2026 (one month at a time)
 function renderCalendar(gameHistory) {
     const container = document.getElementById('statsCalendarContainer');
-    if (!container) return;
+    if (!container) {
+        console.error('statsCalendarContainer not found');
+        return;
+    }
     
     // Store game history for navigation
     calendarGameHistory = gameHistory || { wins: new Set(), losses: new Set() };
     
+    // Clear container completely
     container.innerHTML = '';
+    console.log('Rendering calendar for month index:', currentCalendarMonth);
     
     const calendarDiv = document.createElement('div');
     calendarDiv.className = 'stats-calendar';
