@@ -1043,7 +1043,7 @@ let words = [
             // Show game over popup after transfer popup disappears (answer popup will show first)
             setTimeout(() => {
                 showGameOverPopup(); // Exceeded max tries
-            }, totalFlipTime + 3000);
+            }, totalFlipTime + 2000);
             updateStatsOnLoss(); // Update stats as a loss
             // Save game state
             setTimeout(() => {
@@ -1074,7 +1074,8 @@ function showAlert(message) {
 
 
 function showInvalidWordAlert() {
-    console.log('showInvalidWordAlert called');
+    console.log('=== showInvalidWordAlert called ===');
+    console.trace('Call stack for showInvalidWordAlert');
     // Add shake animation to each cell in the current guess row
     const currentRow = guesses.length;
     for (let i = 0; i < SecretWord.length; i++) {
@@ -1104,11 +1105,21 @@ function showInvalidWordAlert() {
         
         console.log('Showing invalid word popup');
         message.innerText = "Not in word list";
+        // Remove hidden class first
         popup.classList.remove('hidden');
-        // Use inline style to override !important if needed
-        popup.style.display = 'flex';
+        // Use setProperty with important to override any !important CSS rules
+        popup.style.setProperty('display', 'flex', 'important');
+        popup.style.setProperty('visibility', 'visible', 'important');
+        popup.style.setProperty('opacity', '1', 'important');
         console.log('Popup classes after remove:', popup.className);
         console.log('Popup display style:', window.getComputedStyle(popup).display);
+        console.log('Popup computed styles:', {
+            display: window.getComputedStyle(popup).display,
+            visibility: window.getComputedStyle(popup).visibility,
+            opacity: window.getComputedStyle(popup).opacity,
+            position: window.getComputedStyle(popup).position,
+            top: window.getComputedStyle(popup).top
+        });
 
         // Auto-hide after 1 second
         setTimeout(() => {
@@ -1120,6 +1131,8 @@ function showInvalidWordAlert() {
 }
 
 function showNotEnoughLettersAlert() {
+    console.log('=== showNotEnoughLettersAlert called ===');
+    console.trace('Call stack for showNotEnoughLettersAlert');
     // Add shake animation to each cell in the current guess row
     const currentRow = guesses.length;
     for (let i = 0; i < SecretWord.length; i++) {
@@ -1143,9 +1156,15 @@ function showNotEnoughLettersAlert() {
             return;
         }
         
+        console.log('Showing not enough letters popup');
         message.innerText = "Not enough letters";
+        // Remove hidden class first
         popup.classList.remove('hidden');
-        popup.style.display = 'flex'; // Set inline style to show
+        // Use setProperty with important to override any !important CSS rules
+        popup.style.setProperty('display', 'flex', 'important');
+        popup.style.setProperty('visibility', 'visible', 'important');
+        popup.style.setProperty('opacity', '1', 'important');
+        console.log('Not enough letters popup - computed display:', window.getComputedStyle(popup).display);
 
         // Auto-hide after 1 second
         setTimeout(() => {
@@ -1279,13 +1298,13 @@ function showTransferApplicationPopup() {
     if (popup) {
         popup.classList.remove('hidden');
         popup.style.display = 'flex';
-        // Hide popup after 3 seconds and show answer popup
+        // Hide popup after 2 seconds and show answer popup
         setTimeout(() => {
             popup.classList.add('hidden');
             popup.style.display = '';
             // Show answer popup after transfer popup disappears
             showAnswerPopup();
-        }, 3000);
+        }, 2000);
     }
 }
 
@@ -1299,6 +1318,21 @@ function showAnswerPopup() {
         popup.style.display = 'flex';
         popup.style.visibility = 'visible';
         // This popup does not auto-hide
+        
+        // Wait 1 second, then hide keyboard and show "See results" button
+        setTimeout(() => {
+            const keyboard = document.getElementById('keyboard');
+            const buttonsContainer = document.getElementById('gameOverButtons');
+            
+            if (keyboard) {
+                keyboard.style.display = 'none';
+            }
+            
+            if (buttonsContainer) {
+                buttonsContainer.classList.remove('hidden');
+                buttonsContainer.style.display = 'flex';
+            }
+        }, 1000);
     }
 }
 
@@ -1306,8 +1340,6 @@ function showGameOverPopup() {
     // Include the correct word in the game over message
     const popup = document.getElementById('gameOverPopup');
     const messageEl = document.getElementById('gameOverMessage');
-    const buttonsContainer = document.getElementById('gameOverButtons');
-    const keyboard = document.getElementById('keyboard');
     
     if (popup && messageEl) {
         messageEl.innerText = SecretWord;
@@ -1315,15 +1347,7 @@ function showGameOverPopup() {
         popup.style.display = 'flex'; // Set inline style to show
     }
     
-    // Hide keyboard and show buttons below the grid
-    if (keyboard) {
-        keyboard.style.display = 'none';
-    }
-    
-    if (buttonsContainer) {
-        buttonsContainer.classList.remove('hidden');
-        buttonsContainer.style.display = 'flex';
-    }
+    // Note: Keyboard hiding and "See results" button showing is now handled by showAnswerPopup()
     // Don't auto-show stats popup - let user click "See results" button
 }
 
