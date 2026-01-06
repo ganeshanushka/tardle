@@ -546,6 +546,7 @@
     width: 100%;
     max-width: 600px;
     padding: 0 clamp(5px, 1vw, 10px);
+    box-sizing: border-box;
   }
 
   .keyboard div {
@@ -2321,53 +2322,66 @@
   @media (max-width: 768px) {
     /* Title bar adjustments */
     .title-bar {
-      height: 50px;
-      padding: 0 10px;
+      height: 50px !important;
+      padding: 0 10px !important;
     }
 
     .title-text {
-      font-size: 1.5em;
+      font-size: 1.3em !important;
     }
 
     .header-icon {
-      width: 32px;
-      height: 32px;
+      width: 28px !important;
+      height: 28px !important;
     }
 
     /* Container and game grid */
     .container {
-      margin-top: 60px;
-      padding: 10px;
-      max-width: 100%;
+      margin-top: 55px !important;
+      padding: 5px !important;
+      max-width: 100% !important;
+      width: 100% !important;
     }
 
     /* Game grid tiles - smaller on mobile */
     .key-guess {
-      height: clamp(40px, 12vw, 50px);
-      width: clamp(40px, 12vw, 50px);
-      min-height: 40px;
-      min-width: 40px;
-      font-size: clamp(20px, 6vw, 24px);
-      margin: clamp(2px, 0.5vw, 3px);
+      height: clamp(35px, 11vw, 45px) !important;
+      width: clamp(35px, 11vw, 45px) !important;
+      min-height: 35px !important;
+      min-width: 35px !important;
+      font-size: clamp(18px, 5.5vw, 22px) !important;
+      margin: clamp(1px, 0.4vw, 2px) !important;
     }
 
     /* Keyboard adjustments */
     #keyboard {
-      margin-top: 10px;
-      padding: 0 5px;
+      margin-top: 8px !important;
+      padding: 0 3px !important;
+      max-width: 100% !important;
+      width: 100% !important;
+    }
+
+    .keyboard {
+      max-width: 100% !important;
+      width: 100% !important;
+      padding: 0 3px !important;
     }
 
     .key {
-      height: 45px;
-      min-height: 45px;
-      font-size: 14px;
-      padding: 8px 4px;
-      margin: 2px;
+      height: 42px !important;
+      min-height: 42px !important;
+      font-size: 13px !important;
+      padding: 6px 3px !important;
+      margin: 1.5px !important;
+      width: auto !important;
+      min-width: auto !important;
+      max-width: none !important;
     }
 
     #enter {
-      min-width: 60px;
-      font-size: 12px;
+      min-width: 55px !important;
+      width: auto !important;
+      font-size: 11px !important;
     }
 
     /* Popups - full width on mobile */
@@ -2443,29 +2457,34 @@
   /* Small mobile phones */
   @media (max-width: 480px) {
     .title-text {
-      font-size: 1.2em;
+      font-size: 1.1em !important;
+    }
+
+    .container {
+      margin-top: 50px !important;
+      padding: 3px !important;
     }
 
     .key-guess {
-      height: 35px;
-      width: 35px;
-      min-height: 35px;
-      min-width: 35px;
-      font-size: 18px;
-      margin: 1px;
+      height: 32px !important;
+      width: 32px !important;
+      min-height: 32px !important;
+      min-width: 32px !important;
+      font-size: 16px !important;
+      margin: 1px !important;
     }
 
     .key {
-      height: 40px;
-      min-height: 40px;
-      font-size: 12px;
-      padding: 6px 3px;
-      margin: 1.5px;
+      height: 38px !important;
+      min-height: 38px !important;
+      font-size: 11px !important;
+      padding: 5px 2px !important;
+      margin: 1px !important;
     }
 
     #enter {
-      min-width: 55px;
-      font-size: 11px;
+      min-width: 50px !important;
+      font-size: 10px !important;
     }
 
     .stat-number {
