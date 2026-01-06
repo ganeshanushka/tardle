@@ -854,10 +854,10 @@
                 return; // Success, exit early
               } catch (authError) {
                 console.error('Auth deletion also failed:', authError);
-                errorMsg = 'Account deletion encountered an error. The Firestore data may not have been deleted, but we attempted to delete your authentication account. Please contact support if you need assistance.';
+                errorMsg = 'Account deletion encountered an error. The Firestore data may not have been deleted, but we attempted to delete your authentication account. Please contact us at tardlehelp@gmail.com if you need assistance.';
               }
             } else {
-              errorMsg = 'The deletion operation encountered an error. Please try again or contact support.';
+              errorMsg = 'The deletion operation encountered an error. Please try again or contact us at tardlehelp@gmail.com.';
             }
           } else if (error.message && error.message.includes('timeout')) {
             errorMsg = error.message;
