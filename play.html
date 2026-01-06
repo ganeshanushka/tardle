@@ -4046,7 +4046,7 @@
             if (!window.appJsLoaded) {
               window.appJsLoaded = true;
               const appScript = document.createElement('script');
-              appScript.src = 'app.js';
+              appScript.src = 'app.js?v=' + Date.now();
               document.body.appendChild(appScript);
             }
           }
