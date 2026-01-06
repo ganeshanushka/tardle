@@ -1386,6 +1386,15 @@ function renderCalendar(gameHistory) {
     // Store game history for navigation
     calendarGameHistory = gameHistory || { wins: new Set(), losses: new Set() };
     
+    // Define months array first (before it's used)
+    const months = [
+        { name: 'January', days: 31 },
+        { name: 'February', days: 28 }, // 2026 is not a leap year
+        { name: 'March', days: 31 },
+        { name: 'April', days: 30 },
+        { name: 'May', days: 31 }
+    ];
+    
     // Clear container completely
     container.innerHTML = '';
     console.log('=== CALENDAR RENDER START ===');
@@ -1396,13 +1405,6 @@ function renderCalendar(gameHistory) {
     calendarDiv.className = 'stats-calendar';
     
     const weekdays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-    const months = [
-        { name: 'January', days: 31 },
-        { name: 'February', days: 28 }, // 2026 is not a leap year
-        { name: 'March', days: 31 },
-        { name: 'April', days: 30 },
-        { name: 'May', days: 31 }
-    ];
     
     // Navigation header
     const navDiv = document.createElement('div');
