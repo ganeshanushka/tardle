@@ -7,11 +7,19 @@
     padding: 10px !important;
   }
 
-  /* Form containers */
+  /* Form containers and common container classes */
   .login-container,
   .signup-container,
   .form-container,
-  .account-container {
+  .account-container,
+  .container,
+  .content,
+  .main-content,
+  .wrapper,
+  .page-container,
+  .section,
+  .card,
+  .box {
     width: 95% !important;
     max-width: 95% !important;
     padding: 15px 20px !important;
@@ -116,6 +124,44 @@
   footer {
     font-size: 0.85em !important;
     padding: 15px 10px !important;
+  }
+
+  /* Images */
+  img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  /* Lists */
+  ul, ol {
+    padding-left: 20px !important;
+  }
+
+  /* Code blocks */
+  pre, code {
+    font-size: 0.85em !important;
+    overflow-x: auto !important;
+    word-wrap: break-word !important;
+  }
+
+  /* Grid layouts */
+  .grid,
+  [class*="grid"] {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  /* Flex containers */
+  .flex-container,
+  [class*="flex"] {
+    flex-wrap: wrap !important;
+  }
+
+  /* Sidebars */
+  .sidebar,
+  .side-panel {
+    width: 100% !important;
+    max-width: 100% !important;
   }
 }
 
