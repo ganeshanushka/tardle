@@ -57,6 +57,14 @@ html, body {
     box-sizing: border-box;
   }
 
+  /* Mobile base styles - override min dimensions */
+  @media (max-width: 768px) {
+    .key-guess {
+      min-height: 30px !important;
+      min-width: 30px !important;
+    }
+  }
+
   /* Dark mode: white letters */
   :root.dark-mode .key-guess {
     color: white;
@@ -231,45 +239,66 @@ html, body {
   /* Mobile Responsive Design */
   @media (max-width: 768px) {
     .key-guess {
-      height: clamp(40px, 12vw, 50px);
-      width: clamp(40px, 12vw, 50px);
-      min-height: 40px;
-      min-width: 40px;
-      font-size: clamp(20px, 6vw, 24px);
+      height: clamp(35px, 11vw, 45px) !important;
+      width: clamp(35px, 11vw, 45px) !important;
+      min-height: 35px !important;
+      min-width: 35px !important;
+      font-size: clamp(18px, 5.5vw, 22px) !important;
+      margin: clamp(1px, 0.4vw, 2px) !important;
     }
 
     .key {
-      height: 45px;
-      min-height: 45px;
-      font-size: 14px;
-      padding: 8px 4px;
+      height: 42px !important;
+      min-height: 42px !important;
+      font-size: 13px !important;
+      padding: 6px 3px !important;
+      margin: 1.5px !important;
     }
 
     #enter {
-      min-width: 60px;
-      font-size: 12px;
+      min-width: 55px !important;
+      font-size: 11px !important;
     }
   }
 
   @media (max-width: 480px) {
     .key-guess {
-      height: 35px;
-      width: 35px;
-      min-height: 35px;
-      min-width: 35px;
-      font-size: 18px;
+      height: 32px !important;
+      width: 32px !important;
+      min-height: 32px !important;
+      min-width: 32px !important;
+      font-size: 16px !important;
+      margin: 1px !important;
     }
 
     .key {
-      height: 40px;
-      min-height: 40px;
-      font-size: 12px;
-      padding: 6px 3px;
+      height: 38px !important;
+      min-height: 38px !important;
+      font-size: 11px !important;
+      padding: 5px 2px !important;
+      margin: 1px !important;
     }
 
     #enter {
-      min-width: 55px;
-      font-size: 11px;
+      min-width: 50px !important;
+      font-size: 10px !important;
+    }
+  }
+
+  /* iPhone specific (390px - iPhone 12, 13, 14) */
+  @media (max-width: 428px) {
+    .key-guess {
+      height: 30px !important;
+      width: 30px !important;
+      min-height: 30px !important;
+      min-width: 30px !important;
+      font-size: 15px !important;
+    }
+
+    .key {
+      height: 36px !important;
+      min-height: 36px !important;
+      font-size: 10px !important;
     }
   }
 
