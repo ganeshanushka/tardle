@@ -1307,16 +1307,11 @@ function closeGameOverPopup() {
 // Global function to show results popup (for logged-out users)
 window.showResultsPopup = function showResultsPopup() {
     const resultsPopup = document.getElementById('resultsPopup');
-    const gameOverButtons = document.getElementById('gameOverButtons');
     if (resultsPopup) {
         resultsPopup.classList.remove('hidden');
         resultsPopup.style.display = 'flex';
     }
-    // Hide the game over buttons when showing results
-    if (gameOverButtons) {
-        gameOverButtons.classList.add('hidden');
-        gameOverButtons.style.display = 'none';
-    }
+    // Keep the game over buttons visible
 };
 
 // Helper function to show appropriate popup based on login status
@@ -1326,13 +1321,7 @@ window.showResultsOrStatsPopup = function showResultsOrStatsPopup() {
                       window.isLoggedIn || 
                       window.currentUser;
     
-    const gameOverButtons = document.getElementById('gameOverButtons');
-    
-    // Hide the game over buttons when showing popup
-    if (gameOverButtons) {
-        gameOverButtons.classList.add('hidden');
-        gameOverButtons.style.display = 'none';
-    }
+    // Keep the game over buttons visible
     
     if (isLoggedIn) {
         // Logged in: show stats popup
