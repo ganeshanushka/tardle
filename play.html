@@ -1802,8 +1802,9 @@
     pointer-events: auto;
 }
 
-/* Transfer application popup - black background with white text */
-#transferApplicationPopup .popup-content {
+/* Transfer application popup and answer popup - black background with white text */
+#transferApplicationPopup .popup-content,
+#answerPopup .popup-content {
     font-family: 'Field Gothic Narrow', sans-serif;
     position: relative;
     background-color: #000000; /* Black background */
@@ -1825,8 +1826,9 @@
     color: #000000 !important; /* Black text */
 }
 
-/* Transfer application popup stays black with white text in dark mode */
-:root.dark-mode #transferApplicationPopup .popup-content {
+/* Transfer application popup and answer popup stay black with white text in dark mode */
+:root.dark-mode #transferApplicationPopup .popup-content,
+:root.dark-mode #answerPopup .popup-content {
     background-color: #000000 !important;
     color: white !important;
 }
