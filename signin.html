@@ -184,6 +184,58 @@
     margin-top: 2em;
   }
 
+  /* Mobile Responsive Styles */
+  @media (max-width: 768px) {
+    body {
+      padding: 10px !important;
+      align-items: flex-start !important;
+      padding-top: 20px !important;
+    }
+
+    .login-container {
+      width: 95% !important;
+      max-width: 95% !important;
+      padding: 15px 20px !important;
+      margin: 0 !important;
+    }
+
+    h1 {
+      font-size: 1.5em !important;
+    }
+
+    .input-group {
+      font-size: 1em !important;
+    }
+
+    .input-group input {
+      width: 95% !important;
+      padding: 0.6em !important;
+      font-size: 16px !important; /* Prevents zoom on iOS */
+    }
+
+    .input-group input[type="submit"] {
+      width: 100% !important;
+    }
+
+    .close-button {
+      font-size: 1.3em !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .login-container {
+      padding: 12px 15px !important;
+    }
+
+    h1 {
+      font-size: 1.3em !important;
+    }
+
+    .input-group {
+      font-size: 0.9em !important;
+    }
+  }
+
 </style>
 </head>
 <body>
