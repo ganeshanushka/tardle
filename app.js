@@ -1414,7 +1414,9 @@ function renderCalendar(gameHistory) {
     prevButton.className = 'stats-calendar-nav-button';
     prevButton.textContent = '←';
     prevButton.disabled = currentCalendarMonth === 0;
-    prevButton.onclick = () => {
+    prevButton.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
         if (currentCalendarMonth > 0) {
             currentCalendarMonth--;
             renderCalendar(calendarGameHistory);
@@ -1431,7 +1433,9 @@ function renderCalendar(gameHistory) {
     nextButton.className = 'stats-calendar-nav-button';
     nextButton.textContent = '→';
     nextButton.disabled = currentCalendarMonth === months.length - 1;
-    nextButton.onclick = () => {
+    nextButton.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
         if (currentCalendarMonth < months.length - 1) {
             currentCalendarMonth++;
             renderCalendar(calendarGameHistory);
