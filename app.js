@@ -1032,12 +1032,19 @@ let words = [
             // Game lost
             gameStatus = 'lost';
             gameCompleted = true;
-            showGameOverPopup(); // Exceeded max tries
+            // Calculate total flip time and wait for all tiles to finish flipping
+            const flipDelay = 250; // Delay between each flip (in milliseconds)
+            const flipDuration = 800; // Duration of each flip animation (in milliseconds)
+            const totalFlipTime = (SecretWord.length * flipDelay) + flipDuration;
+            // Show game over popup after all flips complete
+            setTimeout(() => {
+                showGameOverPopup(); // Exceeded max tries
+            }, totalFlipTime);
             updateStatsOnLoss(); // Update stats as a loss
             // Save game state
             setTimeout(() => {
                 saveGameState();
-            }, 500);
+            }, totalFlipTime + 500);
         } else {
             currentGuess = []; // Prepare for the next guess
             // Save game state after flip animation
