@@ -1104,22 +1104,34 @@ function showInvalidWordAlert() {
         }
         
         console.log('Showing invalid word popup');
-        message.innerText = "Not in word list";
-        // Remove hidden class first
-        popup.classList.remove('hidden');
-        // Use setProperty with important to override any !important CSS rules
-        popup.style.setProperty('display', 'flex', 'important');
-        popup.style.setProperty('visibility', 'visible', 'important');
-        popup.style.setProperty('opacity', '1', 'important');
-        console.log('Popup classes after remove:', popup.className);
-        console.log('Popup display style:', window.getComputedStyle(popup).display);
-        console.log('Popup computed styles:', {
+        console.log('Popup before changes:', {
+            hasHidden: popup.classList.contains('hidden'),
             display: window.getComputedStyle(popup).display,
-            visibility: window.getComputedStyle(popup).visibility,
-            opacity: window.getComputedStyle(popup).opacity,
-            position: window.getComputedStyle(popup).position,
-            top: window.getComputedStyle(popup).top
+            visibility: window.getComputedStyle(popup).visibility
         });
+        
+        message.innerText = "Not in word list";
+        // Remove hidden class and set display - same approach as answer popup
+        popup.classList.remove('hidden');
+        // Force display with multiple methods to ensure it shows
+        popup.style.display = 'flex';
+        popup.style.visibility = 'visible';
+        popup.style.opacity = '1';
+        
+        // Double-check after a tiny delay
+        setTimeout(() => {
+            console.log('Popup after changes:', {
+                hasHidden: popup.classList.contains('hidden'),
+                display: window.getComputedStyle(popup).display,
+                visibility: window.getComputedStyle(popup).visibility,
+                opacity: window.getComputedStyle(popup).opacity,
+                position: window.getComputedStyle(popup).position,
+                top: window.getComputedStyle(popup).top,
+                zIndex: window.getComputedStyle(popup).zIndex,
+                width: window.getComputedStyle(popup).width,
+                height: window.getComputedStyle(popup).height
+            });
+        }, 10);
 
         // Auto-hide after 1 second
         setTimeout(() => {
@@ -1157,14 +1169,34 @@ function showNotEnoughLettersAlert() {
         }
         
         console.log('Showing not enough letters popup');
+        console.log('Popup before changes:', {
+            hasHidden: popup.classList.contains('hidden'),
+            display: window.getComputedStyle(popup).display,
+            visibility: window.getComputedStyle(popup).visibility
+        });
+        
         message.innerText = "Not enough letters";
-        // Remove hidden class first
+        // Remove hidden class and set display - same approach as answer popup
         popup.classList.remove('hidden');
-        // Use setProperty with important to override any !important CSS rules
-        popup.style.setProperty('display', 'flex', 'important');
-        popup.style.setProperty('visibility', 'visible', 'important');
-        popup.style.setProperty('opacity', '1', 'important');
-        console.log('Not enough letters popup - computed display:', window.getComputedStyle(popup).display);
+        // Force display with multiple methods to ensure it shows
+        popup.style.display = 'flex';
+        popup.style.visibility = 'visible';
+        popup.style.opacity = '1';
+        
+        // Double-check after a tiny delay
+        setTimeout(() => {
+            console.log('Not enough letters popup after changes:', {
+                hasHidden: popup.classList.contains('hidden'),
+                display: window.getComputedStyle(popup).display,
+                visibility: window.getComputedStyle(popup).visibility,
+                opacity: window.getComputedStyle(popup).opacity,
+                position: window.getComputedStyle(popup).position,
+                top: window.getComputedStyle(popup).top,
+                zIndex: window.getComputedStyle(popup).zIndex,
+                width: window.getComputedStyle(popup).width,
+                height: window.getComputedStyle(popup).height
+            });
+        }, 10);
 
         // Auto-hide after 1 second
         setTimeout(() => {
