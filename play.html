@@ -4311,80 +4311,110 @@
         <script>
           // Force mobile layout on mobile devices (fallback for CSS media queries)
           (function() {
+            let mobileStylesApplied = false;
+            
             function applyMobileLayout() {
               const isMobile = window.innerWidth <= 768 || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+              const isSmallMobile = window.innerWidth <= 480;
               
-              if (isMobile) {
+              if (isMobile && !mobileStylesApplied) {
+                mobileStylesApplied = true;
+                
+                // Remove existing mobile styles if any
+                const existingStyle = document.getElementById('mobile-force-styles');
+                if (existingStyle) {
+                  existingStyle.remove();
+                }
+                
+                // Force mobile styles via CSS with highest specificity
+                const style = document.createElement('style');
+                style.id = 'mobile-force-styles';
+                
+                // Calculate sizes based on screen width
+                const tileSize = isSmallMobile ? '30px' : '35px';
+                const tileFontSize = isSmallMobile ? '15px' : '18px';
+                const keyHeight = isSmallMobile ? '36px' : '38px';
+                const keyFontSize = isSmallMobile ? '10px' : '11px';
+                
+                style.textContent = `
+                  /* Mobile device override - highest priority */
+                  body.mobile-device .container,
+                  html.mobile-device .container {
+                    max-width: 100% !important;
+                    width: 100% !important;
+                    padding: 5px !important;
+                    margin-top: 55px !important;
+                  }
+                  
+                  body.mobile-device .key-guess,
+                  html.mobile-device .key-guess {
+                    height: ${tileSize} !important;
+                    width: ${tileSize} !important;
+                    min-height: ${tileSize} !important;
+                    min-width: ${tileSize} !important;
+                    font-size: ${tileFontSize} !important;
+                    margin: 1px !important;
+                  }
+                  
+                  body.mobile-device .key,
+                  html.mobile-device .key {
+                    height: ${keyHeight} !important;
+                    min-height: ${keyHeight} !important;
+                    font-size: ${keyFontSize} !important;
+                    padding: 5px 2px !important;
+                    margin: 1px !important;
+                  }
+                  
+                  body.mobile-device #keyboard,
+                  body.mobile-device .keyboard,
+                  html.mobile-device #keyboard,
+                  html.mobile-device .keyboard {
+                    max-width: 100% !important;
+                    width: 100% !important;
+                    padding: 0 3px !important;
+                  }
+                  
+                  body.mobile-device .title-bar {
+                    height: 50px !important;
+                    padding: 0 10px !important;
+                  }
+                  
+                  body.mobile-device .title-text {
+                    font-size: 1.3em !important;
+                  }
+                `;
+                
+                document.head.appendChild(style);
                 document.documentElement.classList.add('mobile-device');
                 document.body.classList.add('mobile-device');
                 
-                // Force mobile styles via inline styles if needed
-                const style = document.createElement('style');
-                style.id = 'mobile-force-styles';
-                style.textContent = `
-                  @media (max-width: 768px), .mobile-device {
-                    .container {
-                      max-width: 100% !important;
-                      width: 100% !important;
-                      padding: 5px !important;
-                      margin-top: 55px !important;
-                    }
-                    .key-guess {
-                      height: clamp(30px, 11vw, 45px) !important;
-                      width: clamp(30px, 11vw, 45px) !important;
-                      min-height: 30px !important;
-                      min-width: 30px !important;
-                      font-size: clamp(15px, 5.5vw, 22px) !important;
-                      margin: clamp(1px, 0.4vw, 2px) !important;
-                    }
-                    .key {
-                      height: 38px !important;
-                      min-height: 38px !important;
-                      font-size: 11px !important;
-                      padding: 5px 2px !important;
-                    }
-                    #keyboard, .keyboard {
-                      max-width: 100% !important;
-                      width: 100% !important;
-                    }
-                  }
-                  @media (max-width: 480px), .mobile-device.mobile-small {
-                    .key-guess {
-                      height: 30px !important;
-                      width: 30px !important;
-                      min-height: 30px !important;
-                      min-width: 30px !important;
-                      font-size: 15px !important;
-                    }
-                    .key {
-                      height: 36px !important;
-                      min-height: 36px !important;
-                      font-size: 10px !important;
-                    }
-                  }
-                `;
-                if (!document.getElementById('mobile-force-styles')) {
-                  document.head.appendChild(style);
-                }
-                
-                if (window.innerWidth <= 480) {
+                if (isSmallMobile) {
                   document.body.classList.add('mobile-small');
                 }
+                
+                console.log('Mobile layout applied. Screen width:', window.innerWidth, 'isSmallMobile:', isSmallMobile);
               }
             }
             
-            // Apply on load
+            // Apply immediately
+            applyMobileLayout();
+            
+            // Also apply on DOM ready (in case elements aren't ready yet)
             if (document.readyState === 'loading') {
-              document.addEventListener('DOMContentLoaded', applyMobileLayout);
-            } else {
-              applyMobileLayout();
+              document.addEventListener('DOMContentLoaded', function() {
+                mobileStylesApplied = false;
+                applyMobileLayout();
+              });
             }
             
             // Re-apply on resize
             let resizeTimeout;
             window.addEventListener('resize', function() {
               clearTimeout(resizeTimeout);
-              resizeTimeout = setTimeout(applyMobileLayout, 100);
+              resizeTimeout = setTimeout(function() {
+                mobileStylesApplied = false;
+                applyMobileLayout();
+              }, 100);
             });
           })();
         </script>
