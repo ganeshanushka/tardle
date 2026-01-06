@@ -4046,7 +4046,15 @@
             if (!window.appJsLoaded) {
               window.appJsLoaded = true;
               const appScript = document.createElement('script');
-              appScript.src = 'app.js?v=' + Date.now();
+              // Add version parameter to force cache refresh
+              const version = new Date().getTime();
+              appScript.src = 'app.js?v=' + version;
+              appScript.onerror = function() {
+                console.error('Failed to load app.js');
+              };
+              appScript.onload = function() {
+                console.log('app.js loaded successfully, version:', version);
+              };
               document.body.appendChild(appScript);
             }
           }

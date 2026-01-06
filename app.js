@@ -1388,7 +1388,9 @@ function renderCalendar(gameHistory) {
     
     // Clear container completely
     container.innerHTML = '';
+    console.log('=== CALENDAR RENDER START ===');
     console.log('Rendering calendar for month index:', currentCalendarMonth);
+    console.log('Total months available:', months.length);
     
     const calendarDiv = document.createElement('div');
     calendarDiv.className = 'stats-calendar';
@@ -1504,6 +1506,9 @@ function renderCalendar(gameHistory) {
     calendarDiv.appendChild(monthDiv);
     
     container.appendChild(calendarDiv);
+    console.log('=== CALENDAR RENDER COMPLETE ===');
+    console.log('Rendered month:', months[currentCalendarMonth].name);
+    console.log('Number of month divs in container:', container.querySelectorAll('.stats-calendar-month').length);
 }
 
 window.showStatsPopup = async function showStatsPopup() {
