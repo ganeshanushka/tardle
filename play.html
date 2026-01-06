@@ -2500,22 +2500,38 @@
   /* Landscape mobile orientation */
   @media (max-width: 768px) and (orientation: landscape) {
     .container {
-      margin-top: 55px;
-      padding: 5px;
+      margin-top: 50px !important;
+      padding: 3px !important;
     }
 
     .key-guess {
-      height: clamp(35px, 8vh, 45px);
-      width: clamp(35px, 8vh, 45px);
+      height: clamp(30px, 7vh, 40px) !important;
+      width: clamp(30px, 7vh, 40px) !important;
+      min-height: 30px !important;
+      min-width: 30px !important;
+      font-size: clamp(16px, 4vw, 20px) !important;
     }
 
     #keyboard {
-      margin-top: 5px;
+      margin-top: 5px !important;
     }
 
     .key {
-      height: 40px;
-      min-height: 40px;
+      height: 36px !important;
+      min-height: 36px !important;
+      font-size: 12px !important;
+    }
+  }
+
+  /* Ensure mobile styles override everything */
+  @media (max-width: 768px) {
+    body {
+      font-size: 16px !important;
+    }
+
+    #guessGrid {
+      max-width: 100% !important;
+      width: 100% !important;
     }
   }
 
