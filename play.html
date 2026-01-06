@@ -4317,8 +4317,15 @@
               const isMobile = window.innerWidth <= 768 || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
               const isSmallMobile = window.innerWidth <= 480;
               
-              if (isMobile && !mobileStylesApplied) {
-                mobileStylesApplied = true;
+              // Always check and apply, even if already applied (for resize)
+              if (isMobile) {
+                // Reset flag if screen size changed significantly
+                if (mobileStylesApplied && window.innerWidth > 768) {
+                  mobileStylesApplied = false;
+                }
+                
+                if (!mobileStylesApplied) {
+                  mobileStylesApplied = true;
                 
                 // Remove existing mobile styles if any
                 const existingStyle = document.getElementById('mobile-force-styles');
@@ -4394,18 +4401,43 @@
                 
                 console.log('Mobile layout applied. Screen width:', window.innerWidth, 'isSmallMobile:', isSmallMobile);
                 
-                // Visual debug indicator (remove this after testing)
-                const debugDiv = document.createElement('div');
-                debugDiv.id = 'mobile-debug';
-                debugDiv.style.cssText = 'position:fixed;top:10px;right:10px;background:rgba(0,0,0,0.8);color:white;padding:10px;border-radius:5px;z-index:99999;font-size:12px;font-family:monospace;';
-                debugDiv.innerHTML = `MOBILE MODE<br>Width: ${window.innerWidth}px<br>Small: ${isSmallMobile ? 'Yes' : 'No'}`;
-                document.body.appendChild(debugDiv);
+                // Visual debug indicator - always visible for troubleshooting
+                let debugDiv = document.getElementById('mobile-debug');
+                if (!debugDiv) {
+                  debugDiv = document.createElement('div');
+                  debugDiv.id = 'mobile-debug';
+                  debugDiv.style.cssText = 'position:fixed;top:10px;left:10px;background:rgba(0,0,0,0.9);color:#00ff00;padding:15px;border-radius:8px;z-index:99999;font-size:14px;font-family:monospace;border:2px solid #00ff00;max-width:200px;';
+                  document.body.appendChild(debugDiv);
+                }
+                debugDiv.innerHTML = `✓ MOBILE MODE ACTIVE<br>Width: ${window.innerWidth}px<br>Small: ${isSmallMobile ? 'Yes' : 'No'}<br>Tile: ${tileSize}<br>Key: ${keyHeight}`;
                 
-                // Remove debug after 5 seconds
+                // Also add a visible border to container to confirm styles are applied
                 setTimeout(() => {
-                  const debug = document.getElementById('mobile-debug');
-                  if (debug) debug.remove();
-                }, 5000);
+                  const container = document.querySelector('.container');
+                  if (container) {
+                    container.style.border = '3px solid red';
+                    container.style.boxSizing = 'border-box';
+                    setTimeout(() => {
+                      container.style.border = '';
+                    }, 3000);
+                  }
+                }, 500);
+                } else {
+                  // Update debug info even if styles already applied
+                  let debugDiv = document.getElementById('mobile-debug');
+                  if (debugDiv) {
+                    const tileSize = isSmallMobile ? '30px' : '35px';
+                    const keyHeight = isSmallMobile ? '36px' : '38px';
+                    debugDiv.innerHTML = `✓ MOBILE MODE ACTIVE<br>Width: ${window.innerWidth}px<br>Small: ${isSmallMobile ? 'Yes' : 'No'}<br>Tile: ${tileSize}<br>Key: ${keyHeight}`;
+                  }
+                }
+              } else {
+                // Not mobile - remove debug and classes
+                const debugDiv = document.getElementById('mobile-debug');
+                if (debugDiv) debugDiv.remove();
+                document.documentElement.classList.remove('mobile-device');
+                document.body.classList.remove('mobile-device', 'mobile-small');
+                mobileStylesApplied = false;
               }
             }
             
