@@ -1261,30 +1261,32 @@ function updateKeyboard() {
     
     // Show success message after all flips complete (only if correct)
     if (isCorrect) {
+      // Calculate total flip time and wait for all tiles to finish flipping
+      // Show transfer application popup after all flips complete
       setTimeout(() => {
-        showAlert("Rah Rah Right answer!");
-        // Show results popup or stats popup after 1-2 seconds
-        setTimeout(() => {
-          // Check if user is logged in
-          const isLoggedIn = (window.firebaseAuth && window.firebaseAuth.currentUser) || 
-                            window.isLoggedIn || 
-                            window.currentUser;
-          
-          if (isLoggedIn) {
-            // Logged in: show stats popup
-            if (window.showStatsPopup) {
-              window.showStatsPopup();
-            }
-          } else {
-            // Not logged in: show results popup
-            const resultsPopup = document.getElementById('resultsPopup');
-            if (resultsPopup) {
-              resultsPopup.classList.remove('hidden');
-              resultsPopup.style.display = 'flex';
-            }
-          }
-        }, 1500); // 1.5 seconds delay
+        showTransferApplicationPopup();
       }, totalFlipTime);
+      // Show stats/results popup after transfer popup disappears (answer popup will show first)
+      setTimeout(() => {
+        // Check if user is logged in
+        const isLoggedIn = (window.firebaseAuth && window.firebaseAuth.currentUser) || 
+                          window.isLoggedIn || 
+                          window.currentUser;
+        
+        if (isLoggedIn) {
+          // Logged in: show stats popup
+          if (window.showStatsPopup) {
+            window.showStatsPopup();
+          }
+        } else {
+          // Not logged in: show results popup
+          const resultsPopup = document.getElementById('resultsPopup');
+          if (resultsPopup) {
+            resultsPopup.classList.remove('hidden');
+            resultsPopup.style.display = 'flex';
+          }
+        }
+      }, totalFlipTime + 2000);
     }
   }
 
