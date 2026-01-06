@@ -4309,6 +4309,87 @@
         </script>
         
         <script>
+          // Force mobile layout on mobile devices (fallback for CSS media queries)
+          (function() {
+            function applyMobileLayout() {
+              const isMobile = window.innerWidth <= 768 || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+              
+              if (isMobile) {
+                document.documentElement.classList.add('mobile-device');
+                document.body.classList.add('mobile-device');
+                
+                // Force mobile styles via inline styles if needed
+                const style = document.createElement('style');
+                style.id = 'mobile-force-styles';
+                style.textContent = `
+                  @media (max-width: 768px), .mobile-device {
+                    .container {
+                      max-width: 100% !important;
+                      width: 100% !important;
+                      padding: 5px !important;
+                      margin-top: 55px !important;
+                    }
+                    .key-guess {
+                      height: clamp(30px, 11vw, 45px) !important;
+                      width: clamp(30px, 11vw, 45px) !important;
+                      min-height: 30px !important;
+                      min-width: 30px !important;
+                      font-size: clamp(15px, 5.5vw, 22px) !important;
+                      margin: clamp(1px, 0.4vw, 2px) !important;
+                    }
+                    .key {
+                      height: 38px !important;
+                      min-height: 38px !important;
+                      font-size: 11px !important;
+                      padding: 5px 2px !important;
+                    }
+                    #keyboard, .keyboard {
+                      max-width: 100% !important;
+                      width: 100% !important;
+                    }
+                  }
+                  @media (max-width: 480px), .mobile-device.mobile-small {
+                    .key-guess {
+                      height: 30px !important;
+                      width: 30px !important;
+                      min-height: 30px !important;
+                      min-width: 30px !important;
+                      font-size: 15px !important;
+                    }
+                    .key {
+                      height: 36px !important;
+                      min-height: 36px !important;
+                      font-size: 10px !important;
+                    }
+                  }
+                `;
+                if (!document.getElementById('mobile-force-styles')) {
+                  document.head.appendChild(style);
+                }
+                
+                if (window.innerWidth <= 480) {
+                  document.body.classList.add('mobile-small');
+                }
+              }
+            }
+            
+            // Apply on load
+            if (document.readyState === 'loading') {
+              document.addEventListener('DOMContentLoaded', applyMobileLayout);
+            } else {
+              applyMobileLayout();
+            }
+            
+            // Re-apply on resize
+            let resizeTimeout;
+            window.addEventListener('resize', function() {
+              clearTimeout(resizeTimeout);
+              resizeTimeout = setTimeout(applyMobileLayout, 100);
+            });
+          })();
+        </script>
+        
+        <script>
           // Block page access until email verification is confirmed
           (function() {
             let verificationPassed = false;
