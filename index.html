@@ -49,6 +49,76 @@
     font-weight: bold;
   }
 
+  /* Mobile Responsive Styles */
+  @media (max-width: 768px) {
+    body, html {
+      padding-top: 5% !important;
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+    }
+
+    .tardle-text {
+      font-size: 32px !important;
+    }
+
+    .subtitle {
+      font-size: 1.3em !important;
+    }
+
+    .custom-cell {
+      width: 15px !important;
+      height: 15px !important;
+    }
+
+    .button {
+      width: 120px !important;
+      padding: 8px !important;
+      font-size: 0.9em !important;
+      margin: 0 5px !important;
+    }
+
+    .button-container {
+      flex-wrap: wrap !important;
+      gap: 10px !important;
+    }
+
+    .footer-info {
+      font-size: 0.9em !important;
+      padding: 0 10px !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    body, html {
+      padding-top: 3% !important;
+    }
+
+    .tardle-text {
+      font-size: 28px !important;
+    }
+
+    .subtitle {
+      font-size: 1.1em !important;
+    }
+
+    .custom-cell {
+      width: 12px !important;
+      height: 12px !important;
+    }
+
+    .button {
+      width: 100px !important;
+      padding: 6px !important;
+      font-size: 0.8em !important;
+      margin: 5px !important;
+    }
+
+    .button-container {
+      flex-direction: column !important;
+      align-items: center !important;
+    }
+  }
+
   .custom-grid-logo {
     text-align: center;
   }
