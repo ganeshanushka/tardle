@@ -529,7 +529,7 @@ let words = [
   
   function initialize() {
     // Ensure all popups are hidden on page load
-    const popupIds = ['customPopup', 'invalidWordPopup', 'notEnoughLettersPopup', 'transferApplicationPopup', 'gameOverPopup', 'statsPopup', 'resultsPopup'];
+    const popupIds = ['customPopup', 'invalidWordPopup', 'notEnoughLettersPopup', 'transferApplicationPopup', 'answerPopup', 'gameOverPopup', 'statsPopup', 'resultsPopup'];
     popupIds.forEach(popupId => {
       const popup = document.getElementById(popupId);
       if (popup) {
@@ -1040,10 +1040,10 @@ let words = [
             setTimeout(() => {
                 showTransferApplicationPopup();
             }, totalFlipTime);
-            // Show game over popup after transfer popup disappears
+            // Show game over popup after transfer popup disappears (answer popup will show first)
             setTimeout(() => {
                 showGameOverPopup(); // Exceeded max tries
-            }, totalFlipTime + 2000);
+            }, totalFlipTime + 3000);
             updateStatsOnLoss(); // Update stats as a loss
             // Save game state
             setTimeout(() => {
@@ -1279,11 +1279,24 @@ function showTransferApplicationPopup() {
     if (popup) {
         popup.classList.remove('hidden');
         popup.style.display = 'flex';
-        // Hide popup after 2 seconds
+        // Hide popup after 3 seconds and show answer popup
         setTimeout(() => {
             popup.classList.add('hidden');
             popup.style.display = '';
-        }, 2000);
+            // Show answer popup after transfer popup disappears
+            showAnswerPopup();
+        }, 3000);
+    }
+}
+
+function showAnswerPopup() {
+    const popup = document.getElementById('answerPopup');
+    const answerMessage = document.getElementById('answerMessage');
+    if (popup && answerMessage) {
+        answerMessage.innerText = SecretWord;
+        popup.classList.remove('hidden');
+        popup.style.display = 'flex';
+        // This popup does not auto-hide
     }
 }
 

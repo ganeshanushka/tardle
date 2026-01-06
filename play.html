@@ -599,7 +599,8 @@
   pointer-events: none;
 }
 
-#transferApplicationPopup {
+#transferApplicationPopup,
+#answerPopup {
   position: absolute;
   top: 0;
   left: 50%;
@@ -1776,6 +1777,7 @@
 #invalidWordPopup.hidden,
 #notEnoughLettersPopup.hidden,
 #transferApplicationPopup.hidden,
+#answerPopup.hidden,
 #customPopup.hidden,
 #gameOverPopup.hidden,
 #statsPopup.hidden,
@@ -2713,6 +2715,11 @@
     <div id="transferApplicationPopup" class="hidden">
       <div class="popup-content">
         <span>Time to start that transfer application</span>
+      </div>
+    </div>
+    <div id="answerPopup" class="hidden">
+      <div class="popup-content">
+        <span id="answerMessage"></span>
       </div>
     </div>
     <div id="guessGrid"></div>
