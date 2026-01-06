@@ -529,7 +529,7 @@ let words = [
   
   function initialize() {
     // Ensure all popups are hidden on page load
-    const popupIds = ['customPopup', 'invalidWordPopup', 'notEnoughLettersPopup', 'gameOverPopup', 'statsPopup', 'resultsPopup'];
+    const popupIds = ['customPopup', 'invalidWordPopup', 'notEnoughLettersPopup', 'transferApplicationPopup', 'gameOverPopup', 'statsPopup', 'resultsPopup'];
     popupIds.forEach(popupId => {
       const popup = document.getElementById(popupId);
       if (popup) {
@@ -1271,6 +1271,19 @@ function updateKeyboard() {
     } else if (tries >= maxTries) {
         // Reached maximum tries without correct guess
         showGameOverPopup();
+    }
+}
+
+function showTransferApplicationPopup() {
+    const popup = document.getElementById('transferApplicationPopup');
+    if (popup) {
+        popup.classList.remove('hidden');
+        popup.style.display = 'flex';
+        // Hide popup after 2 seconds
+        setTimeout(() => {
+            popup.classList.add('hidden');
+            popup.style.display = '';
+        }, 2000);
     }
 }
 
