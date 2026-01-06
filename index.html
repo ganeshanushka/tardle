@@ -232,6 +232,22 @@
 .login-prompt-button:hover {
   background-color: #f5f5f5;
 }
+
+.footer-info {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  color: white;
+  font-size: 14px;
+  font-family: 'Field Gothic Narrow', sans-serif;
+  z-index: 100;
+}
+
+.footer-info p {
+  margin: 4px 0;
+}
 </style>
 </head>
 
@@ -274,6 +290,12 @@
   </div>
 </div>
 
+</div>
+
+<!-- Footer -->
+<div class="footer-info">
+  <p id="currentDate"></p>
+  <p>Powered by Tardle</p>
 </div>
 
 <!-- Firebase Config -->
@@ -393,6 +415,24 @@
     document.addEventListener('DOMContentLoaded', checkAuthState);
   } else {
     checkAuthState();
+  }
+  
+  // Set current date in footer
+  function setCurrentDate() {
+    const dateElement = document.getElementById('currentDate');
+    if (dateElement) {
+      const now = new Date();
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      const dateString = now.toLocaleDateString('en-US', options);
+      dateElement.textContent = dateString;
+    }
+  }
+  
+  // Set date when page loads
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setCurrentDate);
+  } else {
+    setCurrentDate();
   }
   
   // Prevent back navigation to signin.html after login
