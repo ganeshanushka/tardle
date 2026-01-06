@@ -4441,14 +4441,87 @@
               }
             }
             
+            // Function to directly apply styles to elements (for elements created after script runs)
+            function applyDirectStyles() {
+              const isMobile = window.innerWidth <= 768 || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+              const isSmallMobile = window.innerWidth <= 480;
+              
+              if (!isMobile) return;
+              
+              const tileSize = isSmallMobile ? '30px' : '35px';
+              const tileFontSize = isSmallMobile ? '15px' : '18px';
+              const keyHeight = isSmallMobile ? '36px' : '38px';
+              const keyFontSize = isSmallMobile ? '10px' : '11px';
+              
+              // Apply directly to all key-guess elements
+              document.querySelectorAll('.key-guess').forEach(el => {
+                el.style.setProperty('height', tileSize, 'important');
+                el.style.setProperty('width', tileSize, 'important');
+                el.style.setProperty('min-height', tileSize, 'important');
+                el.style.setProperty('min-width', tileSize, 'important');
+                el.style.setProperty('font-size', tileFontSize, 'important');
+                el.style.setProperty('margin', '1px', 'important');
+              });
+              
+              // Apply directly to all key elements
+              document.querySelectorAll('.key').forEach(el => {
+                el.style.setProperty('height', keyHeight, 'important');
+                el.style.setProperty('min-height', keyHeight, 'important');
+                el.style.setProperty('font-size', keyFontSize, 'important');
+                el.style.setProperty('padding', '5px 2px', 'important');
+                el.style.setProperty('margin', '1px', 'important');
+              });
+              
+              // Apply to container
+              const container = document.querySelector('.container');
+              if (container) {
+                container.style.setProperty('max-width', '100%', 'important');
+                container.style.setProperty('width', '100%', 'important');
+                container.style.setProperty('padding', '5px', 'important');
+                container.style.setProperty('margin-top', '55px', 'important');
+              }
+              
+              // Apply to keyboard
+              document.querySelectorAll('#keyboard, .keyboard').forEach(el => {
+                el.style.setProperty('max-width', '100%', 'important');
+                el.style.setProperty('width', '100%', 'important');
+                el.style.setProperty('padding', '0 3px', 'important');
+              });
+            }
+            
             // Apply immediately
             applyMobileLayout();
+            
+            // Apply direct styles immediately and on intervals (for dynamically created elements)
+            applyDirectStyles();
+            setInterval(applyDirectStyles, 500);
             
             // Also apply on DOM ready (in case elements aren't ready yet)
             if (document.readyState === 'loading') {
               document.addEventListener('DOMContentLoaded', function() {
                 mobileStylesApplied = false;
                 applyMobileLayout();
+                applyDirectStyles();
+              });
+            }
+            
+            // Watch for new elements being added
+            const observer = new MutationObserver(function(mutations) {
+              applyDirectStyles();
+            });
+            
+            // Start observing when body is available
+            if (document.body) {
+              observer.observe(document.body, {
+                childList: true,
+                subtree: true
+              });
+            } else {
+              document.addEventListener('DOMContentLoaded', function() {
+                observer.observe(document.body, {
+                  childList: true,
+                  subtree: true
+                });
               });
             }
             
@@ -4459,6 +4532,7 @@
               resizeTimeout = setTimeout(function() {
                 mobileStylesApplied = false;
                 applyMobileLayout();
+                applyDirectStyles();
               }, 100);
             });
           })();
