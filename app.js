@@ -1036,15 +1036,19 @@ let words = [
             const flipDelay = 250; // Delay between each flip (in milliseconds)
             const flipDuration = 800; // Duration of each flip animation (in milliseconds)
             const totalFlipTime = (SecretWord.length * flipDelay) + flipDuration;
-            // Show game over popup after all flips complete
+            // Show transfer application popup after all flips complete
+            setTimeout(() => {
+                showTransferApplicationPopup();
+            }, totalFlipTime);
+            // Show game over popup after transfer popup disappears
             setTimeout(() => {
                 showGameOverPopup(); // Exceeded max tries
-            }, totalFlipTime);
+            }, totalFlipTime + 2000);
             updateStatsOnLoss(); // Update stats as a loss
             // Save game state
             setTimeout(() => {
                 saveGameState();
-            }, totalFlipTime + 500);
+            }, totalFlipTime + 2500);
         } else {
             currentGuess = []; // Prepare for the next guess
             // Save game state after flip animation

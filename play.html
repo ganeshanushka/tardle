@@ -587,7 +587,8 @@
 
 /* Popup container styles */
 #invalidWordPopup,
-#notEnoughLettersPopup {
+#notEnoughLettersPopup,
+#transferApplicationPopup {
   position: fixed;
   top: 50%;
   left: 50%;
@@ -1763,6 +1764,7 @@
 /* Ensure hidden popups are not displayed */
 #invalidWordPopup.hidden,
 #notEnoughLettersPopup.hidden,
+#transferApplicationPopup.hidden,
 #customPopup.hidden,
 #gameOverPopup.hidden,
 #statsPopup.hidden,
@@ -1772,7 +1774,8 @@
 
 /* Error popups (Not in word list, Not enough letters) - matches Wordle */
 #invalidWordPopup .popup-content,
-#notEnoughLettersPopup .popup-content {
+#notEnoughLettersPopup .popup-content,
+#transferApplicationPopup .popup-content {
     font-family: 'Field Gothic Narrow', sans-serif;
     position: relative;
     background-color: #121213; /* Dark background like Wordle */
@@ -1789,7 +1792,8 @@
 
 /* Dark theme: white background with black text for error popups */
 :root.dark-mode #invalidWordPopup .popup-content,
-:root.dark-mode #notEnoughLettersPopup .popup-content {
+:root.dark-mode #notEnoughLettersPopup .popup-content,
+:root.dark-mode #transferApplicationPopup .popup-content {
     background-color: white !important;
     color: #000000 !important; /* Black text */
 }
@@ -2694,6 +2698,12 @@
   <div id="notEnoughLettersPopup" class="hidden">
     <div class="popup-content">
       <span id="notEnoughLettersMessage">Not enough letters</span>
+    </div>
+  </div>
+
+  <div id="transferApplicationPopup" class="hidden">
+    <div class="popup-content">
+      <span>Time to start that transfer application</span>
     </div>
   </div> 
 
