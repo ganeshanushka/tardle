@@ -250,7 +250,7 @@
     <p>Your data is only accessible to the game's systems and service providers needed to operate the game (such as Firebase).</p>
   </div>
 
-  <a href="index.html" class="return-button">Return</a>
+  <button onclick="goBack()" class="return-button">Return</button>
 </div>
 
 <script>
@@ -307,6 +307,15 @@
 
   // Initialize header tiles when page loads
   document.addEventListener('DOMContentLoaded', initHeaderTiles);
+
+  // Go back to previous page
+  function goBack() {
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      window.location.href = 'index.html';
+    }
+  }
 </script>
 
 </body>
