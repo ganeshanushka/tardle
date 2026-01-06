@@ -1499,6 +1499,11 @@
     color: #ffffff; /* White text */
   }
 
+  :root.dark-mode #statsPopup .stats-content .stats-section-header {
+    color: #ffffff;
+    border-bottom-color: #3a3a3c;
+  }
+
 
   /* High Contrast Mode modal - dark theme */
   :root.dark-mode #highContrastModal .help-modal-content {
@@ -1880,6 +1885,16 @@
     border-top: 1px solid #d3d6da;
 }
 
+#statsPopup .stats-content .stats-section-header {
+    font-family: 'Field Gothic Narrow', sans-serif;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #000000;
+    margin: 16px 0 12px 0;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #d3d6da;
+}
+
 #statsPopup .stats-content .stats-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -1913,9 +1928,8 @@
 
 /* Calendar styles */
 #statsPopup .stats-calendar-container {
-    margin-top: 24px;
-    padding-top: 24px;
-    border-top: 1px solid #d3d6da;
+    margin-top: 0;
+    padding-top: 12px;
 }
 
 .stats-calendar {
@@ -2037,9 +2051,6 @@
 }
 
 /* Dark mode calendar styles */
-:root.dark-mode #statsPopup .stats-calendar-container {
-    border-top-color: #3a3a3c;
-}
 
 :root.dark-mode .stats-calendar-nav-button {
     background-color: #7BAFD4;
@@ -2773,6 +2784,7 @@
                 <button class="stats-close-btn" onclick="closeStatsPopup()">×</button>
               </div>
               <div class="stats-content">
+                <h2 class="stats-section-header">Statistics</h2>
                 <div class="stats-grid">
                   <div class="stat-item">
                     <div class="stat-number" id="gamesPlayed">0</div>
@@ -2791,6 +2803,7 @@
                     <div class="stat-label">Max Streak</div>
                   </div>
                 </div>
+                <h2 class="stats-section-header">Game History</h2>
                 <div class="stats-calendar-container" id="statsCalendarContainer"></div>
               </div>
             </div>
