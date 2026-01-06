@@ -700,7 +700,7 @@
     position: absolute;
     top: 15px;
     right: 15px;
-    font-size: 28px;
+    font-size: clamp(28px, 4vw, 32px);
     font-weight: bold;
     color: #7BAFD4;
     cursor: pointer;
@@ -709,29 +709,16 @@
     padding: 0;
     line-height: 1;
     transition: opacity 0.2s ease;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #7BAFD4;
-    border-radius: 4px;
   }
 
   .results-close-btn:hover {
     opacity: 0.7;
   }
 
-  .results-close-btn::before {
-    content: '×';
-    color: white;
-    font-size: 24px;
-  }
-
   .results-icon {
     width: 60px;
     height: 60px;
-    background-color: #90EE90;
+    background-color: #7BAFD4;
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -765,7 +752,7 @@
 
   .results-create-account-btn {
     font-family: 'Field Gothic Narrow', serif;
-    background-color: #000000;
+    background-color: #7BAFD4;
     color: white;
     border: none;
     border-radius: 20px;
@@ -780,7 +767,7 @@
   }
 
   .results-create-account-btn:hover {
-    background-color: #333333;
+    background-color: #6a9bc0;
   }
 
   .results-login-link {
@@ -870,7 +857,7 @@
 
   .results-share-btn {
     font-family: 'Field Gothic Narrow', serif;
-    background-color: #90EE90;
+    background-color: #7BAFD4;
     color: white;
     border: none;
     border-radius: 20px;
@@ -888,7 +875,7 @@
   }
 
   .results-share-btn:hover {
-    background-color: #5a6268;
+    background-color: #6a9bc0;
   }
 
   .results-share-btn svg {
@@ -2867,8 +2854,16 @@
             <div class="results-popup-content">
               <button class="results-close-btn" onclick="closeResultsPopup()">×</button>
               <div class="results-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <!-- Ram head silhouette with curved horns -->
+                  <path d="M12 8 C10 6, 8 7, 7 9 C6 11, 6 13, 7 15 C7.5 16, 8.5 17, 10 17.5 C11 18, 12 18, 13 17.5 C14.5 17, 15.5 16, 16 15 C17 13, 17 11, 16 9 C15 7, 14 6, 12 8 Z" fill="white"/>
+                  <!-- Left horn -->
+                  <path d="M7 9 Q5 7, 4 9 Q3 11, 4 13 Q5 12, 6 11 Q6.5 10, 7 9" fill="white"/>
+                  <!-- Right horn -->
+                  <path d="M16 9 Q18 7, 19 9 Q20 11, 19 13 Q18 12, 17 11 Q16.5 10, 16 9" fill="white"/>
+                  <!-- Eye -->
+                  <circle cx="10" cy="12" r="1" fill="white"/>
+                  <circle cx="14" cy="12" r="1" fill="white"/>
                 </svg>
               </div>
               <h1 class="results-heading">Thanks for playing today!</h1>
