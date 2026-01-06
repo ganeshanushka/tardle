@@ -1,0 +1,192 @@
+/* Mobile Responsive Styles - Shared across all pages */
+
+/* General mobile styles for common elements */
+@media (max-width: 768px) {
+  /* Body and container adjustments */
+  body {
+    padding: 10px !important;
+  }
+
+  /* Form containers */
+  .login-container,
+  .signup-container,
+  .form-container,
+  .account-container {
+    width: 95% !important;
+    max-width: 95% !important;
+    padding: 15px 20px !important;
+    margin: 10px auto !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Headings */
+  h1 {
+    font-size: 1.5em !important;
+  }
+
+  h2 {
+    font-size: 1.3em !important;
+  }
+
+  h3 {
+    font-size: 1.1em !important;
+  }
+
+  /* Form inputs */
+  .input-group {
+    font-size: 1em !important;
+  }
+
+  .input-group input,
+  .input-group textarea,
+  .input-group select {
+    width: 95% !important;
+    padding: 0.6em !important;
+    font-size: 16px !important; /* Prevents zoom on iOS */
+    box-sizing: border-box !important;
+  }
+
+  .input-group input[type="submit"],
+  .input-group button[type="submit"],
+  button.submit-button {
+    width: 100% !important;
+    padding: 12px !important;
+  }
+
+  /* Buttons */
+  .button,
+  button:not(.close-button):not(.icon-button) {
+    width: auto !important;
+    min-width: 120px !important;
+    padding: 10px 15px !important;
+    font-size: 0.9em !important;
+    margin: 5px !important;
+  }
+
+  /* Close buttons */
+  .close-button {
+    font-size: 1.3em !important;
+    padding: 5px 10px !important;
+  }
+
+  /* Text and paragraphs */
+  p {
+    font-size: 0.95em !important;
+    line-height: 1.5 !important;
+  }
+
+  /* Links */
+  a {
+    font-size: 0.95em !important;
+    word-wrap: break-word !important;
+  }
+
+  /* Tables */
+  table {
+    font-size: 0.9em !important;
+    width: 100% !important;
+    display: block !important;
+    overflow-x: auto !important;
+  }
+
+  /* Modals and popups */
+  .modal,
+  .popup,
+  .modal-content,
+  .popup-content {
+    width: 95% !important;
+    max-width: 95% !important;
+    padding: 20px 15px !important;
+    margin: 10px !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+  }
+
+  /* Navigation */
+  nav {
+    flex-wrap: wrap !important;
+  }
+
+  nav a {
+    padding: 8px 12px !important;
+    font-size: 0.9em !important;
+  }
+
+  /* Footer */
+  footer {
+    font-size: 0.85em !important;
+    padding: 15px 10px !important;
+  }
+}
+
+/* Small mobile phones (iPhone 12, etc.) */
+@media (max-width: 480px) {
+  body {
+    padding: 5px !important;
+  }
+
+  .login-container,
+  .signup-container,
+  .form-container,
+  .account-container {
+    padding: 12px 15px !important;
+  }
+
+  h1 {
+    font-size: 1.3em !important;
+  }
+
+  h2 {
+    font-size: 1.1em !important;
+  }
+
+  h3 {
+    font-size: 1em !important;
+  }
+
+  .input-group {
+    font-size: 0.9em !important;
+  }
+
+  .input-group input,
+  .input-group textarea {
+    width: 100% !important;
+    padding: 0.5em !important;
+  }
+
+  .button,
+  button:not(.close-button):not(.icon-button) {
+    width: 100% !important;
+    margin: 5px 0 !important;
+  }
+
+  .button-container {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .modal,
+  .popup,
+  .modal-content,
+  .popup-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 15px 10px !important;
+    margin: 0 !important;
+  }
+}
+
+/* Landscape mobile orientation */
+@media (max-width: 768px) and (orientation: landscape) {
+  body {
+    padding: 5px !important;
+  }
+
+  .login-container,
+  .signup-container,
+  .form-container {
+    max-height: 95vh !important;
+    overflow-y: auto !important;
+  }
+}
+
