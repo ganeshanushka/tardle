@@ -1464,19 +1464,24 @@ function renderCalendar(gameHistory) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
+    // Ensure calendarGameHistory has the right structure
+    if (!calendarGameHistory || !calendarGameHistory.wins || !calendarGameHistory.losses) {
+        calendarGameHistory = { wins: new Set(), losses: new Set() };
+    }
+    
     for (let day = 1; day <= month.days; day++) {
         const dayDiv = document.createElement('div');
         dayDiv.className = 'stats-calendar-day';
         
         const dateStr = `2026-${String(currentCalendarMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        const dateObj = new Date(dateStr);
+        const dateObj = new Date(dateStr + 'T00:00:00');
         dateObj.setHours(0, 0, 0, 0);
         const isPastDate = dateObj < today;
         
         // Check game status for this date
-        if (calendarGameHistory.wins.has(dateStr)) {
+        if (calendarGameHistory.wins && calendarGameHistory.wins.has(dateStr)) {
             dayDiv.classList.add('win');
-        } else if (calendarGameHistory.losses.has(dateStr)) {
+        } else if (calendarGameHistory.losses && calendarGameHistory.losses.has(dateStr)) {
             dayDiv.classList.add('loss');
         } else if (isPastDate) {
             // Past date with no game data = not played
