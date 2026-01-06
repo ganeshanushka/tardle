@@ -118,23 +118,6 @@
   color: white;
 }
 
-.footer-info {
-  margin-top: 2em; 
-  font-weight: normal;
-  text-align: center;
-}
-
-.footer-info p {
-  margin: 0.3em 0;
-}
-
-#current-date {
-  font-weight: bold;
-}
-
-.footer-info p:last-child {
-  font-size: 0.9em;
-}
 
 /* Login prompt modal */
 #loginPromptModal {
@@ -291,22 +274,12 @@
   </div>
 </div>
 
-<div class="footer-info">
-  <p id="current-date"></p>
-  <p>Powered by (A²V) G</p>
-  <p>Questions or concerns? Contact us at <a href="mailto:tardlehelp@gmail.com" style="color: #000; text-decoration: underline;">tardlehelp@gmail.com</a></p>
-</div>
 </div>
 
 <!-- Firebase Config -->
 <script type="module" src="firebase-config.js"></script>
 
 <script>
-  window.onload = function date() {
-    var currentDate = new Date(); 
-    var options = { year: 'numeric', month: 'long', day: 'numeric' };
-    document.getElementById('current-date').textContent = currentDate.toLocaleDateString('en-US', options);
-  };
   
   // Check Firebase auth state and hide login button if user is logged in
   let isUserLoggedIn = false;
