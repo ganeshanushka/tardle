@@ -1461,21 +1461,28 @@ function renderCalendar(gameHistory) {
     }
     
     // Add days of the month
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
     for (let day = 1; day <= month.days; day++) {
         const dayDiv = document.createElement('div');
         dayDiv.className = 'stats-calendar-day';
         
         const dateStr = `2026-${String(currentCalendarMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const dateObj = new Date(dateStr);
+        dateObj.setHours(0, 0, 0, 0);
+        const isPastDate = dateObj < today;
         
         // Check game status for this date
         if (calendarGameHistory.wins.has(dateStr)) {
             dayDiv.classList.add('win');
         } else if (calendarGameHistory.losses.has(dateStr)) {
             dayDiv.classList.add('loss');
-        } else {
-            // Didn't play - Carolina blue (same as win per user request)
+        } else if (isPastDate) {
+            // Past date with no game data = not played
             dayDiv.classList.add('no-play');
         }
+        // Future dates or today with no game data = white (default, no class)
         
         dayDiv.textContent = day;
         daysDiv.appendChild(dayDiv);
