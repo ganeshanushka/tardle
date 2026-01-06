@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -2318,7 +2318,7 @@
     }
   }
 
-  /* Mobile Responsive Design */
+  /* Mobile Responsive Design - Phones and Tablets */
   @media (max-width: 768px) {
     /* Title bar adjustments */
     .title-bar {
@@ -2454,7 +2454,7 @@
     }
   }
 
-  /* Small mobile phones */
+  /* iPhone and small phones (iPhone 12 is 390px) */
   @media (max-width: 480px) {
     .title-text {
       font-size: 1.1em !important;
@@ -2488,12 +2488,29 @@
     }
 
     .stat-number {
-      font-size: 1.3em;
+      font-size: 1.3em !important;
     }
 
     .stats-calendar-day {
-      min-height: 25px;
-      font-size: 0.6em;
+      min-height: 25px !important;
+      font-size: 0.6em !important;
+    }
+  }
+
+  /* Specific iPhone optimization (390px - iPhone 12, 13, 14) */
+  @media (max-width: 428px) {
+    .key-guess {
+      height: 30px !important;
+      width: 30px !important;
+      min-height: 30px !important;
+      min-width: 30px !important;
+      font-size: 15px !important;
+    }
+
+    .key {
+      height: 36px !important;
+      min-height: 36px !important;
+      font-size: 10px !important;
     }
   }
 
