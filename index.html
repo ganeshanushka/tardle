@@ -234,19 +234,21 @@
 }
 
 .footer-info {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
+  margin-top: 2em; 
+  font-weight: normal;
   text-align: center;
-  color: white;
-  font-size: 14px;
-  font-family: 'Field Gothic Narrow', sans-serif;
-  z-index: 100;
 }
 
 .footer-info p {
-  margin: 4px 0;
+  margin: 0.3em 0;
+}
+
+#current-date {
+  font-weight: bold;
+}
+
+.footer-info p:last-child {
+  font-size: 0.9em;
 }
 </style>
 </head>
@@ -294,8 +296,8 @@
 
 <!-- Footer -->
 <div class="footer-info">
-  <p id="currentDate"></p>
-  <p>Powered by Tardle</p>
+  <p id="current-date"></p>
+  <p>Powered by (A²V) G</p>
 </div>
 
 <!-- Firebase Config -->
@@ -418,22 +420,11 @@
   }
   
   // Set current date in footer
-  function setCurrentDate() {
-    const dateElement = document.getElementById('currentDate');
-    if (dateElement) {
-      const now = new Date();
-      const options = { year: 'numeric', month: 'long', day: 'numeric' };
-      const dateString = now.toLocaleDateString('en-US', options);
-      dateElement.textContent = dateString;
-    }
-  }
-  
-  // Set date when page loads
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', setCurrentDate);
-  } else {
-    setCurrentDate();
-  }
+  window.onload = function date() {
+    var currentDate = new Date(); 
+    var options = { year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('current-date').textContent = currentDate.toLocaleDateString('en-US', options);
+  };
   
   // Prevent back navigation to signin.html after login
   // Replace current history entry and add a new one to prevent going back to signin page
