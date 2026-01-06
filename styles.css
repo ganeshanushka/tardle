@@ -228,4 +228,49 @@ html, body {
     perspective: 1000px;
   }
 
+  /* Mobile Responsive Design */
+  @media (max-width: 768px) {
+    .key-guess {
+      height: clamp(40px, 12vw, 50px);
+      width: clamp(40px, 12vw, 50px);
+      min-height: 40px;
+      min-width: 40px;
+      font-size: clamp(20px, 6vw, 24px);
+    }
+
+    .key {
+      height: 45px;
+      min-height: 45px;
+      font-size: 14px;
+      padding: 8px 4px;
+    }
+
+    #enter {
+      min-width: 60px;
+      font-size: 12px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .key-guess {
+      height: 35px;
+      width: 35px;
+      min-height: 35px;
+      min-width: 35px;
+      font-size: 18px;
+    }
+
+    .key {
+      height: 40px;
+      min-height: 40px;
+      font-size: 12px;
+      padding: 6px 3px;
+    }
+
+    #enter {
+      min-width: 55px;
+      font-size: 11px;
+    }
+  }
+
   

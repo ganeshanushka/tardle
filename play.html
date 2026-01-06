@@ -2317,6 +2317,189 @@
     }
   }
 
+  /* Mobile Responsive Design */
+  @media (max-width: 768px) {
+    /* Title bar adjustments */
+    .title-bar {
+      height: 50px;
+      padding: 0 10px;
+    }
+
+    .title-text {
+      font-size: 1.5em;
+    }
+
+    .header-icon {
+      width: 32px;
+      height: 32px;
+    }
+
+    /* Container and game grid */
+    .container {
+      margin-top: 60px;
+      padding: 10px;
+      max-width: 100%;
+    }
+
+    /* Game grid tiles - smaller on mobile */
+    .key-guess {
+      height: clamp(40px, 12vw, 50px);
+      width: clamp(40px, 12vw, 50px);
+      min-height: 40px;
+      min-width: 40px;
+      font-size: clamp(20px, 6vw, 24px);
+      margin: clamp(2px, 0.5vw, 3px);
+    }
+
+    /* Keyboard adjustments */
+    #keyboard {
+      margin-top: 10px;
+      padding: 0 5px;
+    }
+
+    .key {
+      height: 45px;
+      min-height: 45px;
+      font-size: 14px;
+      padding: 8px 4px;
+      margin: 2px;
+    }
+
+    #enter {
+      min-width: 60px;
+      font-size: 12px;
+    }
+
+    /* Popups - full width on mobile */
+    #statsPopup .popup-content {
+      width: 95%;
+      max-width: 95%;
+      max-height: 90vh;
+      margin: 10px;
+      padding: 20px 15px;
+    }
+
+    #statsLoginPromptPopup .stats-login-prompt-content {
+      width: 95%;
+      max-width: 95%;
+      padding: 20px 15px;
+    }
+
+    /* Statistics grid - 2x2 on mobile */
+    #statsPopup .stats-content .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .stat-number {
+      font-size: 1.5em;
+    }
+
+    .stat-label {
+      font-size: 0.8em;
+    }
+
+    /* Calendar adjustments */
+    .stats-calendar-nav {
+      margin-bottom: 10px;
+    }
+
+    .stats-calendar-nav-button {
+      width: 36px;
+      height: 36px;
+      font-size: 20px;
+    }
+
+    .stats-calendar-month-title {
+      font-size: 0.9em;
+    }
+
+    .stats-calendar-day {
+      font-size: 0.65em;
+      min-height: 30px;
+    }
+
+    /* Section headers */
+    .stats-section-header {
+      font-size: 1em;
+      margin: 12px 0 8px 0;
+    }
+
+    /* Side panel adjustments */
+    .side-panel {
+      width: 100%;
+      max-width: 100%;
+    }
+
+    /* How to play modal */
+    .help-modal-content {
+      width: 95%;
+      max-width: 95%;
+      padding: 20px 15px;
+      max-height: 90vh;
+    }
+  }
+
+  /* Small mobile phones */
+  @media (max-width: 480px) {
+    .title-text {
+      font-size: 1.2em;
+    }
+
+    .key-guess {
+      height: 35px;
+      width: 35px;
+      min-height: 35px;
+      min-width: 35px;
+      font-size: 18px;
+      margin: 1px;
+    }
+
+    .key {
+      height: 40px;
+      min-height: 40px;
+      font-size: 12px;
+      padding: 6px 3px;
+      margin: 1.5px;
+    }
+
+    #enter {
+      min-width: 55px;
+      font-size: 11px;
+    }
+
+    .stat-number {
+      font-size: 1.3em;
+    }
+
+    .stats-calendar-day {
+      min-height: 25px;
+      font-size: 0.6em;
+    }
+  }
+
+  /* Landscape mobile orientation */
+  @media (max-width: 768px) and (orientation: landscape) {
+    .container {
+      margin-top: 55px;
+      padding: 5px;
+    }
+
+    .key-guess {
+      height: clamp(35px, 8vh, 45px);
+      width: clamp(35px, 8vh, 45px);
+    }
+
+    #keyboard {
+      margin-top: 5px;
+    }
+
+    .key {
+      height: 40px;
+      min-height: 40px;
+    }
+  }
+
   .how-to-play-header {
     display: flex;
     justify-content: space-between;
