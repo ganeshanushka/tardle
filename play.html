@@ -588,10 +588,10 @@
 /* Popup container styles */
 #invalidWordPopup,
 #notEnoughLettersPopup {
-  position: fixed;
-  top: 50%;
+  position: absolute;
+  top: 0;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
   z-index: 999;
   display: flex;
   justify-content: center;
@@ -1802,7 +1802,7 @@
     font-size: clamp(12px, 1.8vw, 14px);
     font-weight: bold;
     text-align: center;
-    border: none;
+    border: 2px solid white;
     pointer-events: auto;
 }
 
@@ -1818,6 +1818,7 @@
 :root.dark-mode #answerPopup .popup-content {
     background-color: #000000 !important;
     color: white !important;
+    border: 2px solid white !important;
 }
 
 /* Game over popup - original Carolina blue design */
