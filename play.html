@@ -588,16 +588,15 @@
 /* Popup container styles */
 #invalidWordPopup,
 #notEnoughLettersPopup {
-  position: fixed;
-  top: clamp(80px, 12vh, 120px);
+  position: absolute;
+  top: 0;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 1001;
+  z-index: 999;
   display: flex;
   justify-content: center;
   align-items: center;
   pointer-events: none;
-  width: 100%;
 }
 
 #transferApplicationPopup,
