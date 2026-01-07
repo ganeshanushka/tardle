@@ -1196,6 +1196,7 @@ exports.resetPasswordWithToken = functions.https.onCall(async (data, context) =>
 
 // Test function to send a sample daily reminder email
 exports.sendTestDailyEmail = functions.https.onCall(async (data, context) => {
+  // Allow unauthenticated calls for testing
   try {
     const { email } = data;
     
