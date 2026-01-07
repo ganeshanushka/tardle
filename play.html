@@ -886,9 +886,26 @@
     background-color: #6a9bc0;
   }
 
-  .results-share-btn svg {
-    width: 20px;
-    height: 20px;
+  .share-success-popup {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 10px;
+    padding: clamp(6px, 1vh, 8px) clamp(12px, 2vw, 16px);
+    font-size: clamp(12px, 1.8vw, 14px);
+    font-weight: bold;
+    background-color: #121213;
+    color: white;
+    border-radius: 4px;
+    border: 2px solid white;
+    white-space: nowrap;
+    z-index: 1000;
+    font-family: 'Field Gothic Narrow', sans-serif;
+  }
+
+  .share-success-popup.hidden {
+    display: none !important;
   }
 
   .stats-login-prompt-content {
@@ -2895,16 +2912,12 @@
               <p class="results-text">Track your Tardle win percentage and see your game statistics.</p>
               <button class="results-create-account-btn" onclick="window.location.href='login.html?return=play.html'">Create a free account</button>
               <a href="login.html?return=play.html" class="results-login-link">Already Registered? Log In</a>
-              <button class="results-share-btn" onclick="shareResults()">
-                <span>Share</span>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="18" cy="5" r="3"/>
-                  <circle cx="6" cy="12" r="3"/>
-                  <circle cx="18" cy="19" r="3"/>
-                  <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
-                  <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-                </svg>
-              </button>
+              <div style="position: relative; display: inline-block;">
+                <button class="results-share-btn" onclick="shareResults()">
+                  <span>Share results</span>
+                </button>
+                <div id="shareSuccessPopup" class="share-success-popup hidden">Results copied to clipboard</div>
+              </div>
             </div>
           </div>
 
@@ -3547,23 +3560,19 @@
               console.log('Using clipboard API');
               navigator.clipboard.writeText(shareText).then(() => {
                 console.log('Text copied to clipboard successfully');
-                // Show success popup with same style as "rah rah right answer"
-                const popup = document.getElementById('customPopup');
-                const messageEl = document.getElementById('popupMessage');
-                console.log('Popup element:', popup);
-                console.log('Message element:', messageEl);
-                if (popup && messageEl) {
-                  messageEl.innerText = 'Results copied to clipboard';
-                  popup.classList.remove('hidden');
-                  popup.style.display = 'flex';
+                // Show success popup above the share button
+                const sharePopup = document.getElementById('shareSuccessPopup');
+                if (sharePopup) {
+                  sharePopup.classList.remove('hidden');
+                  sharePopup.style.display = 'block';
                   
-                  // Auto-hide after 2 seconds
+                  // Auto-hide after 1 second
                   setTimeout(() => {
-                    popup.classList.add('hidden');
-                    popup.style.display = 'none';
-                  }, 2000);
+                    sharePopup.classList.add('hidden');
+                    sharePopup.style.display = 'none';
+                  }, 1000);
                 } else {
-                  console.error('Popup elements not found');
+                  console.error('Share popup element not found');
                   alert('Results copied to clipboard!');
                 }
               }).catch(err => {
@@ -3579,6 +3588,16 @@
                 url: window.location.href
               }).then(() => {
                 console.log('Shared successfully');
+                // Show success popup above the share button
+                const sharePopup = document.getElementById('shareSuccessPopup');
+                if (sharePopup) {
+                  sharePopup.classList.remove('hidden');
+                  sharePopup.style.display = 'block';
+                  setTimeout(() => {
+                    sharePopup.classList.add('hidden');
+                    sharePopup.style.display = 'none';
+                  }, 1000);
+                }
               }).catch(err => {
                 console.log('Error sharing:', err);
                 alert('Share text:\n\n' + shareText);
