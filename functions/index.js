@@ -175,14 +175,16 @@ exports.sendDailyTardleEmail = functions.pubsub
                       text-align: center;
                     }
                     .main-message {
-                      font-size: 18px;
-                      margin: 30px 0;
+                      font-size: 16px;
+                      margin: 20px 0;
                       color: #000;
+                      text-align: left;
                     }
                     .call-to-action {
                       font-size: 16px;
-                      margin: 30px 0;
+                      margin: 20px 0;
                       color: #000;
+                      text-align: left;
                     }
                     .play-link {
                       color: #0000EE;
