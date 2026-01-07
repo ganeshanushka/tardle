@@ -1207,6 +1207,14 @@ exports.sendTestDailyEmail = functions.https.onCall(async (data, context) => {
       throw new functions.https.HttpsError('failed-precondition', 'Resend API key is not configured.');
     }
 
+    // Get current date and time in Eastern time
+    const now = new Date();
+    const easternTime = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
+    const dateOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+    const timeOptions = { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' };
+    const dateStr = easternTime.toLocaleDateString("en-US", dateOptions);
+    const timeStr = easternTime.toLocaleTimeString("en-US", timeOptions);
+
     await resend.emails.send({
       from: "Tardle <no-reply@playtardle.com>",
       to: email,
