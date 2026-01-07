@@ -3560,10 +3560,41 @@
             
             console.log('Share text:', shareText);
             
-            // Copy text to clipboard
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-              console.log('Using clipboard API');
-              navigator.clipboard.writeText(shareText).then(() => {
+            // Copy text to clipboard - with Safari fallback
+            // Safari requires clipboard API to be called from a user gesture
+            const copyToClipboard = async (text) => {
+              try {
+                // Try modern clipboard API first (works in Chrome and modern Safari)
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                  await navigator.clipboard.writeText(text);
+                  return true;
+                }
+                // Fallback for older Safari: use execCommand
+                else if (document.execCommand) {
+                  const textArea = document.createElement('textarea');
+                  textArea.value = text;
+                  textArea.style.position = 'fixed';
+                  textArea.style.left = '-999999px';
+                  textArea.style.top = '-999999px';
+                  document.body.appendChild(textArea);
+                  textArea.focus();
+                  textArea.select();
+                  const successful = document.execCommand('copy');
+                  document.body.removeChild(textArea);
+                  if (successful) {
+                    return true;
+                  }
+                }
+                return false;
+              } catch (err) {
+                console.error('Clipboard error:', err);
+                return false;
+              }
+            };
+            
+            // Attempt to copy
+            copyToClipboard(shareText).then((success) => {
+              if (success) {
                 console.log('Text copied to clipboard successfully');
                 // Show success popup above the share button (check both results and stats popups)
                 const sharePopup = document.getElementById('shareSuccessPopup');
@@ -3592,10 +3623,35 @@
                   console.error('Share popup element not found');
                   alert('Results copied to clipboard!');
                 }
-              }).catch(err => {
-                console.error('Error copying to clipboard:', err);
-                alert('Failed to copy to clipboard: ' + err.message);
-              });
+              } else {
+                // If clipboard fails, try Web Share API or show alert
+                console.log('Clipboard API failed, trying Web Share API');
+                if (navigator.share) {
+                  navigator.share({
+                    title: 'Tardle',
+                    text: shareText
+                  }).catch(() => {
+                    // If share also fails, show alert
+                    alert('Share text:\n\n' + shareText);
+                  });
+                } else {
+                  alert('Share text:\n\n' + shareText);
+                }
+              }
+            }).catch(err => {
+              console.error('Error copying to clipboard:', err);
+              // Fallback to Web Share API or alert
+              if (navigator.share) {
+                navigator.share({
+                  title: 'Tardle',
+                  text: shareText
+                }).catch(() => {
+                  alert('Share text:\n\n' + shareText);
+                });
+              } else {
+                alert('Share text:\n\n' + shareText);
+              }
+            });
             } else if (navigator.share) {
               console.log('Using Web Share API');
               // Fallback to Web Share API if clipboard not available

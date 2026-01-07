@@ -795,7 +795,13 @@ let words = [
   
   function attachKeyboardListener() {
     // Check if onscreen keyboard only mode is enabled
-    const onscreenKeyboardOnly = localStorage.getItem('onscreenKeyboardOnly') === 'true';
+    // Use try-catch for Safari localStorage issues
+    let onscreenKeyboardOnly = false;
+    try {
+      onscreenKeyboardOnly = localStorage.getItem('onscreenKeyboardOnly') === 'true';
+    } catch (e) {
+      console.warn('localStorage access failed (may be Safari private mode):', e);
+    }
     if (onscreenKeyboardOnly) {
       console.log('Onscreen keyboard only mode enabled - skipping physical keyboard listener');
       return;

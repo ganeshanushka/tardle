@@ -67,16 +67,20 @@ html, body {
     }
   }
   
-  /* Safari-specific fixes */
-  @supports (-webkit-appearance: none) {
+  /* Safari-specific fixes - use more specific detection */
+  @supports (-webkit-appearance: none) and (not (-webkit-min-device-pixel-ratio: 0)) {
     .key-guess {
       /* Ensure Safari respects max dimensions */
       max-height: 62px !important;
       max-width: 62px !important;
-      /* Fix for Safari viewport unit handling */
-      height: min(62px, clamp(50px, 8vw, 62px));
-      width: min(62px, clamp(50px, 8vw, 62px));
     }
+  }
+  
+  /* Universal fix for both Chrome and Safari - ensure max dimensions are respected */
+  .key-guess {
+    /* Use max() to ensure we never exceed 62px regardless of viewport */
+    max-height: 62px !important;
+    max-width: 62px !important;
   }
 
   /* Mobile base styles - override min dimensions */
