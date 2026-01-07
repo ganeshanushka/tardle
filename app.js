@@ -270,16 +270,18 @@ let words = [
           });
         }
         
-        // Display the saved game grid
-        displaySavedGame();
-        
-        // Ensure keyboard is disabled if game is completed
-        if (gameCompleted) {
-          updateKeyboard();
-          console.log('Game is completed - keyboard should be disabled');
-        }
-        
-        console.log('Game state loaded:', { guesses: guesses.length, currentGuess: currentGuess.length, gameStatus, gameCompleted });
+        // Wait a bit to ensure DOM is ready, then display the saved game grid
+        setTimeout(() => {
+          displaySavedGame();
+          
+          // Ensure keyboard is disabled if game is completed
+          if (gameCompleted) {
+            updateKeyboard();
+            console.log('Game is completed - keyboard should be disabled');
+          }
+          
+          console.log('Game state loaded:', { guesses: guesses.length, currentGuess: currentGuess.length, gameStatus, gameCompleted });
+        }, 100);
       } else {
         console.log('No saved game state found for today, starting fresh');
       }
@@ -341,6 +343,8 @@ let words = [
   
   // Display saved game grid
   function displaySavedGame() {
+    console.log('displaySavedGame called with:', { guesses: guesses.length, gameCompleted, gameStatus });
+    
     // Display all previous guesses with colors
     guesses.forEach((guess, rowIndex) => {
       guess.forEach((item, colIndex) => {
@@ -352,9 +356,13 @@ let words = [
           // Add result class (correct, found, wrong) if it exists
           if (item.result) {
             cell.classList.add(item.result);
+            console.log(`Cell ${rowIndex}${colIndex}: ${item.key} -> ${item.result}`);
           } else {
             cell.classList.add('filled');
+            console.log(`Cell ${rowIndex}${colIndex}: ${item.key} -> filled (no result)`);
           }
+        } else {
+          console.warn(`Cell ${rowIndex}${colIndex} not found in DOM`);
         }
       });
     });
