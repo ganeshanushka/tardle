@@ -248,6 +248,7 @@ let words = [
         gameStatus = gameData.gameStatus || 'in_progress';
         window.gameStatus = gameStatus; // Update global reference
         gameCompleted = gameData.gameCompleted || false;
+        window.gameCompleted = gameCompleted; // Update global reference
         
         // Restore keyboard state
         if (gameData.keys) {
@@ -1055,6 +1056,7 @@ let words = [
             gameStatus = 'lost';
             window.gameStatus = gameStatus; // Update global reference
             gameCompleted = true;
+            window.gameCompleted = gameCompleted; // Update global reference
             // Calculate total flip time and wait for all tiles to finish flipping
             const flipDelay = 250; // Delay between each flip (in milliseconds)
             const flipDuration = 800; // Duration of each flip animation (in milliseconds)
