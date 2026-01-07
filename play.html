@@ -2892,7 +2892,7 @@
                 </svg>
               </div>
               <h1 class="results-heading">Thanks for playing today!</h1>
-              <p class="results-text">Track your Tardle win percentage and earn badges for big achievements.</p>
+              <p class="results-text">Track your Tardle win percentage and see your game statistics.</p>
               <button class="results-create-account-btn" onclick="window.location.href='login.html?return=play.html'">Create a free account</button>
               <a href="login.html?return=play.html" class="results-login-link">Already Registered? Log In</a>
               <button class="results-share-btn" onclick="shareResults()">
@@ -3501,10 +3501,14 @@
           }
 
           function shareResults() {
+            console.log('shareResults called');
             // Access guesses and gameStatus from the global scope (they're in app.js)
             // Try to access them from window or directly
             const gameGuesses = window.guesses || (typeof guesses !== 'undefined' ? guesses : null);
             const gameState = window.gameStatus || (typeof gameStatus !== 'undefined' ? gameStatus : null);
+            
+            console.log('gameGuesses:', gameGuesses);
+            console.log('gameState:', gameState);
             
             if (!gameGuesses || gameGuesses.length === 0) {
               console.error('No guesses available to share');
@@ -3536,12 +3540,18 @@
               shareText += row + '\n';
             });
             
+            console.log('Share text:', shareText);
+            
             // Copy text to clipboard
             if (navigator.clipboard && navigator.clipboard.writeText) {
+              console.log('Using clipboard API');
               navigator.clipboard.writeText(shareText).then(() => {
+                console.log('Text copied to clipboard successfully');
                 // Show success popup with same style as "rah rah right answer"
                 const popup = document.getElementById('customPopup');
                 const messageEl = document.getElementById('popupMessage');
+                console.log('Popup element:', popup);
+                console.log('Message element:', messageEl);
                 if (popup && messageEl) {
                   messageEl.innerText = 'Results copied to clipboard';
                   popup.classList.remove('hidden');
@@ -3552,23 +3562,36 @@
                     popup.classList.add('hidden');
                     popup.style.display = 'none';
                   }, 2000);
+                } else {
+                  console.error('Popup elements not found');
+                  alert('Results copied to clipboard!');
                 }
               }).catch(err => {
                 console.error('Error copying to clipboard:', err);
-                alert('Failed to copy to clipboard');
+                alert('Failed to copy to clipboard: ' + err.message);
               });
             } else if (navigator.share) {
+              console.log('Using Web Share API');
               // Fallback to Web Share API if clipboard not available
               navigator.share({
                 title: 'Tardle',
                 text: shareText,
                 url: window.location.href
-              }).catch(err => console.log('Error sharing:', err));
+              }).then(() => {
+                console.log('Shared successfully');
+              }).catch(err => {
+                console.log('Error sharing:', err);
+                alert('Share text:\n\n' + shareText);
+              });
             } else {
+              console.log('No clipboard or share API available, showing alert');
               // Final fallback: show alert with text
               alert('Share text:\n\n' + shareText);
             }
           }
+          
+          // Make shareResults globally accessible
+          window.shareResults = shareResults;
 
           function closeStatsLoginPrompt() {
             const popup = document.getElementById('statsLoginPromptPopup');
