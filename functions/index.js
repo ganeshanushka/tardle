@@ -1210,8 +1210,8 @@ exports.sendTestDailyEmail = functions.https.onCall(async (data, context) => {
     await resend.emails.send({
       from: "Tardle <no-reply@playtardle.com>",
       to: email,
-      subject: "Don't break the streak 👀",
-      html: `
+              subject: "Don't break the streak 👀",
+              html: `
                 <!DOCTYPE html>
                 <html>
                 <head>
@@ -1226,6 +1226,24 @@ exports.sendTestDailyEmail = functions.https.onCall(async (data, context) => {
                       padding: 20px;
                       background-color: #fff;
                       text-align: center;
+                    }
+                    .header-divider {
+                      border-top: 1px solid #000;
+                      margin: 0;
+                      padding: 0;
+                    }
+                    .reminder-header {
+                      font-size: 16px;
+                      font-weight: bold;
+                      margin: 0 0 10px 0;
+                      color: #000;
+                      text-align: left;
+                    }
+                    .reminder-date {
+                      font-size: 16px;
+                      margin: 0 0 15px 0;
+                      color: #000;
+                      text-align: left;
                     }
                     .greeting {
                       font-size: 16px;
@@ -1282,6 +1300,14 @@ exports.sendTestDailyEmail = functions.https.onCall(async (data, context) => {
                   </style>
                 </head>
                 <body>
+                  <div class="header-divider"></div>
+                  <div class="reminder-header">
+                    Tardle Reminder
+                  </div>
+                  <div class="reminder-date">
+                    ${dateStr}, ${timeStr}
+                  </div>
+                  <div class="header-divider"></div>
                   <div class="greeting">
                     Good morning! 🌞
                   </div>
@@ -1316,7 +1342,7 @@ exports.sendTestDailyEmail = functions.https.onCall(async (data, context) => {
                 </body>
                 </html>
               `,
-    });
+            });
 
     console.log(`Test email sent to ${email}`);
     return { success: true, message: `Test email sent to ${email}` };
