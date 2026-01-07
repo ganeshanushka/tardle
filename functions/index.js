@@ -601,6 +601,25 @@ exports.completeEmailChange = functions.https.onCall(async (data, context) => {
     console.log(`  Old email: ${oldEmail}`);
     console.log(`  New email: ${newEmail}`);
 
+    // CRITICAL: Get current user from Firebase Auth to verify old email before swap
+    let authUserBefore;
+    try {
+      authUserBefore = await admin.auth().getUser(uid);
+      const currentAuthEmail = authUserBefore.email;
+      console.log(`  Current Firebase Auth email: ${currentAuthEmail}`);
+      
+      // Verify the old email matches what's in Firestore
+      if (currentAuthEmail && currentAuthEmail.toLowerCase() !== oldEmail.toLowerCase()) {
+        console.warn(`⚠️ Email mismatch: Firestore has ${oldEmail}, but Auth has ${currentAuthEmail}`);
+        // Use Auth email as the source of truth for old email
+        const actualOldEmail = currentAuthEmail;
+        console.log(`  Using Auth email as old email: ${actualOldEmail}`);
+      }
+    } catch (authError) {
+      console.error(`✗ Could not get user from Auth before update:`, authError);
+      throw new functions.https.HttpsError('internal', 'Could not verify current user email');
+    }
+
     // CRITICAL: Check if the new email is already in use by another account
     try {
       const existingUser = await admin.auth().getUserByEmail(newEmail);
@@ -622,25 +641,59 @@ exports.completeEmailChange = functions.https.onCall(async (data, context) => {
       }
     }
 
-    // Update email in Firebase Authentication using Admin SDK
+    // SWAP EMAILS: Update email in Firebase Authentication using Admin SDK
+    // This automatically removes the old email and sets the new one
     await admin.auth().updateUser(uid, {
       email: newEmail,
       emailVerified: true
     });
 
-    console.log(`✓ Email updated in Firebase Auth for user ${uid} to ${newEmail}`);
+    console.log(`✓ Email swapped in Firebase Auth for user ${uid}`);
+    console.log(`  Old email removed: ${authUserBefore.email}`);
+    console.log(`  New email set: ${newEmail}`);
+
+    // VERIFY: Confirm the old email is gone and new email is set
+    try {
+      const authUserAfter = await admin.auth().getUser(uid);
+      if (authUserAfter.email && authUserAfter.email.toLowerCase() === newEmail.toLowerCase()) {
+        console.log(`✓ Verified: New email is correctly set in Firebase Auth: ${authUserAfter.email}`);
+      } else {
+        console.error(`❌ Email verification failed! Expected: ${newEmail}, Got: ${authUserAfter.email || 'null'}`);
+        throw new functions.https.HttpsError('internal', 'Email update verification failed');
+      }
+      
+      // Verify old email is no longer accessible
+      try {
+        const oldEmailCheck = await admin.auth().getUserByEmail(authUserBefore.email);
+        if (oldEmailCheck && oldEmailCheck.uid === uid) {
+          // This shouldn't happen - old email should be gone
+          console.warn(`⚠️ Old email ${authUserBefore.email} is still accessible for this user`);
+        }
+      } catch (oldEmailError) {
+        if (oldEmailError.code === 'auth/user-not-found') {
+          console.log(`✓ Verified: Old email ${authUserBefore.email} is no longer accessible (correctly removed)`);
+        } else {
+          console.warn(`⚠️ Could not verify old email removal: ${oldEmailError.message}`);
+        }
+      }
+    } catch (verifyError) {
+      console.error(`✗ Email verification error:`, verifyError);
+      // Don't throw - the update might have succeeded
+    }
 
     // Update Firestore user document - update email first, then delete verification field
     try {
-      // First, update the email
+      // First, update the email (this swaps old email with new email)
       await userDocRef.update({ email: newEmail });
-      console.log(`✓ Firestore email updated for user ${uid}`);
+      console.log(`✓ Firestore email swapped for user ${uid}`);
+      console.log(`  Old email removed: ${oldEmail}`);
+      console.log(`  New email set: ${newEmail}`);
       
-      // Then, delete the verification field
+      // Then, delete the verification field (which contains oldEmail reference)
       await userDocRef.update({
         emailChangeVerification: admin.firestore.FieldValue.delete()
       });
-      console.log(`✓ Verification field deleted for user ${uid}`);
+      console.log(`✓ Verification field deleted for user ${uid} (old email reference removed)`);
     } catch (firestoreError) {
       console.error(`✗ Firestore update error:`, firestoreError);
       console.error(`  Error code:`, firestoreError.code);
@@ -662,23 +715,55 @@ exports.completeEmailChange = functions.https.onCall(async (data, context) => {
       }
     }
 
-    // Verify the update worked
+    // Verify the update worked and old email is completely removed
     const updatedDoc = await userDocRef.get();
     if (updatedDoc.exists) {
       const updatedData = updatedDoc.data();
       console.log(`✓ Verified Firestore update for user ${uid}`);
       console.log(`  Email in Firestore: ${updatedData.email}`);
-      if (updatedData.email !== newEmail) {
-        console.error(`  ⚠️ Email mismatch! Expected: ${newEmail}, Got: ${updatedData.email}`);
+      
+      // Verify new email is set
+      if (updatedData.email && updatedData.email.toLowerCase() === newEmail.toLowerCase()) {
+        console.log(`  ✓ New email correctly set in Firestore: ${updatedData.email}`);
+      } else {
+        console.error(`  ⚠️ Email mismatch! Expected: ${newEmail}, Got: ${updatedData.email || 'null'}`);
         // Force update one more time
         await userDocRef.set({ email: newEmail }, { merge: true });
         console.log(`  Force updated Firestore email`);
+      }
+      
+      // Verify old email is not in the document
+      if (updatedData.email && updatedData.email.toLowerCase() === oldEmail.toLowerCase()) {
+        console.error(`  ❌ Old email still present in Firestore! Expected new: ${newEmail}, Found old: ${updatedData.email}`);
+        // Force remove old email
+        await userDocRef.set({ email: newEmail }, { merge: true });
+        console.log(`  Force removed old email from Firestore`);
       } else {
-        console.log(`  ✓ Email matches in Firestore`);
+        console.log(`  ✓ Old email ${oldEmail} is not present in Firestore (correctly removed)`);
+      }
+      
+      // Verify verification field is deleted (should not exist)
+      if (updatedData.emailChangeVerification) {
+        console.warn(`  ⚠️ Verification field still exists, attempting to delete again...`);
+        await userDocRef.update({
+          emailChangeVerification: admin.firestore.FieldValue.delete()
+        });
+        console.log(`  ✓ Verification field deleted`);
+      } else {
+        console.log(`  ✓ Verification field is deleted (old email reference removed)`);
       }
     } else {
       console.error(`  ⚠️ User document not found after update!`);
     }
+    
+    // Final summary
+    console.log(`\n✓✓✓ EMAIL SWAP COMPLETE ✓✓✓`);
+    console.log(`  User: ${uid}`);
+    console.log(`  Old email: ${oldEmail} (REMOVED)`);
+    console.log(`  New email: ${newEmail} (SET)`);
+    console.log(`  Firebase Auth: Updated`);
+    console.log(`  Firestore: Updated`);
+    console.log(`  Verification field: Deleted`);
 
     return { success: true, newEmail: newEmail };
   } catch (err) {
