@@ -1194,3 +1194,137 @@ exports.resetPasswordWithToken = functions.https.onCall(async (data, context) =>
   }
 });
 
+// Test function to send a sample daily reminder email
+exports.sendTestDailyEmail = functions.https.onCall(async (data, context) => {
+  try {
+    const { email } = data;
+    
+    if (!email) {
+      throw new functions.https.HttpsError('invalid-argument', 'Email is required');
+    }
+
+    if (!resend) {
+      throw new functions.https.HttpsError('failed-precondition', 'Resend API key is not configured.');
+    }
+
+    await resend.emails.send({
+      from: "Tardle <no-reply@playtardle.com>",
+      to: email,
+      subject: "Don't break the streak 👀",
+      html: `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                  <meta charset="UTF-8">
+                  <style>
+                    body {
+                      font-family: 'Field Gothic Narrow', sans-serif;
+                      line-height: 1.6;
+                      color: #000;
+                      max-width: 600px;
+                      margin: 0 auto;
+                      padding: 20px;
+                      background-color: #fff;
+                      text-align: center;
+                    }
+                    .greeting {
+                      font-size: 20px;
+                      margin: 20px 0 10px 0;
+                      color: #000;
+                      font-weight: bold;
+                    }
+                    .logo-container {
+                      text-align: center;
+                      margin: 30px 0;
+                      display: flex;
+                      flex-direction: column;
+                      align-items: center;
+                      justify-content: center;
+                    }
+                    .custom-grid-outline {
+                      display: inline-block;
+                      border: 4px solid black;
+                      border-radius: 5px;
+                      margin-bottom: 15px;
+                    }
+                    .custom-row {
+                      display: flex;
+                    }
+                    .custom-cell {
+                      width: 20px;
+                      height: 20px;
+                      border: 1px solid white;
+                      border-radius: 3px;
+                    }
+                    .carolina-blue { background-color: #7BAFD4; }
+                    .duke-blue { background-color: #001A57; }
+                    .yellow { background-color: #c9b458; }
+                    .logo-text {
+                      font-size: 36px;
+                      font-weight: bold;
+                      margin: 0;
+                      color: #000;
+                      font-family: 'Field Gothic Narrow', sans-serif;
+                      text-align: center;
+                    }
+                    .main-message {
+                      font-size: 18px;
+                      margin: 30px 0;
+                      color: #000;
+                    }
+                    .call-to-action {
+                      font-size: 16px;
+                      margin: 30px 0;
+                      color: #000;
+                    }
+                    .play-link {
+                      color: #0000EE;
+                      text-decoration: underline;
+                    }
+                  </style>
+                </head>
+                <body>
+                  <div class="greeting">
+                    Good morning! 🌞
+                  </div>
+                  <div class="main-message">
+                    Another day, another Carolina word.
+                  </div>
+                  
+                  <div class="call-to-action">
+                    Before classes, after classes, or instead of classes, <a href="${BASE_URL}/play.html" class="play-link">play now</a>.
+                  </div>
+                  
+                  <div class="logo-container">
+                    <div class="custom-grid-outline">
+                      <div class="custom-row">
+                        <div class="custom-cell carolina-blue"></div>
+                        <div class="custom-cell carolina-blue"></div>
+                        <div class="custom-cell carolina-blue"></div>
+                      </div>
+                      <div class="custom-row">
+                        <div class="custom-cell carolina-blue"></div>
+                        <div class="custom-cell yellow"></div>
+                        <div class="custom-cell duke-blue"></div>
+                      </div>
+                      <div class="custom-row">
+                        <div class="custom-cell duke-blue"></div>
+                        <div class="custom-cell duke-blue"></div>
+                        <div class="custom-cell duke-blue"></div>
+                      </div>
+                    </div>
+                    <div class="logo-text">Tardle</div>
+                  </div>
+                </body>
+                </html>
+              `,
+    });
+
+    console.log(`Test email sent to ${email}`);
+    return { success: true, message: `Test email sent to ${email}` };
+  } catch (err) {
+    console.error("Error sending test email:", err);
+    throw new functions.https.HttpsError('internal', 'Failed to send test email: ' + err.message);
+  }
+});
+
