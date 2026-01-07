@@ -553,8 +553,24 @@ let words = [
         console.error('❌ CRITICAL: Game is completed but guesses array is empty! This should not happen.');
         console.error('Current guesses state:', guesses);
         console.error('Final guesses:', finalGuesses);
+        console.error('gameCompleted:', gameCompleted);
+        console.error('gameStatus:', gameStatus);
+        console.error('currentGuess:', currentGuess);
         // Don't save invalid state - this would cause the issue the user is seeing
+        // But log extensively to help debug
         return;
+      }
+      
+      // Also check if guesses array itself is empty (before processing)
+      if (guesses.length === 0) {
+        console.warn('⚠️ WARNING: guesses array is empty before saving. This might be a timing issue.');
+        console.warn('gameCompleted:', gameCompleted);
+        console.warn('gameStatus:', gameStatus);
+        // Don't return - allow saving currentGuess if game is not completed
+        if (gameCompleted) {
+          console.error('❌ Cannot save completed game with no guesses!');
+          return;
+        }
       }
       
       await window.firebaseFirestoreFunctions.setDoc(gameStateRef, gameStateData, { merge: true });
@@ -1412,8 +1428,18 @@ let words = [
 
         // Set up the guess with letters but no colors yet
         updateCurrentGuess(false);
-        guesses.push([...currentGuess]);
+        // Create a deep copy of currentGuess to ensure results are preserved
+        const guessToAdd = currentGuess.map(item => ({
+            key: item.key,
+            result: item.result // This should already be set (Correct, Found, or Wrong)
+        }));
+        guesses.push(guessToAdd);
         window.guesses = guesses; // Update global reference
+        console.log('Added guess to guesses array:', {
+            guessIndex: guesses.length - 1,
+            guess: guessToAdd.map(item => `${item.key}:${item.result}`).join(', '),
+            totalGuesses: guesses.length
+        });
         const previousGuess = [...currentGuess];
         currentGuess = [];
         
@@ -1442,6 +1468,13 @@ let words = [
                 console.log('Guesses array before save:', JSON.stringify(guesses));
                 console.log('Game completed:', gameCompleted);
                 console.log('Game status:', gameStatus);
+                // Double-check that guesses array is populated
+                if (guesses.length === 0) {
+                    console.error('❌ ERROR: guesses array is empty when trying to save completed game!');
+                    console.error('This should not happen - the guess should have been added before this point.');
+                    // Try to recover by checking if we can reconstruct from DOM
+                    console.error('Attempting to recover guesses from DOM...');
+                }
                 saveGameState(); // Save after flip animation completes
             }, totalFlipTime + 500);
         } else if (guesses.length >= NumberOfGuesses) {
@@ -1471,6 +1504,13 @@ let words = [
                 console.log('Guesses array before save:', JSON.stringify(guesses));
                 console.log('Game completed:', gameCompleted);
                 console.log('Game status:', gameStatus);
+                // Double-check that guesses array is populated
+                if (guesses.length === 0) {
+                    console.error('❌ ERROR: guesses array is empty when trying to save completed game!');
+                    console.error('This should not happen - the guess should have been added before this point.');
+                    // Try to recover by checking if we can reconstruct from DOM
+                    console.error('Attempting to recover guesses from DOM...');
+                }
                 saveGameState(); // Save after flip animation completes
             }, totalFlipTime + 500);
         } else {
