@@ -1262,9 +1262,9 @@ function updateKeyboard() {
     // Show success message after all flips complete (only if correct)
     if (isCorrect) {
       // Calculate total flip time and wait for all tiles to finish flipping
-      // Show transfer application popup after all flips complete
+      // Show transfer application popup after all flips complete with win message
       setTimeout(() => {
-        showTransferApplicationPopup();
+        showTransferApplicationPopup("Rah rah right answer");
       }, totalFlipTime);
       // Show stats/results popup after transfer popup disappears (answer popup will show first)
       setTimeout(() => {
@@ -1327,9 +1327,17 @@ function updateKeyboard() {
     }
 }
 
-function showTransferApplicationPopup() {
+function showTransferApplicationPopup(message) {
     const popup = document.getElementById('transferApplicationPopup');
+    const messageEl = document.getElementById('transferApplicationMessage');
     if (popup) {
+        // Update message if provided, otherwise use default
+        if (messageEl && message) {
+            messageEl.innerText = message;
+        } else if (messageEl && !message) {
+            // Reset to default message if no message provided
+            messageEl.innerText = "Time to start that transfer application";
+        }
         popup.classList.remove('hidden');
         popup.style.display = 'flex';
         // Hide popup after 2 seconds and show answer popup
