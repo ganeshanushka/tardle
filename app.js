@@ -249,6 +249,10 @@ let words = [
             }));
           });
           window.guesses = guesses; // Update global reference
+          console.log('Restored guesses:', guesses);
+          console.log('First guess example:', guesses[0]);
+        } else {
+          console.warn('No guesses found in gameData:', gameData);
         }
         
         if (gameData.currentGuess && Array.isArray(gameData.currentGuess)) {
@@ -256,12 +260,14 @@ let words = [
             key: item.key,
             result: item.result
           }));
+          console.log('Restored currentGuess:', currentGuess);
         }
         
         gameStatus = gameData.gameStatus || 'in_progress';
         window.gameStatus = gameStatus; // Update global reference
         gameCompleted = gameData.gameCompleted === true; // Explicitly check for true
         window.gameCompleted = gameCompleted; // Update global reference
+        console.log('Restored game state:', { gameStatus, gameCompleted, gameDataGameCompleted: gameData.gameCompleted });
         
         // Restore keyboard state
         if (gameData.keys) {
