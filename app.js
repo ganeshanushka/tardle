@@ -1388,11 +1388,15 @@ let words = [
             // Show alert after flip animation completes
             // flipAndRevealGuess will handle showing the alert
             updateStatsOnWin(); // Update stats as a win
-            // Save game state immediately and again after animation
-            saveGameState(); // Save immediately
+            // Calculate total flip time to save after animation completes
+            const flipDelay = 250;
+            const flipDuration = 800;
+            const totalFlipTime = (SecretWord.length * flipDelay) + flipDuration;
+            // Save game state after flip animation completes to ensure all colors are saved
             setTimeout(() => {
-                saveGameState(); // Save again after flip animation completes to ensure it's persisted
-            }, 2000);
+                console.log('Saving completed game state (won) with guesses:', guesses.length);
+                saveGameState(); // Save after flip animation completes
+            }, totalFlipTime + 500);
         } else if (guesses.length >= NumberOfGuesses) {
             // Game lost
             gameStatus = 'lost';
@@ -1405,8 +1409,6 @@ let words = [
             const flipDelay = 250; // Delay between each flip (in milliseconds)
             const flipDuration = 800; // Duration of each flip animation (in milliseconds)
             const totalFlipTime = (SecretWord.length * flipDelay) + flipDuration;
-            // Save game state immediately
-            saveGameState();
             // Show transfer application popup after all flips complete
             setTimeout(() => {
                 showTransferApplicationPopup();
@@ -1416,10 +1418,11 @@ let words = [
                 showGameOverPopup(); // Exceeded max tries
             }, totalFlipTime + 2000);
             updateStatsOnLoss(); // Update stats as a loss
-            // Save game state again after animation to ensure it's persisted
+            // Save game state after flip animation completes to ensure all colors are saved
             setTimeout(() => {
-                saveGameState();
-            }, totalFlipTime + 2500);
+                console.log('Saving completed game state (lost) with guesses:', guesses.length);
+                saveGameState(); // Save after flip animation completes
+            }, totalFlipTime + 500);
         } else {
             currentGuess = []; // Prepare for the next guess
             // Save game state after flip animation
