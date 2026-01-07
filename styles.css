@@ -44,15 +44,15 @@ html, body {
     align-items: center;
     text-transform: uppercase;
     border: 2px solid var(--border-color);
-    height: clamp(50px, 8vw, 62px);
-    width: clamp(50px, 8vw, 62px);
-    min-height: 50px;
-    min-width: 50px;
+    height: clamp(40px, 6vw, 58px);
+    width: clamp(40px, 6vw, 58px);
+    min-height: 40px;
+    min-width: 40px;
     vertical-align: top;
     color: #1a1a1b;
     margin: clamp(2px, 0.4vw, 3px);
     transition: border-color 0.1s ease, color 0.3s ease;
-    font-size: clamp(28px, 4.5vw, 36px);
+    font-size: clamp(22px, 3.5vw, 32px);
     font-weight: bold;
     box-sizing: border-box;
   }
@@ -60,8 +60,8 @@ html, body {
   /* Mobile base styles - override min dimensions */
   @media (max-width: 768px) {
     .key-guess {
-      min-height: 35px !important;
-      min-width: 35px !important;
+      min-height: 32px !important;
+      min-width: 32px !important;
     }
   }
 
@@ -87,19 +87,19 @@ html, body {
   
   .key {
     font-weight: bold;
-    font-size: clamp(14px, 2.2vw, 18px);
+    font-size: clamp(12px, 1.8vw, 16px);
     text-transform: uppercase;
     border-radius: 4px;
     background-color: #d3d6da;
     border: 0;
-    height: clamp(42px, 6.5vh, 58px);
-    width: clamp(38px, 6vw, 43px);
-    min-width: clamp(38px, 6vw, 43px);
-    max-width: clamp(38px, 6vw, 43px);
+    height: clamp(36px, 5.5vh, 50px);
+    width: clamp(32px, 5vw, 38px);
+    min-width: clamp(32px, 5vw, 38px);
+    max-width: clamp(32px, 5vw, 38px);
     margin: clamp(1.5px, 0.3vw, 2px);
     cursor: pointer;
     color: #1a1a1b;
-    padding: clamp(6px, 1vh, 8px) clamp(4px, 0.8vw, 6px);
+    padding: clamp(4px, 0.8vh, 6px) clamp(3px, 0.6vw, 5px);
     box-sizing: border-box;
     transition: background-color 0.3s ease, color 0.3s ease;
     display: inline-flex;
@@ -118,56 +118,56 @@ html, body {
   .key.correct {
     background-color: var(--correct-color);
     color: white;
-    width: clamp(38px, 6vw, 43px);
-    min-width: clamp(38px, 6vw, 43px);
-    max-width: clamp(38px, 6vw, 43px);
-    height: clamp(42px, 6.5vh, 58px);
+    width: clamp(32px, 5vw, 38px);
+    min-width: clamp(32px, 5vw, 38px);
+    max-width: clamp(32px, 5vw, 38px);
+    height: clamp(36px, 5.5vh, 50px);
   }
   
   .key.found {
     background-color: var(--found-color);
     color: white;
-    width: clamp(38px, 6vw, 43px);
-    min-width: clamp(38px, 6vw, 43px);
-    max-width: clamp(38px, 6vw, 43px);
-    height: clamp(42px, 6.5vh, 58px);
+    width: clamp(32px, 5vw, 38px);
+    min-width: clamp(32px, 5vw, 38px);
+    max-width: clamp(32px, 5vw, 38px);
+    height: clamp(36px, 5.5vh, 50px);
   }
   
   .key.wrong {
     background-color: var(--wrong-color);
     color: white;
-    width: clamp(38px, 6vw, 43px);
-    min-width: clamp(38px, 6vw, 43px);
-    max-width: clamp(38px, 6vw, 43px);
-    height: clamp(42px, 6.5vh, 58px);
+    width: clamp(32px, 5vw, 38px);
+    min-width: clamp(32px, 5vw, 38px);
+    max-width: clamp(32px, 5vw, 38px);
+    height: clamp(36px, 5.5vh, 50px);
   }
 
   /* Ensure dark-mode keys also pick up the state colors (override base white keys) */
   :root.dark-mode .key.correct {
     background-color: var(--correct-color);
     color: white;
-    width: clamp(38px, 6vw, 43px);
-    min-width: clamp(38px, 6vw, 43px);
-    max-width: clamp(38px, 6vw, 43px);
-    height: clamp(42px, 6.5vh, 58px);
+    width: clamp(32px, 5vw, 38px);
+    min-width: clamp(32px, 5vw, 38px);
+    max-width: clamp(32px, 5vw, 38px);
+    height: clamp(36px, 5.5vh, 50px);
   }
 
   :root.dark-mode .key.found {
     background-color: var(--found-color);
     color: white;
-    width: clamp(38px, 6vw, 43px);
-    min-width: clamp(38px, 6vw, 43px);
-    max-width: clamp(38px, 6vw, 43px);
-    height: clamp(42px, 6.5vh, 58px);
+    width: clamp(32px, 5vw, 38px);
+    min-width: clamp(32px, 5vw, 38px);
+    max-width: clamp(32px, 5vw, 38px);
+    height: clamp(36px, 5.5vh, 50px);
   }
 
   :root.dark-mode .key.wrong {
     background-color: var(--wrong-color);
     color: white;
-    width: clamp(38px, 6vw, 43px);
-    min-width: clamp(38px, 6vw, 43px);
-    max-width: clamp(38px, 6vw, 43px);
-    height: clamp(42px, 6.5vh, 58px);
+    width: clamp(32px, 5vw, 38px);
+    min-width: clamp(32px, 5vw, 38px);
+    max-width: clamp(32px, 5vw, 38px);
+    height: clamp(36px, 5.5vh, 50px);
   }
 
   /* High Contrast Mode - Keyboard keys match grid colors */
@@ -176,37 +176,37 @@ html, body {
   :root.dark-mode.high-contrast-mode .key.correct {
     background-color: #f5793a !important;
     color: white !important;
-    width: clamp(38px, 6vw, 43px) !important;
-    min-width: clamp(38px, 6vw, 43px) !important;
-    max-width: clamp(38px, 6vw, 43px) !important;
-    height: clamp(42px, 6.5vh, 58px) !important;
+    width: clamp(32px, 5vw, 38px) !important;
+    min-width: clamp(32px, 5vw, 38px) !important;
+    max-width: clamp(32px, 5vw, 38px) !important;
+    height: clamp(36px, 5.5vh, 50px) !important;
   }
 
   :root.high-contrast-mode .key.found,
   :root.dark-mode.high-contrast-mode .key.found {
     background-color: #85c0f9 !important;
     color: white !important;
-    width: clamp(38px, 6vw, 43px) !important;
-    min-width: clamp(38px, 6vw, 43px) !important;
-    max-width: clamp(38px, 6vw, 43px) !important;
-    height: clamp(42px, 6.5vh, 58px) !important;
+    width: clamp(32px, 5vw, 38px) !important;
+    min-width: clamp(32px, 5vw, 38px) !important;
+    max-width: clamp(32px, 5vw, 38px) !important;
+    height: clamp(36px, 5.5vh, 50px) !important;
   }
 
   :root.high-contrast-mode .key.wrong,
   :root.dark-mode.high-contrast-mode .key.wrong {
     background-color: var(--wrong-color) !important;
     color: white !important;
-    width: clamp(38px, 6vw, 43px) !important;
-    min-width: clamp(38px, 6vw, 43px) !important;
-    max-width: clamp(38px, 6vw, 43px) !important;
-    height: clamp(42px, 6.5vh, 58px) !important;
+    width: clamp(32px, 5vw, 38px) !important;
+    min-width: clamp(32px, 5vw, 38px) !important;
+    max-width: clamp(32px, 5vw, 38px) !important;
+    height: clamp(36px, 5.5vh, 50px) !important;
   }
   
   #enter{
-    width: clamp(76px, 12vw, 90px);
-    min-width: clamp(76px, 12vw, 90px);
-    max-width: clamp(76px, 12vw, 90px);
-    height: clamp(42px, 6.5vh, 58px);
+    width: clamp(64px, 10vw, 76px);
+    min-width: clamp(64px, 10vw, 76px);
+    max-width: clamp(64px, 10vw, 76px);
+    height: clamp(36px, 5.5vh, 50px);
   }
 
   /* Shake animation for invalid words */
