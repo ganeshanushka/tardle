@@ -35,6 +35,22 @@
     font-weight: normal;
   }
 
+  /* Global Safari/Chrome button compatibility */
+  button, 
+  .button,
+  [role="button"],
+  a.button,
+  input[type="button"],
+  input[type="submit"],
+  .close-button {
+    -webkit-user-select: none;
+    user-select: none;
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+  }
 
   body {
   background-color:  #7BAFD4;
@@ -191,7 +207,7 @@
 
 <body>
 <div class="container">
-  <div class="close-button" onclick="goBack()">X</div>
+  <div class="close-button" id="closeButton">X</div>
   <h1>How To Play</h1>
   <p>Guess the carolina word in 6 tries.</p>
   <ul>
@@ -240,6 +256,30 @@
 <script>
     function goBack() {
       window.history.back();
+    }
+    
+    // Set up button event listeners (Safari/Chrome compatible)
+    document.addEventListener('DOMContentLoaded', function() {
+      const closeButton = document.getElementById('closeButton');
+      if (closeButton) {
+        closeButton.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          goBack();
+        });
+      }
+    });
+    
+    // Fallback for if DOM is already loaded
+    if (document.readyState !== 'loading') {
+      const closeButton = document.getElementById('closeButton');
+      if (closeButton) {
+        closeButton.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          goBack();
+        });
+      }
     }
 
     // Animate tiles with flip effect on page load - only colored tiles flip, all at once

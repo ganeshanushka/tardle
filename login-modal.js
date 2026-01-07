@@ -14,7 +14,7 @@
   const modalHTML = `
     <div class="login-modal-overlay" id="loginModalOverlay">
       <div class="login-modal-container">
-        <button class="login-modal-close" onclick="closeLoginModal()">×</button>
+        <button class="login-modal-close" id="loginModalCloseBtn">×</button>
         
         <!-- Email Step -->
         <div id="loginModalEmailStep" class="login-modal-step">
@@ -44,14 +44,14 @@
               <label for="loginModalSigninEmail">Email Address</label>
               <div style="display: flex; gap: 8px; align-items: center;">
                 <input type="email" id="loginModalSigninEmail" name="email" readonly required style="flex: 1; background-color: #f5f5f5;">
-                <button type="button" class="login-modal-edit-btn" id="loginModalEditEmailBtn" onclick="loginModalGoBackToEmail()">Edit</button>
+                <button type="button" class="login-modal-edit-btn" id="loginModalEditEmailBtn">Edit</button>
               </div>
             </div>
             <div class="login-modal-input-group">
               <label for="loginModalSigninPassword">Password</label>
               <div style="position: relative;">
                 <input type="password" id="loginModalSigninPassword" name="password" required style="width: 100%; padding-right: 40px;">
-                <button type="button" class="login-modal-password-toggle" id="loginModalSigninPasswordToggle" onclick="loginModalTogglePassword('loginModalSigninPassword', 'loginModalSigninPasswordToggle')">
+                <button type="button" class="login-modal-password-toggle" id="loginModalSigninPasswordToggle">
                   <svg id="loginModalSigninEyeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                     <circle cx="12" cy="12" r="3"></circle>
@@ -82,14 +82,14 @@
               <label for="loginModalSignupEmail">Email</label>
               <div style="display: flex; gap: 8px; align-items: center;">
                 <input type="email" id="loginModalSignupEmail" name="email" readonly required style="flex: 1; background-color: #f5f5f5;">
-                <button type="button" class="login-modal-edit-btn" id="loginModalSignupEditEmailBtn" onclick="loginModalGoBackToEmail()">Edit</button>
+                <button type="button" class="login-modal-edit-btn" id="loginModalSignupEditEmailBtn">Edit</button>
               </div>
             </div>
             <div class="login-modal-input-group">
               <label for="loginModalSignupPassword">Password</label>
               <div style="position: relative;">
                 <input type="password" id="loginModalSignupPassword" name="password" required maxlength="128" style="width: 100%; padding-right: 40px;">
-                <button type="button" class="login-modal-password-toggle" id="loginModalSignupPasswordToggle" onclick="loginModalTogglePassword('loginModalSignupPassword', 'loginModalSignupPasswordToggle')">
+                <button type="button" class="login-modal-password-toggle" id="loginModalSignupPasswordToggle">
                   <svg id="loginModalSignupEyeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                     <circle cx="12" cy="12" r="3"></circle>
@@ -1249,6 +1249,52 @@
     document.addEventListener('DOMContentLoaded', function() {
       if (document.getElementById('loginModalEmailForm')) {
         setTimeout(setupFormHandlers, 100);
+      }
+      
+      // Set up button event listeners (Safari/Chrome compatible)
+      const loginModalCloseBtn = document.getElementById('loginModalCloseBtn');
+      if (loginModalCloseBtn) {
+        loginModalCloseBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          closeLoginModal();
+        });
+      }
+      
+      const loginModalEditEmailBtn = document.getElementById('loginModalEditEmailBtn');
+      if (loginModalEditEmailBtn) {
+        loginModalEditEmailBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          loginModalGoBackToEmail();
+        });
+      }
+      
+      const loginModalSignupEditEmailBtn = document.getElementById('loginModalSignupEditEmailBtn');
+      if (loginModalSignupEditEmailBtn) {
+        loginModalSignupEditEmailBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          loginModalGoBackToEmail();
+        });
+      }
+      
+      const loginModalSigninPasswordToggle = document.getElementById('loginModalSigninPasswordToggle');
+      if (loginModalSigninPasswordToggle) {
+        loginModalSigninPasswordToggle.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          loginModalTogglePassword('loginModalSigninPassword', 'loginModalSigninPasswordToggle');
+        });
+      }
+      
+      const loginModalSignupPasswordToggle = document.getElementById('loginModalSignupPasswordToggle');
+      if (loginModalSignupPasswordToggle) {
+        loginModalSignupPasswordToggle.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          loginModalTogglePassword('loginModalSignupPassword', 'loginModalSignupPasswordToggle');
+        });
       }
     });
   } else {

@@ -91,6 +91,22 @@
     --found-color-hc: #85c0f9;
   }
 
+  /* Global Safari/Chrome button compatibility */
+  button, 
+  .button,
+  [role="button"],
+  a.button,
+  input[type="button"],
+  input[type="submit"] {
+    -webkit-user-select: none;
+    user-select: none;
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+  }
+
   html {
     margin: 0;
     padding: 0;
@@ -2717,7 +2733,7 @@
   <!-- Login Prompt Modal -->
   <div id="loginPromptModal">
     <div class="login-prompt-content">
-      <button class="login-prompt-close" onclick="closeLoginPrompt()">×</button>
+      <button class="login-prompt-close" id="loginPromptCloseBtn">×</button>
       <h2 class="login-prompt-heading">Make a Tardle account if you hate Duke!</h2>
       <p class="login-prompt-text">(It's free, and you'll never lose a streak again)</p>
       <a href="login.html" class="login-prompt-button">Log in or create an account</a>
@@ -2729,7 +2745,7 @@
     <div class="how-to-play-content">
       <div class="how-to-play-header">
         <h1 class="how-to-play-title">How To Play</h1>
-        <button class="how-to-play-close" onclick="closeHowToPlay()">×</button>
+        <button class="how-to-play-close" id="howToPlayCloseBtn">×</button>
       </div>
       <p class="how-to-play-text">Guess the carolina word in 6 tries.</p>
       <ul class="how-to-play-list">
@@ -2777,13 +2793,13 @@
   </div>
 
   <!-- Overlay for side panel -->
-  <div class="panel-overlay" id="panelOverlay" onclick="toggleMenu()"></div>
+  <div class="panel-overlay" id="panelOverlay"></div>
   
   <!-- Side panel -->
   <div class="side-panel" id="sidePanel">
     <div class="side-panel-content">
       <div class="side-panel-header">
-        <button class="side-panel-close" onclick="toggleMenu()">×</button>
+        <button class="side-panel-close" id="sidePanelCloseBtn">×</button>
         <div class="side-panel-separator"></div>
         <h2 class="side-panel-title">Tardle</h2>
       </div>
@@ -2808,22 +2824,22 @@
           <div class="side-panel-divider" id="profileDivider" style="display: none;"></div>
           <div class="side-panel-section" id="profileSection" style="display: none;">
             <div class="side-panel-section-title">PROFILE</div>
-            <a href="#" class="side-panel-link" onclick="handleAccountDetailsClick(event)">Account details</a>
+            <a href="#" class="side-panel-link" id="accountDetailsLink">Account details</a>
           </div>
-          <button class="side-panel-button logout-button" id="logoutButton" onclick="handleLogout()">LOG OUT</button>
+          <button class="side-panel-button logout-button" id="logoutButton">LOG OUT</button>
         </div>
       </div>
     </div>
   </div>
 
   <div class="title-bar">
-    <div class="hamburger-menu" onclick="toggleMenu()">
+    <div class="hamburger-menu" id="hamburgerMenu">
       <span></span>
       <span></span>
       <span></span>
     </div>
     <div class="title-text">Tardle</div>
-    <div class="podium-icon" onclick="handlePodiumClick(event)" aria-label="Leaderboard">
+    <div class="podium-icon" id="podiumIcon" aria-label="Leaderboard">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter">
         <!-- Podium with three bars: left (medium), middle (tallest), right (shortest) -->
         <!-- All bars aligned at bottom (y=20 for 24px viewBox) -->
@@ -2835,21 +2851,21 @@
         <rect x="16" y="14" width="5" height="6" fill="none"/>
       </svg>
     </div>
-    <div class="stats-icon" onclick="handleStatsClick()" aria-label="Statistics">
+    <div class="stats-icon" id="statsIcon" aria-label="Statistics">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <line x1="18" y1="20" x2="18" y2="10"></line>
         <line x1="12" y1="20" x2="12" y2="4"></line>
         <line x1="6" y1="20" x2="6" y2="14"></line>
       </svg>
     </div>
-    <div class="help-icon" onclick="handleHelpClick()" aria-label="Help">
+    <div class="help-icon" id="helpIcon" aria-label="Help">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="10" fill="none"/>
         <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
         <path d="M12 17h.01"/>
       </svg>
     </div>
-    <div class="settings-icon" onclick="handleSettingsClick()" aria-label="Settings">
+    <div class="settings-icon" id="settingsIcon" aria-label="Settings">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
         <!-- Gear with 12 teeth - proper outline -->
         <path d="M12.00 2.00 L13.94 4.76 L17.00 3.34 L17.30 6.70 L20.66 7.00 L19.24 10.06 L22.00 12.00 L19.24 13.94 L20.66 17.00 L17.30 17.30 L17.00 20.66 L13.94 19.24 L12.00 22.00 L10.06 19.24 L7.00 20.66 L6.70 17.30 L3.34 17.00 L4.76 13.94 L2.00 12.00 L4.76 10.06 L3.34 7.00 L6.70 6.70 L7.00 3.34 L10.06 4.76 Z" fill="none"/>
@@ -2859,7 +2875,7 @@
         <circle cx="12" cy="12" r="2.5" fill="none"/>
       </svg>
     </div>
-    <div class="close-button" onclick="goBack()">X</div>
+    <div class="close-button" id="closeButton">X</div>
   </div>
   <div class="container">
     <div id="customPopup" class="hidden">
@@ -2880,10 +2896,10 @@
     <div id="guessGrid"></div>
     <div id="keyboard"></div>
     <div id="gameOverButtons" class="hidden" style="display: none; flex-direction: column; align-items: center; gap: 12px; margin-top: 20px;">
-      <button class="game-over-button" onclick="showResultsOrStatsPopup()">See results</button>
+      <button class="game-over-button" id="gameOverButton">See results</button>
     </div>
     <div id="seeResultsBtn" class="hidden" style="display: none; justify-content: center; margin-top: 20px;">
-      <button class="see-results-button" onclick="showResultsPopup()">See results</button>
+      <button class="see-results-button" id="seeResultsButton">See results</button>
     </div>
   <div id="invalidWordPopup" class="hidden">
     <div class="popup-content">
@@ -2907,7 +2923,7 @@
           <!-- Stats Login Prompt Popup (shown when user is not logged in) -->
           <div id="statsLoginPromptPopup" class="hidden">
             <div class="stats-login-prompt-content">
-              <button class="stats-login-close-btn" onclick="closeStatsLoginPrompt()">×</button>
+              <button class="stats-login-close-btn" id="statsLoginCloseBtn">×</button>
               <h1 class="stats-login-title">Statistics</h1>
               <div class="stats-login-illustration">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" style="max-width: 100%; height: auto;">
@@ -2985,7 +3001,7 @@
           <div id="statsPopup" class="hidden">
             <div class="popup-content">
               <div class="stats-modal-header">
-                <button class="stats-close-btn" onclick="closeStatsPopup()">×</button>
+                <button class="stats-close-btn" id="statsCloseBtn">×</button>
               </div>
               <div class="stats-content">
                 <h2 class="stats-section-header">Statistics</h2>
@@ -3022,7 +3038,7 @@
           <!-- Results Popup (shown after win for logged-out users) -->
           <div id="resultsPopup" class="hidden">
             <div class="results-popup-content">
-              <button class="results-close-btn" onclick="closeResultsPopup()">×</button>
+              <button class="results-close-btn" id="resultsCloseBtn">×</button>
               <div class="results-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                   <!-- Ram head silhouette with curved horns -->
@@ -3038,7 +3054,7 @@
               </div>
               <h1 class="results-heading">Thanks for playing today!</h1>
               <p class="results-text">Track your Tardle win percentage and see your game statistics.</p>
-              <button class="results-create-account-btn" onclick="window.location.href='login.html?return=play.html'">Create a free account</button>
+              <button class="results-create-account-btn" id="resultsCreateAccountBtn">Create a free account</button>
               <a href="login.html?return=play.html" class="results-login-link">Already Registered? Log In</a>
               <div style="position: relative; display: inline-block;">
               <button class="results-share-btn" id="resultsShareButton">
@@ -3053,7 +3069,7 @@
             <div class="settings-modal-content">
               <div class="settings-modal-header">
                 <h2>SETTINGS</h2>
-                <button class="settings-close-btn" onclick="closeSettingsModal()">×</button>
+                <button class="settings-close-btn" id="settingsCloseBtn">×</button>
               </div>
               <div class="settings-options">
                 <div class="setting-item">
@@ -3094,7 +3110,7 @@
             <div class="help-modal-content">
               <div class="help-modal-header">
                 <h1>How To Play</h1>
-                <button class="help-close-btn" onclick="closeHelpModal()">×</button>
+                <button class="help-close-btn" id="helpCloseBtn">×</button>
               </div>
               <div class="help-content">
                 <p>Guess the carolina word in 6 tries.</p>
@@ -3147,7 +3163,7 @@
             <div class="help-modal-content">
               <div class="help-modal-header">
                 <h1>High Contrast Mode</h1>
-                <button class="help-close-btn" onclick="closeHighContrastModal()">×</button>
+                <button class="help-close-btn" id="highContrastCloseBtn">×</button>
               </div>
               <div class="help-content">
                 <p>High Contrast Mode uses colors that are easier to distinguish for colorblind users.</p>
@@ -3824,11 +3840,206 @@
             }
           }
           
+          // Set up all button event listeners (Safari/Chrome compatible)
+          function setupAllButtons() {
+            // Share buttons
+            setupShareButtons();
+            
+            // Close buttons
+            const loginPromptCloseBtn = document.getElementById('loginPromptCloseBtn');
+            if (loginPromptCloseBtn) {
+              loginPromptCloseBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                closeLoginPrompt();
+              });
+            }
+            
+            const howToPlayCloseBtn = document.getElementById('howToPlayCloseBtn');
+            if (howToPlayCloseBtn) {
+              howToPlayCloseBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                closeHowToPlay();
+              });
+            }
+            
+            const sidePanelCloseBtn = document.getElementById('sidePanelCloseBtn');
+            const panelOverlay = document.getElementById('panelOverlay');
+            if (sidePanelCloseBtn) {
+              sidePanelCloseBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleMenu();
+              });
+            }
+            if (panelOverlay) {
+              panelOverlay.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleMenu();
+              });
+            }
+            
+            const hamburgerMenu = document.getElementById('hamburgerMenu');
+            if (hamburgerMenu) {
+              hamburgerMenu.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleMenu();
+              });
+            }
+            
+            const closeButton = document.getElementById('closeButton');
+            if (closeButton) {
+              closeButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                goBack();
+              });
+            }
+            
+            const accountDetailsLink = document.getElementById('accountDetailsLink');
+            if (accountDetailsLink) {
+              accountDetailsLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                handleAccountDetailsClick(e);
+              });
+            }
+            
+            const logoutButton = document.getElementById('logoutButton');
+            if (logoutButton) {
+              logoutButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                handleLogout();
+              });
+            }
+            
+            const podiumIcon = document.getElementById('podiumIcon');
+            if (podiumIcon) {
+              podiumIcon.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                handlePodiumClick(e);
+              });
+            }
+            
+            const statsIcon = document.getElementById('statsIcon');
+            if (statsIcon) {
+              statsIcon.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                handleStatsClick();
+              });
+            }
+            
+            const helpIcon = document.getElementById('helpIcon');
+            if (helpIcon) {
+              helpIcon.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                handleHelpClick();
+              });
+            }
+            
+            const settingsIcon = document.getElementById('settingsIcon');
+            if (settingsIcon) {
+              settingsIcon.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                handleSettingsClick();
+              });
+            }
+            
+            const gameOverButton = document.getElementById('gameOverButton');
+            if (gameOverButton) {
+              gameOverButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                showResultsOrStatsPopup();
+              });
+            }
+            
+            const seeResultsButton = document.getElementById('seeResultsButton');
+            if (seeResultsButton) {
+              seeResultsButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                showResultsPopup();
+              });
+            }
+            
+            const statsLoginCloseBtn = document.getElementById('statsLoginCloseBtn');
+            if (statsLoginCloseBtn) {
+              statsLoginCloseBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                closeStatsLoginPrompt();
+              });
+            }
+            
+            const statsCloseBtn = document.getElementById('statsCloseBtn');
+            if (statsCloseBtn) {
+              statsCloseBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                closeStatsPopup();
+              });
+            }
+            
+            const resultsCloseBtn = document.getElementById('resultsCloseBtn');
+            if (resultsCloseBtn) {
+              resultsCloseBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                closeResultsPopup();
+              });
+            }
+            
+            const resultsCreateAccountBtn = document.getElementById('resultsCreateAccountBtn');
+            if (resultsCreateAccountBtn) {
+              resultsCreateAccountBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                window.location.href = 'login.html?return=play.html';
+              });
+            }
+            
+            const settingsCloseBtn = document.getElementById('settingsCloseBtn');
+            if (settingsCloseBtn) {
+              settingsCloseBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                closeSettingsModal();
+              });
+            }
+            
+            const helpCloseBtn = document.getElementById('helpCloseBtn');
+            if (helpCloseBtn) {
+              helpCloseBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                closeHelpModal();
+              });
+            }
+            
+            const highContrastCloseBtn = document.getElementById('highContrastCloseBtn');
+            if (highContrastCloseBtn) {
+              highContrastCloseBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                closeHighContrastModal();
+              });
+            }
+          }
+          
           // Set up buttons when DOM is ready
           if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', setupShareButtons);
+            document.addEventListener('DOMContentLoaded', setupAllButtons);
           } else {
-            setupShareButtons();
+            setupAllButtons();
           }
 
           function closeStatsLoginPrompt() {

@@ -34,6 +34,23 @@
     font-weight: normal;
   }
 
+  /* Global Safari/Chrome button compatibility */
+  button, 
+  .button,
+  [role="button"],
+  a.button,
+  input[type="button"],
+  input[type="submit"],
+  .close-button,
+  .login-prompt-close {
+    -webkit-user-select: none;
+    user-select: none;
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+  }
 
   body, html {
     height: 100%;
@@ -285,7 +302,7 @@
 <!-- Login Prompt Modal -->
 <div id="loginPromptModal">
   <div class="login-prompt-content">
-    <button class="login-prompt-close" onclick="closeLoginPrompt()">×</button>
+    <button class="login-prompt-close" id="loginPromptCloseBtn">×</button>
     <h2 class="login-prompt-heading">Make a Tardle account if you hate Duke!</h2>
     <p class="login-prompt-text">(It's free, and you'll never lose a streak again)</p>
     <a href="login.html" class="login-prompt-button">Log in or create an account</a>

@@ -34,6 +34,23 @@
     font-weight: normal;
   }
 
+  /* Global Safari/Chrome button compatibility */
+  button, 
+  .button,
+  [role="button"],
+  a.button,
+  input[type="button"],
+  input[type="submit"],
+  .close-button {
+    -webkit-user-select: none;
+    user-select: none;
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+  }
+
 
   body {
     font-family: 'Field Gothic Narrow', sans-serif;
@@ -278,7 +295,7 @@
 <body>
 
 <div class="login-container">
-  <div class="close-button" onclick="goBack()">x</div>
+  <div class="close-button" id="closeButton">x</div>
   <h1>Create an account</h1>
   <form id="signupForm">
     <div class="input-group">
@@ -345,6 +362,30 @@
 
   function goBack() {
     window.location.href = 'index.html';
+  }
+  
+  // Set up button event listeners (Safari/Chrome compatible)
+  document.addEventListener('DOMContentLoaded', function() {
+    const closeButton = document.getElementById('closeButton');
+    if (closeButton) {
+      closeButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        goBack();
+      });
+    }
+  });
+  
+  // Fallback for if DOM is already loaded
+  if (document.readyState !== 'loading') {
+    const closeButton = document.getElementById('closeButton');
+    if (closeButton) {
+      closeButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        goBack();
+      });
+    }
   }
 
   // Username validation on blur
