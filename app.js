@@ -545,8 +545,9 @@ let words = [
   // Game state variables
   let gameStatus = 'in_progress'; // 'in_progress', 'won', 'lost'
   let gameCompleted = false;
-  // Expose gameStatus to global scope for share function
+  // Expose gameStatus and gameCompleted to global scope for share function
   window.gameStatus = gameStatus;
+  window.gameCompleted = gameCompleted;
   
   function initialize() {
     // Ensure all popups are hidden on page load
