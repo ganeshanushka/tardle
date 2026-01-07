@@ -268,33 +268,65 @@ let words = [
         console.log('Loaded gameCompleted from DB:', gameData.gameCompleted);
         
         // Verify the secret word matches (in case date changed)
+        // Only reset if the date actually changed (not just on page load)
         if (gameData.secretWord && gameData.secretWord !== SecretWord) {
           console.log('Secret word mismatch - date changed, starting fresh game');
           console.log('Saved word:', gameData.secretWord, 'Current word:', SecretWord);
+          // Don't return - allow the game to continue with saved state if it's the same day
+          // The date check should happen at midnight, not on every page load
+          // For now, if word doesn't match, it means it's a new day, so start fresh
           return;
         }
         
+        // If game is completed and it's the same day, show the final screen
+        if (gameData.gameCompleted === true && gameData.secretWord === SecretWord) {
+          console.log('Game completed for today - will show final screen with all colors');
+        }
+        
         // Restore game state
-        if (gameData.guesses && Array.isArray(gameData.guesses)) {
+        if (gameData.guesses && Array.isArray(gameData.guesses) && gameData.guesses.length > 0) {
           guesses = gameData.guesses.map(guess => {
-            return guess.map(item => ({
-              key: item.key,
-              result: item.result
-            }));
+            return guess.map(item => {
+              // Normalize result to ensure it's a string
+              let resultValue = item.result;
+              if (resultValue === Correct || resultValue === 'correct') {
+                resultValue = 'correct';
+              } else if (resultValue === Found || resultValue === 'found') {
+                resultValue = 'found';
+              } else if (resultValue === Wrong || resultValue === 'wrong') {
+                resultValue = 'wrong';
+              }
+              return {
+                key: item.key || '',
+                result: resultValue || ''
+              };
+            });
           });
           window.guesses = guesses; // Update global reference
           console.log('Restored guesses:', guesses);
-          console.log('First guess example:', guesses[0]);
+          console.log('Restored guesses count:', guesses.length);
+          if (guesses.length > 0) {
+            console.log('First guess example:', guesses[0]);
+            console.log('First guess with results:', guesses[0].map(item => `${item.key}:${item.result}`).join(', '));
+          }
         } else {
-          console.warn('No guesses found in gameData:', gameData);
+          console.warn('No guesses found in gameData or guesses array is empty:', gameData);
+          guesses = [];
+          window.guesses = guesses;
         }
         
-        if (gameData.currentGuess && Array.isArray(gameData.currentGuess)) {
+        // Only restore currentGuess if game is NOT completed
+        // When game is completed, currentGuess should be empty
+        if (!gameData.gameCompleted && gameData.currentGuess && Array.isArray(gameData.currentGuess) && gameData.currentGuess.length > 0) {
           currentGuess = gameData.currentGuess.map(item => ({
-            key: item.key,
-            result: item.result
+            key: item.key || '',
+            result: item.result || ''
           }));
           console.log('Restored currentGuess:', currentGuess);
+        } else {
+          // Game is completed or no currentGuess - clear it
+          currentGuess = [];
+          console.log('Cleared currentGuess (game completed or no current guess)');
         }
         
         gameStatus = gameData.gameStatus || 'in_progress';
@@ -450,15 +482,32 @@ let words = [
       );
       
       // Prepare game state data
+      // When game is completed, ensure currentGuess is empty (all guesses should be in guesses array)
+      const finalCurrentGuess = gameCompleted ? [] : currentGuess.map(item => ({
+        key: item.key,
+        result: item.result
+      }));
+      
+      // Ensure all guesses have results (colors) - convert constants to strings if needed
+      const finalGuesses = guesses.map(guess => guess.map(item => {
+        let resultValue = item.result;
+        // Normalize result to string if it's a constant
+        if (resultValue === Correct || resultValue === 'correct') {
+          resultValue = 'correct';
+        } else if (resultValue === Found || resultValue === 'found') {
+          resultValue = 'found';
+        } else if (resultValue === Wrong || resultValue === 'wrong') {
+          resultValue = 'wrong';
+        }
+        return {
+          key: item.key || '',
+          result: resultValue || ''
+        };
+      }));
+      
       const gameStateData = {
-        guesses: guesses.map(guess => guess.map(item => ({
-          key: item.key,
-          result: item.result
-        }))),
-        currentGuess: currentGuess.map(item => ({
-          key: item.key,
-          result: item.result
-        })),
+        guesses: finalGuesses,
+        currentGuess: finalCurrentGuess,
         gameStatus: gameStatus,
         gameCompleted: gameCompleted,
         keys: { ...keys }, // Save keyboard state
@@ -470,8 +519,13 @@ let words = [
       await window.firebaseFirestoreFunctions.setDoc(gameStateRef, gameStateData, { merge: true });
       console.log('Game state saved:', gameStateData);
       console.log('Saved gameCompleted:', gameCompleted);
-      console.log('Saved guesses count:', guesses.length);
-      console.log('First saved guess example:', guesses[0]);
+      console.log('Saved gameStatus:', gameStatus);
+      console.log('Saved guesses count:', finalGuesses.length);
+      console.log('Saved currentGuess count:', finalCurrentGuess.length);
+      if (finalGuesses.length > 0) {
+        console.log('First saved guess example:', finalGuesses[0]);
+        console.log('First guess with results:', finalGuesses[0].map(item => `${item.key}:${item.result}`).join(', '));
+      }
     } catch (error) {
       console.error('Error saving game state:', error);
     }
@@ -494,27 +548,32 @@ let words = [
     guesses.forEach((guess, rowIndex) => {
       guess.forEach((item, colIndex) => {
         const cell = document.getElementById(`${rowIndex}${colIndex}`);
-        if (cell && item) {
+        if (cell && item && item.key) {
           cell.textContent = item.key || '';
           // Remove any existing result classes first
-          cell.classList.remove('filled', 'correct', 'found', 'wrong');
-          // Add result class (correct, found, wrong) if it exists
-          // Check for both string and constant values
-          const resultValue = item.result;
-          if (resultValue && (resultValue === 'correct' || resultValue === 'found' || resultValue === 'wrong' || 
-              resultValue === Correct || resultValue === Found || resultValue === Wrong)) {
-            // Normalize to lowercase string for CSS class
-            const resultClass = typeof resultValue === 'string' ? resultValue : 
-                                (resultValue === Correct ? 'correct' : 
-                                 resultValue === Found ? 'found' : 'wrong');
-            cell.classList.add(resultClass);
-            console.log(`Cell ${rowIndex}${colIndex}: ${item.key} -> ${resultClass} (original: ${resultValue})`);
+          cell.classList.remove('filled', 'correct', 'found', 'wrong', 'flip');
+          
+          // Normalize result value to string
+          let resultValue = item.result;
+          if (resultValue === Correct || resultValue === 'correct') {
+            resultValue = 'correct';
+          } else if (resultValue === Found || resultValue === 'found') {
+            resultValue = 'found';
+          } else if (resultValue === Wrong || resultValue === 'wrong') {
+            resultValue = 'wrong';
+          }
+          
+          // Add result class if it exists
+          if (resultValue && (resultValue === 'correct' || resultValue === 'found' || resultValue === 'wrong')) {
+            cell.classList.add(resultValue);
+            console.log(`Cell ${rowIndex}${colIndex}: ${item.key} -> ${resultValue} (with color)`);
           } else {
+            // If no result, just show as filled (shouldn't happen for completed guesses)
             cell.classList.add('filled');
-            console.log(`Cell ${rowIndex}${colIndex}: ${item.key} -> filled (no result: ${resultValue})`);
+            console.warn(`Cell ${rowIndex}${colIndex}: ${item.key} -> filled (no result: ${resultValue})`);
           }
         } else {
-          console.warn(`Cell ${rowIndex}${colIndex} not found in DOM or item is null`);
+          console.warn(`Cell ${rowIndex}${colIndex} not found in DOM or item is null/invalid`);
         }
       });
     });
@@ -1324,6 +1383,8 @@ let words = [
             window.gameStatus = gameStatus; // Update global reference
             gameCompleted = true;
             window.gameCompleted = gameCompleted; // Update global reference
+            // Clear currentGuess since game is completed
+            currentGuess = [];
             // Show alert after flip animation completes
             // flipAndRevealGuess will handle showing the alert
             updateStatsOnWin(); // Update stats as a win
@@ -1338,6 +1399,8 @@ let words = [
             window.gameStatus = gameStatus; // Update global reference
             gameCompleted = true;
             window.gameCompleted = gameCompleted; // Update global reference
+            // Clear currentGuess since game is completed
+            currentGuess = [];
             // Calculate total flip time and wait for all tiles to finish flipping
             const flipDelay = 250; // Delay between each flip (in milliseconds)
             const flipDuration = 800; // Duration of each flip animation (in milliseconds)
