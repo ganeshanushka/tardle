@@ -293,23 +293,62 @@ let words = [
         });
         
         if (gameData.guesses && Array.isArray(gameData.guesses) && gameData.guesses.length > 0) {
-          guesses = gameData.guesses.map(guess => {
-            return guess.map(item => {
-              // Normalize result to ensure it's a string
-              let resultValue = item.result;
-              if (resultValue === Correct || resultValue === 'correct') {
-                resultValue = 'correct';
-              } else if (resultValue === Found || resultValue === 'found') {
-                resultValue = 'found';
-              } else if (resultValue === Wrong || resultValue === 'wrong') {
-                resultValue = 'wrong';
+          // Check if guesses are in the new flat format (with guessIndex) or old nested format
+          const firstItem = gameData.guesses[0];
+          if (firstItem && typeof firstItem.guessIndex === 'number') {
+            // New flat format - reconstruct nested array structure
+            const maxGuessIndex = Math.max(...gameData.guesses.map(item => item.guessIndex || 0));
+            guesses = [];
+            for (let i = 0; i <= maxGuessIndex; i++) {
+              const guessItems = gameData.guesses
+                .filter(item => item.guessIndex === i)
+                .sort((a, b) => (a.itemIndex || 0) - (b.itemIndex || 0))
+                .map(item => {
+                  // Normalize result to ensure it's a string
+                  let resultValue = item.result;
+                  if (resultValue === Correct || resultValue === 'correct') {
+                    resultValue = 'correct';
+                  } else if (resultValue === Found || resultValue === 'found') {
+                    resultValue = 'found';
+                  } else if (resultValue === Wrong || resultValue === 'wrong') {
+                    resultValue = 'wrong';
+                  }
+                  return {
+                    key: item.key || '',
+                    result: resultValue || ''
+                  };
+                });
+              if (guessItems.length > 0) {
+                guesses.push(guessItems);
               }
-              return {
-                key: item.key || '',
-                result: resultValue || ''
-              };
+            }
+          } else if (Array.isArray(firstItem)) {
+            // Old nested format (for backward compatibility)
+            guesses = gameData.guesses.map(guess => {
+              return guess.map(item => {
+                // Normalize result to ensure it's a string
+                let resultValue = item.result;
+                if (resultValue === Correct || resultValue === 'correct') {
+                  resultValue = 'correct';
+                } else if (resultValue === Found || resultValue === 'found') {
+                  resultValue = 'found';
+                } else if (resultValue === Wrong || resultValue === 'wrong') {
+                  resultValue = 'wrong';
+                }
+                return {
+                  key: item.key || '',
+                  result: resultValue || ''
+                };
+              });
             });
-          });
+          } else {
+            // Single item format (shouldn't happen, but handle it)
+            console.warn('⚠️ Unexpected guess format, attempting to reconstruct...');
+            guesses = [gameData.guesses.map(item => ({
+              key: item.key || '',
+              result: item.result || ''
+            }))];
+          }
           window.guesses = guesses; // Update global reference
           console.log('✅ Restored guesses:', guesses.length, 'guesses');
           if (guesses.length > 0) {
@@ -498,15 +537,18 @@ let words = [
       }));
       
       // Ensure all guesses have results (colors) - convert constants to strings if needed
-      const finalGuesses = guesses.map(guess => {
+      // Firestore doesn't support nested arrays, so we need to flatten the structure
+      // Convert array of arrays to array of objects with guessIndex
+      const finalGuesses = [];
+      guesses.forEach((guess, guessIndex) => {
         if (!Array.isArray(guess)) {
           console.error('Invalid guess format:', guess);
-          return [];
+          return;
         }
-        return guess.map(item => {
+        const guessItems = guess.map((item, itemIndex) => {
           if (!item || !item.key) {
             console.error('Invalid guess item:', item);
-            return { key: '', result: '' };
+            return { key: '', result: '', guessIndex, itemIndex };
           }
           let resultValue = item.result;
           // Normalize result to string if it's a constant
@@ -519,9 +561,13 @@ let words = [
           }
           return {
             key: item.key || '',
-            result: resultValue || ''
+            result: resultValue || '',
+            guessIndex: guessIndex,
+            itemIndex: itemIndex
           };
         });
+        // Add all items from this guess to the flat array
+        finalGuesses.push(...guessItems);
       });
       
       // Validate that guesses have results before saving
@@ -577,12 +623,22 @@ let words = [
       console.log('✅ Game state saved successfully!');
       console.log('Saved gameCompleted:', gameCompleted);
       console.log('Saved gameStatus:', gameStatus);
-      console.log('Saved guesses count:', finalGuesses.length);
+      console.log('Saved guesses count (flat):', finalGuesses.length);
       console.log('Saved currentGuess count:', finalCurrentGuess.length);
       if (finalGuesses.length > 0) {
-        console.log('First saved guess example:', finalGuesses[0]);
-        console.log('First guess with results:', finalGuesses[0].map(item => `${item.key}:${item.result}`).join(', '));
-        console.log('All guesses summary:', finalGuesses.map((g, i) => `Guess ${i+1}: ${g.map(item => `${item.key}(${item.result})`).join(' ')}`));
+        // Group by guessIndex for display
+        const guessesByIndex = {};
+        finalGuesses.forEach(item => {
+          const idx = item.guessIndex || 0;
+          if (!guessesByIndex[idx]) guessesByIndex[idx] = [];
+          guessesByIndex[idx].push(item);
+        });
+        const guessCount = Object.keys(guessesByIndex).length;
+        console.log('Saved guess groups:', guessCount);
+        if (guessCount > 0) {
+          const firstGuessGroup = guessesByIndex[0];
+          console.log('First saved guess example:', firstGuessGroup.map(item => `${item.key}:${item.result}`).join(', '));
+        }
       } else {
         console.error('❌ WARNING: No guesses to save! This should not happen for completed games.');
       }
@@ -688,12 +744,37 @@ let words = [
       if (buttonsContainer) {
         buttonsContainer.classList.remove('hidden');
         buttonsContainer.style.display = 'flex';
+        buttonsContainer.style.visibility = 'visible';
+        console.log('✅ Showing gameOverButtons container');
+      } else {
+        console.warn('⚠️ gameOverButtons container not found');
+      }
+      
+      const gameOverButton = document.getElementById('gameOverButton');
+      if (gameOverButton) {
+        gameOverButton.style.display = 'block';
+        gameOverButton.style.visibility = 'visible';
+        console.log('✅ Showing gameOverButton');
+      } else {
+        console.warn('⚠️ gameOverButton not found');
       }
       
       // Also try the see-results-button class selector as fallback
-      const seeResultsButton = document.querySelector('.see-results-button');
+      const seeResultsBtn = document.getElementById('seeResultsBtn');
+      if (seeResultsBtn) {
+        seeResultsBtn.classList.remove('hidden');
+        seeResultsBtn.style.display = 'flex';
+        seeResultsBtn.style.visibility = 'visible';
+        console.log('✅ Showing seeResultsBtn container');
+      }
+      
+      const seeResultsButton = document.getElementById('seeResultsButton');
       if (seeResultsButton) {
         seeResultsButton.style.display = 'block';
+        seeResultsButton.style.visibility = 'visible';
+        console.log('✅ Showing seeResultsButton');
+      } else {
+        console.warn('⚠️ seeResultsButton not found');
       }
       
       // Automatically show stats/results popup when loading a completed game after refresh
