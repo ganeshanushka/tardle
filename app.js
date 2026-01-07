@@ -1611,15 +1611,43 @@ function renderCalendar(gameHistory) {
         const isPastDate = dateObj < today;
         const isToday = dateObj.getTime() === today.getTime();
         
+        // Get today's date string to check current game state
+        const todayDateStr = getTodayDateString();
+        const todayYear = parseInt(todayDateStr.split('-')[0]);
+        const todayMonth = parseInt(todayDateStr.split('-')[1]);
+        const todayDay = parseInt(todayDateStr.split('-')[2]);
+        
+        // Check if this date matches today (accounting for year difference)
+        // Calendar shows 2026, but we need to check if today is in 2026 and matches month/day
+        const isTodayDate = (todayYear === 2026 && 
+                            currentCalendarMonth + 1 === todayMonth && 
+                            day === todayDay);
+        
         // Check game status for this date
+        // First check if it's in the loaded game history
         if (calendarGameHistory.wins && calendarGameHistory.wins.has(dateStr)) {
             // User guessed right = Carolina blue
             dayDiv.classList.add('win');
         } else if (calendarGameHistory.losses && calendarGameHistory.losses.has(dateStr)) {
             // User got it wrong = Duke blue
             dayDiv.classList.add('loss');
-        } else if (isPastDate || isToday) {
-            // Past date or today with no game data = didn't play = yellow
+        } else if (isTodayDate) {
+            // Check current game state for today (even if not saved to DB yet)
+            const currentGameStatus = typeof gameStatus !== 'undefined' ? gameStatus : (window.gameStatus || null);
+            const currentGameCompleted = typeof gameCompleted !== 'undefined' ? gameCompleted : (window.gameCompleted || false);
+            
+            if (currentGameStatus === 'won' && currentGameCompleted) {
+                // Today's game was won = Carolina blue
+                dayDiv.classList.add('win');
+            } else if (currentGameStatus === 'lost' && currentGameCompleted) {
+                // Today's game was lost = Duke blue
+                dayDiv.classList.add('loss');
+            } else {
+                // Today with no completed game = didn't play = yellow
+                dayDiv.classList.add('no-play');
+            }
+        } else if (isPastDate) {
+            // Past date with no game data = didn't play = yellow
             dayDiv.classList.add('no-play');
         }
         // Future dates with no game data = white (default, no class)
