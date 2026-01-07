@@ -334,16 +334,20 @@ let words = [
               console.log('Keyboard hidden');
             }
             
-            // Force show answer popup
-            const answerPopup = document.getElementById('answerPopup');
-            const answerMessage = document.getElementById('answerMessage');
-            if (answerPopup && answerMessage) {
-              answerMessage.innerText = SecretWord;
-              answerPopup.classList.remove('hidden');
-              answerPopup.style.display = 'flex';
-              answerPopup.style.visibility = 'visible';
-              answerPopup.style.opacity = '1';
-              console.log('Answer popup shown');
+            // Force show answer popup ONLY if game was lost
+            if (gameStatus === 'lost') {
+              const answerPopup = document.getElementById('answerPopup');
+              const answerMessage = document.getElementById('answerMessage');
+              if (answerPopup && answerMessage) {
+                answerMessage.innerText = SecretWord;
+                answerPopup.classList.remove('hidden');
+                answerPopup.style.display = 'flex';
+                answerPopup.style.visibility = 'visible';
+                answerPopup.style.opacity = '1';
+                console.log('Answer popup shown (game lost)');
+              }
+            } else {
+              console.log('Game was won - not showing answer popup');
             }
             
             // Force show "See results" button
@@ -514,17 +518,29 @@ let words = [
         keyboard.style.display = 'none';
       }
       
-      // Show answer popup with the secret word
-      const answerPopup = document.getElementById('answerPopup');
-      const answerMessage = document.getElementById('answerMessage');
-      if (answerPopup && answerMessage) {
-        answerMessage.innerText = SecretWord;
-        answerPopup.classList.remove('hidden');
-        answerPopup.style.display = 'flex';
-        answerPopup.style.visibility = 'visible';
+      // Show answer popup with the secret word ONLY if game was lost
+      if (gameStatus === 'lost') {
+        const answerPopup = document.getElementById('answerPopup');
+        const answerMessage = document.getElementById('answerMessage');
+        if (answerPopup && answerMessage) {
+          answerMessage.innerText = SecretWord;
+          answerPopup.classList.remove('hidden');
+          answerPopup.style.display = 'flex';
+          answerPopup.style.visibility = 'visible';
+        }
+        
+        // Game was lost - show game over popup
+        const popup = document.getElementById('gameOverPopup');
+        if (popup) {
+          popup.classList.remove('hidden');
+          popup.style.display = 'flex';
+        }
+      } else if (gameStatus === 'won') {
+        // Game was won - don't show answer popup, user already knows the answer
+        console.log('Game was already won today - not showing answer popup');
       }
       
-      // Show "See results" button
+      // Show "See results" button for both won and lost games
       const buttonsContainer = document.getElementById('gameOverButtons');
       if (buttonsContainer) {
         buttonsContainer.classList.remove('hidden');
@@ -535,18 +551,6 @@ let words = [
       const seeResultsButton = document.querySelector('.see-results-button');
       if (seeResultsButton) {
         seeResultsButton.style.display = 'block';
-      }
-      
-      if (gameStatus === 'won') {
-        // Game was won - already handled above
-        console.log('Game was already won today');
-      } else if (gameStatus === 'lost') {
-        // Game was lost - show game over popup
-        const popup = document.getElementById('gameOverPopup');
-        if (popup) {
-          popup.classList.remove('hidden');
-          popup.style.display = 'flex';
-        }
       }
     }
   }
