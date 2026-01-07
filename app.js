@@ -986,12 +986,18 @@ let words = [
   let lastKeyClickTime = 0;
   
   function keyClick(key) {
-    console.log('keyClick called with:', key, 'gameCompleted:', gameCompleted, 'window.gameCompleted:', window.gameCompleted);
+    console.log('keyClick called with:', key, 'gameCompleted:', gameCompleted, 'window.gameCompleted:', window.gameCompleted, 'isFlipping:', isFlipping);
     
     // Prevent input if game is completed - check both local and global
     const isGameCompleted = gameCompleted === true || window.gameCompleted === true;
     if (isGameCompleted) {
       console.log('Game is completed - ignoring key input');
+      return;
+    }
+    
+    // Prevent input if tiles are currently flipping
+    if (isFlipping || window.isFlipping) {
+      console.log('Tiles are flipping - ignoring key input');
       return;
     }
     
@@ -1032,6 +1038,12 @@ let words = [
   function backspace() {
     // Prevent backspace if game is completed
     if (gameCompleted) {
+      return;
+    }
+    
+    // Prevent backspace if tiles are currently flipping
+    if (isFlipping || window.isFlipping) {
+      console.log('Tiles are flipping - ignoring backspace');
       return;
     }
     
@@ -1153,6 +1165,12 @@ let words = [
     // Prevent guesses if game is already completed
     if (gameCompleted) {
         console.log('Game already completed, cannot make more guesses');
+        return;
+    }
+    
+    // Prevent guesses if tiles are currently flipping
+    if (isFlipping || window.isFlipping) {
+        console.log('Tiles are flipping, cannot make guesses yet');
         return;
     }
     
@@ -1458,6 +1476,11 @@ function updateKeyboard() {
     const flipDuration = 800; // Duration of each flip animation (in milliseconds)
     const totalFlipTime = (SecretWord.length * flipDelay) + flipDuration; // Total time for all flips to complete
     
+    // Set flipping flag to true to prevent input during animation
+    isFlipping = true;
+    window.isFlipping = true;
+    console.log('Starting flip animation - input disabled');
+    
     // Flip each cell one by one and reveal colors during flip
     for (let i = 0; i < SecretWord.length; i++) {
       setTimeout(() => {
@@ -1479,8 +1502,11 @@ function updateKeyboard() {
       }, i * flipDelay);
     }
     
-    // Update keyboard 0.25 seconds after all flips are complete
+    // Re-enable input after all flips complete
     setTimeout(() => {
+      isFlipping = false;
+      window.isFlipping = false;
+      console.log('Flip animation complete - input enabled');
       updateKeyboard();
     }, totalFlipTime + 250);
     
