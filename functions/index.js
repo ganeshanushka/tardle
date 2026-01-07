@@ -1196,7 +1196,6 @@ exports.resetPasswordWithToken = functions.https.onCall(async (data, context) =>
 
 // Test function to send a sample daily reminder email
 exports.sendTestDailyEmail = functions.https.onCall(async (data, context) => {
-  // Allow unauthenticated calls for testing
   try {
     const { email } = data;
     
@@ -1229,10 +1228,9 @@ exports.sendTestDailyEmail = functions.https.onCall(async (data, context) => {
                       text-align: center;
                     }
                     .greeting {
-                      font-size: 20px;
+                      font-size: 16px;
                       margin: 20px 0 10px 0;
                       color: #000;
-                      font-weight: bold;
                     }
                     .logo-container {
                       text-align: center;
@@ -1261,15 +1259,14 @@ exports.sendTestDailyEmail = functions.https.onCall(async (data, context) => {
                     .duke-blue { background-color: #001A57; }
                     .yellow { background-color: #c9b458; }
                     .logo-text {
-                      font-size: 36px;
-                      font-weight: bold;
+                      font-size: 16px;
                       margin: 0;
                       color: #000;
                       font-family: 'Field Gothic Narrow', sans-serif;
                       text-align: center;
                     }
                     .main-message {
-                      font-size: 18px;
+                      font-size: 16px;
                       margin: 30px 0;
                       color: #000;
                     }
