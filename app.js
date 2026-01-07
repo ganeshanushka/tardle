@@ -1125,9 +1125,9 @@ function showInvalidWordAlert() {
         // Remove hidden class and set display - same approach as answer popup
         popup.classList.remove('hidden');
         // Force display with multiple methods to ensure it shows
-        popup.style.display = 'flex';
-        popup.style.visibility = 'visible';
-        popup.style.opacity = '1';
+        popup.style.setProperty('display', 'flex', 'important');
+        popup.style.setProperty('visibility', 'visible', 'important');
+        popup.style.setProperty('opacity', '1', 'important');
         
         // Double-check after a tiny delay
         setTimeout(() => {
@@ -1190,9 +1190,9 @@ function showNotEnoughLettersAlert() {
         // Remove hidden class and set display - same approach as answer popup
         popup.classList.remove('hidden');
         // Force display with multiple methods to ensure it shows
-        popup.style.display = 'flex';
-        popup.style.visibility = 'visible';
-        popup.style.opacity = '1';
+        popup.style.setProperty('display', 'flex', 'important');
+        popup.style.setProperty('visibility', 'visible', 'important');
+        popup.style.setProperty('opacity', '1', 'important');
         
         // Double-check after a tiny delay
         setTimeout(() => {
