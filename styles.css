@@ -44,17 +44,15 @@ html, body {
     align-items: center;
     text-transform: uppercase;
     border: 2px solid var(--border-color);
-    height: clamp(45px, 8vw, 62px);
-    width: clamp(45px, 8vw, 62px);
-    min-height: 45px;
-    min-width: 45px;
-    max-height: 62px;
-    max-width: 62px;
+    height: clamp(50px, 8vw, 62px);
+    width: clamp(50px, 8vw, 62px);
+    min-height: 50px;
+    min-width: 50px;
     vertical-align: top;
     color: #1a1a1b;
     margin: clamp(2px, 0.4vw, 3px);
     transition: border-color 0.1s ease, color 0.3s ease;
-    font-size: clamp(24px, 4vw, 32px);
+    font-size: clamp(28px, 4.5vw, 36px);
     font-weight: bold;
     box-sizing: border-box;
   }
@@ -62,8 +60,8 @@ html, body {
   /* Mobile base styles - override min dimensions */
   @media (max-width: 768px) {
     .key-guess {
-      min-height: 30px !important;
-      min-width: 30px !important;
+      min-height: 35px !important;
+      min-width: 35px !important;
     }
   }
 
@@ -94,10 +92,10 @@ html, body {
     border-radius: 4px;
     background-color: #d3d6da;
     border: 0;
-    height: clamp(40px, 6.5vh, 50px);
-    width: clamp(35px, 5.5vw, 43px);
-    min-width: clamp(35px, 5.5vw, 43px);
-    max-width: clamp(35px, 5.5vw, 43px);
+    height: clamp(42px, 6.5vh, 58px);
+    width: clamp(38px, 6vw, 43px);
+    min-width: clamp(38px, 6vw, 43px);
+    max-width: clamp(38px, 6vw, 43px);
     margin: clamp(1.5px, 0.3vw, 2px);
     cursor: pointer;
     color: #1a1a1b;
@@ -120,56 +118,56 @@ html, body {
   .key.correct {
     background-color: var(--correct-color);
     color: white;
-    width: clamp(35px, 5.5vw, 43px);
-    min-width: clamp(35px, 5.5vw, 43px);
-    max-width: clamp(35px, 5.5vw, 43px);
-    height: clamp(40px, 6.5vh, 50px);
+    width: clamp(38px, 6vw, 43px);
+    min-width: clamp(38px, 6vw, 43px);
+    max-width: clamp(38px, 6vw, 43px);
+    height: clamp(42px, 6.5vh, 58px);
   }
   
   .key.found {
     background-color: var(--found-color);
     color: white;
-    width: clamp(35px, 5.5vw, 43px);
-    min-width: clamp(35px, 5.5vw, 43px);
-    max-width: clamp(35px, 5.5vw, 43px);
-    height: clamp(40px, 6.5vh, 50px);
+    width: clamp(38px, 6vw, 43px);
+    min-width: clamp(38px, 6vw, 43px);
+    max-width: clamp(38px, 6vw, 43px);
+    height: clamp(42px, 6.5vh, 58px);
   }
   
   .key.wrong {
     background-color: var(--wrong-color);
     color: white;
-    width: clamp(35px, 5.5vw, 43px);
-    min-width: clamp(35px, 5.5vw, 43px);
-    max-width: clamp(35px, 5.5vw, 43px);
-    height: clamp(40px, 6.5vh, 50px);
+    width: clamp(38px, 6vw, 43px);
+    min-width: clamp(38px, 6vw, 43px);
+    max-width: clamp(38px, 6vw, 43px);
+    height: clamp(42px, 6.5vh, 58px);
   }
 
   /* Ensure dark-mode keys also pick up the state colors (override base white keys) */
   :root.dark-mode .key.correct {
     background-color: var(--correct-color);
     color: white;
-    width: clamp(35px, 5.5vw, 43px);
-    min-width: clamp(35px, 5.5vw, 43px);
-    max-width: clamp(35px, 5.5vw, 43px);
-    height: clamp(40px, 6.5vh, 50px);
+    width: clamp(38px, 6vw, 43px);
+    min-width: clamp(38px, 6vw, 43px);
+    max-width: clamp(38px, 6vw, 43px);
+    height: clamp(42px, 6.5vh, 58px);
   }
 
   :root.dark-mode .key.found {
     background-color: var(--found-color);
     color: white;
-    width: clamp(35px, 5.5vw, 43px);
-    min-width: clamp(35px, 5.5vw, 43px);
-    max-width: clamp(35px, 5.5vw, 43px);
-    height: clamp(40px, 6.5vh, 50px);
+    width: clamp(38px, 6vw, 43px);
+    min-width: clamp(38px, 6vw, 43px);
+    max-width: clamp(38px, 6vw, 43px);
+    height: clamp(42px, 6.5vh, 58px);
   }
 
   :root.dark-mode .key.wrong {
     background-color: var(--wrong-color);
     color: white;
-    width: clamp(35px, 5.5vw, 43px);
-    min-width: clamp(35px, 5.5vw, 43px);
-    max-width: clamp(35px, 5.5vw, 43px);
-    height: clamp(40px, 6.5vh, 50px);
+    width: clamp(38px, 6vw, 43px);
+    min-width: clamp(38px, 6vw, 43px);
+    max-width: clamp(38px, 6vw, 43px);
+    height: clamp(42px, 6.5vh, 58px);
   }
 
   /* High Contrast Mode - Keyboard keys match grid colors */
@@ -178,37 +176,37 @@ html, body {
   :root.dark-mode.high-contrast-mode .key.correct {
     background-color: #f5793a !important;
     color: white !important;
-    width: clamp(35px, 5.5vw, 43px) !important;
-    min-width: clamp(35px, 5.5vw, 43px) !important;
-    max-width: clamp(35px, 5.5vw, 43px) !important;
-    height: clamp(40px, 6.5vh, 50px) !important;
+    width: clamp(38px, 6vw, 43px) !important;
+    min-width: clamp(38px, 6vw, 43px) !important;
+    max-width: clamp(38px, 6vw, 43px) !important;
+    height: clamp(42px, 6.5vh, 58px) !important;
   }
 
   :root.high-contrast-mode .key.found,
   :root.dark-mode.high-contrast-mode .key.found {
     background-color: #85c0f9 !important;
     color: white !important;
-    width: clamp(35px, 5.5vw, 43px) !important;
-    min-width: clamp(35px, 5.5vw, 43px) !important;
-    max-width: clamp(35px, 5.5vw, 43px) !important;
-    height: clamp(40px, 6.5vh, 50px) !important;
+    width: clamp(38px, 6vw, 43px) !important;
+    min-width: clamp(38px, 6vw, 43px) !important;
+    max-width: clamp(38px, 6vw, 43px) !important;
+    height: clamp(42px, 6.5vh, 58px) !important;
   }
 
   :root.high-contrast-mode .key.wrong,
   :root.dark-mode.high-contrast-mode .key.wrong {
     background-color: var(--wrong-color) !important;
     color: white !important;
-    width: clamp(35px, 5.5vw, 43px) !important;
-    min-width: clamp(35px, 5.5vw, 43px) !important;
-    max-width: clamp(35px, 5.5vw, 43px) !important;
-    height: clamp(40px, 6.5vh, 50px) !important;
+    width: clamp(38px, 6vw, 43px) !important;
+    min-width: clamp(38px, 6vw, 43px) !important;
+    max-width: clamp(38px, 6vw, 43px) !important;
+    height: clamp(42px, 6.5vh, 58px) !important;
   }
   
   #enter{
-    width: clamp(70px, 11vw, 85px);
-    min-width: clamp(70px, 11vw, 85px);
-    max-width: clamp(70px, 11vw, 85px);
-    height: clamp(40px, 6.5vh, 50px);
+    width: clamp(76px, 12vw, 90px);
+    min-width: clamp(76px, 12vw, 90px);
+    max-width: clamp(76px, 12vw, 90px);
+    height: clamp(42px, 6.5vh, 58px);
   }
 
   /* Shake animation for invalid words */
