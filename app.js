@@ -393,6 +393,27 @@ let words = [
               buttonsContainer.classList.remove('hidden');
               buttonsContainer.style.display = 'flex';
             }
+            
+            // Automatically show stats/results popup when loading a completed game after refresh
+            setTimeout(() => {
+              const isLoggedIn = (window.firebaseAuth && window.firebaseAuth.currentUser) || 
+                                window.isLoggedIn || 
+                                window.currentUser;
+              
+              if (isLoggedIn) {
+                // Logged in: show stats popup automatically
+                if (window.showStatsPopup) {
+                  console.log('Auto-showing stats popup for completed game (fallback)');
+                  window.showStatsPopup();
+                }
+              } else {
+                // Not logged in: show results popup automatically
+                if (window.showResultsPopup) {
+                  console.log('Auto-showing results popup for completed game (fallback)');
+                  window.showResultsPopup();
+                }
+              }
+            }, 500);
           }
         }, 1000);
       } else {
@@ -555,6 +576,28 @@ let words = [
       if (seeResultsButton) {
         seeResultsButton.style.display = 'block';
       }
+      
+      // Automatically show stats/results popup when loading a completed game after refresh
+      // Wait a bit to ensure everything is loaded
+      setTimeout(() => {
+        const isLoggedIn = (window.firebaseAuth && window.firebaseAuth.currentUser) || 
+                          window.isLoggedIn || 
+                          window.currentUser;
+        
+        if (isLoggedIn) {
+          // Logged in: show stats popup automatically
+          if (window.showStatsPopup) {
+            console.log('Auto-showing stats popup for completed game');
+            window.showStatsPopup();
+          }
+        } else {
+          // Not logged in: show results popup automatically
+          if (window.showResultsPopup) {
+            console.log('Auto-showing results popup for completed game');
+            window.showResultsPopup();
+          }
+        }
+      }, 800);
     }
   }
 
