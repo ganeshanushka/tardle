@@ -161,6 +161,12 @@
     font-family: 'Field Gothic Narrow', sans-serif;
     width: 100%;
     transition: background-color 0.2s ease;
+    -webkit-user-select: none;
+    user-select: none;
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-appearance: none;
+    appearance: none;
   }
 
   .resend-button:hover {
@@ -188,6 +194,10 @@
     color: #7BAFD4;
     text-decoration: none;
     font-size: 14px;
+    -webkit-user-select: none;
+    user-select: none;
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
   }
 
   .back-link:hover {
@@ -1172,27 +1182,34 @@
     }
   }, 100);
 
-  // Handle "Back to homepage" link - log out first
-  document.getElementById('backToHomepageLink').addEventListener('click', async function(e) {
-    e.preventDefault(); // Prevent default navigation
-    
-    // Log out the user first
-    if (window.firebaseAuth && window.firebaseAuthFunctions && window.firebaseAuthFunctions.signOut) {
-      try {
-        await window.firebaseAuthFunctions.signOut(window.firebaseAuth);
-        console.log('Logged out, redirecting to homepage');
-      } catch (error) {
-        console.error('Error logging out:', error);
-        // Continue with redirect even if logout fails
-      }
+  // Wait for DOM to be ready before attaching event listeners
+  function setupButtonHandlers() {
+    // Handle "Back to homepage" link - log out first
+    const backLink = document.getElementById('backToHomepageLink');
+    if (backLink) {
+      backLink.addEventListener('click', async function(e) {
+        e.preventDefault(); // Prevent default navigation
+        
+        // Log out the user first
+        if (window.firebaseAuth && window.firebaseAuthFunctions && window.firebaseAuthFunctions.signOut) {
+          try {
+            await window.firebaseAuthFunctions.signOut(window.firebaseAuth);
+            console.log('Logged out, redirecting to homepage');
+          } catch (error) {
+            console.error('Error logging out:', error);
+            // Continue with redirect even if logout fails
+          }
+        }
+        
+        // Redirect to homepage (user will appear as not logged in)
+        window.location.href = 'index.html';
+      });
     }
     
-    // Redirect to homepage (user will appear as not logged in)
-    window.location.href = 'index.html';
-  });
-  
-  // Handle resend verification email
-  document.getElementById('resendButton').addEventListener('click', async function() {
+    // Handle resend verification email
+    const resendButton = document.getElementById('resendButton');
+    if (resendButton) {
+      resendButton.addEventListener('click', async function() {
     if (!currentUser) {
       document.getElementById('errorMessage').textContent = 'You must be logged in to resend verification email.';
       document.getElementById('errorMessage').classList.add('show');
@@ -1326,7 +1343,16 @@
       resendButton.disabled = false;
       resendButton.textContent = 'Resend verification email';
     }
-  });
+      });
+    }
+  }
+  
+  // Set up button handlers when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupButtonHandlers);
+  } else {
+    setupButtonHandlers();
+  }
 </script>
 
 </body>

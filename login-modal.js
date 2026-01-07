@@ -1175,9 +1175,15 @@
         // Small delay to ensure auth state is set
         await new Promise(resolve => setTimeout(resolve, 200));
         
-        // Close modal and redirect to verification page
+        // CRITICAL: Ensure email is stored in localStorage (should already be done above, but double-check)
+        if (!localStorage.getItem('pendingVerificationEmail')) {
+          localStorage.setItem('pendingVerificationEmail', email);
+          console.log('✓ Stored email in localStorage before redirect (fallback):', email);
+        }
+        
+        // Close modal and redirect to verification page with email in URL
         closeLoginModal();
-        window.location.href = 'verify-email.html';
+        window.location.href = `verify-email.html?email=${encodeURIComponent(email)}`;
       } catch (error) {
         console.error('Sign up error:', error);
         console.error('Error code:', error.code);

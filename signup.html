@@ -963,10 +963,15 @@
       // Small delay to ensure auth state is set
       await new Promise(resolve => setTimeout(resolve, 200));
       
+      // CRITICAL: Store email in localStorage before redirecting
+      // This ensures the email displays immediately on verify-email.html
+      localStorage.setItem('pendingVerificationEmail', email);
+      console.log('✓ Stored email in localStorage before redirect:', email);
+      
       // ALWAYS redirect to verification page - even if somehow verified
       // The verification page will handle the final check
       console.log('Redirecting to verification page');
-      window.location.replace('verify-email.html');
+      window.location.replace(`verify-email.html?email=${encodeURIComponent(email)}`);
     } catch (error) {
       console.error('Sign up error:', error);
       console.error('Error code:', error.code);
