@@ -725,9 +725,11 @@ let words = [
   // Game state variables
   let gameStatus = 'in_progress'; // 'in_progress', 'won', 'lost'
   let gameCompleted = false;
+  let isFlipping = false; // Track if tiles are currently flipping
   // Expose gameStatus and gameCompleted to global scope for share function
   window.gameStatus = gameStatus;
   window.gameCompleted = gameCompleted;
+  window.isFlipping = isFlipping;
   
   function initialize() {
     // Ensure all popups are hidden on page load
