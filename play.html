@@ -3539,13 +3539,18 @@
             // Copy text to clipboard
             if (navigator.clipboard && navigator.clipboard.writeText) {
               navigator.clipboard.writeText(shareText).then(() => {
-                // Show success message
-                const shareBtn = document.querySelector('.results-share-btn');
-                if (shareBtn) {
-                  const originalText = shareBtn.querySelector('span').textContent;
-                  shareBtn.querySelector('span').textContent = 'Copied!';
+                // Show success popup with same style as "rah rah right answer"
+                const popup = document.getElementById('customPopup');
+                const messageEl = document.getElementById('popupMessage');
+                if (popup && messageEl) {
+                  messageEl.innerText = 'Results copied to clipboard';
+                  popup.classList.remove('hidden');
+                  popup.style.display = 'flex';
+                  
+                  // Auto-hide after 2 seconds
                   setTimeout(() => {
-                    shareBtn.querySelector('span').textContent = originalText;
+                    popup.classList.add('hidden');
+                    popup.style.display = 'none';
                   }, 2000);
                 }
               }).catch(err => {
