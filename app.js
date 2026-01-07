@@ -190,12 +190,12 @@ let words = [
     }
   }
   
-  // Get today's date string (YYYY-MM-DD in UTC)
+  // Get today's date string (YYYY-MM-DD in local timezone to match home page)
   function getTodayDateString() {
     const today = new Date();
-    const year = today.getUTCFullYear();
-    const month = String(today.getUTCMonth() + 1).padStart(2, '0');
-    const day = String(today.getUTCDate()).padStart(2, '0');
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   }
   
@@ -491,10 +491,10 @@ let words = [
   // Get daily word based on date (deterministic - same date = same word)
   function getDailyWord() {
     const today = new Date();
-    // Use UTC date to ensure consistency across timezones
-    const year = today.getUTCFullYear();
-    const month = String(today.getUTCMonth() + 1).padStart(2, '0');
-    const day = String(today.getUTCDate()).padStart(2, '0');
+    // Use local date to match home page display
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
     
     // Create date string in YYYY-MM-DD format
     const dateString = `${year}-${month}-${day}`;
@@ -1593,11 +1593,11 @@ function renderCalendar(gameHistory) {
     }
     
     // Add days of the month
-    // Use UTC date to match getTodayDateString() which uses UTC
-    const todayUTC = new Date();
-    const todayYearUTC = todayUTC.getUTCFullYear();
-    const todayMonthUTC = todayUTC.getUTCMonth() + 1;
-    const todayDayUTC = todayUTC.getUTCDate();
+    // Use local date to match home page display (which uses toLocaleDateString)
+    const today = new Date();
+    const todayYear = today.getFullYear();
+    const todayMonth = today.getMonth() + 1;
+    const todayDay = today.getDate();
     
     // Ensure calendarGameHistory has the right structure
     if (!calendarGameHistory || !calendarGameHistory.wins || !calendarGameHistory.losses) {
@@ -1609,18 +1609,18 @@ function renderCalendar(gameHistory) {
         dayDiv.className = 'stats-calendar-day';
         
         const dateStr = `2026-${String(currentCalendarMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        const dateObj = new Date(dateStr + 'T00:00:00Z'); // Use UTC timezone
-        dateObj.setUTCHours(0, 0, 0, 0);
-        const todayUTCForCompare = new Date();
-        todayUTCForCompare.setUTCHours(0, 0, 0, 0);
-        const isPastDate = dateObj < todayUTCForCompare;
-        const isToday = dateObj.getTime() === todayUTCForCompare.getTime();
+        const dateObj = new Date(dateStr + 'T00:00:00');
+        dateObj.setHours(0, 0, 0, 0);
+        const todayForCompare = new Date();
+        todayForCompare.setHours(0, 0, 0, 0);
+        const isPastDate = dateObj < todayForCompare;
+        const isToday = dateObj.getTime() === todayForCompare.getTime();
         
-        // Check if this date matches today using UTC (accounting for year difference)
+        // Check if this date matches today using local time (accounting for year difference)
         // Calendar shows 2026, but we need to check if today is in 2026 and matches month/day
-        const isTodayDate = (todayYearUTC === 2026 && 
-                            currentCalendarMonth + 1 === todayMonthUTC && 
-                            day === todayDayUTC);
+        const isTodayDate = (todayYear === 2026 && 
+                            currentCalendarMonth + 1 === todayMonth && 
+                            day === todayDay);
         
         // Check game status for this date
         // First check if it's in the loaded game history
