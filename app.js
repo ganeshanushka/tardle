@@ -1278,25 +1278,25 @@ function updateKeyboard() {
         showTransferApplicationPopup("Rah rah right answer");
       }, totalFlipTime);
       // Show stats/results popup after transfer popup disappears (answer popup will show first)
-      setTimeout(() => {
-        // Check if user is logged in
-        const isLoggedIn = (window.firebaseAuth && window.firebaseAuth.currentUser) || 
-                          window.isLoggedIn || 
-                          window.currentUser;
-        
-        if (isLoggedIn) {
-          // Logged in: show stats popup
-          if (window.showStatsPopup) {
-            window.showStatsPopup();
+        setTimeout(() => {
+          // Check if user is logged in
+          const isLoggedIn = (window.firebaseAuth && window.firebaseAuth.currentUser) || 
+                            window.isLoggedIn || 
+                            window.currentUser;
+          
+          if (isLoggedIn) {
+            // Logged in: show stats popup
+            if (window.showStatsPopup) {
+              window.showStatsPopup();
+            }
+          } else {
+            // Not logged in: show results popup
+            const resultsPopup = document.getElementById('resultsPopup');
+            if (resultsPopup) {
+              resultsPopup.classList.remove('hidden');
+              resultsPopup.style.display = 'flex';
+            }
           }
-        } else {
-          // Not logged in: show results popup
-          const resultsPopup = document.getElementById('resultsPopup');
-          if (resultsPopup) {
-            resultsPopup.classList.remove('hidden');
-            resultsPopup.style.display = 'flex';
-          }
-        }
       }, totalFlipTime + 2000);
     }
   }
