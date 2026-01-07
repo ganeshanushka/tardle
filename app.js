@@ -284,6 +284,14 @@ let words = [
         }
         
         // Restore game state
+        console.log('📥 Loading game data from Firestore:', {
+          hasGuesses: !!gameData.guesses,
+          guessesType: Array.isArray(gameData.guesses) ? 'array' : typeof gameData.guesses,
+          guessesLength: Array.isArray(gameData.guesses) ? gameData.guesses.length : 'N/A',
+          gameCompleted: gameData.gameCompleted,
+          gameStatus: gameData.gameStatus
+        });
+        
         if (gameData.guesses && Array.isArray(gameData.guesses) && gameData.guesses.length > 0) {
           guesses = gameData.guesses.map(guess => {
             return guess.map(item => {
@@ -303,14 +311,15 @@ let words = [
             });
           });
           window.guesses = guesses; // Update global reference
-          console.log('Restored guesses:', guesses);
-          console.log('Restored guesses count:', guesses.length);
+          console.log('✅ Restored guesses:', guesses.length, 'guesses');
           if (guesses.length > 0) {
             console.log('First guess example:', guesses[0]);
             console.log('First guess with results:', guesses[0].map(item => `${item.key}:${item.result}`).join(', '));
+            console.log('All guesses summary:', guesses.map((g, i) => `Guess ${i+1}: ${g.map(item => `${item.key}(${item.result})`).join(' ')}`));
           }
         } else {
-          console.warn('No guesses found in gameData or guesses array is empty:', gameData);
+          console.error('❌ No guesses found in gameData or guesses array is empty!');
+          console.error('gameData:', gameData);
           guesses = [];
           window.guesses = guesses;
         }
@@ -489,21 +498,44 @@ let words = [
       }));
       
       // Ensure all guesses have results (colors) - convert constants to strings if needed
-      const finalGuesses = guesses.map(guess => guess.map(item => {
-        let resultValue = item.result;
-        // Normalize result to string if it's a constant
-        if (resultValue === Correct || resultValue === 'correct') {
-          resultValue = 'correct';
-        } else if (resultValue === Found || resultValue === 'found') {
-          resultValue = 'found';
-        } else if (resultValue === Wrong || resultValue === 'wrong') {
-          resultValue = 'wrong';
+      const finalGuesses = guesses.map(guess => {
+        if (!Array.isArray(guess)) {
+          console.error('Invalid guess format:', guess);
+          return [];
         }
-        return {
-          key: item.key || '',
-          result: resultValue || ''
-        };
-      }));
+        return guess.map(item => {
+          if (!item || !item.key) {
+            console.error('Invalid guess item:', item);
+            return { key: '', result: '' };
+          }
+          let resultValue = item.result;
+          // Normalize result to string if it's a constant
+          if (resultValue === Correct || resultValue === 'correct') {
+            resultValue = 'correct';
+          } else if (resultValue === Found || resultValue === 'found') {
+            resultValue = 'found';
+          } else if (resultValue === Wrong || resultValue === 'wrong') {
+            resultValue = 'wrong';
+          }
+          return {
+            key: item.key || '',
+            result: resultValue || ''
+          };
+        });
+      });
+      
+      // Validate that guesses have results before saving
+      const guessesWithResults = finalGuesses.filter(guess => 
+        guess.length > 0 && guess.every(item => item.result && (item.result === 'correct' || item.result === 'found' || item.result === 'wrong'))
+      );
+      
+      if (guessesWithResults.length !== finalGuesses.length) {
+        console.error('❌ Some guesses are missing results!', {
+          total: finalGuesses.length,
+          withResults: guessesWithResults.length,
+          guesses: finalGuesses
+        });
+      }
       
       const gameStateData = {
         guesses: finalGuesses,
@@ -516,8 +548,17 @@ let words = [
         lastUpdated: window.firebaseFirestoreFunctions.serverTimestamp()
       };
       
+      // Validate game state before saving
+      if (gameCompleted && finalGuesses.length === 0) {
+        console.error('❌ CRITICAL: Game is completed but guesses array is empty! This should not happen.');
+        console.error('Current guesses state:', guesses);
+        console.error('Final guesses:', finalGuesses);
+        // Don't save invalid state - this would cause the issue the user is seeing
+        return;
+      }
+      
       await window.firebaseFirestoreFunctions.setDoc(gameStateRef, gameStateData, { merge: true });
-      console.log('Game state saved:', gameStateData);
+      console.log('✅ Game state saved successfully!');
       console.log('Saved gameCompleted:', gameCompleted);
       console.log('Saved gameStatus:', gameStatus);
       console.log('Saved guesses count:', finalGuesses.length);
@@ -525,6 +566,9 @@ let words = [
       if (finalGuesses.length > 0) {
         console.log('First saved guess example:', finalGuesses[0]);
         console.log('First guess with results:', finalGuesses[0].map(item => `${item.key}:${item.result}`).join(', '));
+        console.log('All guesses summary:', finalGuesses.map((g, i) => `Guess ${i+1}: ${g.map(item => `${item.key}(${item.result})`).join(' ')}`));
+      } else {
+        console.error('❌ WARNING: No guesses to save! This should not happen for completed games.');
       }
     } catch (error) {
       console.error('Error saving game state:', error);
@@ -1395,6 +1439,9 @@ let words = [
             // Save game state after flip animation completes to ensure all colors are saved
             setTimeout(() => {
                 console.log('Saving completed game state (won) with guesses:', guesses.length);
+                console.log('Guesses array before save:', JSON.stringify(guesses));
+                console.log('Game completed:', gameCompleted);
+                console.log('Game status:', gameStatus);
                 saveGameState(); // Save after flip animation completes
             }, totalFlipTime + 500);
         } else if (guesses.length >= NumberOfGuesses) {
@@ -1421,6 +1468,9 @@ let words = [
             // Save game state after flip animation completes to ensure all colors are saved
             setTimeout(() => {
                 console.log('Saving completed game state (lost) with guesses:', guesses.length);
+                console.log('Guesses array before save:', JSON.stringify(guesses));
+                console.log('Game completed:', gameCompleted);
+                console.log('Game status:', gameStatus);
                 saveGameState(); // Save after flip animation completes
             }, totalFlipTime + 500);
         } else {
