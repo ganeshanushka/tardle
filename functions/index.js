@@ -1291,7 +1291,7 @@ exports.sendTestDailyEmail = functions.https.onCall(async (data, context) => {
                     .logo-text {
                       font-size: 48px;
                       font-weight: bold;
-                      margin: 0;
+                      margin: 15px 0 0 0;
                       color: #000;
                       font-family: 'Field Gothic Narrow', sans-serif;
                       text-align: center;
@@ -1307,8 +1307,15 @@ exports.sendTestDailyEmail = functions.https.onCall(async (data, context) => {
                     ${dateStr}, ${timeStr}
                   </div>
                   <div class="header-divider"></div>
-                  <div class="main-question">
-                    Can you guess today's five-letter word? <a href="${BASE_URL}/play.html" class="play-link">Play now.</a>
+                  <div class="greeting">
+                    Good morning! 🌞
+                  </div>
+                  <div class="main-message">
+                    Another day, another Carolina word.
+                  </div>
+                  
+                  <div class="call-to-action">
+                    Before classes, after classes, or instead of classes, <a href="${BASE_URL}/play.html" class="play-link">play now</a>.
                   </div>
                   
                   <div class="logo-container">
@@ -1329,8 +1336,8 @@ exports.sendTestDailyEmail = functions.https.onCall(async (data, context) => {
                         <div class="custom-cell duke-blue"></div>
                       </div>
                     </div>
-                    <div class="logo-text">Tardle</div>
                   </div>
+                  <div class="logo-text">Tardle</div>
                 </body>
                 </html>
               `,
