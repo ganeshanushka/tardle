@@ -768,11 +768,9 @@ let words = [
           currentUser = window.firebaseAuth.currentUser;
           isLoggedIn = true;
         }
-        // Only load if not already loaded by auth state listener
-        // Check if guesses array is still empty (not loaded yet)
-        if (guesses.length === 0 && !gameCompleted) {
-          await loadGameState();
-        }
+        // Always try to load game state - it will check if already loaded
+        // This ensures we get the latest state even if auth listener hasn't fired yet
+        await loadGameState();
       }
     }, 800);
   }
@@ -1023,7 +1021,9 @@ let words = [
         });
         break;
       default:
-        if (!gameCompleted && currentGuess.length < SecretWord.length
+        // Check both local and global gameCompleted flag
+        const isGameCompleted = gameCompleted === true || window.gameCompleted === true;
+        if (!isGameCompleted && currentGuess.length < SecretWord.length
           && guesses.length < NumberOfGuesses) {
           currentGuess.push({ key: key, result: '' });
           updateCurrentGuess();
@@ -1031,6 +1031,8 @@ let words = [
           setTimeout(() => {
             saveGameState();
           }, 300);
+        } else if (isGameCompleted) {
+          console.log('Game completed - cannot add more letters');
         }
     }
   }
@@ -1162,8 +1164,9 @@ let words = [
   }
 
   async function enter() {
-    // Prevent guesses if game is already completed
-    if (gameCompleted) {
+    // Prevent guesses if game is already completed - check both local and global
+    const isGameCompleted = gameCompleted === true || window.gameCompleted === true;
+    if (isGameCompleted) {
         console.log('Game already completed, cannot make more guesses');
         return;
     }
@@ -1172,6 +1175,20 @@ let words = [
     if (isFlipping || window.isFlipping) {
         console.log('Tiles are flipping, cannot make guesses yet');
         return;
+    }
+    
+    // Double-check: if we have a completed game for today, don't allow more guesses
+    // This prevents edge cases where the flag might not be set correctly
+    if (guesses.length > 0) {
+      const lastGuess = guesses[guesses.length - 1];
+      // If we have 6 guesses or the last guess was correct, game is done
+      if (guesses.length >= NumberOfGuesses || 
+          (lastGuess && lastGuess.every(cell => cell.result === Correct))) {
+        console.log('Game already completed based on guesses, cannot make more guesses');
+        gameCompleted = true;
+        window.gameCompleted = true;
+        return;
+      }
     }
     
     // Check if user has entered enough letters
