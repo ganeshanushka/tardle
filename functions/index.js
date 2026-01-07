@@ -175,17 +175,17 @@ exports.sendDailyTardleEmail = functions.pubsub
                   </style>
                 </head>
                 <body>
-                  <div class="logo-container">
-                    <img src="${BASE_URL}/logo.png" alt="Tardle Logo" class="logo-image">
-                    <div class="logo-text">Tardle</div>
-                  </div>
-                  
                   <div class="main-message">
                     Another day, another Carolina word.
                   </div>
                   
                   <div class="call-to-action">
                     Before classes, after classes, or instead of classes, <a href="${BASE_URL}/play.html" class="play-link">play now</a>.
+                  </div>
+                  
+                  <div class="logo-container">
+                    <img src="${BASE_URL}/logo.png" alt="Tardle Logo" class="logo-image">
+                    <div class="logo-text">Tardle</div>
                   </div>
                 </body>
                 </html>
