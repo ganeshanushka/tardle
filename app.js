@@ -201,17 +201,28 @@ let words = [
   
   // Load saved game state from Firestore
   async function loadGameState() {
-    if (!currentUser || !window.firebaseFirestoreFunctions) {
+    // Check if user is logged in - try multiple ways to get current user
+    let user = currentUser;
+    if (!user && window.firebaseAuth && window.firebaseAuth.currentUser) {
+      user = window.firebaseAuth.currentUser;
+      currentUser = user; // Update currentUser for consistency
+      isLoggedIn = true;
+    }
+    
+    if (!user || !window.firebaseFirestoreFunctions) {
       console.log('User not logged in, starting fresh game');
+      console.log('currentUser:', currentUser);
+      console.log('firebaseAuth.currentUser:', window.firebaseAuth?.currentUser);
       return;
     }
     
     try {
       const today = getTodayDateString();
+      console.log('Loading game state for date:', today, 'User:', user.uid);
       const gameStateRef = window.firebaseFirestoreFunctions.doc(
         window.firebaseDb, 
         'users', 
-        currentUser.uid,
+        user.uid,
         'dailyGames',
         today
       );
@@ -220,10 +231,12 @@ let words = [
       if (gameStateDoc.exists()) {
         const gameData = gameStateDoc.data();
         console.log('Loading saved game state:', gameData);
+        console.log('Loaded gameCompleted from DB:', gameData.gameCompleted);
         
         // Verify the secret word matches (in case date changed)
         if (gameData.secretWord && gameData.secretWord !== SecretWord) {
           console.log('Secret word mismatch - date changed, starting fresh game');
+          console.log('Saved word:', gameData.secretWord, 'Current word:', SecretWord);
           return;
         }
         
@@ -247,7 +260,7 @@ let words = [
         
         gameStatus = gameData.gameStatus || 'in_progress';
         window.gameStatus = gameStatus; // Update global reference
-        gameCompleted = gameData.gameCompleted || false;
+        gameCompleted = gameData.gameCompleted === true; // Explicitly check for true
         window.gameCompleted = gameCompleted; // Update global reference
         
         // Restore keyboard state
@@ -260,7 +273,13 @@ let words = [
         // Display the saved game grid
         displaySavedGame();
         
-        console.log('Game state loaded:', { guesses, currentGuess, gameStatus, gameCompleted });
+        // Ensure keyboard is disabled if game is completed
+        if (gameCompleted) {
+          updateKeyboard();
+          console.log('Game is completed - keyboard should be disabled');
+        }
+        
+        console.log('Game state loaded:', { guesses: guesses.length, currentGuess: currentGuess.length, gameStatus, gameCompleted });
       } else {
         console.log('No saved game state found for today, starting fresh');
       }
@@ -271,8 +290,16 @@ let words = [
   
   // Save game state to Firestore
   async function saveGameState() {
-    if (!currentUser || !window.firebaseFirestoreFunctions) {
+    // Check if user is logged in - try multiple ways to get current user
+    let user = currentUser;
+    if (!user && window.firebaseAuth && window.firebaseAuth.currentUser) {
+      user = window.firebaseAuth.currentUser;
+    }
+    
+    if (!user || !window.firebaseFirestoreFunctions) {
       console.log('User not logged in, not saving game state');
+      console.log('currentUser:', currentUser);
+      console.log('firebaseAuth.currentUser:', window.firebaseAuth?.currentUser);
       return;
     }
     
@@ -281,7 +308,7 @@ let words = [
       const gameStateRef = window.firebaseFirestoreFunctions.doc(
         window.firebaseDb, 
         'users', 
-        currentUser.uid,
+        user.uid,
         'dailyGames',
         today
       );
@@ -306,6 +333,7 @@ let words = [
       
       await window.firebaseFirestoreFunctions.setDoc(gameStateRef, gameStateData, { merge: true });
       console.log('Game state saved:', gameStateData);
+      console.log('Saved gameCompleted:', gameCompleted);
     } catch (error) {
       console.error('Error saving game state:', error);
     }
@@ -1039,6 +1067,7 @@ let words = [
             gameStatus = 'won';
             window.gameStatus = gameStatus; // Update global reference
             gameCompleted = true;
+            window.gameCompleted = gameCompleted; // Update global reference
             // Show alert after flip animation completes
             // flipAndRevealGuess will handle showing the alert
             updateStatsOnWin(); // Update stats as a win
