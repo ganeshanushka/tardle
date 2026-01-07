@@ -302,6 +302,7 @@ let words = [
         gameCompleted = gameData.gameCompleted === true; // Explicitly check for true
         window.gameCompleted = gameCompleted; // Update global reference
         console.log('Restored game state:', { gameStatus, gameCompleted, gameDataGameCompleted: gameData.gameCompleted });
+        console.log('gameCompleted type:', typeof gameCompleted, 'value:', gameCompleted);
         
         // Restore keyboard state
         if (gameData.keys) {
@@ -313,16 +314,45 @@ let words = [
         // Wait a bit to ensure DOM is ready, then display the saved game grid
         // Use a longer delay to ensure grid is fully initialized
         setTimeout(() => {
+          console.log('About to call displaySavedGame, gameCompleted:', gameCompleted);
           displaySavedGame();
           
           // Ensure keyboard is disabled if game is completed
-          if (gameCompleted) {
+          if (gameCompleted === true) {
+            console.log('Game is completed - disabling keyboard and showing popups');
             updateKeyboard();
-            console.log('Game is completed - keyboard should be disabled');
+            
+            // Force hide keyboard
+            const keyboard = document.getElementById('keyboard');
+            if (keyboard) {
+              keyboard.style.display = 'none';
+              console.log('Keyboard hidden');
+            }
+            
+            // Force show answer popup
+            const answerPopup = document.getElementById('answerPopup');
+            const answerMessage = document.getElementById('answerMessage');
+            if (answerPopup && answerMessage) {
+              answerMessage.innerText = SecretWord;
+              answerPopup.classList.remove('hidden');
+              answerPopup.style.display = 'flex';
+              answerPopup.style.visibility = 'visible';
+              console.log('Answer popup shown');
+            }
+            
+            // Force show "See results" button
+            const buttonsContainer = document.getElementById('gameOverButtons');
+            if (buttonsContainer) {
+              buttonsContainer.classList.remove('hidden');
+              buttonsContainer.style.display = 'flex';
+              console.log('See results button shown');
+            }
+          } else {
+            console.log('Game is NOT completed, gameCompleted value:', gameCompleted);
           }
           
           console.log('Game state loaded:', { guesses: guesses.length, currentGuess: currentGuess.length, gameStatus, gameCompleted });
-        }, 300);
+        }, 500);
       } else {
         console.log('No saved game state found for today, starting fresh');
       }
@@ -387,25 +417,34 @@ let words = [
   // Display saved game grid
   function displaySavedGame() {
     console.log('displaySavedGame called with:', { guesses: guesses.length, gameCompleted, gameStatus });
+    console.log('First guess details:', guesses[0]);
+    
+    // Ensure grid cells exist before trying to display
+    const firstCell = document.getElementById('00');
+    if (!firstCell) {
+      console.warn('Grid cells not ready yet, retrying in 100ms');
+      setTimeout(() => displaySavedGame(), 100);
+      return;
+    }
     
     // Display all previous guesses with colors
     guesses.forEach((guess, rowIndex) => {
       guess.forEach((item, colIndex) => {
         const cell = document.getElementById(`${rowIndex}${colIndex}`);
-        if (cell) {
-          cell.textContent = item.key;
+        if (cell && item) {
+          cell.textContent = item.key || '';
           // Remove any existing result classes first
           cell.classList.remove('filled', 'correct', 'found', 'wrong');
           // Add result class (correct, found, wrong) if it exists
-          if (item.result) {
+          if (item.result && (item.result === 'correct' || item.result === 'found' || item.result === 'wrong')) {
             cell.classList.add(item.result);
             console.log(`Cell ${rowIndex}${colIndex}: ${item.key} -> ${item.result}`);
           } else {
             cell.classList.add('filled');
-            console.log(`Cell ${rowIndex}${colIndex}: ${item.key} -> filled (no result)`);
+            console.log(`Cell ${rowIndex}${colIndex}: ${item.key} -> filled (no result: ${item.result})`);
           }
         } else {
-          console.warn(`Cell ${rowIndex}${colIndex} not found in DOM`);
+          console.warn(`Cell ${rowIndex}${colIndex} not found in DOM or item is null`);
         }
       });
     });
