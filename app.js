@@ -1609,17 +1609,20 @@ function renderCalendar(gameHistory) {
         const dateObj = new Date(dateStr + 'T00:00:00');
         dateObj.setHours(0, 0, 0, 0);
         const isPastDate = dateObj < today;
+        const isToday = dateObj.getTime() === today.getTime();
         
         // Check game status for this date
         if (calendarGameHistory.wins && calendarGameHistory.wins.has(dateStr)) {
+            // User guessed right = Carolina blue
             dayDiv.classList.add('win');
         } else if (calendarGameHistory.losses && calendarGameHistory.losses.has(dateStr)) {
+            // User got it wrong = Duke blue
             dayDiv.classList.add('loss');
-        } else if (isPastDate) {
-            // Past date with no game data = not played
+        } else if (isPastDate || isToday) {
+            // Past date or today with no game data = didn't play = yellow
             dayDiv.classList.add('no-play');
         }
-        // Future dates or today with no game data = white (default, no class)
+        // Future dates with no game data = white (default, no class)
         
         dayDiv.textContent = day;
         daysDiv.appendChild(dayDiv);
