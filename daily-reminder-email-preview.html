@@ -58,65 +58,37 @@
       border-top: 1px solid #000;
       margin: 15px 0;
     }
-    .reminder-heading {
-      font-size: 28px;
-      font-weight: bold;
-      margin: 20px 0 5px 0;
-      color: #000;
+    .logo-container {
+      text-align: center;
+      margin: 30px 0;
     }
-    .date-time {
-      font-size: 14px;
+    .logo-image {
+      max-width: 200px;
+      height: auto;
+      margin: 0 auto 15px auto;
+      display: block;
+    }
+    .logo-text {
+      font-size: 36px;
+      font-weight: bold;
+      margin: 0;
       color: #000;
-      margin-bottom: 15px;
+      font-family: 'Field Gothic Narrow', sans-serif;
+      text-align: center;
+    }
+    .main-message {
+      font-size: 18px;
+      margin: 30px 0;
+      color: #000;
     }
     .call-to-action {
       font-size: 16px;
-      margin: 20px 0;
+      margin: 30px 0;
       color: #000;
     }
     .play-link {
       color: #0000EE;
       text-decoration: underline;
-    }
-    .game-grid {
-      display: inline-block;
-      margin: 20px 0;
-      border-collapse: separate;
-      border-spacing: 3px;
-    }
-    .grid-row {
-      display: flex;
-      gap: 3px;
-      margin-bottom: 3px;
-    }
-    .grid-square {
-      width: 40px;
-      height: 40px;
-      border: 2px solid #000;
-      display: inline-block;
-      box-sizing: border-box;
-    }
-    .grid-square.empty {
-      background-color: #fff;
-    }
-    .grid-square.light-blue {
-      background-color: #B8D4E8;
-      border-color: #B8D4E8;
-    }
-    .grid-square.yellow {
-      background-color: #c9b458;
-      border-color: #c9b458;
-    }
-    .grid-square.dark-blue {
-      background-color: #001A57;
-      border-color: #001A57;
-    }
-    .logo {
-      font-size: 36px;
-      font-weight: bold;
-      margin-top: 10px;
-      color: #000;
-      font-family: 'Field Gothic Narrow', sans-serif;
     }
     .preview-note {
       background-color: #f0f0f0;
@@ -130,40 +102,21 @@
 </head>
 <body>
   <div class="preview-note">
-    <strong>Email Preview:</strong> This is how the daily reminder email will look when sent to subscribed users at 7 AM ET.
+    <strong>Email Preview:</strong> This is how the daily reminder email will look when sent to subscribed users at 3:15 AM ET.
+    <br><strong>Subject:</strong> Don't break the streak 👀
   </div>
 
-  <div class="header">
-    <div class="masthead">Tardle</div>
-    <div class="divider"></div>
+  <div class="logo-container">
+    <img src="logo.svg" alt="Tardle Logo" class="logo-image" onerror="this.style.display='none'">
+    <div class="logo-text">Tardle</div>
   </div>
   
-  <div class="reminder-heading">Tardle Reminder</div>
-  <div class="date-time">January 4, 2026, 7:00 AM Eastern time</div>
-  <div class="divider"></div>
+  <div class="main-message">
+    Another day, another Carolina word.
+  </div>
   
   <div class="call-to-action">
-    Can you guess today's five-letter word? <a href="https://playtardle.com/play.html" class="play-link">Play now.</a>
+    Before classes, after classes, or instead of classes, <a href="https://playtardle.com/play.html" class="play-link">play now</a>.
   </div>
-  
-  <div class="game-grid">
-    <div class="grid-row">
-      <div class="grid-square light-blue"></div>
-      <div class="grid-square light-blue"></div>
-      <div class="grid-square light-blue"></div>
-    </div>
-    <div class="grid-row">
-      <div class="grid-square light-blue"></div>
-      <div class="grid-square yellow"></div>
-      <div class="grid-square dark-blue"></div>
-    </div>
-    <div class="grid-row">
-      <div class="grid-square dark-blue"></div>
-      <div class="grid-square light-blue"></div>
-      <div class="grid-square dark-blue"></div>
-    </div>
-  </div>
-  
-  <div class="logo">Tardle</div>
 </body>
 </html>
