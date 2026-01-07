@@ -249,17 +249,32 @@ html, body {
   /* Flip animation for revealing colors */
   .flip {
     animation: flip 0.8s ease-in-out;
+    /* Safari-specific: ensure 3D transforms work */
+    -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
   }
 
   @keyframes flip {
-    0% { transform: rotateX(0); }
-    50% { transform: rotateX(-90deg); }
-    100% { transform: rotateX(0); }
+    0% { 
+      transform: rotateX(0);
+      -webkit-transform: rotateX(0);
+    }
+    50% { 
+      transform: rotateX(-90deg);
+      -webkit-transform: rotateX(-90deg);
+    }
+    100% { 
+      transform: rotateX(0);
+      -webkit-transform: rotateX(0);
+    }
   }
 
   /* Ensure the grid has perspective for 3D flip effect */
   .grid {
     perspective: 1000px;
+    -webkit-perspective: 1000px;
   }
 
   

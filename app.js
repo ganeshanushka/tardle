@@ -972,7 +972,13 @@ let words = [
 
   // Attach keyboard listener after DOM is ready (only if onscreen keyboard only is not enabled)
   function initKeyboardListener() {
-    const onscreenKeyboardOnly = localStorage.getItem('onscreenKeyboardOnly') === 'true';
+    // Use try-catch for Safari localStorage issues
+    let onscreenKeyboardOnly = false;
+    try {
+      onscreenKeyboardOnly = localStorage.getItem('onscreenKeyboardOnly') === 'true';
+    } catch (e) {
+      console.warn('localStorage access failed (may be Safari private mode):', e);
+    }
     if (!onscreenKeyboardOnly) {
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', attachKeyboardListener);
