@@ -48,6 +48,8 @@ html, body {
     width: clamp(50px, 8vw, 62px);
     min-height: 50px;
     min-width: 50px;
+    max-height: 62px;
+    max-width: 62px;
     vertical-align: top;
     color: #1a1a1b;
     margin: clamp(2px, 0.4vw, 3px);
@@ -55,6 +57,14 @@ html, body {
     font-size: clamp(28px, 4.5vw, 36px);
     font-weight: bold;
     box-sizing: border-box;
+  }
+  
+  /* Chrome-specific fix to prevent oversized grid cells - force max size */
+  @media screen and (-webkit-min-device-pixel-ratio: 0) {
+    .key-guess {
+      max-height: 62px !important;
+      max-width: 62px !important;
+    }
   }
 
   /* Mobile base styles - override min dimensions */
