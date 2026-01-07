@@ -123,7 +123,7 @@ exports.sendDailyTardleEmail = functions.pubsub
             resend.emails.send({
               from: "Tardle <no-reply@playtardle.com>",
               to: email,
-              subject: "Tardle Reminder",
+              subject: "Don't break the streak 👀",
               html: `
                 <!DOCTYPE html>
                 <html>
@@ -140,114 +140,53 @@ exports.sendDailyTardleEmail = functions.pubsub
                       background-color: #fff;
                       text-align: center;
                     }
-                    .header {
-                      margin-bottom: 20px;
+                    .logo-container {
+                      text-align: center;
+                      margin: 30px 0;
                     }
-                    .masthead {
+                    .logo-image {
+                      max-width: 200px;
+                      height: auto;
+                      margin: 0 auto 15px auto;
+                      display: block;
+                    }
+                    .logo-text {
+                      font-size: 36px;
+                      font-weight: bold;
+                      margin: 0;
+                      color: #000;
+                      font-family: 'Field Gothic Narrow', sans-serif;
+                      text-align: center;
+                    }
+                    .main-message {
                       font-size: 18px;
-                      font-weight: bold;
-                      margin-bottom: 10px;
+                      margin: 30px 0;
                       color: #000;
-                    }
-                    .divider {
-                      border-top: 1px solid #000;
-                      margin: 15px 0;
-                    }
-                    .reminder-heading {
-                      font-size: 28px;
-                      font-weight: bold;
-                      margin: 20px 0 5px 0;
-                      color: #000;
-                    }
-                    .date-time {
-                      font-size: 14px;
-                      color: #000;
-                      margin-bottom: 15px;
                     }
                     .call-to-action {
                       font-size: 16px;
-                      margin: 20px 0;
+                      margin: 30px 0;
                       color: #000;
                     }
                     .play-link {
                       color: #0000EE;
                       text-decoration: underline;
                     }
-                    .game-grid {
-                      display: inline-block;
-                      margin: 20px 0;
-                      border-collapse: separate;
-                      border-spacing: 3px;
-                    }
-                    .grid-row {
-                      display: flex;
-                      gap: 3px;
-                      margin-bottom: 3px;
-                    }
-                    .grid-square {
-                      width: 40px;
-                      height: 40px;
-                      border: 2px solid #000;
-                      display: inline-block;
-                      box-sizing: border-box;
-                    }
-                    .grid-square.empty {
-                      background-color: #fff;
-                    }
-                    .grid-square.light-blue {
-                      background-color: #B8D4E8;
-                      border-color: #B8D4E8;
-                    }
-                    .grid-square.yellow {
-                      background-color: #c9b458;
-                      border-color: #c9b458;
-                    }
-                    .grid-square.dark-blue {
-                      background-color: #001A57;
-                      border-color: #001A57;
-                    }
-                    .logo {
-                      font-size: 36px;
-                      font-weight: bold;
-                      margin-top: 10px;
-                      color: #000;
-                      font-family: 'Field Gothic Narrow', sans-serif;
-                    }
                   </style>
                 </head>
                 <body>
-                  <div class="header">
-                    <div class="masthead">Tardle</div>
-                    <div class="divider"></div>
+                  <div class="logo-container">
+                    <img src="${BASE_URL}/logo.png" alt="Tardle Logo" class="logo-image">
+                    <div class="logo-text">Tardle</div>
                   </div>
                   
-                  <div class="reminder-heading">Tardle Reminder</div>
-                  <div class="date-time">${dateStr}, ${timeStr} Eastern time</div>
-                  <div class="divider"></div>
+                  <div class="main-message">
+                    Another day, another Carolina word.
+                  </div>
                   
                   <div class="call-to-action">
-                    Can you guess today's five-letter word? <a href="${BASE_URL}/play.html" class="play-link">Play now.</a>
+                    Before classes, after classes, or instead of classes, <a href="${BASE_URL}/play.html" class="play-link">play now</a>.
                   </div>
-                  
-                  <div class="game-grid">
-                    <div class="grid-row">
-                      <div class="grid-square light-blue"></div>
-                      <div class="grid-square light-blue"></div>
-                      <div class="grid-square light-blue"></div>
-                    </div>
-                    <div class="grid-row">
-                      <div class="grid-square light-blue"></div>
-                      <div class="grid-square yellow"></div>
-                      <div class="grid-square dark-blue"></div>
-                    </div>
-                    <div class="grid-row">
-                      <div class="grid-square dark-blue"></div>
-                      <div class="grid-square light-blue"></div>
-                      <div class="grid-square dark-blue"></div>
-                    </div>
-                  </div>
-                  
-                  <div class="logo">Tardle</div>
                 </body>
                 </html>
               `,
