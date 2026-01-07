@@ -203,10 +203,22 @@
     padding: 0;
     line-height: 1;
     transition: opacity 0.2s ease;
+    /* Safari-specific: ensure button is clickable */
+    z-index: 1001;
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+    display: block;
+    visibility: visible;
   }
 
   .side-panel-close:hover {
     opacity: 0.7;
+  }
+  
+  .side-panel-close:active {
+    opacity: 0.5;
   }
 
   .side-panel-separator {
@@ -962,10 +974,22 @@
     padding: 0;
     line-height: 1;
     transition: opacity 0.2s ease;
+    /* Safari-specific: ensure button is clickable */
+    z-index: 1001;
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+    display: block;
+    visibility: visible;
   }
 
   .stats-login-close-btn:hover {
     opacity: 0.7;
+  }
+  
+  .stats-login-close-btn:active {
+    opacity: 0.5;
   }
 
   .stats-login-title {
@@ -2359,11 +2383,22 @@
     padding: 0;
     line-height: 1;
     transition: opacity 0.2s ease;
-    z-index: 1;
+    z-index: 1001;
+    /* Safari-specific: ensure button is clickable */
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+    display: block;
+    visibility: visible;
   }
 
   .login-prompt-close:hover {
     opacity: 0.7;
+  }
+  
+  .login-prompt-close:active {
+    opacity: 0.5;
   }
 
   .login-prompt-heading {
