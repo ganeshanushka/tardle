@@ -430,7 +430,7 @@ let words = [
               console.log('Game was won - not showing answer popup');
             }
             
-            // Force show "See results" button
+            // Force show "See results" button (primary button only)
             const buttonsContainer = document.getElementById('gameOverButtons');
             if (buttonsContainer) {
               buttonsContainer.classList.remove('hidden');
@@ -439,12 +439,11 @@ let words = [
               console.log('See results button shown');
             }
             
-            // Also try the see-results-button class selector as fallback
-            const seeResultsButton = document.querySelector('.see-results-button');
-            if (seeResultsButton) {
-              seeResultsButton.style.display = 'block';
-              seeResultsButton.style.visibility = 'visible';
-              console.log('See results button (class selector) shown');
+            // Hide the secondary button container to avoid duplicates
+            const seeResultsBtn = document.getElementById('seeResultsBtn');
+            if (seeResultsBtn) {
+              seeResultsBtn.classList.add('hidden');
+              seeResultsBtn.style.display = 'none';
             }
           } else {
             console.log('Game is NOT completed, gameCompleted value:', gameCompleted, 'window.gameCompleted:', window.gameCompleted);
@@ -474,26 +473,14 @@ let words = [
               buttonsContainer.style.display = 'flex';
             }
             
-            // Automatically show stats/results popup when loading a completed game after refresh
-            setTimeout(() => {
-              const isLoggedIn = (window.firebaseAuth && window.firebaseAuth.currentUser) || 
-                                window.isLoggedIn || 
-                                window.currentUser;
-              
-              if (isLoggedIn) {
-                // Logged in: show stats popup automatically
-                if (window.showStatsPopup) {
-                  console.log('Auto-showing stats popup for completed game (fallback)');
-                  window.showStatsPopup();
-                }
-              } else {
-                // Not logged in: show results popup automatically
-                if (window.showResultsPopup) {
-                  console.log('Auto-showing results popup for completed game (fallback)');
-                  window.showResultsPopup();
-                }
-              }
-            }, 500);
+            // Hide the secondary button container to avoid showing duplicate buttons
+            const seeResultsBtn = document.getElementById('seeResultsBtn');
+            if (seeResultsBtn) {
+              seeResultsBtn.classList.add('hidden');
+              seeResultsBtn.style.display = 'none';
+            }
+            
+            // Don't auto-show popup - let user click the button to see results
           }
         }, 1000);
       } else {
@@ -740,6 +727,7 @@ let words = [
       }
       
       // Show "See results" button for both won and lost games
+      // Only show the primary button (gameOverButton in gameOverButtons container)
       const buttonsContainer = document.getElementById('gameOverButtons');
       if (buttonsContainer) {
         buttonsContainer.classList.remove('hidden');
@@ -759,45 +747,16 @@ let words = [
         console.warn('⚠️ gameOverButton not found');
       }
       
-      // Also try the see-results-button class selector as fallback
+      // Hide the secondary button container to avoid showing duplicate buttons
       const seeResultsBtn = document.getElementById('seeResultsBtn');
       if (seeResultsBtn) {
-        seeResultsBtn.classList.remove('hidden');
-        seeResultsBtn.style.display = 'flex';
-        seeResultsBtn.style.visibility = 'visible';
-        console.log('✅ Showing seeResultsBtn container');
+        seeResultsBtn.classList.add('hidden');
+        seeResultsBtn.style.display = 'none';
+        console.log('✅ Hiding seeResultsBtn container (using primary button instead)');
       }
       
-      const seeResultsButton = document.getElementById('seeResultsButton');
-      if (seeResultsButton) {
-        seeResultsButton.style.display = 'block';
-        seeResultsButton.style.visibility = 'visible';
-        console.log('✅ Showing seeResultsButton');
-      } else {
-        console.warn('⚠️ seeResultsButton not found');
-      }
-      
-      // Automatically show stats/results popup when loading a completed game after refresh
-      // Wait a bit to ensure everything is loaded
-      setTimeout(() => {
-        const isLoggedIn = (window.firebaseAuth && window.firebaseAuth.currentUser) || 
-                          window.isLoggedIn || 
-                          window.currentUser;
-        
-        if (isLoggedIn) {
-          // Logged in: show stats popup automatically
-          if (window.showStatsPopup) {
-            console.log('Auto-showing stats popup for completed game');
-            window.showStatsPopup();
-          }
-        } else {
-          // Not logged in: show results popup automatically
-          if (window.showResultsPopup) {
-            console.log('Auto-showing results popup for completed game');
-            window.showResultsPopup();
-          }
-        }
-      }, 800);
+      // Don't auto-show popup - let user click the button to see results
+      // This provides better UX as user can see the game board first
     }
   }
 
