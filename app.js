@@ -342,6 +342,8 @@ let words = [
       await window.firebaseFirestoreFunctions.setDoc(gameStateRef, gameStateData, { merge: true });
       console.log('Game state saved:', gameStateData);
       console.log('Saved gameCompleted:', gameCompleted);
+      console.log('Saved guesses count:', guesses.length);
+      console.log('First saved guess example:', guesses[0]);
     } catch (error) {
       console.error('Error saving game state:', error);
     }
