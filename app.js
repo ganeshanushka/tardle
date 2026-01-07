@@ -1666,7 +1666,7 @@ function renderCalendar(gameHistory) {
     console.log('Number of month divs in container:', container.querySelectorAll('.stats-calendar-month').length);
 }
 
-window.showStatsPopup = async function showStatsPopup() {
+window.showStatsPopup = async function showStatsPopup(hideShareButton = false) {
     // Check if user is logged in - if not, show login prompt popup
     // Also check Firebase auth directly in case of timing issues
     let userIsLoggedIn = isLoggedIn && currentUser;
@@ -1716,6 +1716,16 @@ window.showStatsPopup = async function showStatsPopup() {
             gameHistory = await loadGameHistory();
         }
         renderCalendar(gameHistory);
+        
+        // Show or hide the share results button based on the parameter
+        const shareButtonContainer = document.getElementById('statsShareButtonContainer');
+        if (shareButtonContainer) {
+            if (hideShareButton) {
+                shareButtonContainer.style.display = 'none';
+            } else {
+                shareButtonContainer.style.display = 'flex';
+            }
+        }
         
         popup.classList.remove('hidden');
         popup.style.display = 'flex'; // Set inline style to show

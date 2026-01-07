@@ -2886,7 +2886,7 @@
                 </div>
                 <h2 class="stats-section-header">Game History</h2>
                 <div class="stats-calendar-container" id="statsCalendarContainer"></div>
-                <div style="position: relative; display: flex; justify-content: center; margin-top: 20px;">
+                <div id="statsShareButtonContainer" style="position: relative; display: flex; justify-content: center; margin-top: 20px;">
                   <button class="results-share-btn" onclick="window.shareResults()">
                     <span>Share results</span>
                   </button>
@@ -3233,11 +3233,11 @@
               }
             }
             
-            // If user is logged in, show the stats popup
+            // If user is logged in, show the stats popup (hide share button when opened from podium)
             const statsFunction = window.showStatsPopup || (typeof showStatsPopup !== 'undefined' ? showStatsPopup : null);
             if (statsFunction && typeof statsFunction === 'function') {
-              console.log('Calling showStatsPopup');
-              statsFunction();
+              console.log('Calling showStatsPopup with hideShareButton=true');
+              statsFunction(true); // Pass true to hide the share button
             } else {
               console.error('showStatsPopup function not found. User is logged in but stats function unavailable.');
               alert('Statistics are loading. Please try again in a moment.');
