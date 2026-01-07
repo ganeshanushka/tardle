@@ -160,20 +160,28 @@
       padding-left: 20px;
     }
 
-    .return-link {
-      color: #333;
-      text-decoration: none;
-      font-size: 16px;
-      padding: 12px 0;
+    .return-button {
       display: inline-block;
+      background-color: #7BAFD4;
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+      padding: 12px 24px;
+      border-radius: 4px;
+      text-decoration: none;
+      margin-top: 20px;
+      border: none;
+      cursor: pointer;
+      font-family: 'Field Gothic Narrow', sans-serif;
+      transition: background-color 0.2s ease;
     }
 
-    .return-link:hover {
-      text-decoration: underline;
+    .return-button:hover {
+      background-color: #6a9fc0;
     }
 
     .subscription-section {
-      margin-top: 30px;
+      margin-top: 0;
       padding: 20px;
       background-color: #f5f5f5;
       border-left: 4px solid #7BAFD4;
@@ -206,6 +214,45 @@
       color: #666;
       margin-top: 12px;
       line-height: 1.5;
+    }
+
+    .subscription-status-tiles {
+      display: flex;
+      gap: 2px;
+      margin-top: 12px;
+      perspective: 1000px;
+    }
+
+    .subscription-status-tile {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 1px solid #333333;
+      border-radius: 2px;
+      font-weight: bold;
+      font-size: 0.7em;
+      color: #000000;
+      font-family: 'Field Gothic Narrow', sans-serif;
+      background-color: #ffffff;
+      transition: background-color 0s, color 0s, border-color 0s;
+    }
+
+    .subscription-status-tile.flip {
+      animation: subscriptionTileFlip 0.6s ease-in-out;
+    }
+
+    @keyframes subscriptionTileFlip {
+      0% { transform: rotateX(0); }
+      50% { transform: rotateX(-90deg); }
+      100% { transform: rotateX(0); }
+    }
+
+    .subscription-status-tile.revealed {
+      background-color: #7BAFD4;
+      color: white;
+      border-color: transparent;
     }
 
     .login-status {
@@ -264,7 +311,7 @@
     </div>
 
     <div class="login-status" id="loginStatus">
-      <p>You're logged in. Not you? <a href="#" onclick="handleLogout(event)">Log out.</a></p>
+      <p>You're logged in.</p>
     </div>
     
     <div class="subscription-section" id="subscriptionSection" style="display: none;">
@@ -273,10 +320,11 @@
         <input type="checkbox" id="emailSubscriptionToggle">
         <label for="emailSubscriptionToggle">Subscribe to daily reminder emails</label>
       </div>
+      <div class="subscription-status-tiles" id="subscriptionStatusTiles" style="display: none;"></div>
       <div class="subscription-status" id="subscriptionStatus"></div>
     </div>
     
-    <a href="index.html" class="return-link">Return to home page</a>
+    <a href="index.html" class="return-button">Return</a>
   </div>
 
   <!-- Firebase Config -->
@@ -372,7 +420,7 @@
           if (user) {
             // User is logged in - show login status with email
             const userEmail = user.email || 'your account';
-            loginStatus.innerHTML = '<p class="small" style="margin-bottom: 4px;">You\'re logged in as <strong>' + userEmail + '</strong>.</p><p class="small" style="margin-top: 4px;">Not you? <a href="#" onclick="handleLogout(event)">Log out.</a></p>';
+            loginStatus.innerHTML = '<p>You\'re logged in as <strong>' + userEmail + '</strong>.</p>';
             
             // Show subscription section and load subscription status
             subscriptionSection.style.display = 'block';
@@ -406,15 +454,18 @@
           subscriptionToggle.checked = isSubscribed;
           
           if (isSubscribed) {
-            subscriptionStatus.textContent = '✓ You are subscribed to daily reminder emails.';
-            subscriptionStatus.style.color = '#4caf50';
+            showSubscriptionTiles();
+            subscriptionStatus.textContent = '';
+            subscriptionStatus.style.color = '#666';
           } else {
+            hideSubscriptionTiles();
             subscriptionStatus.textContent = 'You are not subscribed to daily reminder emails.';
             subscriptionStatus.style.color = '#666';
           }
         } else {
           // User document doesn't exist yet, default to not subscribed
           subscriptionToggle.checked = false;
+          hideSubscriptionTiles();
           subscriptionStatus.textContent = 'You are not subscribed to daily reminder emails.';
           subscriptionStatus.style.color = '#666';
         }
@@ -441,9 +492,11 @@
           
           // Update status message
           if (isSubscribed) {
-            subscriptionStatus.textContent = '✓ You are now subscribed to daily reminder emails.';
-            subscriptionStatus.style.color = '#4caf50';
+            showSubscriptionTiles();
+            subscriptionStatus.textContent = '';
+            subscriptionStatus.style.color = '#666';
           } else {
+            hideSubscriptionTiles();
             subscriptionStatus.textContent = 'You have unsubscribed from daily reminder emails.';
             subscriptionStatus.style.color = '#666';
           }
@@ -461,6 +514,77 @@
     function showSignupButton() {
       const loginStatus = document.getElementById('loginStatus');
       loginStatus.innerHTML = '<a href="login.html?return=reminder.html" class="signup-button">Sign Up</a><p style="margin-top: 12px; margin-bottom: 0;">Already have an account? <a href="login.html?return=reminder.html" class="login-link">Log in to get it.</a></p>';
+    }
+
+    function createSubscriptionTiles() {
+      const tilesContainer = document.getElementById('subscriptionStatusTiles');
+      if (!tilesContainer) return;
+      
+      tilesContainer.innerHTML = ''; // Clear existing tiles
+      
+      const text = "YOU ARE NOW SUBSCRIBED";
+      const letters = text.split('');
+      
+      letters.forEach((letter) => {
+        if (letter === ' ') {
+          // Add a spacer for spaces
+          const spacer = document.createElement('div');
+          spacer.style.width = '4px';
+          tilesContainer.appendChild(spacer);
+        } else {
+          const tile = document.createElement('div');
+          tile.className = 'subscription-status-tile';
+          tile.textContent = letter;
+          tilesContainer.appendChild(tile);
+        }
+      });
+    }
+
+    function showSubscriptionTiles() {
+      const tilesContainer = document.getElementById('subscriptionStatusTiles');
+      const subscriptionStatus = document.getElementById('subscriptionStatus');
+      
+      if (!tilesContainer) return;
+      
+      // Create tiles if they don't exist
+      if (tilesContainer.children.length === 0) {
+        createSubscriptionTiles();
+      }
+      
+      // Show tiles container
+      tilesContainer.style.display = 'flex';
+      subscriptionStatus.textContent = '';
+      
+      // Animate tiles flipping to carolina blue
+      setTimeout(() => {
+        const tiles = tilesContainer.querySelectorAll('.subscription-status-tile');
+        const flipDelay = 50; // Delay between each flip
+        const flipDuration = 600; // Duration of flip animation
+
+        tiles.forEach((tile, index) => {
+          setTimeout(() => {
+            // Add flip animation
+            tile.classList.add('flip');
+            
+            // Reveal the carolina blue color at the midpoint of the flip
+            setTimeout(() => {
+              tile.classList.add('revealed');
+            }, flipDuration / 2); // Half of the flip duration (300ms)
+            
+            // Remove flip class after animation completes
+            setTimeout(() => {
+              tile.classList.remove('flip');
+            }, flipDuration);
+          }, index * flipDelay);
+        });
+      }, 50);
+    }
+
+    function hideSubscriptionTiles() {
+      const tilesContainer = document.getElementById('subscriptionStatusTiles');
+      if (tilesContainer) {
+        tilesContainer.style.display = 'none';
+      }
     }
 
     // Prevent browser back/forward navigation
