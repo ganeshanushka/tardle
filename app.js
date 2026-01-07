@@ -436,12 +436,19 @@ let words = [
           // Remove any existing result classes first
           cell.classList.remove('filled', 'correct', 'found', 'wrong');
           // Add result class (correct, found, wrong) if it exists
-          if (item.result && (item.result === 'correct' || item.result === 'found' || item.result === 'wrong')) {
-            cell.classList.add(item.result);
-            console.log(`Cell ${rowIndex}${colIndex}: ${item.key} -> ${item.result}`);
+          // Check for both string and constant values
+          const resultValue = item.result;
+          if (resultValue && (resultValue === 'correct' || resultValue === 'found' || resultValue === 'wrong' || 
+              resultValue === Correct || resultValue === Found || resultValue === Wrong)) {
+            // Normalize to lowercase string for CSS class
+            const resultClass = typeof resultValue === 'string' ? resultValue : 
+                                (resultValue === Correct ? 'correct' : 
+                                 resultValue === Found ? 'found' : 'wrong');
+            cell.classList.add(resultClass);
+            console.log(`Cell ${rowIndex}${colIndex}: ${item.key} -> ${resultClass} (original: ${resultValue})`);
           } else {
             cell.classList.add('filled');
-            console.log(`Cell ${rowIndex}${colIndex}: ${item.key} -> filled (no result: ${item.result})`);
+            console.log(`Cell ${rowIndex}${colIndex}: ${item.key} -> filled (no result: ${resultValue})`);
           }
         } else {
           console.warn(`Cell ${rowIndex}${colIndex} not found in DOM or item is null`);
