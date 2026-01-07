@@ -923,6 +923,12 @@
     justify-content: center;
     gap: 8px;
     transition: background-color 0.2s ease;
+    -webkit-user-select: none;
+    user-select: none;
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-appearance: none;
+    appearance: none;
   }
 
   .results-share-btn:hover {
@@ -3004,7 +3010,7 @@
                 <h2 class="stats-section-header">Game History</h2>
                 <div class="stats-calendar-container" id="statsCalendarContainer"></div>
                 <div id="statsShareButtonContainer" style="position: relative; display: flex; justify-content: center; margin-top: 20px;">
-                  <button class="results-share-btn" onclick="window.shareResults()">
+                  <button class="results-share-btn" id="statsShareButton">
                     <span>Share results</span>
                   </button>
                   <div id="shareSuccessPopupStats" class="share-success-popup hidden">Results copied to clipboard</div>
@@ -3035,7 +3041,7 @@
               <button class="results-create-account-btn" onclick="window.location.href='login.html?return=play.html'">Create a free account</button>
               <a href="login.html?return=play.html" class="results-login-link">Already Registered? Log In</a>
               <div style="position: relative; display: inline-block;">
-              <button class="results-share-btn" onclick="shareResults()">
+              <button class="results-share-btn" id="resultsShareButton">
                   <span>Share results</span>
               </button>
                 <div id="shareSuccessPopup" class="share-success-popup hidden">Results copied to clipboard</div>
@@ -3762,54 +3768,68 @@
                 navigator.share({
                   title: 'Tardle',
                   text: shareText
+                }).then(() => {
+                  console.log('Shared successfully via Web Share API');
+                  // Show success popup
+                  const sharePopup = document.getElementById('shareSuccessPopup');
+                  const sharePopupStats = document.getElementById('shareSuccessPopupStats');
+                  if (sharePopup) {
+                    sharePopup.classList.remove('hidden');
+                    sharePopup.style.display = 'block';
+                    setTimeout(() => {
+                      sharePopup.classList.add('hidden');
+                      sharePopup.style.display = 'none';
+                    }, 1000);
+                  }
+                  if (sharePopupStats) {
+                    sharePopupStats.classList.remove('hidden');
+                    sharePopupStats.style.display = 'block';
+                    setTimeout(() => {
+                      sharePopupStats.classList.add('hidden');
+                      sharePopupStats.style.display = 'none';
+                    }, 1000);
+                  }
                 }).catch(() => {
+                  // If share also fails, show alert
                   alert('Share text:\n\n' + shareText);
                 });
               } else {
                 alert('Share text:\n\n' + shareText);
               }
             });
-            } else if (navigator.share) {
-              console.log('Using Web Share API');
-              // Fallback to Web Share API if clipboard not available
-              navigator.share({
-                title: 'Tardle',
-                text: shareText,
-                url: window.location.href
-              }).then(() => {
-                console.log('Shared successfully');
-                // Show success popup above the share button (check both results and stats popups)
-                const sharePopup = document.getElementById('shareSuccessPopup');
-                const sharePopupStats = document.getElementById('shareSuccessPopupStats');
-                if (sharePopup) {
-                  sharePopup.classList.remove('hidden');
-                  sharePopup.style.display = 'block';
-                  setTimeout(() => {
-                    sharePopup.classList.add('hidden');
-                    sharePopup.style.display = 'none';
-                  }, 1000);
-                }
-                if (sharePopupStats) {
-                  sharePopupStats.classList.remove('hidden');
-                  sharePopupStats.style.display = 'block';
-                  setTimeout(() => {
-                    sharePopupStats.classList.add('hidden');
-                    sharePopupStats.style.display = 'none';
-                  }, 1000);
-                }
-              }).catch(err => {
-                console.log('Error sharing:', err);
-                alert('Share text:\n\n' + shareText);
-              });
-            } else {
-              console.log('No clipboard or share API available, showing alert');
-              // Final fallback: show alert with text
-              alert('Share text:\n\n' + shareText);
-            }
           }
           
           // Make shareResults globally accessible
           window.shareResults = shareResults;
+          
+          // Set up share button event listeners (Safari-compatible)
+          function setupShareButtons() {
+            const statsShareButton = document.getElementById('statsShareButton');
+            const resultsShareButton = document.getElementById('resultsShareButton');
+            
+            if (statsShareButton) {
+              statsShareButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                shareResults();
+              });
+            }
+            
+            if (resultsShareButton) {
+              resultsShareButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                shareResults();
+              });
+            }
+          }
+          
+          // Set up buttons when DOM is ready
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', setupShareButtons);
+          } else {
+            setupShareButtons();
+          }
 
           function closeStatsLoginPrompt() {
             const popup = document.getElementById('statsLoginPromptPopup');
