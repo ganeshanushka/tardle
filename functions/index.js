@@ -56,9 +56,9 @@ const BASE_URL = 'https://playtardle.com';
 // Fallback to Firebase Hosting URL if custom domain not ready:
 // const BASE_URL = 'https://tardle-c0c26.web.app';
 
-// Daily email function (runs at 7am ET)
+// Daily email function (runs at 3am ET - temporarily changed for testing)
 exports.sendDailyTardleEmail = functions.pubsub
-  .schedule("0 7 * * *")
+  .schedule("0 3 * * *")
   .timeZone("America/New_York")
   .onRun(async (context) => {
     try {
