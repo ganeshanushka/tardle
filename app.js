@@ -380,10 +380,13 @@ let words = [
             displaySavedGame();
             const keyboard = document.getElementById('keyboard');
             if (keyboard) keyboard.style.display = 'none';
-            const answerPopup = document.getElementById('answerPopup');
-            if (answerPopup) {
-              answerPopup.classList.remove('hidden');
-              answerPopup.style.display = 'flex';
+            // Only show answer popup if game was lost
+            if (gameStatus === 'lost') {
+              const answerPopup = document.getElementById('answerPopup');
+              if (answerPopup) {
+                answerPopup.classList.remove('hidden');
+                answerPopup.style.display = 'flex';
+              }
             }
             const buttonsContainer = document.getElementById('gameOverButtons');
             if (buttonsContainer) {
@@ -1560,12 +1563,14 @@ function showTransferApplicationPopup(message) {
         }
         popup.classList.remove('hidden');
         popup.style.display = 'flex';
-        // Hide popup after 2 seconds and show answer popup
+        // Hide popup after 2 seconds and show answer popup (only if game was lost)
         setTimeout(() => {
             popup.classList.add('hidden');
             popup.style.display = '';
-            // Show answer popup after transfer popup disappears
-            showAnswerPopup();
+            // Show answer popup after transfer popup disappears (only if game was lost)
+            if (gameStatus === 'lost') {
+                showAnswerPopup();
+            }
         }, 2000);
     }
 }
