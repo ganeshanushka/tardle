@@ -1593,8 +1593,11 @@ function renderCalendar(gameHistory) {
     }
     
     // Add days of the month
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // Use UTC date to match getTodayDateString() which uses UTC
+    const todayUTC = new Date();
+    const todayYearUTC = todayUTC.getUTCFullYear();
+    const todayMonthUTC = todayUTC.getUTCMonth() + 1;
+    const todayDayUTC = todayUTC.getUTCDate();
     
     // Ensure calendarGameHistory has the right structure
     if (!calendarGameHistory || !calendarGameHistory.wins || !calendarGameHistory.losses) {
@@ -1606,22 +1609,18 @@ function renderCalendar(gameHistory) {
         dayDiv.className = 'stats-calendar-day';
         
         const dateStr = `2026-${String(currentCalendarMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        const dateObj = new Date(dateStr + 'T00:00:00');
-        dateObj.setHours(0, 0, 0, 0);
-        const isPastDate = dateObj < today;
-        const isToday = dateObj.getTime() === today.getTime();
+        const dateObj = new Date(dateStr + 'T00:00:00Z'); // Use UTC timezone
+        dateObj.setUTCHours(0, 0, 0, 0);
+        const todayUTCForCompare = new Date();
+        todayUTCForCompare.setUTCHours(0, 0, 0, 0);
+        const isPastDate = dateObj < todayUTCForCompare;
+        const isToday = dateObj.getTime() === todayUTCForCompare.getTime();
         
-        // Get today's date string to check current game state
-        const todayDateStr = getTodayDateString();
-        const todayYear = parseInt(todayDateStr.split('-')[0]);
-        const todayMonth = parseInt(todayDateStr.split('-')[1]);
-        const todayDay = parseInt(todayDateStr.split('-')[2]);
-        
-        // Check if this date matches today (accounting for year difference)
+        // Check if this date matches today using UTC (accounting for year difference)
         // Calendar shows 2026, but we need to check if today is in 2026 and matches month/day
-        const isTodayDate = (todayYear === 2026 && 
-                            currentCalendarMonth + 1 === todayMonth && 
-                            day === todayDay);
+        const isTodayDate = (todayYearUTC === 2026 && 
+                            currentCalendarMonth + 1 === todayMonthUTC && 
+                            day === todayDayUTC);
         
         // Check game status for this date
         // First check if it's in the loaded game history
