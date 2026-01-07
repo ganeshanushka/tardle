@@ -606,7 +606,7 @@
       
       tilesContainer.innerHTML = ''; // Clear existing tiles
       
-      const text = "YOU HAVE UNSUBSCRIBED FROM DAILY REMINDER EMAILS";
+      const text = "YOU ARE NOT SUBSCRIBED";
       const letters = text.split('');
       
       letters.forEach((letter) => {
@@ -630,10 +630,15 @@
       
       if (!tilesContainer) return;
       
-      // Create tiles if they don't exist
-      if (tilesContainer.children.length === 0) {
-        createUnsubscribedTiles();
-      }
+      // Create tiles if they don't exist or recreate to reset state
+      tilesContainer.innerHTML = '';
+      createUnsubscribedTiles();
+      
+      // Remove revealed class from all tiles to make them white
+      const tiles = tilesContainer.querySelectorAll('.subscription-status-tile');
+      tiles.forEach(tile => {
+        tile.classList.remove('revealed');
+      });
       
       // Show tiles container
       tilesContainer.style.display = 'flex';
