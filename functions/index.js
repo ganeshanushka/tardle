@@ -142,17 +142,18 @@ exports.sendDailyTardleEmail = functions.pubsub
                     }
                     .logo-container {
                       text-align: center;
-                      margin: 30px 0;
+                      margin: 30px auto;
                       display: flex;
                       flex-direction: column;
                       align-items: center;
                       justify-content: center;
+                      width: 100%;
                     }
                     .custom-grid-outline {
-                      display: inline-block;
+                      display: block;
                       border: 4px solid black;
                       border-radius: 5px;
-                      margin-bottom: 15px;
+                      margin: 0 auto 15px auto;
                     }
                     .custom-row {
                       display: flex;
@@ -1266,17 +1267,18 @@ exports.sendTestDailyEmail = functions.https.onCall(async (data, context) => {
                     }
                     .logo-container {
                       text-align: center;
-                      margin: 30px 0;
+                      margin: 30px auto;
                       display: flex;
                       flex-direction: column;
                       align-items: center;
                       justify-content: center;
+                      width: 100%;
                     }
                     .custom-grid-outline {
-                      display: inline-block;
+                      display: block;
                       border: 4px solid black;
                       border-radius: 5px;
-                      margin-bottom: 15px;
+                      margin: 0 auto 15px auto;
                     }
                     .custom-row {
                       display: flex;
