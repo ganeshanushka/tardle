@@ -66,6 +66,18 @@ html, body {
       max-width: 62px !important;
     }
   }
+  
+  /* Safari-specific fixes */
+  @supports (-webkit-appearance: none) {
+    .key-guess {
+      /* Ensure Safari respects max dimensions */
+      max-height: 62px !important;
+      max-width: 62px !important;
+      /* Fix for Safari viewport unit handling */
+      height: min(62px, clamp(50px, 8vw, 62px));
+      width: min(62px, clamp(50px, 8vw, 62px));
+    }
+  }
 
   /* Mobile base styles - override min dimensions */
   @media (max-width: 768px) {
