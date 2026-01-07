@@ -485,6 +485,17 @@ let words = [
         }, 1000);
       } else {
         console.log('No saved game state found for today, starting fresh');
+        // Show grid and keyboard for new game
+        const guessGrid = document.getElementById("guessGrid");
+        if (guessGrid) {
+          guessGrid.style.opacity = '1';
+          guessGrid.style.visibility = 'visible';
+        }
+        const keyboard = document.getElementById("keyboard");
+        if (keyboard) {
+          keyboard.style.opacity = '1';
+          keyboard.style.visibility = 'visible';
+        }
       }
     } catch (error) {
       console.error('Error loading game state:', error);
@@ -638,6 +649,20 @@ let words = [
   function displaySavedGame() {
     console.log('displaySavedGame called with:', { guesses: guesses.length, gameCompleted, gameStatus });
     console.log('First guess details:', guesses[0]);
+    
+    // Show grid and keyboard now that we're ready to display
+    const guessGrid = document.getElementById("guessGrid");
+    if (guessGrid) {
+      guessGrid.style.opacity = '1';
+      guessGrid.style.visibility = 'visible';
+    }
+    
+    const keyboard = document.getElementById("keyboard");
+    if (keyboard && !gameCompleted) {
+      // Only show keyboard if game is not completed
+      keyboard.style.opacity = '1';
+      keyboard.style.visibility = 'visible';
+    }
     
     // Ensure grid cells exist before trying to display
     const firstCell = document.getElementById('00');
@@ -944,7 +969,21 @@ let words = [
       }
     });
     
+    // Hide grid and keyboard initially to prevent flash of empty state
+    // They will be shown after game state is loaded (or if no saved state exists)
     let guessGrid = document.getElementById("guessGrid");
+    if (guessGrid) {
+      guessGrid.style.opacity = '0'; // Hide initially
+      guessGrid.style.visibility = 'hidden';
+    }
+    
+    let keyboard = document.getElementById("keyboard");
+    if (keyboard) {
+      keyboard.style.opacity = '0'; // Hide initially
+      keyboard.style.visibility = 'hidden';
+    }
+    
+    // Create grid cells
     for (let i = 0; i < NumberOfGuesses; i++) { // This loop creates rows in the guess grid
       for (let j = 0; j < SecretWord.length; j++) { // This loop adds blocks based on the no. of letters in the secret
         guessGrid.innerHTML += `<div id="${i}${j}" class="key-guess"></div>`
@@ -952,7 +991,7 @@ let words = [
       guessGrid.innerHTML += '<br/>'
     }
   
-    let keyboard = document.getElementById("keyboard");
+    // Create keyboard buttons
     Object.keys(keys).forEach((key) => {
       if (key.includes('break')) {
         keyboard.innerHTML += '<br/>';
