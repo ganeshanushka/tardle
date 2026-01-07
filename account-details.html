@@ -119,12 +119,13 @@
     
     .sidebar-help {
       padding: 12px 16px;
-      color: #1a1a1b;
+      color: #7BAFD4;
       text-decoration: none;
       font-size: 15px;
       display: flex;
       align-items: center;
       gap: 8px;
+      cursor: pointer;
     }
     
     .help-icon {
@@ -143,6 +144,95 @@
     
     .sidebar-help:hover {
       text-decoration: underline;
+    }
+    
+    /* Help Modal */
+    .help-modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .help-modal-overlay.show {
+      display: flex;
+    }
+    
+    .help-modal {
+      background-color: white;
+      border-radius: 8px;
+      padding: 24px;
+      max-width: 500px;
+      width: 90%;
+      position: relative;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+    
+    .help-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    
+    .help-modal-title {
+      font-size: 20px;
+      font-weight: bold;
+      color: #1a1a1b;
+      margin: 0;
+    }
+    
+    .help-modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: #666;
+      cursor: pointer;
+      padding: 0;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .help-modal-close:hover {
+      color: #1a1a1b;
+    }
+    
+    .help-modal-body {
+      color: #1a1a1b;
+      font-size: 15px;
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+    
+    .help-modal-body a {
+      color: #7BAFD4;
+      text-decoration: underline;
+    }
+    
+    .help-modal-button {
+      width: 100%;
+      padding: 12px 24px;
+      background-color: #1a1a1b;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    
+    .help-modal-button:hover {
+      background-color: #333;
     }
     
     /* Main Content */
@@ -447,11 +537,25 @@
         </ul>
       </nav>
       <div class="sidebar-divider"></div>
-      <a href="mailto:tardlehelp@gmail.com" class="sidebar-help">
+      <a href="#" class="sidebar-help" onclick="showHelpModal(); return false;">
         <span class="help-icon">?</span>
         <span>Help</span>
       </a>
     </aside>
+
+    <!-- Help Modal -->
+    <div id="helpModal" class="help-modal-overlay">
+      <div class="help-modal">
+        <div class="help-modal-header">
+          <h2 class="help-modal-title">Need help?</h2>
+          <button class="help-modal-close" onclick="closeHelpModal()">×</button>
+        </div>
+        <div class="help-modal-body">
+          Get answers to common questions using our help topics or <a href="mailto:tardlehelp@gmail.com">contact us</a>.
+        </div>
+        <button class="help-modal-button" onclick="closeHelpModal()">Review Help topics</button>
+      </div>
+    </div>
 
     <!-- Main Content -->
     <main class="main-content">
@@ -1467,6 +1571,32 @@
       
       checkAuth();
     }
+    
+    function showHelpModal() {
+      const modal = document.getElementById('helpModal');
+      if (modal) {
+        modal.classList.add('show');
+      }
+    }
+    
+    function closeHelpModal() {
+      const modal = document.getElementById('helpModal');
+      if (modal) {
+        modal.classList.remove('show');
+      }
+    }
+    
+    // Close modal when clicking outside
+    document.addEventListener('DOMContentLoaded', function() {
+      const modal = document.getElementById('helpModal');
+      if (modal) {
+        modal.addEventListener('click', function(e) {
+          if (e.target === modal) {
+            closeHelpModal();
+          }
+        });
+      }
+    });
 
   </script>
 </body>
