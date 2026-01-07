@@ -102,6 +102,8 @@ let words = [
   let guesses = [];
   let currentGuess = [];
   let tries = 0;
+  // Expose guesses to global scope for share function
+  window.guesses = guesses;
   const maxTries = 6;
   let isLoggedIn = false;
   let currentUser = null;
@@ -134,8 +136,10 @@ let words = [
             maxStreak = 0;
             // Reset game state for logged out users
             guesses = [];
+            window.guesses = guesses; // Update global reference
             currentGuess = [];
             gameStatus = 'in_progress';
+            window.gameStatus = gameStatus; // Update global reference
             gameCompleted = false;
           }
         });
@@ -231,6 +235,7 @@ let words = [
               result: item.result
             }));
           });
+          window.guesses = guesses; // Update global reference
         }
         
         if (gameData.currentGuess && Array.isArray(gameData.currentGuess)) {
@@ -241,6 +246,7 @@ let words = [
         }
         
         gameStatus = gameData.gameStatus || 'in_progress';
+        window.gameStatus = gameStatus; // Update global reference
         gameCompleted = gameData.gameCompleted || false;
         
         // Restore keyboard state
@@ -526,6 +532,8 @@ let words = [
   // Game state variables
   let gameStatus = 'in_progress'; // 'in_progress', 'won', 'lost'
   let gameCompleted = false;
+  // Expose gameStatus to global scope for share function
+  window.gameStatus = gameStatus;
   
   function initialize() {
     // Ensure all popups are hidden on page load
@@ -1010,6 +1018,7 @@ let words = [
         // Set up the guess with letters but no colors yet
         updateCurrentGuess(false);
         guesses.push([...currentGuess]);
+        window.guesses = guesses; // Update global reference
         const previousGuess = [...currentGuess];
         currentGuess = [];
         
@@ -1020,6 +1029,7 @@ let words = [
         if (isCorrect) {
             // Game won
             gameStatus = 'won';
+            window.gameStatus = gameStatus; // Update global reference
             gameCompleted = true;
             // Show alert after flip animation completes
             // flipAndRevealGuess will handle showing the alert
@@ -1031,6 +1041,7 @@ let words = [
         } else if (guesses.length >= NumberOfGuesses) {
             // Game lost
             gameStatus = 'lost';
+            window.gameStatus = gameStatus; // Update global reference
             gameCompleted = true;
             // Calculate total flip time and wait for all tiles to finish flipping
             const flipDelay = 250; // Delay between each flip (in milliseconds)

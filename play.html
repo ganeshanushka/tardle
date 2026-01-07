@@ -758,7 +758,7 @@
   }
 
   .results-create-account-btn {
-    font-family: 'Field Gothic Narrow', serif;
+    font-family: 'Field Gothic Narrow', sans-serif;
     background-color: #7BAFD4;
     color: white;
     border: none;
@@ -864,7 +864,7 @@
   }
 
   .results-share-btn {
-    font-family: 'Field Gothic Narrow', serif;
+    font-family: 'Field Gothic Narrow', sans-serif;
     background-color: #7BAFD4;
     color: white;
     border: none;
@@ -3501,18 +3501,67 @@
           }
 
           function shareResults() {
-            // Share functionality - can be implemented later
-            if (navigator.share) {
+            // Access guesses and gameStatus from the global scope (they're in app.js)
+            // Try to access them from window or directly
+            const gameGuesses = window.guesses || (typeof guesses !== 'undefined' ? guesses : null);
+            const gameState = window.gameStatus || (typeof gameStatus !== 'undefined' ? gameStatus : null);
+            
+            if (!gameGuesses || gameGuesses.length === 0) {
+              console.error('No guesses available to share');
+              alert('No game results to share yet!');
+              return;
+            }
+
+            // Get game result
+            const isWin = gameState === 'won';
+            const guessCount = gameGuesses.length;
+            const maxGuesses = 6;
+            const resultLine = isWin ? `${guessCount}/${maxGuesses}` : 'X/6';
+            
+            // Build the share text
+            let shareText = `Tardle ${resultLine}\n\n`;
+            
+            // Add emoji grid for each guess
+            gameGuesses.forEach((guess) => {
+              let row = '';
+              guess.forEach((cell) => {
+                if (cell.result === 'correct') {
+                  row += '🟩'; // Green square for correct
+                } else if (cell.result === 'found') {
+                  row += '🟨'; // Yellow square for found (wrong position)
+                } else {
+                  row += '⬛'; // Black square for wrong
+                }
+              });
+              shareText += row + '\n';
+            });
+            
+            // Copy to clipboard
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              navigator.clipboard.writeText(shareText).then(() => {
+                // Show success message
+                const shareBtn = document.querySelector('.results-share-btn');
+                if (shareBtn) {
+                  const originalText = shareBtn.querySelector('span').textContent;
+                  shareBtn.querySelector('span').textContent = 'Copied!';
+                  setTimeout(() => {
+                    shareBtn.querySelector('span').textContent = originalText;
+                  }, 2000);
+                }
+              }).catch(err => {
+                console.error('Error copying to clipboard:', err);
+                alert('Failed to copy to clipboard');
+              });
+            } else if (navigator.share) {
+              // Fallback to Web Share API if clipboard not available
               navigator.share({
                 title: 'Tardle',
-                text: 'I just played Tardle!',
+                text: shareText,
                 url: window.location.href
               }).catch(err => console.log('Error sharing:', err));
             } else {
-              // Fallback: copy to clipboard
-              navigator.clipboard.writeText(window.location.href).then(() => {
-                alert('Link copied to clipboard!');
-              }).catch(err => console.log('Error copying:', err));
+              // Final fallback: show alert with text
+              alert('Share text:\n\n' + shareText);
             }
           }
 
