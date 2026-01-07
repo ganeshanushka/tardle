@@ -2886,6 +2886,12 @@
                 </div>
                 <h2 class="stats-section-header">Game History</h2>
                 <div class="stats-calendar-container" id="statsCalendarContainer"></div>
+                <div style="position: relative; display: flex; justify-content: center; margin-top: 20px;">
+                  <button class="results-share-btn" onclick="window.shareResults()">
+                    <span>Share results</span>
+                  </button>
+                  <div id="shareSuccessPopupStats" class="share-success-popup hidden">Results copied to clipboard</div>
+                </div>
               </div>
             </div>
           </div>
@@ -3559,8 +3565,9 @@
               console.log('Using clipboard API');
               navigator.clipboard.writeText(shareText).then(() => {
                 console.log('Text copied to clipboard successfully');
-                // Show success popup above the share button
+                // Show success popup above the share button (check both results and stats popups)
                 const sharePopup = document.getElementById('shareSuccessPopup');
+                const sharePopupStats = document.getElementById('shareSuccessPopupStats');
                 if (sharePopup) {
                   sharePopup.classList.remove('hidden');
                   sharePopup.style.display = 'block';
@@ -3570,7 +3577,18 @@
                     sharePopup.classList.add('hidden');
                     sharePopup.style.display = 'none';
                   }, 1000);
-                } else {
+                }
+                if (sharePopupStats) {
+                  sharePopupStats.classList.remove('hidden');
+                  sharePopupStats.style.display = 'block';
+                  
+                  // Auto-hide after 1 second
+                  setTimeout(() => {
+                    sharePopupStats.classList.add('hidden');
+                    sharePopupStats.style.display = 'none';
+                  }, 1000);
+                }
+                if (!sharePopup && !sharePopupStats) {
                   console.error('Share popup element not found');
                   alert('Results copied to clipboard!');
                 }
@@ -3587,14 +3605,23 @@
                 url: window.location.href
               }).then(() => {
                 console.log('Shared successfully');
-                // Show success popup above the share button
+                // Show success popup above the share button (check both results and stats popups)
                 const sharePopup = document.getElementById('shareSuccessPopup');
+                const sharePopupStats = document.getElementById('shareSuccessPopupStats');
                 if (sharePopup) {
                   sharePopup.classList.remove('hidden');
                   sharePopup.style.display = 'block';
                   setTimeout(() => {
                     sharePopup.classList.add('hidden');
                     sharePopup.style.display = 'none';
+                  }, 1000);
+                }
+                if (sharePopupStats) {
+                  sharePopupStats.classList.remove('hidden');
+                  sharePopupStats.style.display = 'block';
+                  setTimeout(() => {
+                    sharePopupStats.classList.add('hidden');
+                    sharePopupStats.style.display = 'none';
                   }, 1000);
                 }
               }).catch(err => {
