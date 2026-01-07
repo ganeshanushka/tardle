@@ -44,15 +44,17 @@ html, body {
     align-items: center;
     text-transform: uppercase;
     border: 2px solid var(--border-color);
-    height: clamp(45px, 6vw, 58px);
-    width: clamp(45px, 6vw, 58px);
+    height: clamp(45px, 8vw, 62px);
+    width: clamp(45px, 8vw, 62px);
     min-height: 45px;
     min-width: 45px;
+    max-height: 62px;
+    max-width: 62px;
     vertical-align: top;
     color: #1a1a1b;
     margin: clamp(2px, 0.4vw, 3px);
     transition: border-color 0.1s ease, color 0.3s ease;
-    font-size: clamp(24px, 3.5vw, 30px);
+    font-size: clamp(24px, 4vw, 32px);
     font-weight: bold;
     box-sizing: border-box;
   }
