@@ -380,14 +380,31 @@ let words = [
         keyboard.style.display = 'none';
       }
       
-      // Show "See results" button if it exists
+      // Show answer popup with the secret word
+      const answerPopup = document.getElementById('answerPopup');
+      const answerMessage = document.getElementById('answerMessage');
+      if (answerPopup && answerMessage) {
+        answerMessage.innerText = SecretWord;
+        answerPopup.classList.remove('hidden');
+        answerPopup.style.display = 'flex';
+        answerPopup.style.visibility = 'visible';
+      }
+      
+      // Show "See results" button
+      const buttonsContainer = document.getElementById('gameOverButtons');
+      if (buttonsContainer) {
+        buttonsContainer.classList.remove('hidden');
+        buttonsContainer.style.display = 'flex';
+      }
+      
+      // Also try the see-results-button class selector as fallback
       const seeResultsButton = document.querySelector('.see-results-button');
       if (seeResultsButton) {
         seeResultsButton.style.display = 'block';
       }
       
       if (gameStatus === 'won') {
-        // Game was won - show success (but don't show alert again)
+        // Game was won - already handled above
         console.log('Game was already won today');
       } else if (gameStatus === 'lost') {
         // Game was lost - show game over popup
