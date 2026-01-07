@@ -341,17 +341,19 @@ let words = [
   
   // Display saved game grid
   function displaySavedGame() {
-    // Display all previous guesses
+    // Display all previous guesses with colors
     guesses.forEach((guess, rowIndex) => {
       guess.forEach((item, colIndex) => {
         const cell = document.getElementById(`${rowIndex}${colIndex}`);
         if (cell) {
           cell.textContent = item.key;
-          cell.classList.add('filled');
-          // Add result class (correct, found, wrong)
+          // Remove any existing result classes first
+          cell.classList.remove('filled', 'correct', 'found', 'wrong');
+          // Add result class (correct, found, wrong) if it exists
           if (item.result) {
             cell.classList.add(item.result);
-            cell.classList.remove('filled');
+          } else {
+            cell.classList.add('filled');
           }
         }
       });
