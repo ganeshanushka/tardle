@@ -340,11 +340,23 @@ let words = [
       });
     }
     
-    // Update keyboard
+    // Update keyboard (will disable if game is completed)
     updateKeyboard();
     
-    // If game is completed, show appropriate popup
+    // If game is completed, hide keyboard and show appropriate popup
     if (gameCompleted) {
+      // Hide keyboard when game is completed
+      const keyboard = document.getElementById('keyboard');
+      if (keyboard) {
+        keyboard.style.display = 'none';
+      }
+      
+      // Show "See results" button if it exists
+      const seeResultsButton = document.querySelector('.see-results-button');
+      if (seeResultsButton) {
+        seeResultsButton.style.display = 'block';
+      }
+      
       if (gameStatus === 'won') {
         // Game was won - show success (but don't show alert again)
         console.log('Game was already won today');
@@ -1233,6 +1245,16 @@ function updateKeyboard() {
             keyElement.className = 'key'; // Reset the class
             if (['correct', 'found', 'wrong'].includes(keys[key])) {
                 keyElement.classList.add(keys[key]); // Add the new class
+            }
+            // Disable keyboard visually and functionally when game is completed
+            if (gameCompleted) {
+                keyElement.style.opacity = '0.5';
+                keyElement.style.cursor = 'not-allowed';
+                keyElement.disabled = true;
+            } else {
+                keyElement.style.opacity = '1';
+                keyElement.style.cursor = 'pointer';
+                keyElement.disabled = false;
             }
         }
     }

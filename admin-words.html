@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Daily Words</title>
+  <style>
+    /* Field Gothic Narrow Font Face */
+    @font-face {
+      font-family: 'Field Gothic Narrow';
+      src: url('fonts/FieldGothicNarrow-Regular.woff2') format('woff2'),
+           url('fonts/FieldGothicNarrow-Regular.woff') format('woff');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+    
+    @font-face {
+      font-family: 'Field Gothic Narrow';
+      src: url('fonts/FieldGothicNarrow-Bold.woff2') format('woff2'),
+           url('fonts/FieldGothicNarrow-Bold.woff') format('woff');
+      font-weight: bold;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    body {
+      font-family: 'Field Gothic Narrow', sans-serif;
+      background-color: white;
+      margin: 0;
+      padding: 20px;
+      color: #1a1a1a;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    .add-word-section {
+      background-color: #f5f5f5;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      border-left: 4px solid #7BAFD4;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-family: 'Field Gothic Narrow', sans-serif;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #7BAFD4;
+    }
+
+    .button {
+      background-color: #7BAFD4;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Field Gothic Narrow', sans-serif;
+      transition: background-color 0.2s ease;
+    }
+
+    .button:hover {
+      background-color: #6a9fc0;
+    }
+
+    .words-list {
+      margin-top: 30px;
+    }
+
+    .word-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .word-item:last-child {
+      border-bottom: none;
+    }
+
+    .word-date {
+      font-weight: bold;
+      margin-right: 15px;
+    }
+
+    .word-value {
+      flex: 1;
+    }
+
+    .delete-button {
+      background-color: #d32f2f;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      font-size: 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Field Gothic Narrow', sans-serif;
+    }
+
+    .delete-button:hover {
+      background-color: #b71c1c;
+    }
+
+    .message {
+      padding: 12px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      display: none;
+    }
+
+    .message.success {
+      background-color: #4caf50;
+      color: white;
+      display: block;
+    }
+
+    .message.error {
+      background-color: #f44336;
+      color: white;
+      display: block;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: #333;
+      text-decoration: underline;
+    }
+
+    .back-link:hover {
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="index.html" class="back-link">← Back to Home</a>
+    
+    <h1>Daily Words Admin</h1>
+    
+    <div id="message" class="message"></div>
+    
+    <div class="add-word-section">
+      <h2 style="margin-top: 0;">Add/Update Word</h2>
+      <form id="wordForm">
+        <div class="form-group">
+          <label for="wordDate">Date (YYYY-MM-DD)</label>
+          <input type="date" id="wordDate" required>
+        </div>
+        <div class="form-group">
+          <label for="wordValue">Word</label>
+          <input type="text" id="wordValue" required placeholder="Enter the word for this date" style="text-transform: uppercase;">
+        </div>
+        <button type="submit" class="button">Add/Update Word</button>
+      </form>
+    </div>
+    
+    <div class="words-list">
+      <h2>Current Words</h2>
+      <div id="wordsList"></div>
+    </div>
+  </div>
+
+  <script>
+    // Load daily words from app.js
+    let dailyWordMap = {};
+    
+    // Function to load words from app.js file
+    async function loadWords() {
+      try {
+        const response = await fetch('app.js');
+        const text = await response.text();
+        
+        // Extract dailyWordMap from app.js
+        const mapMatch = text.match(/const dailyWordMap = \{([\s\S]*?)\};/);
+        if (mapMatch) {
+          const mapContent = mapMatch[1];
+          // Parse the map content
+          const lines = mapContent.split('\n');
+          lines.forEach(line => {
+            const match = line.match(/'(\d{4}-\d{2}-\d{2})':\s*'([^']+)'/);
+            if (match) {
+              dailyWordMap[match[1]] = match[2];
+            }
+          });
+        }
+        
+        displayWords();
+      } catch (error) {
+        console.error('Error loading words:', error);
+        showMessage('Error loading words. Please check the console.', 'error');
+      }
+    }
+    
+    function displayWords() {
+      const wordsList = document.getElementById('wordsList');
+      wordsList.innerHTML = '';
+      
+      // Sort dates
+      const sortedDates = Object.keys(dailyWordMap).sort();
+      
+      if (sortedDates.length === 0) {
+        wordsList.innerHTML = '<p>No words added yet.</p>';
+        return;
+      }
+      
+      sortedDates.forEach(date => {
+        const wordItem = document.createElement('div');
+        wordItem.className = 'word-item';
+        wordItem.innerHTML = `
+          <span class="word-date">${date}</span>
+          <span class="word-value">${dailyWordMap[date]}</span>
+          <button class="delete-button" onclick="deleteWord('${date}')">Delete</button>
+        `;
+        wordsList.appendChild(wordItem);
+      });
+    }
+    
+    function deleteWord(date) {
+      if (confirm(`Are you sure you want to delete the word for ${date}?`)) {
+        delete dailyWordMap[date];
+        displayWords();
+        showMessage(`Word for ${date} deleted. Remember to update app.js manually.`, 'success');
+      }
+    }
+    
+    function showMessage(text, type) {
+      const message = document.getElementById('message');
+      message.textContent = text;
+      message.className = `message ${type}`;
+      setTimeout(() => {
+        message.className = 'message';
+      }, 3000);
+    }
+    
+    document.getElementById('wordForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const date = document.getElementById('wordDate').value;
+      const word = document.getElementById('wordValue').value.toUpperCase().trim();
+      
+      if (!date || !word) {
+        showMessage('Please fill in both date and word.', 'error');
+        return;
+      }
+      
+      // Add to map
+      dailyWordMap[date] = word;
+      displayWords();
+      
+      // Generate code to add to app.js
+      const codeToAdd = `    '${date}': '${word}',`;
+      showMessage(`Word added! Add this line to app.js in the dailyWordMap: ${codeToAdd}`, 'success');
+      
+      // Copy to clipboard
+      navigator.clipboard.writeText(codeToAdd).then(() => {
+        console.log('Code copied to clipboard');
+      });
+      
+      // Reset form
+      document.getElementById('wordForm').reset();
+    });
+    
+    // Set today's date as default
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    document.getElementById('wordDate').value = `${year}-${month}-${day}`;
+    
+    // Load words on page load
+    loadWords();
+  </script>
+</body>
+</html>
+
