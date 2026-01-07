@@ -126,7 +126,10 @@ let words = [
             currentUser = user;
             await loadUserStats();
             // Load game state after stats are loaded
-            await loadGameState();
+            // Wait a bit to ensure DOM is ready
+            setTimeout(async () => {
+              await loadGameState();
+            }, 200);
           } else {
             isLoggedIn = false;
             currentUser = null;
@@ -141,6 +144,37 @@ let words = [
             gameStatus = 'in_progress';
             window.gameStatus = gameStatus; // Update global reference
             gameCompleted = false;
+            window.gameCompleted = false;
+            // Clear the grid and hide popups when logged out
+            // Clear all cells
+            for (let i = 0; i < NumberOfGuesses; i++) {
+              for (let j = 0; j < SecretWord.length; j++) {
+                const cell = document.getElementById(`${i}${j}`);
+                if (cell) {
+                  cell.textContent = '';
+                  cell.classList.remove('filled', 'correct', 'found', 'wrong');
+                }
+              }
+            }
+            // Hide all popups
+            const popupIds = ['answerPopup', 'gameOverPopup', 'transferApplicationPopup', 'resultsPopup', 'statsPopup'];
+            popupIds.forEach(popupId => {
+              const popup = document.getElementById(popupId);
+              if (popup) {
+                popup.classList.add('hidden');
+                popup.style.display = '';
+              }
+            });
+            // Show keyboard and hide "See results" button
+            const keyboard = document.getElementById('keyboard');
+            if (keyboard) {
+              keyboard.style.display = '';
+            }
+            const buttonsContainer = document.getElementById('gameOverButtons');
+            if (buttonsContainer) {
+              buttonsContainer.classList.add('hidden');
+              buttonsContainer.style.display = 'none';
+            }
           }
         });
       }
@@ -277,6 +311,7 @@ let words = [
         }
         
         // Wait a bit to ensure DOM is ready, then display the saved game grid
+        // Use a longer delay to ensure grid is fully initialized
         setTimeout(() => {
           displaySavedGame();
           
@@ -287,7 +322,7 @@ let words = [
           }
           
           console.log('Game state loaded:', { guesses: guesses.length, currentGuess: currentGuess.length, gameStatus, gameCompleted });
-        }, 100);
+        }, 300);
       } else {
         console.log('No saved game state found for today, starting fresh');
       }
@@ -636,15 +671,20 @@ let words = [
     
     // Load saved game state if user is logged in
     // Wait a bit for auth to initialize
+    // Note: This is a fallback - the auth state listener will also call loadGameState
     setTimeout(async () => {
       if (currentUser || (window.firebaseAuth && window.firebaseAuth.currentUser)) {
         if (!currentUser && window.firebaseAuth.currentUser) {
           currentUser = window.firebaseAuth.currentUser;
           isLoggedIn = true;
         }
-        await loadGameState();
+        // Only load if not already loaded by auth state listener
+        // Check if guesses array is still empty (not loaded yet)
+        if (guesses.length === 0 && !gameCompleted) {
+          await loadGameState();
+        }
       }
-    }, 500);
+    }, 800);
   }
   
   // Wait for DOM to be ready before initializing
