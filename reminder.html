@@ -141,6 +141,10 @@
       color: #1a1a1a;
     }
 
+    .subscription-section .section-title {
+      margin-top: 0;
+    }
+
     .section-content {
       font-size: 16px;
       line-height: 1.6;
@@ -321,6 +325,7 @@
         <label for="emailSubscriptionToggle">Subscribe to daily reminder emails</label>
       </div>
       <div class="subscription-status-tiles" id="subscriptionStatusTiles" style="display: none;"></div>
+      <div class="subscription-status-tiles" id="unsubscribedStatusTiles" style="display: none;"></div>
       <div class="subscription-status" id="subscriptionStatus"></div>
     </div>
     
@@ -455,18 +460,21 @@
           
           if (isSubscribed) {
             showSubscriptionTiles();
+            hideUnsubscribedTiles();
             subscriptionStatus.textContent = '';
             subscriptionStatus.style.color = '#666';
           } else {
             hideSubscriptionTiles();
-            subscriptionStatus.textContent = 'You are not subscribed to daily reminder emails.';
+            showUnsubscribedTiles();
+            subscriptionStatus.textContent = '';
             subscriptionStatus.style.color = '#666';
           }
         } else {
           // User document doesn't exist yet, default to not subscribed
           subscriptionToggle.checked = false;
           hideSubscriptionTiles();
-          subscriptionStatus.textContent = 'You are not subscribed to daily reminder emails.';
+          showUnsubscribedTiles();
+          subscriptionStatus.textContent = '';
           subscriptionStatus.style.color = '#666';
         }
       } catch (error) {
@@ -492,12 +500,17 @@
           
           // Update status message
           if (isSubscribed) {
+            // When subscribing, flip unsubscribed tiles to carolina blue and show subscribed tiles
+            flipUnsubscribedTilesToSubscribed();
             showSubscriptionTiles();
+            hideUnsubscribedTiles();
             subscriptionStatus.textContent = '';
             subscriptionStatus.style.color = '#666';
           } else {
+            // When unsubscribing, hide subscribed tiles and show unsubscribed tiles
             hideSubscriptionTiles();
-            subscriptionStatus.textContent = 'You have unsubscribed from daily reminder emails.';
+            showUnsubscribedTiles();
+            subscriptionStatus.textContent = '';
             subscriptionStatus.style.color = '#666';
           }
           
@@ -585,6 +598,79 @@
       if (tilesContainer) {
         tilesContainer.style.display = 'none';
       }
+    }
+
+    function createUnsubscribedTiles() {
+      const tilesContainer = document.getElementById('unsubscribedStatusTiles');
+      if (!tilesContainer) return;
+      
+      tilesContainer.innerHTML = ''; // Clear existing tiles
+      
+      const text = "YOU HAVE UNSUBSCRIBED FROM DAILY REMINDER EMAILS";
+      const letters = text.split('');
+      
+      letters.forEach((letter) => {
+        if (letter === ' ') {
+          // Add a spacer for spaces
+          const spacer = document.createElement('div');
+          spacer.style.width = '4px';
+          tilesContainer.appendChild(spacer);
+        } else {
+          const tile = document.createElement('div');
+          tile.className = 'subscription-status-tile';
+          tile.textContent = letter;
+          tilesContainer.appendChild(tile);
+        }
+      });
+    }
+
+    function showUnsubscribedTiles() {
+      const tilesContainer = document.getElementById('unsubscribedStatusTiles');
+      const subscriptionStatus = document.getElementById('subscriptionStatus');
+      
+      if (!tilesContainer) return;
+      
+      // Create tiles if they don't exist
+      if (tilesContainer.children.length === 0) {
+        createUnsubscribedTiles();
+      }
+      
+      // Show tiles container
+      tilesContainer.style.display = 'flex';
+      subscriptionStatus.textContent = '';
+    }
+
+    function hideUnsubscribedTiles() {
+      const tilesContainer = document.getElementById('unsubscribedStatusTiles');
+      if (tilesContainer) {
+        tilesContainer.style.display = 'none';
+      }
+    }
+
+    function flipUnsubscribedTilesToSubscribed() {
+      const unsubscribedTiles = document.getElementById('unsubscribedStatusTiles');
+      if (!unsubscribedTiles) return;
+      
+      const tiles = unsubscribedTiles.querySelectorAll('.subscription-status-tile');
+      const flipDelay = 50;
+      const flipDuration = 600;
+
+      tiles.forEach((tile, index) => {
+        setTimeout(() => {
+          // Add flip animation
+          tile.classList.add('flip');
+          
+          // Reveal the carolina blue color at the midpoint of the flip
+          setTimeout(() => {
+            tile.classList.add('revealed');
+          }, flipDuration / 2);
+          
+          // Remove flip class after animation completes
+          setTimeout(() => {
+            tile.classList.remove('flip');
+          }, flipDuration);
+        }, index * flipDelay);
+      });
     }
 
     // Prevent browser back/forward navigation
