@@ -935,11 +935,12 @@ let words = [
   let lastKeyClickTime = 0;
   
   function keyClick(key) {
-    console.log('keyClick called with:', key);
+    console.log('keyClick called with:', key, 'gameCompleted:', gameCompleted, 'window.gameCompleted:', window.gameCompleted);
     
-    // Prevent input if game is completed
-    if (gameCompleted && key !== 'enter') {
-      console.log('Game completed, ignoring key input');
+    // Prevent input if game is completed - check both local and global
+    const isGameCompleted = gameCompleted === true || window.gameCompleted === true;
+    if (isGameCompleted) {
+      console.log('Game is completed - ignoring key input');
       return;
     }
     
