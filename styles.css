@@ -76,12 +76,6 @@ html, body {
     }
   }
   
-  /* Universal fix for both Chrome and Safari - ensure max dimensions are respected */
-  .key-guess {
-    /* Use max() to ensure we never exceed 62px regardless of viewport */
-    max-height: 62px !important;
-    max-width: 62px !important;
-  }
 
   /* Mobile base styles - override min dimensions */
   @media (max-width: 768px) {
