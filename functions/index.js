@@ -191,6 +191,9 @@ exports.sendDailyTardleEmail = functions.pubsub
                   </style>
                 </head>
                 <body>
+                  <div class="greeting">
+                    Good morning! 🌞
+                  </div>
                   <div class="main-message">
                     Another day, another Carolina word.
                   </div>
