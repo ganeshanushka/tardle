@@ -1255,9 +1255,10 @@ let words = [
             // Show alert after flip animation completes
             // flipAndRevealGuess will handle showing the alert
             updateStatsOnWin(); // Update stats as a win
-            // Save game state after a delay to ensure flip animation completes
+            // Save game state immediately and again after animation
+            saveGameState(); // Save immediately
             setTimeout(() => {
-                saveGameState();
+                saveGameState(); // Save again after flip animation completes to ensure it's persisted
             }, 2000);
         } else if (guesses.length >= NumberOfGuesses) {
             // Game lost
@@ -1269,6 +1270,8 @@ let words = [
             const flipDelay = 250; // Delay between each flip (in milliseconds)
             const flipDuration = 800; // Duration of each flip animation (in milliseconds)
             const totalFlipTime = (SecretWord.length * flipDelay) + flipDuration;
+            // Save game state immediately
+            saveGameState();
             // Show transfer application popup after all flips complete
             setTimeout(() => {
                 showTransferApplicationPopup();
@@ -1278,7 +1281,7 @@ let words = [
                 showGameOverPopup(); // Exceeded max tries
             }, totalFlipTime + 2000);
             updateStatsOnLoss(); // Update stats as a loss
-            // Save game state
+            // Save game state again after animation to ensure it's persisted
             setTimeout(() => {
                 saveGameState();
             }, totalFlipTime + 2500);
