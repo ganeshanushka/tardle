@@ -314,18 +314,23 @@ let words = [
         // Wait a bit to ensure DOM is ready, then display the saved game grid
         // Use a longer delay to ensure grid is fully initialized
         setTimeout(() => {
-          console.log('About to call displaySavedGame, gameCompleted:', gameCompleted);
+          console.log('About to call displaySavedGame, gameCompleted:', gameCompleted, 'window.gameCompleted:', window.gameCompleted);
           displaySavedGame();
           
+          // Double-check gameCompleted from both sources
+          const isCompleted = gameCompleted === true || window.gameCompleted === true;
+          console.log('Final check - isCompleted:', isCompleted);
+          
           // Ensure keyboard is disabled if game is completed
-          if (gameCompleted === true) {
+          if (isCompleted) {
             console.log('Game is completed - disabling keyboard and showing popups');
             updateKeyboard();
             
-            // Force hide keyboard
+            // Force hide keyboard with multiple attempts
             const keyboard = document.getElementById('keyboard');
             if (keyboard) {
               keyboard.style.display = 'none';
+              keyboard.style.visibility = 'hidden';
               console.log('Keyboard hidden');
             }
             
@@ -337,6 +342,7 @@ let words = [
               answerPopup.classList.remove('hidden');
               answerPopup.style.display = 'flex';
               answerPopup.style.visibility = 'visible';
+              answerPopup.style.opacity = '1';
               console.log('Answer popup shown');
             }
             
@@ -345,14 +351,43 @@ let words = [
             if (buttonsContainer) {
               buttonsContainer.classList.remove('hidden');
               buttonsContainer.style.display = 'flex';
+              buttonsContainer.style.visibility = 'visible';
               console.log('See results button shown');
             }
+            
+            // Also try the see-results-button class selector as fallback
+            const seeResultsButton = document.querySelector('.see-results-button');
+            if (seeResultsButton) {
+              seeResultsButton.style.display = 'block';
+              seeResultsButton.style.visibility = 'visible';
+              console.log('See results button (class selector) shown');
+            }
           } else {
-            console.log('Game is NOT completed, gameCompleted value:', gameCompleted);
+            console.log('Game is NOT completed, gameCompleted value:', gameCompleted, 'window.gameCompleted:', window.gameCompleted);
           }
           
           console.log('Game state loaded:', { guesses: guesses.length, currentGuess: currentGuess.length, gameStatus, gameCompleted });
         }, 500);
+        
+        // Also try again after a longer delay as a fallback
+        setTimeout(() => {
+          if (gameCompleted === true || window.gameCompleted === true) {
+            console.log('Fallback: Re-checking completed game state');
+            displaySavedGame();
+            const keyboard = document.getElementById('keyboard');
+            if (keyboard) keyboard.style.display = 'none';
+            const answerPopup = document.getElementById('answerPopup');
+            if (answerPopup) {
+              answerPopup.classList.remove('hidden');
+              answerPopup.style.display = 'flex';
+            }
+            const buttonsContainer = document.getElementById('gameOverButtons');
+            if (buttonsContainer) {
+              buttonsContainer.classList.remove('hidden');
+              buttonsContainer.style.display = 'flex';
+            }
+          }
+        }, 1000);
       } else {
         console.log('No saved game state found for today, starting fresh');
       }
