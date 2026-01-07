@@ -1233,7 +1233,6 @@ exports.sendTestDailyEmail = functions.https.onCall(async (data, context) => {
                       margin: 0 auto;
                       padding: 20px;
                       background-color: #fff;
-                      text-align: center;
                     }
                     .header-divider {
                       border-top: 1px solid #000;
@@ -1241,9 +1240,9 @@ exports.sendTestDailyEmail = functions.https.onCall(async (data, context) => {
                       padding: 0;
                     }
                     .reminder-header {
-                      font-size: 16px;
+                      font-size: 24px;
                       font-weight: bold;
-                      margin: 0 0 10px 0;
+                      margin: 15px 0 10px 0;
                       color: #000;
                       text-align: left;
                     }
@@ -1253,10 +1252,15 @@ exports.sendTestDailyEmail = functions.https.onCall(async (data, context) => {
                       color: #000;
                       text-align: left;
                     }
-                    .greeting {
+                    .main-question {
                       font-size: 16px;
-                      margin: 20px 0 10px 0;
+                      margin: 20px 0;
                       color: #000;
+                      text-align: left;
+                    }
+                    .play-link {
+                      color: #0000EE;
+                      text-decoration: underline;
                     }
                     .logo-container {
                       text-align: center;
@@ -1285,25 +1289,12 @@ exports.sendTestDailyEmail = functions.https.onCall(async (data, context) => {
                     .duke-blue { background-color: #001A57; }
                     .yellow { background-color: #c9b458; }
                     .logo-text {
-                      font-size: 16px;
+                      font-size: 48px;
+                      font-weight: bold;
                       margin: 0;
                       color: #000;
                       font-family: 'Field Gothic Narrow', sans-serif;
                       text-align: center;
-                    }
-                    .main-message {
-                      font-size: 16px;
-                      margin: 30px 0;
-                      color: #000;
-                    }
-                    .call-to-action {
-                      font-size: 16px;
-                      margin: 30px 0;
-                      color: #000;
-                    }
-                    .play-link {
-                      color: #0000EE;
-                      text-decoration: underline;
                     }
                   </style>
                 </head>
@@ -1316,15 +1307,8 @@ exports.sendTestDailyEmail = functions.https.onCall(async (data, context) => {
                     ${dateStr}, ${timeStr}
                   </div>
                   <div class="header-divider"></div>
-                  <div class="greeting">
-                    Good morning! 🌞
-                  </div>
-                  <div class="main-message">
-                    Another day, another Carolina word.
-                  </div>
-                  
-                  <div class="call-to-action">
-                    Before classes, after classes, or instead of classes, <a href="${BASE_URL}/play.html" class="play-link">play now</a>.
+                  <div class="main-question">
+                    Can you guess today's five-letter word? <a href="${BASE_URL}/play.html" class="play-link">Play now.</a>
                   </div>
                   
                   <div class="logo-container">
