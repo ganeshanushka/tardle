@@ -220,8 +220,8 @@ exports.sendDailyTardleEmail = functions.pubsub
                         <div class="custom-cell duke-blue"></div>
                       </div>
                     </div>
-                    <div class="logo-text">Tardle</div>
                   </div>
+                  <div class="logo-text">Tardle</div>
                 </body>
                 </html>
               `,
