@@ -380,6 +380,7 @@
     right: clamp(20px, 4vw, 40px); 
     top: 50%;
     transform: translateY(-50%); 
+    -webkit-transform: translateY(-50%);
     font-size: clamp(24px, 3.5vw, 28px); 
     font-weight: bold;
     color: white;
@@ -389,10 +390,24 @@
     padding: 0;
     line-height: 1;
     transition: opacity 0.2s ease, color 0.3s ease;
+    /* Safari-specific: ensure button is clickable */
+    z-index: 1001;
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+    /* Ensure button is visible and interactive */
+    display: block;
+    visibility: visible;
   }
 
   .close-button:hover {
     opacity: 0.7;
+  }
+  
+  /* Safari-specific: ensure close button works on touch */
+  .close-button:active {
+    opacity: 0.5;
   }
 
   /* Settings gear icon */
@@ -720,10 +735,22 @@
     padding: 0;
     line-height: 1;
     transition: opacity 0.2s ease;
+    /* Safari-specific: ensure button is clickable */
+    z-index: 1001;
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+    display: block;
+    visibility: visible;
   }
 
   .results-close-btn:hover {
     opacity: 0.7;
+  }
+  
+  .results-close-btn:active {
+    opacity: 0.5;
   }
 
   .results-icon {
@@ -1085,10 +1112,22 @@
     padding: 0;
     line-height: 1;
     transition: opacity 0.2s ease;
+    /* Safari-specific: ensure button is clickable */
+    z-index: 1001;
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+    display: block;
+    visibility: visible;
   }
 
   .help-close-btn:hover {
     opacity: 0.7;
+  }
+  
+  .help-close-btn:active {
+    opacity: 0.5;
   }
 
   .help-content {
@@ -1646,10 +1685,22 @@
     padding: 0;
     line-height: 1;
     transition: opacity 0.2s ease;
+    /* Safari-specific: ensure button is clickable */
+    z-index: 1001;
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+    display: block;
+    visibility: visible;
   }
 
   .settings-close-btn:hover {
     opacity: 0.7;
+  }
+  
+  .settings-close-btn:active {
+    opacity: 0.5;
   }
 
   .settings-options {
@@ -1918,10 +1969,22 @@
     padding: 0;
     line-height: 1;
     transition: opacity 0.2s ease;
+    /* Safari-specific: ensure button is clickable */
+    z-index: 1001;
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+    display: block;
+    visibility: visible;
   }
 
   #statsPopup .stats-close-btn:hover {
     opacity: 0.7;
+  }
+  
+  #statsPopup .stats-close-btn:active {
+    opacity: 0.5;
   }
 
   #statsPopup .stats-content {
@@ -2210,11 +2273,26 @@
     color: #7BAFD4;
     line-height: 1;
     transition: opacity 0.2s ease;
+    /* Safari-specific: ensure button is clickable */
+    z-index: 1001;
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+    /* Ensure button is visible and interactive */
+    display: block;
+    visibility: visible;
   }
   
   #gameOverPopup .popup-content .close-btn:hover,
   .close-btn:hover {
     opacity: 0.7;
+  }
+  
+  /* Safari-specific: ensure close button works on touch */
+  .close-btn:active,
+  #gameOverPopup .popup-content .close-btn:active {
+    opacity: 0.5;
   }
 
   /* Login prompt modal */
