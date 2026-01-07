@@ -143,13 +143,29 @@ exports.sendDailyTardleEmail = functions.pubsub
                     .logo-container {
                       text-align: center;
                       margin: 30px 0;
+                      display: flex;
+                      flex-direction: column;
+                      align-items: center;
+                      justify-content: center;
                     }
-                    .logo-image {
-                      max-width: 200px;
-                      height: auto;
-                      margin: 0 auto 15px auto;
-                      display: block;
+                    .custom-grid-outline {
+                      display: inline-block;
+                      border: 4px solid black;
+                      border-radius: 5px;
+                      margin-bottom: 15px;
                     }
+                    .custom-row {
+                      display: flex;
+                    }
+                    .custom-cell {
+                      width: 20px;
+                      height: 20px;
+                      border: 1px solid white;
+                      border-radius: 3px;
+                    }
+                    .carolina-blue { background-color: #7BAFD4; }
+                    .duke-blue { background-color: #001A57; }
+                    .yellow { background-color: #c9b458; }
                     .logo-text {
                       font-size: 36px;
                       font-weight: bold;
@@ -184,7 +200,23 @@ exports.sendDailyTardleEmail = functions.pubsub
                   </div>
                   
                   <div class="logo-container">
-                    <img src="${BASE_URL}/logo.png" alt="Tardle Logo" class="logo-image">
+                    <div class="custom-grid-outline">
+                      <div class="custom-row">
+                        <div class="custom-cell carolina-blue"></div>
+                        <div class="custom-cell carolina-blue"></div>
+                        <div class="custom-cell carolina-blue"></div>
+                      </div>
+                      <div class="custom-row">
+                        <div class="custom-cell carolina-blue"></div>
+                        <div class="custom-cell yellow"></div>
+                        <div class="custom-cell duke-blue"></div>
+                      </div>
+                      <div class="custom-row">
+                        <div class="custom-cell duke-blue"></div>
+                        <div class="custom-cell duke-blue"></div>
+                        <div class="custom-cell duke-blue"></div>
+                      </div>
+                    </div>
                     <div class="logo-text">Tardle</div>
                   </div>
                 </body>
