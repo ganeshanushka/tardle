@@ -1875,26 +1875,22 @@ function updateKeyboard() {
       setTimeout(() => {
         showTransferApplicationPopup("Rah rah right answer");
       }, totalFlipTime);
-      // Show stats/results popup after transfer popup disappears (answer popup will show first)
-        setTimeout(() => {
-          // Check if user is logged in
-          const isLoggedIn = (window.firebaseAuth && window.firebaseAuth.currentUser) || 
-                            window.isLoggedIn || 
-                            window.currentUser;
-          
-          if (isLoggedIn) {
-            // Logged in: show stats popup
-            if (window.showStatsPopup) {
-              window.showStatsPopup();
-            }
-          } else {
-            // Not logged in: show results popup
-            const resultsPopup = document.getElementById('resultsPopup');
-            if (resultsPopup) {
-              resultsPopup.classList.remove('hidden');
-              resultsPopup.style.display = 'flex';
-            }
-          }
+      
+      // Hide keyboard and show "See results" button after transfer popup disappears
+      setTimeout(() => {
+        const keyboard = document.getElementById('keyboard');
+        const buttonsContainer = document.getElementById('gameOverButtons');
+        
+        if (keyboard) {
+          keyboard.style.display = 'none';
+        }
+        
+        if (buttonsContainer) {
+          buttonsContainer.classList.remove('hidden');
+          buttonsContainer.style.display = 'flex';
+          buttonsContainer.style.visibility = 'visible';
+          console.log('✅ Showing See results button after win');
+        }
       }, totalFlipTime + 2000);
     }
   }
