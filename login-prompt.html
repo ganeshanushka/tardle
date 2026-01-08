@@ -65,15 +65,24 @@
   }
 
   .login-prompt-container {
-    background-color: #ffffff;
-    border-radius: 12px;
-    padding: 40px;
-    max-width: 500px;
-    width: 90%;
+    background-color: #7BAFD4;
+    color: #000000;
+    border-radius: 0;
+    max-width: 550px;
+    width: min(550px, 90vw);
+    height: min(550px, 90vw);
+    max-height: min(550px, 90vw, 90vh);
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
     position: relative;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    padding: 1cm;
+    margin: auto;
     box-sizing: border-box;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 
   .close-btn {
@@ -82,7 +91,7 @@
     right: 20px;
     font-size: clamp(28px, 4vw, 32px);
     font-weight: bold;
-    color: #7BAFD4;
+    color: #ffffff;
     cursor: pointer;
     background: none;
     border: none;
@@ -110,9 +119,9 @@
     font-family: 'Field Gothic Narrow', sans-serif;
     font-size: 28px;
     font-weight: bold;
-    color: #000;
+    color: #ffffff;
     margin: 0 0 20px 0;
-    text-align: left;
+    text-align: center;
   }
 
   .prompt-illustration {
@@ -124,7 +133,7 @@
     font-family: 'Field Gothic Narrow', sans-serif;
     font-size: 24px;
     font-weight: bold;
-    color: #000;
+    color: #ffffff;
     margin: 20px 0 15px 0;
     text-align: center;
   }
@@ -132,7 +141,7 @@
   .prompt-text {
     font-family: 'Field Gothic Narrow', sans-serif;
     font-size: 15px;
-    color: #000;
+    color: #ffffff;
     margin: 0 0 30px 0;
     text-align: center;
     line-height: 1.6;
@@ -163,26 +172,26 @@
   }
 
   .login-button {
-    background-color: #7BAFD4;
-    color: #fff;
+    background-color: #ffffff;
+    color: #000;
   }
 
   .login-button:hover {
-    background-color: #6a9fc0;
+    background-color: #f5f5f5;
   }
 
   .signup-button {
-    background-color: #7BAFD4;
-    color: #fff;
+    background-color: #ffffff;
+    color: #000;
   }
 
   .signup-button:hover {
-    background-color: #6a9fc0;
+    background-color: #f5f5f5;
   }
 
   .back-link {
     margin-top: 20px;
-    color: #7BAFD4;
+    color: #ffffff;
     text-decoration: none;
     font-size: 14px;
     transition: opacity 0.2s ease;
@@ -203,8 +212,10 @@
     }
 
     .login-prompt-container {
-      width: 90%;
-      padding: 30px 20px;
+      width: min(550px, 90vw);
+      height: min(550px, 90vw);
+      max-height: min(550px, 90vw, 90vh);
+      padding: 1cm;
     }
 
     .prompt-title {
