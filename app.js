@@ -1584,7 +1584,7 @@ let words = [
             currentGuess = [];
             // Show alert after flip animation completes
             // flipAndRevealGuess will handle showing the alert
-            updateStatsOnWin(); // Update stats as a win
+            await updateStatsOnWin(); // Update stats as a win
             // Calculate total flip time to save after animation completes
             const flipDelay = 250;
             const flipDuration = 800;
@@ -1624,7 +1624,7 @@ let words = [
             setTimeout(() => {
                 showGameOverPopup(); // Exceeded max tries
             }, totalFlipTime + 2000);
-            updateStatsOnLoss(); // Update stats as a loss
+            await updateStatsOnLoss(); // Update stats as a loss
             // Save game state after flip animation completes to ensure all colors are saved
             setTimeout(() => {
                 console.log('Saving completed game state (lost) with guesses:', guesses.length);
