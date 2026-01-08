@@ -190,10 +190,27 @@ let words = [
   
   // Load user stats from Firestore
   async function loadUserStats() {
-    if (!currentUser || !window.firebaseFirestoreFunctions) return;
+    // Try to get currentUser from multiple sources
+    let user = currentUser;
+    if (!user && window.firebaseAuth && window.firebaseAuth.currentUser) {
+      user = window.firebaseAuth.currentUser;
+      currentUser = user;
+      isLoggedIn = true;
+    }
+    
+    if (!user || !window.firebaseFirestoreFunctions) {
+      console.log('loadUserStats: No user or Firestore functions available', { 
+        hasUser: !!user, 
+        hasFirestore: !!window.firebaseFirestoreFunctions,
+        currentUser: !!currentUser,
+        firebaseAuthUser: !!(window.firebaseAuth && window.firebaseAuth.currentUser)
+      });
+      return;
+    }
     
     try {
-      const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
+      console.log('loadUserStats: Loading stats for user:', user.uid);
+      const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', user.uid);
       const userDoc = await window.firebaseFirestoreFunctions.getDoc(userDocRef);
       
       if (userDoc.exists()) {
@@ -203,10 +220,10 @@ let words = [
         currentStreak = data.currentStreak || 0;
         maxStreak = data.maxStreak || 0;
         totalPoints = data.points || 0;
-        console.log('Stats loaded from Firestore:', { gamesPlayed, gamesWon, currentStreak, maxStreak, totalPoints });
+        console.log('✅ Stats loaded from Firestore:', { gamesPlayed, gamesWon, currentStreak, maxStreak, totalPoints });
       } else {
         // User document doesn't exist yet - initialize stats to 0
-        console.log('User document not found, initializing stats to 0');
+        console.log('⚠️ User document not found, initializing stats to 0');
         gamesPlayed = 0;
         gamesWon = 0;
         currentStreak = 0;
@@ -214,7 +231,7 @@ let words = [
         totalPoints = 0;
       }
     } catch (error) {
-      console.error('Error loading user stats:', error);
+      console.error('❌ Error loading user stats:', error);
       // On error, reset to defaults
       gamesPlayed = 0;
       gamesWon = 0;
@@ -2377,7 +2394,15 @@ function calculateWinPoints(guessesUsed, currentStreak) {
 async function updateStatsOnWin() {
     const guessesUsed = guesses.length; // Number of guesses it took to win
     
-    if (isLoggedIn && currentUser && window.firebaseFirestoreFunctions) {
+    // Try to get currentUser from multiple sources
+    let user = currentUser;
+    if (!user && window.firebaseAuth && window.firebaseAuth.currentUser) {
+        user = window.firebaseAuth.currentUser;
+        currentUser = user;
+        isLoggedIn = true;
+    }
+    
+    if (user && window.firebaseFirestoreFunctions) {
         gamesPlayed++;
         gamesWon++;
         const oldStreak = currentStreak;
@@ -2389,21 +2414,23 @@ async function updateStatsOnWin() {
         
         // Update stats in Firestore
         try {
-            const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
+            console.log('🔄 Updating stats on win for user:', user.uid);
+            const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', user.uid);
             const userDoc = await window.firebaseFirestoreFunctions.getDoc(userDocRef);
             const currentPoints = userDoc.exists() ? (userDoc.data().points || 0) : 0;
             const newPoints = currentPoints + pointsEarned;
             
-            await window.firebaseFirestoreFunctions.updateDoc(userDocRef, {
+            // Use setDoc with merge: true to create document if it doesn't exist
+            await window.firebaseFirestoreFunctions.setDoc(userDocRef, {
                 gamesPlayed: gamesPlayed,
                 gamesWon: gamesWon,
                 currentStreak: currentStreak,
                 maxStreak: maxStreak,
                 points: newPoints
-            });
-            console.log('Stats updated on win:', { gamesPlayed, gamesWon, currentStreak, maxStreak, pointsEarned, totalPoints: newPoints });
+            }, { merge: true });
+            console.log('✅ Stats updated on win:', { gamesPlayed, gamesWon, currentStreak, maxStreak, pointsEarned, totalPoints: newPoints });
         } catch (error) {
-            console.error('Error updating stats on win:', error);
+            console.error('❌ Error updating stats on win:', error);
         }
     } else {
         // Update local stats even if not logged in (won't persist)
@@ -2411,12 +2438,20 @@ async function updateStatsOnWin() {
         gamesWon++;
         currentStreak++;
         maxStreak = Math.max(maxStreak, currentStreak);
-        console.log('Stats updated locally (not logged in):', { gamesPlayed, gamesWon, currentStreak, maxStreak });
+        console.log('⚠️ Stats updated locally (not logged in):', { gamesPlayed, gamesWon, currentStreak, maxStreak });
     }
 }
 
 async function updateStatsOnLoss() {
-    if (isLoggedIn && currentUser && window.firebaseFirestoreFunctions) {
+    // Try to get currentUser from multiple sources
+    let user = currentUser;
+    if (!user && window.firebaseAuth && window.firebaseAuth.currentUser) {
+        user = window.firebaseAuth.currentUser;
+        currentUser = user;
+        isLoggedIn = true;
+    }
+    
+    if (user && window.firebaseFirestoreFunctions) {
         gamesPlayed++;
         currentStreak = 0;
         
@@ -2425,24 +2460,26 @@ async function updateStatsOnLoss() {
         
         // Update stats in Firestore (preserve gamesWon and maxStreak)
         try {
-            const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
+            console.log('🔄 Updating stats on loss for user:', user.uid);
+            const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', user.uid);
             const userDoc = await window.firebaseFirestoreFunctions.getDoc(userDocRef);
             const currentPoints = userDoc.exists() ? (userDoc.data().points || 0) : 0;
             const newPoints = currentPoints + pointsEarned;
             
-            await window.firebaseFirestoreFunctions.updateDoc(userDocRef, {
+            // Use setDoc with merge: true to create document if it doesn't exist
+            await window.firebaseFirestoreFunctions.setDoc(userDocRef, {
                 gamesPlayed: gamesPlayed,
                 currentStreak: currentStreak,
                 points: newPoints
-            });
-            console.log('Stats updated on loss:', { gamesPlayed, gamesWon, currentStreak, maxStreak, pointsEarned, totalPoints: newPoints });
+            }, { merge: true });
+            console.log('✅ Stats updated on loss:', { gamesPlayed, gamesWon, currentStreak, maxStreak, pointsEarned, totalPoints: newPoints });
         } catch (error) {
-            console.error('Error updating stats on loss:', error);
+            console.error('❌ Error updating stats on loss:', error);
         }
     } else {
         // Update local stats even if not logged in (won't persist)
         gamesPlayed++;
         currentStreak = 0;
-        console.log('Stats updated locally (not logged in):', { gamesPlayed, gamesWon, currentStreak, maxStreak });
+        console.log('⚠️ Stats updated locally (not logged in):', { gamesPlayed, gamesWon, currentStreak, maxStreak });
     }
 }
