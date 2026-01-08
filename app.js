@@ -2311,7 +2311,11 @@ window.showStatsPopup = async function showStatsPopup(hideShareButton = false) {
     }
     
     if (isLoggedIn && currentUser) {
+        console.log('📊 Loading stats before showing popup for user:', currentUser.uid);
         await loadUserStats();
+        console.log('📊 Stats after loading:', { gamesPlayed, gamesWon, currentStreak, maxStreak });
+    } else {
+        console.warn('⚠️ Cannot load stats - user not logged in:', { isLoggedIn, hasCurrentUser: !!currentUser });
     }
     
     const popup = document.getElementById('statsPopup');
@@ -2323,6 +2327,8 @@ window.showStatsPopup = async function showStatsPopup(hideShareButton = false) {
     if (popup && gamesPlayedEl && winPercentageEl && currentStreakEl && maxStreakEl) {
         // Calculate win percentage
         const winPercentage = gamesPlayed > 0 ? Math.round((gamesWon / gamesPlayed) * 100) : 0;
+        
+        console.log('📊 Displaying stats in popup:', { gamesPlayed, gamesWon, currentStreak, maxStreak, winPercentage });
         
         gamesPlayedEl.innerText = gamesPlayed;
         winPercentageEl.innerText = winPercentage;
@@ -2482,8 +2488,14 @@ async function updateStatsOnLoss() {
                 points: newPoints
             }, { merge: true });
             console.log('✅ Stats updated on loss:', { gamesPlayed, gamesWon, currentStreak, maxStreak, pointsEarned, totalPoints: newPoints });
+            console.log('✅ Saved to Firestore document:', user.uid);
+            
+            // Reload stats from Firestore to ensure we have the latest values
+            await loadUserStats();
+            console.log('✅ Stats reloaded after save:', { gamesPlayed, gamesWon, currentStreak, maxStreak });
         } catch (error) {
             console.error('❌ Error updating stats on loss:', error);
+            console.error('Error details:', error.message, error.stack);
         }
     } else {
         // Update local stats even if not logged in (won't persist)
