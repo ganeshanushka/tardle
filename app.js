@@ -2267,8 +2267,10 @@ window.showStatsPopup = async function showStatsPopup(hideShareButton = false) {
     // Also check Firebase auth directly in case of timing issues
     let userIsLoggedIn = isLoggedIn && currentUser;
     
-    // Double-check with Firebase auth if available
+    // Double-check with Firebase auth if available and update currentUser
     if (window.firebaseAuth && window.firebaseAuth.currentUser) {
+        currentUser = window.firebaseAuth.currentUser;
+        isLoggedIn = true;
         userIsLoggedIn = true;
     }
     
@@ -2285,6 +2287,12 @@ window.showStatsPopup = async function showStatsPopup(hideShareButton = false) {
     }
     
     // Reload stats from Firestore before showing popup (in case they were updated elsewhere)
+    // Ensure we have the latest user reference
+    if (window.firebaseAuth && window.firebaseAuth.currentUser) {
+        currentUser = window.firebaseAuth.currentUser;
+        isLoggedIn = true;
+    }
+    
     if (isLoggedIn && currentUser) {
         await loadUserStats();
     }
