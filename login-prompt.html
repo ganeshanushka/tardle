@@ -61,7 +61,12 @@
     overflow: hidden;
     background-color: #7BAFD4; 
     font-family: 'Field Gothic Narrow', sans-serif;
-    font-weight: normal; 
+    font-weight: normal;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
   }
 
   .login-prompt-container {
@@ -212,44 +217,65 @@
   /* Mobile layout */
   @media (max-width: 768px) {
     body, html {
-      overflow-y: auto;
-      overflow-x: hidden;
-      padding: 20px 10px;
-      min-height: 100vh;
+      overflow: hidden;
+      padding: 0;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
     }
 
     .login-prompt-container {
-      width: min(550px, 95vw);
+      width: min(550px, 90vw);
       height: auto;
       min-height: auto;
-      max-height: none;
+      max-height: 90vh;
       aspect-ratio: auto;
-      padding: 20px;
-      margin: 20px auto;
+      padding: clamp(15px, 3vw, 20px);
+      margin: auto;
+      transform: scale(min(1, 90vw / 550, 90vh / 600));
+      transform-origin: center center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
     .prompt-icon {
-      width: 110px;
-      height: 110px;
-      margin: 8px auto 15px auto;
+      width: clamp(90px, 20vw, 110px);
+      height: clamp(90px, 20vw, 110px);
+      margin: 5px auto 10px auto;
     }
 
     .prompt-icon svg {
-      width: 85px;
-      height: 85px;
+      width: clamp(70px, 16vw, 85px);
+      height: clamp(70px, 16vw, 85px);
     }
 
     .prompt-subtitle {
-      font-size: 24px;
-      margin: 15px 0 25px 0;
+      font-size: clamp(20px, 5vw, 24px);
+      margin: 10px 0 20px 0;
+      line-height: 1.2;
     }
 
     .prompt-text {
-      font-size: 14px;
+      font-size: clamp(12px, 3vw, 14px);
     }
 
     .button-container {
-      margin-top: 10px;
+      margin-top: 5px;
+      gap: 8px;
+    }
+
+    .button {
+      padding: clamp(12px, 3vw, 14px) clamp(16px, 4vw, 20px);
+      font-size: clamp(13px, 3.5vw, 14px);
+    }
+
+    .close-btn {
+      font-size: clamp(24px, 6vw, 32px);
+      top: clamp(10px, 2vw, 15px);
+      right: clamp(10px, 2vw, 15px);
     }
   }
 </style>
