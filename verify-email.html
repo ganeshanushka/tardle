@@ -734,8 +734,8 @@
           // Check localStorage for last email send time
           const lastEmailSendKey = `lastVerificationEmail_${user.uid}`;
           const lastEmailSendTime = localStorage.getItem(lastEmailSendKey);
-          const now = Date.now();
-          const fiveMinutesAgo = now - (5 * 60 * 1000); // 5 minutes in milliseconds
+          const currentTime = Date.now();
+          const fiveMinutesAgo = currentTime - (5 * 60 * 1000); // 5 minutes in milliseconds
           const shouldAutoSend = !hasActionCode && !hasMode && (!lastEmailSendTime || parseInt(lastEmailSendTime) < fiveMinutesAgo);
           
           if (shouldAutoSend) {
