@@ -124,9 +124,23 @@
     text-align: center;
   }
 
-  .prompt-illustration {
-    margin: 20px 0;
-    text-align: center;
+  .prompt-icon {
+    width: 90px;
+    height: 90px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px auto;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .prompt-icon svg {
+    width: 70px;
+    height: 70px;
+    stroke: #7BAFD4;
+    fill: #7BAFD4;
   }
 
   .prompt-subtitle {
@@ -237,46 +251,17 @@
 <div class="login-prompt-container">
   <button class="close-btn" onclick="window.location.href='index.html'">×</button>
   <h1 class="prompt-title">Play Tardle</h1>
-  <div class="prompt-illustration">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" style="max-width: 100%; height: auto;">
-      <defs>
-        <!-- Light blue gradient background -->
-        <linearGradient id="bgGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" style="stop-color:#7BAFD4;stop-opacity:1" />
-          <stop offset="100%" style="stop-color:#B8D4E8;stop-opacity:1" />
-        </linearGradient>
-      </defs>
-      
-      <!-- Dark blue rounded rectangular border -->
-      <rect x="5" y="5" width="390" height="290" fill="none" stroke="#001A57" stroke-width="4" rx="12"/>
-      
-      <!-- Light blue gradient background -->
-      <rect x="9" y="9" width="382" height="282" fill="url(#bgGradient)" rx="8"/>
-      
-      <!-- Game grid illustration -->
-      <rect x="50" y="50" width="300" height="200" fill="#ffffff" stroke="#001A57" stroke-width="2" rx="8"/>
-      
-      <!-- Grid cells -->
-      <!-- Row 1 -->
-      <rect x="70" y="70" width="50" height="50" fill="#7BAFD4" stroke="#001A57" stroke-width="2" rx="4"/>
-      <rect x="130" y="70" width="50" height="50" fill="#c9b458" stroke="#001A57" stroke-width="2" rx="4"/>
-      <rect x="190" y="70" width="50" height="50" fill="#001A57" stroke="#001A57" stroke-width="2" rx="4"/>
-      <rect x="250" y="70" width="50" height="50" fill="#7BAFD4" stroke="#001A57" stroke-width="2" rx="4"/>
-      <rect x="310" y="70" width="30" height="50" fill="#7BAFD4" stroke="#001A57" stroke-width="2" rx="4"/>
-      
-      <!-- Row 2 -->
-      <rect x="70" y="130" width="50" height="50" fill="#7BAFD4" stroke="#001A57" stroke-width="2" rx="4"/>
-      <rect x="130" y="130" width="50" height="50" fill="#7BAFD4" stroke="#001A57" stroke-width="2" rx="4"/>
-      <rect x="190" y="130" width="50" height="50" fill="#c9b458" stroke="#001A57" stroke-width="2" rx="4"/>
-      <rect x="250" y="130" width="50" height="50" fill="#7BAFD4" stroke="#001A57" stroke-width="2" rx="4"/>
-      <rect x="310" y="130" width="30" height="50" fill="#7BAFD4" stroke="#001A57" stroke-width="2" rx="4"/>
-      
-      <!-- Row 3 -->
-      <rect x="70" y="190" width="50" height="50" fill="#001A57" stroke="#001A57" stroke-width="2" rx="4"/>
-      <rect x="130" y="190" width="50" height="50" fill="#001A57" stroke="#001A57" stroke-width="2" rx="4"/>
-      <rect x="190" y="190" width="50" height="50" fill="#001A57" stroke="#001A57" stroke-width="2" rx="4"/>
-      <rect x="250" y="190" width="50" height="50" fill="#001A57" stroke="#001A57" stroke-width="2" rx="4"/>
-      <rect x="310" y="190" width="30" height="50" fill="#001A57" stroke="#001A57" stroke-width="2" rx="4"/>
+  <div class="prompt-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#7BAFD4" stroke="#7BAFD4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <!-- Ram head silhouette with curved horns -->
+      <path d="M12 8 C10 6, 8 7, 7 9 C6 11, 6 13, 7 15 C7.5 16, 8.5 17, 10 17.5 C11 18, 12 18, 13 17.5 C14.5 17, 15.5 16, 16 15 C17 13, 17 11, 16 9 C15 7, 14 6, 12 8 Z" fill="#7BAFD4"/>
+      <!-- Left horn -->
+      <path d="M7 9 Q5 7, 4 9 Q3 11, 4 13 Q5 12, 6 11 Q6.5 10, 7 9" fill="#7BAFD4"/>
+      <!-- Right horn -->
+      <path d="M16 9 Q18 7, 19 9 Q20 11, 19 13 Q18 12, 17 11 Q16.5 10, 16 9" fill="#7BAFD4"/>
+      <!-- Eye -->
+      <circle cx="10" cy="12" r="1" fill="#7BAFD4"/>
+      <circle cx="14" cy="12" r="1" fill="#7BAFD4"/>
     </svg>
   </div>
   <h2 class="prompt-subtitle">Start playing today.</h2>
