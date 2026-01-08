@@ -798,13 +798,14 @@
           }
           
           // Check for email verification link in URL (Firebase adds actionCode and oobCode)
-          const urlParams = new URLSearchParams(window.location.search);
-          const urlHash = window.location.hash ? new URLSearchParams(window.location.hash.substring(1)) : null;
+          // Reuse urlParams from earlier in the function scope, or create new if needed
+          const verificationUrlParams = new URLSearchParams(window.location.search);
+          const verificationUrlHash = window.location.hash ? new URLSearchParams(window.location.hash.substring(1)) : null;
           
           // Check both URL search params and hash for Firebase action codes
-          const actionCode = urlParams.get('oobCode') || (urlHash ? urlHash.get('oobCode') : null);
-          const mode = urlParams.get('mode') || (urlHash ? urlHash.get('mode') : null);
-          const apiKey = urlParams.get('apiKey') || (urlHash ? urlHash.get('apiKey') : null);
+          const actionCode = verificationUrlParams.get('oobCode') || (verificationUrlHash ? verificationUrlHash.get('oobCode') : null);
+          const mode = verificationUrlParams.get('mode') || (verificationUrlHash ? verificationUrlHash.get('mode') : null);
+          const apiKey = verificationUrlParams.get('apiKey') || (verificationUrlHash ? verificationUrlHash.get('apiKey') : null);
           
           console.log('URL params:', { actionCode, mode, apiKey, fullUrl: window.location.href });
           
