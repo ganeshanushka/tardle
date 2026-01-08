@@ -1017,10 +1017,20 @@ let words = [
       }
     });
     
-    // Check auth state quickly and show grid/keyboard
-    // For non-logged-in users, show immediately
-    // For logged-in users, wait for game state to load
-    const checkAndShowGame = async () => {
+    // Show grid and keyboard immediately after creating DOM elements
+    // This prevents the delay users experience
+    if (guessGrid) {
+      guessGrid.style.opacity = '1';
+      guessGrid.style.visibility = 'visible';
+    }
+    if (keyboard) {
+      keyboard.style.opacity = '1';
+      keyboard.style.visibility = 'visible';
+    }
+    
+    // Load game state in the background (for logged-in users)
+    // This happens asynchronously and won't block the UI
+    const loadGameStateAsync = async () => {
       // Check if Firebase is ready
       if (window.firebaseAuth && window.firebaseAuth.currentUser) {
         const user = window.firebaseAuth.currentUser;
@@ -1028,32 +1038,19 @@ let words = [
           currentUser = user;
           isLoggedIn = true;
         }
-        // User is logged in - load game state (will show grid/keyboard after loading)
+        // User is logged in - load game state
         await loadGameState();
       } else if (currentUser) {
         // User was set but Firebase auth doesn't show them - load game state anyway
         await loadGameState();
-      } else {
-        // No user logged in - show grid and keyboard immediately for guest play
-        console.log('No user logged in, showing game for guest play');
-        const guessGrid = document.getElementById("guessGrid");
-        if (guessGrid) {
-          guessGrid.style.opacity = '1';
-          guessGrid.style.visibility = 'visible';
-        }
-        const keyboard = document.getElementById("keyboard");
-        if (keyboard) {
-          keyboard.style.opacity = '1';
-          keyboard.style.visibility = 'visible';
-        }
       }
     };
     
-    // Try immediately if Firebase is already loaded
+    // Try to load game state immediately if Firebase is ready
     if (window.firebaseAuth) {
-      checkAndShowGame();
+      loadGameStateAsync();
     } else {
-      // Wait a short time for Firebase to load, but check multiple times
+      // Wait for Firebase to load, but don't block UI
       let attempts = 0;
       const maxAttempts = 10; // Check for up to 1 second (10 * 100ms)
       const checkInterval = setInterval(() => {
@@ -1061,20 +1058,7 @@ let words = [
         if (window.firebaseAuth || attempts >= maxAttempts) {
           clearInterval(checkInterval);
           if (window.firebaseAuth) {
-            checkAndShowGame();
-          } else {
-            // Firebase not loaded after timeout - show game for guest play
-            console.log('Firebase not loaded, showing game for guest play');
-            const guessGrid = document.getElementById("guessGrid");
-            if (guessGrid) {
-              guessGrid.style.opacity = '1';
-              guessGrid.style.visibility = 'visible';
-            }
-            const keyboard = document.getElementById("keyboard");
-            if (keyboard) {
-              keyboard.style.opacity = '1';
-              keyboard.style.visibility = 'visible';
-            }
+            loadGameStateAsync();
           }
         }
       }, 100); // Check every 100ms
