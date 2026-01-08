@@ -66,6 +66,84 @@
     font-weight: bold;
   }
 
+  /* Mobile layout - Wordle-style vertical layout */
+  @media (max-width: 768px) {
+    body, html {
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 20px 0;
+    }
+
+    .custom-grid-logo {
+      width: 100%;
+      max-width: 100%;
+      padding: 0 20px;
+      min-height: auto;
+    }
+
+    .custom-grid-outline {
+      margin-bottom: 1.5em;
+    }
+
+    .tardle-text {
+      font-size: 36px;
+      margin-bottom: 0.5em;
+    }
+
+    .subtitle {
+      font-size: 1.2em;
+      margin-bottom: 2em;
+      line-height: 1.4;
+    }
+
+    .button-container {
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+      max-width: 280px;
+      margin: 0 auto;
+    }
+
+    .button {
+      width: 100%;
+      max-width: 280px;
+      padding: 14px 24px;
+      margin: 0;
+      font-size: 1em;
+      text-align: center;
+    }
+
+    .footer-info {
+      margin-top: 3em;
+      font-size: 0.9em;
+    }
+
+    .footer-info p {
+      margin: 0.4em 0;
+    }
+
+    /* Completed puzzle mobile styles */
+    .completed-puzzle-container {
+      width: 100%;
+      padding: 20px;
+    }
+
+    .completed-puzzle-message {
+      font-size: 1.5em;
+      margin-bottom: 1.5em;
+    }
+
+    .completed-puzzle-button {
+      width: 100%;
+      max-width: 280px;
+    }
+
+    .completed-puzzle-details {
+      margin-top: 3em;
+      font-size: 0.9em;
+    }
+  }
+
 
   .custom-grid-logo {
     text-align: center;
@@ -116,6 +194,7 @@
   justify-content: center;
   align-items: center;
   margin-top: 1em;
+  gap: 8px;
 }
 
 .button {
