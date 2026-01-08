@@ -1908,6 +1908,13 @@ function updateKeyboard() {
           buttonsContainer.style.visibility = 'visible';
           console.log('✅ Showing See results button after win');
         }
+        
+        // Auto-show results/stats popup after win
+        if (window.showResultsOrStatsPopup) {
+          setTimeout(() => {
+            window.showResultsOrStatsPopup();
+          }, 500);
+        }
       }, totalFlipTime + 2000);
     }
   }
