@@ -542,7 +542,7 @@
         }
       }, 500);
       
-      // Function to update verification status display
+      // Function to update verification status display (only show when verified)
       function updateVerificationStatusDisplay(user) {
         const statusEl = document.getElementById('verificationStatus');
         if (!statusEl || !user) return;
@@ -552,9 +552,8 @@
           statusEl.className = 'verification-status verified';
           statusEl.style.display = 'block';
         } else {
-          statusEl.textContent = '✗ Email not verified';
-          statusEl.className = 'verification-status not-verified';
-          statusEl.style.display = 'block';
+          // Don't show "not verified" status - keep it hidden
+          statusEl.style.display = 'none';
         }
       }
       
