@@ -2235,6 +2235,16 @@ function renderCalendar(gameHistory) {
                             currentCalendarMonth + 1 === todayMonth && 
                             day === todayDay);
         
+        // Dates to keep white (no color class)
+        const whiteDates = new Set([
+            '2026-01-01',
+            '2026-01-02',
+            '2026-01-03',
+            '2026-01-04',
+            '2026-01-05',
+            '2026-01-06'
+        ]);
+        
         // Check game status for this date
         // First check if it's in the loaded game history
         if (calendarGameHistory.wins && calendarGameHistory.wins.has(dateStr)) {
@@ -2254,15 +2264,16 @@ function renderCalendar(gameHistory) {
             } else if (currentGameStatus === 'lost' && currentGameCompleted) {
                 // Today's game was lost = Duke blue
                 dayDiv.classList.add('loss');
-            } else {
-                // Today with no completed game = didn't play = yellow
+            } else if (!whiteDates.has(dateStr)) {
+                // Today with no completed game = didn't play = yellow (unless it's a white date)
                 dayDiv.classList.add('no-play');
             }
-        } else if (isPastDate) {
-            // Past date with no game data = didn't play = yellow
+        } else if (isPastDate && !whiteDates.has(dateStr)) {
+            // Past date with no game data = didn't play = yellow (unless it's a white date)
             dayDiv.classList.add('no-play');
         }
         // Future dates with no game data = white (default, no class)
+        // White dates (Jan 1-6) = white (default, no class)
         
         dayDiv.textContent = day;
         daysDiv.appendChild(dayDiv);
