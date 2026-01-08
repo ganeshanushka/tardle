@@ -304,9 +304,15 @@
     padding: 0 10px;
   }
 
+  .login-prompt-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+
   .login-prompt-button {
-    width: calc(100% - 20px);
-    max-width: 100%;
+    width: 100%;
     padding: 16px 24px;
     background-color: white;
     color: #000;
@@ -320,14 +326,23 @@
     display: block;
     cursor: pointer;
     transition: all 0.2s ease;
-    margin: 0 auto;
+    margin: 0;
     box-sizing: border-box;
     word-wrap: break-word;
   }
 
-.login-prompt-button:hover {
-  background-color: #f5f5f5;
-}
+  .login-prompt-button.login-button {
+    background-color: #000;
+    color: white;
+  }
+
+  .login-prompt-button.login-button:hover {
+    background-color: #333;
+  }
+
+  .login-prompt-button.signup-button:hover {
+    background-color: #f5f5f5;
+  }
 
 .footer-info {
   margin-top: 2em; 
@@ -488,9 +503,12 @@
 <div id="loginPromptModal">
   <div class="login-prompt-content">
     <button class="login-prompt-close" id="loginPromptCloseBtn">×</button>
-    <h2 class="login-prompt-heading">Make a Tardle account if you hate Duke!</h2>
-    <p class="login-prompt-text">(It's free, and you'll never lose a streak again)</p>
-    <a href="login.html" class="login-prompt-button">Log in or create an account</a>
+    <h2 class="login-prompt-heading">Create an account or log in to play</h2>
+    <p class="login-prompt-text">You need an account to play Tardle</p>
+    <div class="login-prompt-buttons">
+      <a href="login.html?return=play.html" class="login-prompt-button login-button">Log in</a>
+      <a href="login.html?return=play.html" class="login-prompt-button signup-button">Create account</a>
+    </div>
   </div>
 </div>
 
@@ -665,8 +683,8 @@
       // User is logged in - allow navigation to play.html
       window.location.href = 'play.html';
     } else {
-      // User is not logged in - redirect to login page with return URL
-      window.location.href = 'login.html?return=' + encodeURIComponent('play.html');
+      // User is not logged in - show login prompt modal
+      showLoginPrompt();
     }
     return false;
   }
@@ -678,13 +696,22 @@
       playButton.addEventListener('click', handlePlayClick);
     }
     
-    // Close modal when clicking outside
+    // Close modal when clicking outside or on close button
     const loginModal = document.getElementById('loginPromptModal');
     if (loginModal) {
       loginModal.addEventListener('click', function(e) {
         if (e.target === loginModal) {
           closeLoginPrompt();
         }
+      });
+    }
+    
+    const closeBtn = document.getElementById('loginPromptCloseBtn');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        closeLoginPrompt();
       });
     }
     
