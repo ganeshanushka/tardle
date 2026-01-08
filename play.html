@@ -2732,6 +2732,73 @@
     text-decoration: underline;
   }
 
+  /* Mobile-responsive layout - Wordle-style for mobile, original for desktop */
+  @media (max-width: 768px) {
+    /* Hide title text on mobile (like Wordle) */
+    .title-text {
+      display: none;
+    }
+
+    /* Adjust header height for mobile */
+    .title-bar {
+      height: clamp(45px, 7vh, 55px);
+      min-height: 45px;
+      padding: 0 12px;
+    }
+
+    /* Better icon positioning on mobile - group them together */
+    .podium-icon {
+      right: clamp(120px, 18vw, 150px);
+      width: clamp(20px, 3vw, 24px);
+      height: clamp(20px, 3vw, 24px);
+    }
+
+    .header-icons {
+      right: clamp(50px, 8vw, 70px);
+      gap: clamp(12px, 2vw, 16px);
+    }
+
+    .header-icon {
+      width: clamp(20px, 3vw, 24px);
+      height: clamp(20px, 3vw, 24px);
+    }
+
+    .close-button {
+      right: clamp(12px, 2vw, 16px);
+      font-size: clamp(18px, 2.8vw, 22px);
+    }
+
+    /* Adjust container spacing for mobile */
+    .container {
+      margin-top: clamp(60px, 10vh, 80px);
+      padding-top: clamp(10px, 1.5vh, 15px);
+      padding-left: clamp(8px, 1.5vw, 12px);
+      padding-right: clamp(8px, 1.5vw, 12px);
+      max-width: 100%;
+    }
+
+    /* Ensure game grid is properly sized on mobile */
+    #guessGrid {
+      margin: 0 auto;
+    }
+
+    /* Adjust keyboard for mobile */
+    .keyboard {
+      margin-top: clamp(10px, 2vh, 15px);
+      padding: 0 clamp(4px, 1vw, 8px);
+      gap: clamp(2px, 0.4vw, 4px);
+    }
+
+    /* Hamburger menu adjustments for mobile */
+    .hamburger-menu {
+      padding: 6px;
+    }
+
+    .hamburger-menu span {
+      width: clamp(18px, 2.8vw, 22px);
+    }
+  }
+
 </style>
 </head>
 
