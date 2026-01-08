@@ -1000,20 +1000,24 @@ let words = [
       }
     });
     
-    // Load saved game state if user is logged in
-    // Wait a bit for auth to initialize
-    // Note: This is a fallback - the auth state listener will also call loadGameState
-    setTimeout(async () => {
-      if (currentUser || (window.firebaseAuth && window.firebaseAuth.currentUser)) {
-        if (!currentUser && window.firebaseAuth.currentUser) {
-          currentUser = window.firebaseAuth.currentUser;
+    // Check auth state quickly and show grid/keyboard
+    // For non-logged-in users, show immediately
+    // For logged-in users, wait for game state to load
+    const checkAndShowGame = async () => {
+      // Check if Firebase is ready
+      if (window.firebaseAuth && window.firebaseAuth.currentUser) {
+        const user = window.firebaseAuth.currentUser;
+        if (!currentUser) {
+          currentUser = user;
           isLoggedIn = true;
         }
-        // Always try to load game state - it will check if already loaded
-        // This ensures we get the latest state even if auth listener hasn't fired yet
+        // User is logged in - load game state (will show grid/keyboard after loading)
+        await loadGameState();
+      } else if (currentUser) {
+        // User was set but Firebase auth doesn't show them - load game state anyway
         await loadGameState();
       } else {
-        // No user logged in - show grid and keyboard for guest play
+        // No user logged in - show grid and keyboard immediately for guest play
         console.log('No user logged in, showing game for guest play');
         const guessGrid = document.getElementById("guessGrid");
         if (guessGrid) {
@@ -1026,7 +1030,38 @@ let words = [
           keyboard.style.visibility = 'visible';
         }
       }
-    }, 800);
+    };
+    
+    // Try immediately if Firebase is already loaded
+    if (window.firebaseAuth) {
+      checkAndShowGame();
+    } else {
+      // Wait a short time for Firebase to load, but check multiple times
+      let attempts = 0;
+      const maxAttempts = 10; // Check for up to 1 second (10 * 100ms)
+      const checkInterval = setInterval(() => {
+        attempts++;
+        if (window.firebaseAuth || attempts >= maxAttempts) {
+          clearInterval(checkInterval);
+          if (window.firebaseAuth) {
+            checkAndShowGame();
+          } else {
+            // Firebase not loaded after timeout - show game for guest play
+            console.log('Firebase not loaded, showing game for guest play');
+            const guessGrid = document.getElementById("guessGrid");
+            if (guessGrid) {
+              guessGrid.style.opacity = '1';
+              guessGrid.style.visibility = 'visible';
+            }
+            const keyboard = document.getElementById("keyboard");
+            if (keyboard) {
+              keyboard.style.opacity = '1';
+              keyboard.style.visibility = 'visible';
+            }
+          }
+        }
+      }, 100); // Check every 100ms
+    }
   }
   
   // Wait for DOM to be ready before initializing
