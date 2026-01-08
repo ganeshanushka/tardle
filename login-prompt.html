@@ -59,62 +59,83 @@
     align-items: center;
     margin: 0;
     overflow: hidden;
-    background-color: #7BAFD4; 
+    background-color: rgba(0, 0, 0, 0.5); 
     font-family: 'Field Gothic Narrow', sans-serif;
     font-weight: normal; 
   }
 
   .login-prompt-container {
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 40px;
     max-width: 500px;
     width: 90%;
-    padding: 40px 20px;
-  }
-
-  .custom-grid-outline {
-    display: inline-block;
-    border: 4px solid black; 
-    border-radius: 5px;
-    margin-bottom: 1.5em; 
-  }
-
-  .custom-row {
-    display: flex;
-  }
-
-  .custom-cell {
-    width: 20px; 
-    height: 20px; 
-    border: 1px solid white; 
-    border-radius: 3px; 
-  }
-
-  .carolina-blue { background-color: #7BAFD4; } 
-  .duke-blue { background-color: #001A57; }
-  .yellow { background-color: #c9b458; } 
-
-  .tardle-text {
-    font-size: 48px;
-    margin-bottom: 0.5em;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    box-sizing: border-box;
     text-align: center;
   }
 
-  .prompt-heading {
-    font-size: 1.5em;
-    margin: 0 0 0.5em 0;
+  .close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: clamp(28px, 4vw, 32px);
     font-weight: bold;
+    color: #7BAFD4;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    line-height: 1;
+    transition: opacity 0.2s ease;
+    z-index: 1001;
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+    display: block;
+    visibility: visible;
+  }
+
+  .close-btn:hover {
+    opacity: 0.7;
+  }
+  
+  .close-btn:active {
+    opacity: 0.5;
+  }
+
+  .prompt-title {
+    font-family: 'Field Gothic Narrow', sans-serif;
+    font-size: 28px;
+    font-weight: bold;
+    color: #000;
+    margin: 0 0 20px 0;
+    text-align: left;
+  }
+
+  .prompt-illustration {
+    margin: 20px 0;
+    text-align: center;
+  }
+
+  .prompt-subtitle {
+    font-family: 'Field Gothic Narrow', sans-serif;
+    font-size: 24px;
+    font-weight: bold;
+    color: #000;
+    margin: 20px 0 15px 0;
     text-align: center;
   }
 
   .prompt-text {
-    font-size: 1.1em;
-    margin: 0 0 2em 0;
-    font-weight: normal;
+    font-family: 'Field Gothic Narrow', sans-serif;
+    font-size: 15px;
+    color: #000;
+    margin: 0 0 30px 0;
     text-align: center;
+    line-height: 1.6;
   }
 
   .button-container {
@@ -122,48 +143,54 @@
     flex-direction: column;
     gap: 12px;
     width: 100%;
-    max-width: 280px;
     margin: 0 auto;
   }
 
   .button {
     width: 100%;
-    max-width: 280px;
-    padding: 14px 24px;
-    border: 2px solid #000; 
-    border-radius: 20px; 
-    text-decoration: none;
-    color: black; 
-    background-color: white; 
-    font-size: 1em;
-    text-align: center;
+    padding: 16px 24px;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Field Gothic Narrow', sans-serif;
+    font-size: 15px;
     font-weight: bold;
-    transition: all 0.2s ease;
+    text-align: center;
+    text-decoration: none;
+    display: block;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    box-sizing: border-box;
   }
 
   .login-button {
-    background-color: #000; 
-    color: white;
+    background-color: #7BAFD4;
+    color: #fff;
   }
 
   .login-button:hover {
-    background-color: #333;
+    background-color: #6a9fc0;
+  }
+
+  .signup-button {
+    background-color: #7BAFD4;
+    color: #fff;
   }
 
   .signup-button:hover {
-    background-color: #f5f5f5;
+    background-color: #6a9fc0;
   }
 
   .back-link {
-    margin-top: 2em;
-    color: white;
+    margin-top: 20px;
+    color: #7BAFD4;
     text-decoration: none;
-    font-size: 0.9em;
+    font-size: 14px;
     transition: opacity 0.2s ease;
+    display: inline-block;
   }
 
   .back-link:hover {
-    opacity: 0.8;
+    opacity: 0.7;
     text-decoration: underline;
   }
 
@@ -172,24 +199,24 @@
     body, html {
       overflow-y: auto;
       overflow-x: hidden;
-      padding: 20px 0;
-    }
-
-    .login-prompt-container {
-      width: 100%;
       padding: 20px;
     }
 
-    .tardle-text {
-      font-size: 36px;
+    .login-prompt-container {
+      width: 90%;
+      padding: 30px 20px;
     }
 
-    .prompt-heading {
-      font-size: 1.3em;
+    .prompt-title {
+      font-size: 24px;
+    }
+
+    .prompt-subtitle {
+      font-size: 20px;
     }
 
     .prompt-text {
-      font-size: 1em;
+      font-size: 14px;
     }
   }
 </style>
@@ -197,27 +224,52 @@
 
 <body>
 <div class="login-prompt-container">
-  <div class="custom-grid-outline">
-    <div class="custom-row">
-      <div class="custom-cell carolina-blue"></div>
-      <div class="custom-cell carolina-blue"></div>
-      <div class="custom-cell carolina-blue"></div>
-    </div>
-    <div class="custom-row">
-      <div class="custom-cell carolina-blue"></div>
-      <div class="custom-cell yellow"></div>
-      <div class="custom-cell duke-blue"></div>
-    </div>
-    <div class="custom-row">
-      <div class="custom-cell duke-blue"></div>
-      <div class="custom-cell duke-blue"></div>
-      <div class="custom-cell duke-blue"></div>
-    </div>
+  <button class="close-btn" onclick="window.location.href='index.html'">×</button>
+  <h1 class="prompt-title">Play Tardle</h1>
+  <div class="prompt-illustration">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" style="max-width: 100%; height: auto;">
+      <defs>
+        <!-- Light blue gradient background -->
+        <linearGradient id="bgGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" style="stop-color:#7BAFD4;stop-opacity:1" />
+          <stop offset="100%" style="stop-color:#B8D4E8;stop-opacity:1" />
+        </linearGradient>
+      </defs>
+      
+      <!-- Dark blue rounded rectangular border -->
+      <rect x="5" y="5" width="390" height="290" fill="none" stroke="#001A57" stroke-width="4" rx="12"/>
+      
+      <!-- Light blue gradient background -->
+      <rect x="9" y="9" width="382" height="282" fill="url(#bgGradient)" rx="8"/>
+      
+      <!-- Game grid illustration -->
+      <rect x="50" y="50" width="300" height="200" fill="#ffffff" stroke="#001A57" stroke-width="2" rx="8"/>
+      
+      <!-- Grid cells -->
+      <!-- Row 1 -->
+      <rect x="70" y="70" width="50" height="50" fill="#7BAFD4" stroke="#001A57" stroke-width="2" rx="4"/>
+      <rect x="130" y="70" width="50" height="50" fill="#c9b458" stroke="#001A57" stroke-width="2" rx="4"/>
+      <rect x="190" y="70" width="50" height="50" fill="#001A57" stroke="#001A57" stroke-width="2" rx="4"/>
+      <rect x="250" y="70" width="50" height="50" fill="#7BAFD4" stroke="#001A57" stroke-width="2" rx="4"/>
+      <rect x="310" y="70" width="30" height="50" fill="#7BAFD4" stroke="#001A57" stroke-width="2" rx="4"/>
+      
+      <!-- Row 2 -->
+      <rect x="70" y="130" width="50" height="50" fill="#7BAFD4" stroke="#001A57" stroke-width="2" rx="4"/>
+      <rect x="130" y="130" width="50" height="50" fill="#7BAFD4" stroke="#001A57" stroke-width="2" rx="4"/>
+      <rect x="190" y="130" width="50" height="50" fill="#c9b458" stroke="#001A57" stroke-width="2" rx="4"/>
+      <rect x="250" y="130" width="50" height="50" fill="#7BAFD4" stroke="#001A57" stroke-width="2" rx="4"/>
+      <rect x="310" y="130" width="30" height="50" fill="#7BAFD4" stroke="#001A57" stroke-width="2" rx="4"/>
+      
+      <!-- Row 3 -->
+      <rect x="70" y="190" width="50" height="50" fill="#001A57" stroke="#001A57" stroke-width="2" rx="4"/>
+      <rect x="130" y="190" width="50" height="50" fill="#001A57" stroke="#001A57" stroke-width="2" rx="4"/>
+      <rect x="190" y="190" width="50" height="50" fill="#001A57" stroke="#001A57" stroke-width="2" rx="4"/>
+      <rect x="250" y="190" width="50" height="50" fill="#001A57" stroke="#001A57" stroke-width="2" rx="4"/>
+      <rect x="310" y="190" width="30" height="50" fill="#001A57" stroke="#001A57" stroke-width="2" rx="4"/>
+    </svg>
   </div>
-
-  <div class="tardle-text">Tardle</div>
-  <h2 class="prompt-heading">Create an account or log in to play</h2>
-  <p class="prompt-text">You need an account to play Tardle</p>
+  <h2 class="prompt-subtitle">Start playing today.</h2>
+  <p class="prompt-text">Create a free account or log in to play Tardle and track your progress.</p>
   
   <div class="button-container">
     <a href="login.html?return=play.html" class="button login-button">Log in</a>
