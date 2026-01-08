@@ -683,8 +683,8 @@
       // User is logged in - allow navigation to play.html
       window.location.href = 'play.html';
     } else {
-      // User is not logged in - show login prompt modal
-      showLoginPrompt();
+      // User is not logged in - redirect to login prompt page
+      window.location.href = 'login-prompt.html';
     }
     return false;
   }
