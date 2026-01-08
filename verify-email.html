@@ -1284,8 +1284,8 @@
       });
       
       // Store the time we sent the email
-      const now = Date.now();
-      localStorage.setItem(lastEmailSendKey, now.toString());
+      const emailSendTime = Date.now();
+      localStorage.setItem(lastEmailSendKey, emailSendTime.toString());
       
       // CRITICAL: Also store verification email sent timestamp (for .edu domain checks)
       const emailSentKey = `verificationEmailSent_${currentUser.uid}`;
