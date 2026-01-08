@@ -176,6 +176,14 @@
     <strong>Total Documents:</strong> <span id="totalCount">0</span>
   </div>
 
+  <div id="searchUsernameSection" style="display: none; background-color: white; border-radius: 4px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+    <h2>Search Username</h2>
+    <p>Enter a username to find which user document has it:</p>
+    <input type="text" id="searchUsername" placeholder="Username to search" style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px;">
+    <button onclick="searchUsername()" style="background-color: #7BAFD4; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">Search Username</button>
+    <div id="usernameSearchResult" style="margin-top: 15px;"></div>
+  </div>
+
   <div id="editUsernameSection" style="display: none; background-color: white; border-radius: 4px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
     <h2>Edit Username</h2>
     <p>Enter the UID and new username to update:</p>
@@ -345,8 +353,56 @@
     }
   }
 
+  async function searchUsername() {
+    const username = document.getElementById('searchUsername').value.trim();
+    const resultEl = document.getElementById('usernameSearchResult');
+    
+    if (!username) {
+      resultEl.innerHTML = '<div class="error-message">Please enter a username to search.</div>';
+      return;
+    }
+
+    resultEl.innerHTML = '<div>Searching...</div>';
+
+    try {
+      const usersRef = window.firebaseFirestoreFunctions.collection(window.firebaseDb, 'users');
+      const usernameQuery = window.firebaseFirestoreFunctions.query(
+        usersRef,
+        window.firebaseFirestoreFunctions.where('username', '==', username)
+      );
+      const usernameSnapshot = await window.firebaseFirestoreFunctions.getDocs(usernameQuery);
+
+      if (usernameSnapshot.empty) {
+        resultEl.innerHTML = `<div class="success-message">Username "${username}" is available (not found in database).</div>`;
+      } else {
+        let resultHtml = `<div class="error-message"><strong>Username "${username}" is taken. Found ${usernameSnapshot.size} document(s):</strong><br><br>`;
+        
+        usernameSnapshot.forEach((doc) => {
+          const data = doc.data();
+          const email = data.email || 'No email';
+          const accountNumber = data.accountNumber || 'No account number';
+          resultHtml += `
+            <div style="background-color: #f8f9fa; padding: 10px; margin: 10px 0; border-radius: 4px; border: 1px solid #ddd;">
+              <strong>UID:</strong> ${doc.id}<br>
+              <strong>Email:</strong> ${email}<br>
+              <strong>Account Number:</strong> ${accountNumber}<br>
+              <button onclick="deleteUser('${doc.id}', '${email.replace(/'/g, "\\'")}')" style="background-color: #dc3545; color: white; border: none; padding: 5px 15px; border-radius: 4px; cursor: pointer; margin-top: 5px;">Delete This User Document</button>
+            </div>
+          `;
+        });
+        
+        resultHtml += '</div>';
+        resultEl.innerHTML = resultHtml;
+      }
+    } catch (error) {
+      console.error('Error searching username:', error);
+      resultEl.innerHTML = `<div class="error-message">Error searching username: ${error.message}</div>`;
+    }
+  }
+
   // Load documents when page loads
   window.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('searchUsernameSection').style.display = 'block';
     document.getElementById('editUsernameSection').style.display = 'block';
     loadUserDocuments();
   });

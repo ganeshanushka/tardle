@@ -772,19 +772,65 @@
             console.log('Pending username document not found or already deleted (this is OK)');
           }
         } catch (firestoreError) {
-              // Handle all Firestore errors - we continue regardless
+              // Handle all Firestore errors - try to clear username even if deletion fails
               const errorMessage = firestoreError?.message || '';
               
               if (errorMessage === 'FIRESTORE_CANCELLED' || errorMessage === 'FIRESTORE_TIMEOUT') {
-                console.warn('Firestore deletion timed out or was cancelled (this is OK, continuing with Auth deletion)');
+                console.warn('Firestore deletion timed out or was cancelled, attempting to clear username field...');
+                
+                // Try to clear the username by updating the document to free it up
+                // This ensures the username becomes available even if full deletion fails
+                try {
+                  const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
+                  // Update username to a unique deleted-account identifier to free up the original username
+                  const deletedUsername = `deleted_${currentUser.uid.substring(0, 8)}_${Date.now()}`;
+                  await window.firebaseFirestoreFunctions.updateDoc(userDocRef, {
+                    username: deletedUsername,
+                    accountDeleted: true,
+                    deletedAt: window.firebaseFirestoreFunctions.serverTimestamp()
+                  });
+                  console.log('✓ Username field cleared (updated to deleted identifier)');
+                } catch (updateError) {
+                  console.warn('Could not clear username field (document may not exist or be accessible):', updateError);
+                }
               } else {
-                console.warn('Firestore deletion encountered an error (this is OK, continuing with Auth deletion):', firestoreError);
+                console.warn('Firestore deletion encountered an error, attempting to clear username field...', firestoreError);
+                
+                // Try to clear the username even if deletion failed
+                try {
+                  const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
+                  const deletedUsername = `deleted_${currentUser.uid.substring(0, 8)}_${Date.now()}`;
+                  await window.firebaseFirestoreFunctions.updateDoc(userDocRef, {
+                    username: deletedUsername,
+                    accountDeleted: true,
+                    deletedAt: window.firebaseFirestoreFunctions.serverTimestamp()
+                  });
+                  console.log('✓ Username field cleared (updated to deleted identifier)');
+                } catch (updateError) {
+                  console.warn('Could not clear username field:', updateError);
+                }
               }
               // Continue with auth deletion even if Firestore deletion fails
             }
           } catch (firestoreError) {
-            // Catch any outer errors - we continue regardless
-            console.warn('Firestore deletion encountered an error (this is OK, continuing with Auth deletion):', firestoreError);
+            // Catch any outer errors - try to clear username even if deletion completely failed
+            console.warn('Firestore deletion encountered an error, attempting to clear username field...', firestoreError);
+            
+            // Try to clear the username by updating it to free it up
+            if (currentUser && window.firebaseFirestoreFunctions && window.firebaseDb) {
+              try {
+                const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
+                const deletedUsername = `deleted_${currentUser.uid.substring(0, 8)}_${Date.now()}`;
+                await window.firebaseFirestoreFunctions.updateDoc(userDocRef, {
+                  username: deletedUsername,
+                  accountDeleted: true,
+                  deletedAt: window.firebaseFirestoreFunctions.serverTimestamp()
+                });
+                console.log('✓ Username field cleared (updated to deleted identifier)');
+              } catch (updateError) {
+                console.warn('Could not clear username field:', updateError);
+              }
+            }
           // Continue with auth deletion even if Firestore deletion fails
         }
         } else {
