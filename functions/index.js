@@ -956,6 +956,77 @@ exports.cleanupOrphanedUserDocuments = functions.pubsub
     }
   });
 
+// Manual trigger for cleaning up orphaned user documents (HTTP callable)
+exports.cleanupOrphanedUserDocumentsManual = functions.https.onCall(async (data, context) => {
+  try {
+    console.log('Manual cleanup of orphaned user documents triggered...');
+    
+    let deletedCount = 0;
+    let errorCount = 0;
+    let checkedCount = 0;
+    
+    // Get all user documents from Firestore
+    const usersSnapshot = await db.collection('users').get();
+    console.log(`Found ${usersSnapshot.size} user documents to check`);
+    
+    // Get all Auth users
+    const listUsersResult = await admin.auth().listUsers(1000);
+    const authUserUids = new Set(listUsersResult.users.map(user => user.uid));
+    
+    // Handle pagination for Auth users if there are more than 1000
+    let nextPageToken = listUsersResult.pageToken;
+    while (nextPageToken) {
+      const nextPageResult = await admin.auth().listUsers(1000, nextPageToken);
+      nextPageResult.users.forEach(user => authUserUids.add(user.uid));
+      nextPageToken = nextPageResult.pageToken;
+    }
+    
+    console.log(`Found ${authUserUids.size} Auth accounts`);
+    
+    // Check each Firestore user document
+    for (const userDoc of usersSnapshot.docs) {
+      try {
+        checkedCount++;
+        const uid = userDoc.id;
+        const userData = userDoc.data();
+        const username = userData.username || 'unknown';
+        const email = userData.email || 'unknown';
+        
+        // Check if Auth account exists for this UID
+        if (!authUserUids.has(uid)) {
+          // Orphaned document - Auth account doesn't exist
+          console.log(`Deleting orphaned user document: ${uid} (username: ${username}, email: ${email})`);
+          await db.collection('users').doc(uid).delete();
+          
+          // Also delete pendingUsernames document if it exists
+          try {
+            await db.collection('pendingUsernames').doc(uid).delete();
+          } catch (pendingError) {
+            // It's OK if this doesn't exist
+          }
+          
+          deletedCount++;
+          console.log(`✓ Deleted orphaned document for ${username} (UID: ${uid})`);
+        }
+      } catch (userError) {
+        console.error(`Error processing user document ${userDoc.id}:`, userError);
+        errorCount++;
+      }
+    }
+    
+    console.log(`Cleanup complete. Checked: ${checkedCount}, Deleted: ${deletedCount}, Errors: ${errorCount}`);
+    return { 
+      success: true,
+      checked: checkedCount, 
+      deleted: deletedCount, 
+      errors: errorCount 
+    };
+  } catch (err) {
+    console.error("Error cleaning up orphaned user documents:", err);
+    throw new functions.https.HttpsError('internal', 'Error cleaning up orphaned user documents', err);
+  }
+});
+
 // Check if username is available (for signup validation)
 exports.checkUsernameAvailability = functions.https.onCall(async (data, context) => {
   try {

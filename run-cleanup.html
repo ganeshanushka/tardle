@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Run Cleanup - Admin</title>
+<style>
+  body {
+    font-family: 'Field Gothic Narrow', sans-serif;
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #f5f5f5;
+  }
+  .container {
+    background-color: white;
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  h1 {
+    color: #1a1a1a;
+    margin-bottom: 20px;
+  }
+  button {
+    background-color: #7BAFD4;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 10px;
+  }
+  button:hover {
+    background-color: #6a9fc0;
+  }
+  button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+  .result {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 4px;
+    display: none;
+  }
+  .result.success {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+  }
+  .result.error {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+  }
+  .loading {
+    display: none;
+    margin-top: 20px;
+    color: #666;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Cleanup Orphaned User Documents</h1>
+  <p>This will find and delete Firestore user documents that don't have corresponding Firebase Auth accounts, freeing up their usernames.</p>
+  
+  <button id="runCleanupBtn" onclick="runCleanup()">Run Cleanup Now</button>
+  
+  <div id="loading" class="loading">Running cleanup... This may take a minute.</div>
+  <div id="result" class="result"></div>
+</div>
+
+<!-- Firebase Config -->
+<script type="module" src="firebase-config.js"></script>
+
+<script>
+  async function runCleanup() {
+    const btn = document.getElementById('runCleanupBtn');
+    const loading = document.getElementById('loading');
+    const result = document.getElementById('result');
+    
+    btn.disabled = true;
+    loading.style.display = 'block';
+    result.style.display = 'none';
+    
+    try {
+      // Wait for Firebase to be ready
+      await new Promise((resolve) => {
+        if (window.firebaseFunctionsFunctions && window.firebaseFunctionsInstance) {
+          resolve();
+        } else {
+          const checkInterval = setInterval(() => {
+            if (window.firebaseFunctionsFunctions && window.firebaseFunctionsInstance) {
+              clearInterval(checkInterval);
+              resolve();
+            }
+          }, 100);
+        }
+      });
+      
+      // Call the cleanup function
+      const cleanupFunction = window.firebaseFunctionsFunctions.httpsCallable(window.firebaseFunctionsInstance, 'cleanupOrphanedUserDocumentsManual');
+      const result_data = await cleanupFunction({});
+      
+      // Show success
+      result.className = 'result success';
+      result.innerHTML = `
+        <strong>Cleanup Complete!</strong><br>
+        Checked: ${result_data.data.checked} documents<br>
+        Deleted: ${result_data.data.deleted} orphaned documents<br>
+        Errors: ${result_data.data.errors}
+      `;
+      result.style.display = 'block';
+      
+    } catch (error) {
+      console.error('Error running cleanup:', error);
+      result.className = 'result error';
+      result.innerHTML = `<strong>Error:</strong> ${error.message || 'Failed to run cleanup'}`;
+      result.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      loading.style.display = 'none';
+    }
+  }
+</script>
+
+</body>
+</html>
