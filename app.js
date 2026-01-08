@@ -2005,6 +2005,13 @@ function showAnswerPopup() {
                 buttonsContainer.classList.remove('hidden');
                 buttonsContainer.style.display = 'flex';
             }
+            
+            // Auto-show results/stats popup after loss
+            if (window.showResultsOrStatsPopup) {
+              setTimeout(() => {
+                window.showResultsOrStatsPopup();
+              }, 500);
+            }
         }, 1000);
     }
 }
