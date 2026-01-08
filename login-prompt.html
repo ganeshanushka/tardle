@@ -214,14 +214,18 @@
     body, html {
       overflow-y: auto;
       overflow-x: hidden;
-      padding: 20px;
+      padding: 20px 10px;
+      min-height: 100vh;
     }
 
     .login-prompt-container {
-      width: min(550px, 90vw);
-      height: min(550px, 90vw);
-      max-height: min(550px, 90vw, 90vh);
-      padding: 1cm;
+      width: min(550px, 95vw);
+      height: auto;
+      min-height: auto;
+      max-height: none;
+      aspect-ratio: auto;
+      padding: 20px;
+      margin: 20px auto;
     }
 
     .prompt-icon {
@@ -237,10 +241,15 @@
 
     .prompt-subtitle {
       font-size: 24px;
+      margin: 15px 0 25px 0;
     }
 
     .prompt-text {
       font-size: 14px;
+    }
+
+    .button-container {
+      margin-top: 10px;
     }
   }
 </style>
