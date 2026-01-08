@@ -480,7 +480,7 @@
     <div class="button-container">
       <a href="how-to-play.html" class="button" id="howToPlayButton">How to play</a>
       <a href="login.html" class="button" id="loginButton">Log in</a>
-      <a href="play.html" class="button play-button" id="playButton">Play</a>
+      <a href="#" class="button play-button" id="playButton">Play</a>
     </div>
   </div>
 
@@ -657,7 +657,18 @@
   
   // Handle Play button click
   function handlePlayClick(e) {
-    // Allow normal navigation to play.html
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Check if user is logged in
+    if (window.firebaseAuth && window.firebaseAuth.currentUser) {
+      // User is logged in - allow navigation to play.html
+      window.location.href = 'play.html';
+    } else {
+      // User is not logged in - redirect to login page with return URL
+      window.location.href = 'login.html?return=' + encodeURIComponent('play.html');
+    }
+    return false;
   }
   
   // Attach click handler to Play button

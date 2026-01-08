@@ -1021,7 +1021,8 @@
       // ALWAYS redirect to verification page - even if somehow verified
       // The verification page will handle the final check
       console.log('Redirecting to verification page');
-      window.location.replace(`verify-email.html?email=${encodeURIComponent(email)}`);
+      const returnParam = returnUrl ? `&return=${encodeURIComponent(returnUrl)}` : '';
+      window.location.replace(`verify-email.html?email=${encodeURIComponent(email)}${returnParam}`);
     } catch (error) {
       console.error('Sign up error:', error);
       console.error('Error code:', error.code);

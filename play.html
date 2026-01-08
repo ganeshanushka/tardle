@@ -4283,17 +4283,10 @@
                       }
                     }
                   } else {
-                    // No user - allow through (guest mode)
-                    console.log('No user in onAuthStateChanged - allowing guest access');
-                    if (typeof allowPageLoad === 'function') {
-                      allowPageLoad();
-                    }
-                    if (window.verificationCheck && window.verificationCheck.removeOverlay) {
-                      window.verificationCheck.removeOverlay();
-                    }
-                    if (window.verificationCheck && window.verificationCheck.setVerificationPassed) {
-                      window.verificationCheck.setVerificationPassed(true);
-                    }
+                    // No user - redirect to login page
+                    console.log('No user in onAuthStateChanged - redirecting to login');
+                    window.location.replace('login.html?return=' + encodeURIComponent('play.html'));
+                    return;
                   }
                   
                   const greetingElement = document.getElementById('sidePanelGreeting');
@@ -5081,40 +5074,26 @@
                       document.body.style.overflow = 'hidden';
                       createOverlay();
                     } else if (!currentUser && isAuthRestored) {
-                      // No user and auth state restored - allow guest access
-                      console.log('No user and auth restored - allowing guest access');
-                      if (typeof allowPageLoad === 'function') {
-                        allowPageLoad();
-                      } else {
-                        document.body.style.pointerEvents = '';
-                        document.body.style.overflow = '';
-                        removeOverlay();
-                      }
-                      verificationPassed = true;
-                      if (window.verificationCheck && window.verificationCheck.setVerificationPassed) {
-                        window.verificationCheck.setVerificationPassed(true);
-                      }
+                      // No user and auth state restored - redirect to login
+                      console.log('No user and auth restored - redirecting to login');
+                      window.location.replace('login.html?return=' + encodeURIComponent('play.html'));
                       clearInterval(checkInterval);
+                      return;
                     }
                   }
                 }
               }
             }, 200); // Check every 200ms
             
-            // Stop checking after 5 seconds if still no user (allow guest mode)
+            // Stop checking after 5 seconds if still no user (redirect to login)
             setTimeout(() => {
               const isAuthRestored = window.verificationCheck ? window.verificationCheck.getAuthStateRestored() : authStateRestored;
               const currentUser = window.firebaseAuth ? window.firebaseAuth.currentUser : null;
               if (!isAuthRestored || !currentUser) {
-                console.log('Auth state check timeout - allowing guest access');
-                if (typeof allowPageLoad === 'function') {
-                  allowPageLoad();
-                }
-                verificationPassed = true;
-                if (window.verificationCheck && window.verificationCheck.setVerificationPassed) {
-                  window.verificationCheck.setVerificationPassed(true);
-                }
+                console.log('Auth state check timeout - redirecting to login');
+                window.location.replace('login.html?return=' + encodeURIComponent('play.html'));
                 clearInterval(checkInterval);
+                return;
               } else if (currentUser && !currentUser.emailVerified) {
                 // User exists but not verified - keep blocking (already handled above)
                 console.log('User exists but not verified - keeping overlay');

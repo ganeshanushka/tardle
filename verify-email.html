@@ -259,6 +259,12 @@
   let resendTimer = 60; // 60 seconds cooldown
   let resendInterval = null;
   
+  // Get return URL from URL parameters (defaults to index.html)
+  function getReturnUrl() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('return') || 'index.html';
+  }
+  
   // Function to create Firestore user document after verification
   async function createUserDocument(user) {
     try {
@@ -456,6 +462,7 @@
     if (emailDisplayEl.textContent === 'Loading...') {
       const urlParams = new URLSearchParams(window.location.search);
       const emailParam = urlParams.get('email');
+      const returnUrl = urlParams.get('return') || 'index.html'; // Get return URL or default to index.html
       const storedEmail = localStorage.getItem('pendingVerificationEmail');
       const hashParams = window.location.hash ? new URLSearchParams(window.location.hash.substring(1)) : null;
       const hashEmail = hashParams ? hashParams.get('email') : null;
@@ -690,7 +697,7 @@
                 document.getElementById('successMessage').textContent = 'Your email has been verified! Redirecting...';
                 document.getElementById('successMessage').classList.add('show');
                 setTimeout(() => {
-                  window.location.href = 'index.html';
+                  window.location.href = getReturnUrl();
                 }, 2000);
                 return;
               } catch (docError) {
@@ -706,7 +713,7 @@
                 document.getElementById('successMessage').textContent = 'Your email has been verified! Redirecting...';
                 document.getElementById('successMessage').classList.add('show');
                 setTimeout(() => {
-                  window.location.href = 'index.html';
+                  window.location.href = getReturnUrl();
                 }, 2000);
                 return;
               }
@@ -962,7 +969,7 @@
                 
                 // Redirect immediately after successful verification
                 setTimeout(() => {
-                  window.location.href = isEmailChange ? 'account-details.html' : 'index.html';
+                  window.location.href = isEmailChange ? 'account-details.html' : getReturnUrl();
                 }, 1500);
                 return; // Exit early since verification is complete
               } else {
@@ -979,7 +986,7 @@
                 console.warn('Email verification applied but user.emailVerified is still false');
                 // Still redirect even if status shows false (might be a timing issue)
                 setTimeout(() => {
-                  window.location.href = isEmailChange ? 'account-details.html' : 'index.html';
+                  window.location.href = isEmailChange ? 'account-details.html' : getReturnUrl();
                 }, 2000);
               }
             } catch (linkError) {
@@ -1006,7 +1013,7 @@
                   }
                   
                   setTimeout(() => {
-                    window.location.href = 'index.html';
+                    window.location.href = getReturnUrl();
                   }, 2000);
                   return; // Exit early since user is verified
                 }
@@ -1040,7 +1047,7 @@
                   document.getElementById('successMessage').textContent = 'Email verified successfully! Redirecting...';
                   document.getElementById('successMessage').classList.add('show');
                   setTimeout(() => {
-                    window.location.href = 'index.html';
+                    window.location.href = getReturnUrl();
                   }, 2000);
                   return;
                 } catch (docError) {
@@ -1202,7 +1209,7 @@
         }
         
         // Redirect to homepage (user will appear as not logged in)
-        window.location.href = 'index.html';
+        window.location.href = getReturnUrl();
       });
     }
     
@@ -1223,7 +1230,7 @@
         document.getElementById('successMessage').textContent = 'Your email is already verified! Redirecting...';
         document.getElementById('successMessage').classList.add('show');
         setTimeout(() => {
-          window.location.href = 'index.html';
+          window.location.href = getReturnUrl();
         }, 2000);
         return;
       }
