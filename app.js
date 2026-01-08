@@ -2421,7 +2421,10 @@ async function updateStatsOnWin() {
             const newPoints = currentPoints + pointsEarned;
             
             // Use setDoc with merge: true to create document if it doesn't exist
+            // First, get existing data to preserve fields we're not updating
+            const existingData = userDoc.exists() ? userDoc.data() : {};
             await window.firebaseFirestoreFunctions.setDoc(userDocRef, {
+                ...existingData, // Preserve any existing fields
                 gamesPlayed: gamesPlayed,
                 gamesWon: gamesWon,
                 currentStreak: currentStreak,
@@ -2429,6 +2432,7 @@ async function updateStatsOnWin() {
                 points: newPoints
             }, { merge: true });
             console.log('✅ Stats updated on win:', { gamesPlayed, gamesWon, currentStreak, maxStreak, pointsEarned, totalPoints: newPoints });
+            console.log('✅ Saved to Firestore document:', user.uid);
         } catch (error) {
             console.error('❌ Error updating stats on win:', error);
         }
