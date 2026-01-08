@@ -2433,8 +2433,13 @@ async function updateStatsOnWin() {
             }, { merge: true });
             console.log('✅ Stats updated on win:', { gamesPlayed, gamesWon, currentStreak, maxStreak, pointsEarned, totalPoints: newPoints });
             console.log('✅ Saved to Firestore document:', user.uid);
+            
+            // Reload stats from Firestore to ensure we have the latest values
+            await loadUserStats();
+            console.log('✅ Stats reloaded after save:', { gamesPlayed, gamesWon, currentStreak, maxStreak });
         } catch (error) {
             console.error('❌ Error updating stats on win:', error);
+            console.error('Error details:', error.message, error.stack);
         }
     } else {
         // Update local stats even if not logged in (won't persist)
