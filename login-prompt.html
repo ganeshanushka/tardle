@@ -117,22 +117,22 @@
   }
 
   .prompt-icon {
-    width: 90px;
-    height: 90px;
-    background-color: #ffffff;
+    width: 140px;
+    height: 140px;
+    background-color: #7BAFD4;
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 20px auto;
+    margin: 10px auto 20px auto;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
 
   .prompt-icon svg {
-    width: 70px;
-    height: 70px;
-    stroke: #7BAFD4;
-    fill: #7BAFD4;
+    width: 110px;
+    height: 110px;
+    stroke: #ffffff;
+    fill: #ffffff;
   }
 
   .prompt-subtitle {
@@ -224,6 +224,17 @@
       padding: 1cm;
     }
 
+    .prompt-icon {
+      width: 110px;
+      height: 110px;
+      margin: 8px auto 15px auto;
+    }
+
+    .prompt-icon svg {
+      width: 85px;
+      height: 85px;
+    }
+
     .prompt-subtitle {
       font-size: 24px;
     }
@@ -238,19 +249,19 @@
 <body>
 <div class="login-prompt-container">
   <button class="close-btn" onclick="window.location.href='index.html'">×</button>
-  <div class="prompt-icon">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#7BAFD4" stroke="#7BAFD4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-      <!-- Ram head silhouette with curved horns -->
-      <path d="M12 8 C10 6, 8 7, 7 9 C6 11, 6 13, 7 15 C7.5 16, 8.5 17, 10 17.5 C11 18, 12 18, 13 17.5 C14.5 17, 15.5 16, 16 15 C17 13, 17 11, 16 9 C15 7, 14 6, 12 8 Z" fill="#7BAFD4"/>
-      <!-- Left horn -->
-      <path d="M7 9 Q5 7, 4 9 Q3 11, 4 13 Q5 12, 6 11 Q6.5 10, 7 9" fill="#7BAFD4"/>
-      <!-- Right horn -->
-      <path d="M16 9 Q18 7, 19 9 Q20 11, 19 13 Q18 12, 17 11 Q16.5 10, 16 9" fill="#7BAFD4"/>
-      <!-- Eye -->
-      <circle cx="10" cy="12" r="1" fill="#7BAFD4"/>
-      <circle cx="14" cy="12" r="1" fill="#7BAFD4"/>
-    </svg>
-  </div>
+          <div class="prompt-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ffffff" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <!-- Ram head silhouette with curved horns -->
+              <path d="M12 8 C10 6, 8 7, 7 9 C6 11, 6 13, 7 15 C7.5 16, 8.5 17, 10 17.5 C11 18, 12 18, 13 17.5 C14.5 17, 15.5 16, 16 15 C17 13, 17 11, 16 9 C15 7, 14 6, 12 8 Z" fill="#ffffff"/>
+              <!-- Left horn -->
+              <path d="M7 9 Q5 7, 4 9 Q3 11, 4 13 Q5 12, 6 11 Q6.5 10, 7 9" fill="#ffffff"/>
+              <!-- Right horn -->
+              <path d="M16 9 Q18 7, 19 9 Q20 11, 19 13 Q18 12, 17 11 Q16.5 10, 16 9" fill="#ffffff"/>
+              <!-- Eye -->
+              <circle cx="10" cy="12" r="1" fill="#ffffff"/>
+              <circle cx="14" cy="12" r="1" fill="#ffffff"/>
+            </svg>
+          </div>
   <h2 class="prompt-subtitle">Create an account or log in to start playing today.</h2>
   
   <div class="button-container">
