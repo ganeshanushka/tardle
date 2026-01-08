@@ -74,9 +74,6 @@
   }
 
   .close-button {
-    position: absolute;
-    top: 20px;
-    right: 20px;
     font-size: 32px;
     font-weight: bold;
     color: #7BAFD4;
@@ -86,6 +83,9 @@
     padding: 0;
     line-height: 1;
     transition: opacity 0.2s ease;
+    position: absolute;
+    top: 20px;
+    right: 20px;
     z-index: 1001;
     pointer-events: auto;
     -webkit-tap-highlight-color: transparent;
@@ -93,6 +93,7 @@
     user-select: none;
     display: block;
     visibility: visible;
+    /* Safari-specific: ensure button is clickable */
   }
 
   .close-button:hover {
