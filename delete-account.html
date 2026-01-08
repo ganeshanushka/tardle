@@ -737,7 +737,7 @@
         // Note: We continue with Auth deletion even if Firestore deletion fails or is cancelled
       if (currentUser && window.firebaseFirestoreFunctions && window.firebaseDb) {
         try {
-            console.log('Deleting user document from Firestore...');
+            console.log('Deleting user document from Firestore (this will clear the username)...');
           const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
             
             // Add timeout to Firestore deletion (5 seconds)
@@ -760,12 +760,13 @@
             try {
               await Promise.race([firestoreDeletePromise, firestoreTimeoutPromise]);
           console.log('User document deleted from Firestore');
+          console.log('✓ Username cleared (deleted with user document)');
           
           // Also delete pendingUsernames document if it exists (to free up the username)
           try {
             const pendingUsernameRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'pendingUsernames', currentUser.uid);
             await window.firebaseFirestoreFunctions.deleteDoc(pendingUsernameRef);
-            console.log('Pending username document deleted from Firestore');
+            console.log('✓ Pending username document deleted from Firestore');
           } catch (pendingUsernameError) {
             // It's OK if this doesn't exist - it might have already been deleted
             console.log('Pending username document not found or already deleted (this is OK)');
