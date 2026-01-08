@@ -1148,8 +1148,17 @@
             pathParts.push('verify-email.html');
           }
           
-          // Set continueUrl to index.html - Firebase will redirect here after verification
-          const continueUrl = window.location.origin + '/' + (pathParts.length > 1 ? pathParts.slice(0, -1).join('/') + '/' : '') + 'index.html';
+          // Set continueUrl - Firebase will redirect here after verification
+          // Use the full URL with the correct domain (playtardle.com or ganeshanushka.github.io)
+          let continueUrl;
+          if (window.location.hostname === 'playtardle.com' || window.location.hostname === 'www.playtardle.com') {
+            // Production domain
+            continueUrl = 'https://www.playtardle.com/index.html';
+          } else {
+            // Development/GitHub Pages domain
+            const basePath = pathParts.length > 1 ? pathParts.slice(0, -1).join('/') + '/' : '';
+            continueUrl = window.location.origin + '/' + basePath + 'index.html';
+          }
           
           const actionCodeSettings = {
             url: continueUrl,
