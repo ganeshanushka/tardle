@@ -1012,6 +1012,19 @@ let words = [
         // Always try to load game state - it will check if already loaded
         // This ensures we get the latest state even if auth listener hasn't fired yet
         await loadGameState();
+      } else {
+        // No user logged in - show grid and keyboard for guest play
+        console.log('No user logged in, showing game for guest play');
+        const guessGrid = document.getElementById("guessGrid");
+        if (guessGrid) {
+          guessGrid.style.opacity = '1';
+          guessGrid.style.visibility = 'visible';
+        }
+        const keyboard = document.getElementById("keyboard");
+        if (keyboard) {
+          keyboard.style.opacity = '1';
+          keyboard.style.visibility = 'visible';
+        }
       }
     }, 800);
   }
