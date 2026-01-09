@@ -2764,9 +2764,10 @@
 
   /* Mobile-responsive layout - Wordle-style for mobile, original for desktop */
   @media (max-width: 768px) {
-    /* Hide title text on mobile (like Wordle) */
+    /* Show title text on mobile */
     .title-text {
-      display: none;
+      display: block;
+      font-size: clamp(20px, 5vw, 28px);
     }
 
     /* Hide stats icon on mobile */
@@ -2831,23 +2832,23 @@
       line-height: 0;
     }
 
-    /* Adjust keyboard for mobile - use flexbox to respect <br/> breaks and scale down */
+    /* Adjust keyboard for mobile - improved layout */
     .keyboard {
       display: block;
       text-align: center;
       margin-top: clamp(15px, 2.5vh, 20px);
       width: 100%;
-      max-width: 600px;
-      padding: 0 clamp(5px, 1vw, 10px);
+      max-width: 100%;
+      padding: 0 clamp(8px, 2vw, 15px);
       box-sizing: border-box;
-      transform: scale(min(0.65, 85vw / 600));
+      transform: scale(min(0.85, 95vw / 600));
       transform-origin: center top;
     }
 
     .keyboard br {
       display: block;
       content: "";
-      margin: 0;
+      margin: clamp(2px, 0.3vh, 3px) 0;
       line-height: 0;
       width: 100%;
       clear: both;
@@ -2855,36 +2856,36 @@
 
     .keyboard .key {
       display: inline-block;
-      vertical-align: top;
+      vertical-align: middle;
       text-align: center;
       border: 1px solid var(--border-color);
-      padding: clamp(5px, 0.9vh, 7px) clamp(3px, 0.7vw, 5px);
+      padding: clamp(6px, 1.2vh, 8px) clamp(4px, 1vw, 6px);
       background-color: var(--key-bg);
       color: #1a1a1b;
       cursor: pointer;
       transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-      font-size: clamp(10px, 1.6vw, 12px);
+      font-size: clamp(11px, 2vw, 13px);
       font-weight: bold;
       border-radius: 4px;
-      height: clamp(32px, 4.5vh, 36px);
-      width: clamp(24px, 3.8vw, 28px);
-      min-width: clamp(24px, 3.8vw, 28px);
-      max-width: clamp(24px, 3.8vw, 28px);
-      margin: clamp(1px, 0.25vw, 1.5px);
+      height: clamp(36px, 5.5vh, 40px);
+      width: clamp(28px, 4.5vw, 32px);
+      min-width: clamp(28px, 4.5vw, 32px);
+      max-width: clamp(28px, 4.5vw, 32px);
+      margin: clamp(2px, 0.3vw, 3px);
       box-sizing: border-box;
       text-transform: uppercase;
       -webkit-appearance: none;
       appearance: none;
-      line-height: clamp(32px, 4.5vh, 36px);
+      line-height: clamp(36px, 5.5vh, 40px);
     }
 
     /* Special sizing for ENTER and DELETE keys on mobile */
     .keyboard .key#enter,
     .keyboard .key[id="⌫"] {
-      min-width: clamp(42px, 6.5vw, 50px);
-      width: clamp(42px, 6.5vw, 50px);
-      max-width: clamp(42px, 6.5vw, 50px);
-      font-size: clamp(8px, 1.2vw, 10px);
+      min-width: clamp(50px, 8vw, 58px);
+      width: clamp(50px, 8vw, 58px);
+      max-width: clamp(50px, 8vw, 58px);
+      font-size: clamp(9px, 1.5vw, 11px);
     }
 
     /* Dark mode keyboard keys on mobile */
