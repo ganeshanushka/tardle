@@ -1130,10 +1130,12 @@
     border-radius: 0;
     max-width: 550px; /* Slightly larger to fit all content */
     width: min(550px, 90vw);
-    height: min(550px, 90vw); /* Make it square */
-    max-height: min(550px, 90vw, 90vh);
-    aspect-ratio: 1 / 1; /* Ensure square shape */
-    overflow: hidden; /* No scrollbar */
+    height: auto;
+    min-height: min(550px, 90vw);
+    max-height: 90vh;
+    aspect-ratio: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
     position: relative;
     transition: background-color 0.3s ease, color 0.3s ease;
@@ -1198,7 +1200,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow: visible;
   }
 
   .help-content > p:first-of-type {
@@ -1397,10 +1399,12 @@
     border-radius: 0;
     max-width: 550px; /* Slightly larger to fit all content */
     width: min(550px, 90vw);
-    height: min(550px, 90vw); /* Make it square */
-    max-height: min(550px, 90vw, 90vh);
-    aspect-ratio: 1 / 1; /* Ensure square shape */
-    overflow: hidden; /* No scrollbar */
+    height: auto;
+    min-height: min(550px, 90vw);
+    max-height: 90vh;
+    aspect-ratio: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
     position: relative;
     transition: background-color 0.3s ease, color 0.3s ease;
@@ -1439,7 +1443,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow: visible;
   }
 
   :root.dark-mode #helpModal .help-content p {
