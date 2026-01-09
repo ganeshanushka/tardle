@@ -604,6 +604,7 @@
             <div class="info-label">Username</div>
             <div class="info-value-container">
               <div class="info-value loading" id="usernameDisplay">Loading...</div>
+              <a href="#" class="info-action" id="updateUsernameLink">Update</a>
             </div>
           </div>
           <div class="info-item">
@@ -1483,10 +1484,62 @@
         window.location.href = 'verify-email.html';
       });
       
-      
       document.getElementById('updatePasswordLink')?.addEventListener('click', function(e) {
         e.preventDefault();
         window.location.href = 'change-password.html';
+      });
+
+      document.getElementById('updateUsernameLink')?.addEventListener('click', async function(e) {
+        e.preventDefault();
+        const currentUsername = document.getElementById('usernameDisplay').textContent;
+        const newUsername = prompt('Enter your new username:', currentUsername);
+        
+        if (!newUsername || newUsername.trim() === '') {
+          return;
+        }
+        
+        const trimmedUsername = newUsername.trim().toLowerCase();
+        
+        // Validate username format
+        if (!/^[a-z0-9_]{3,20}$/.test(trimmedUsername)) {
+          alert('Username must be 3-20 characters and contain only lowercase letters, numbers, and underscores.');
+          return;
+        }
+        
+        // Check if username is available
+        try {
+          const usersRef = window.firebaseFirestoreFunctions.collection(window.firebaseDb, 'users');
+          const usernameQuery = window.firebaseFirestoreFunctions.query(
+            usersRef,
+            window.firebaseFirestoreFunctions.where('username', '==', trimmedUsername)
+          );
+          const usernameSnapshot = await window.firebaseFirestoreFunctions.getDocs(usernameQuery);
+          
+          if (!usernameSnapshot.empty) {
+            const existingUser = usernameSnapshot.docs[0].data();
+            const currentUser = window.firebaseAuth.currentUser;
+            // Allow if it's the same user
+            if (usernameSnapshot.docs[0].id !== currentUser.uid) {
+              alert('This username is already taken. Please choose a different username.');
+              return;
+            }
+          }
+          
+          // Update username in Firestore
+          const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', window.firebaseAuth.currentUser.uid);
+          await window.firebaseFirestoreFunctions.updateDoc(userDocRef, {
+            username: trimmedUsername
+          });
+          
+          // Update display
+          document.getElementById('usernameDisplay').textContent = trimmedUsername;
+          updateGreeting(trimmedUsername);
+          
+          alert('Username updated successfully!');
+        } catch (error) {
+          console.error('Error updating username:', error);
+          alert('Error updating username: ' + (error.message || 'Unknown error'));
+        }
       });
       
     });
