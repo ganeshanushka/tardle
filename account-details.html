@@ -604,6 +604,7 @@
             <div class="info-label">Username</div>
             <div class="info-value-container">
               <div class="info-value loading" id="usernameDisplay">Loading...</div>
+              <a href="#" class="info-action" id="updateUsernameLink">Update</a>
             </div>
           </div>
           <div class="info-item">
@@ -1200,8 +1201,22 @@
             
             const accountNumber = generateAccountNumber();
             
-            // Skip username validation query - Firestore rules don't allow querying entire collection
-            // Username uniqueness will be handled by the backend or we'll accept potential collisions
+            // Validate username is still available before creating document
+            if (username && username !== currentUser.email?.split('@')[0]) {
+              const usersRef = window.firebaseFirestoreFunctions.collection(window.firebaseDb, 'users');
+              const usernameQuery = window.firebaseFirestoreFunctions.query(
+                usersRef,
+                window.firebaseFirestoreFunctions.where('username', '==', username)
+              );
+              const usernameSnapshot = await window.firebaseFirestoreFunctions.getDocs(usernameQuery);
+              
+              if (!usernameSnapshot.empty) {
+                // Username was taken - use email prefix instead
+                console.warn('⚠️ Username was taken, using email prefix instead');
+                username = currentUser.email?.split('@')[0] || 'User';
+              }
+            }
+            
             // Create user document in Firestore
             const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
             await window.firebaseFirestoreFunctions.setDoc(userDocRef, {
@@ -1486,6 +1501,11 @@
       document.getElementById('updateEmailLink')?.addEventListener('click', function(e) {
         e.preventDefault();
         window.location.href = 'change-email.html';
+      });
+      
+      document.getElementById('updateUsernameLink')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        window.location.href = 'change-username.html';
       });
       
       document.getElementById('verifyEmailLink')?.addEventListener('click', function(e) {

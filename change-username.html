@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Change username</title>
+<style>
+  /* Field Gothic Narrow Font Face */
+  @font-face {
+    font-family: 'Field Gothic Narrow';
+    src: url('fonts/FieldGothicNarrow-Regular.woff2') format('woff2'),
+         url('fonts/FieldGothicNarrow-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Field Gothic Narrow';
+    src: url('fonts/FieldGothicNarrow-Bold.woff2') format('woff2'),
+         url('fonts/FieldGothicNarrow-Bold.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  /* Ensure headings use bold */
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: bold;
+  }
+  
+  /* Ensure body/content uses regular */
+  body {
+    font-weight: normal;
+  }
+
+
+  body {
+    font-family: 'Field Gothic Narrow', sans-serif;
+    background-color: white;
+    margin: 0;
+    padding: 0;
+    color: #1a1a1a;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .container {
+    max-width: 600px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 20px 60px 20px;
+    box-sizing: border-box;
+  }
+
+  h1 {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #1a1a1a;
+  }
+
+  .intro-text {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    color: #1a1a1a;
+  }
+
+  .intro-text strong {
+    font-weight: bold;
+  }
+
+  .form-group {
+    margin-bottom: 24px;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #1a1a1a;
+  }
+
+  .form-group input {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-family: 'Field Gothic Narrow', sans-serif;
+  }
+
+  .form-group input:focus {
+    outline: none;
+    border-color: #7BAFD4;
+  }
+
+  .button-container {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin-top: 30px;
+  }
+
+  .save-button {
+    background-color: #000;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Field Gothic Narrow', sans-serif;
+    transition: background-color 0.2s ease;
+  }
+
+  .save-button:hover {
+    background-color: #333;
+  }
+
+  .save-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+
+  .return-link {
+    color: #333;
+    text-decoration: underline;
+    font-size: 16px;
+  }
+
+  .return-link:hover {
+    color: #000;
+  }
+
+  .error-message {
+    color: red;
+    font-size: 0.9rem;
+    margin-top: 0.25em;
+    margin-bottom: 1em;
+    display: none;
+    font-family: 'Field Gothic Narrow', sans-serif;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .error-message.show {
+    display: flex;
+  }
+
+  .error-icon {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: #d32f2f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .error-icon::before {
+    content: '!';
+    color: white;
+    font-weight: bold;
+    font-size: 12px;
+  }
+
+  .form-group .error-message {
+    margin-top: 0.25em;
+    margin-bottom: 1em;
+  }
+
+  .form-group input.error {
+    border-color: #d32f2f;
+  }
+
+  .success-message {
+    color: #2e7d32;
+    font-size: 16px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    padding: 16px;
+    background-color: #e8f5e9;
+    border-left: 4px solid #2e7d32;
+    border-radius: 4px;
+    display: none;
+    line-height: 1.5;
+  }
+
+  .success-message.show {
+    display: block;
+  }
+
+  .success-message strong {
+    font-weight: bold;
+    color: #1a1a1a;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Change username</h1>
+  
+  <div class="intro-text">
+    Your current username is <strong id="currentUsername">Loading...</strong>. Enter a new username below to change it.
+  </div>
+
+  <form id="changeUsernameForm" novalidate>
+    <div class="form-group">
+      <label for="newUsername">New username</label>
+      <input type="text" id="newUsername" name="newUsername" placeholder="Enter username">
+      <div class="error-message" id="usernameError">
+        <div class="error-icon"></div>
+        <span id="usernameErrorText"></span>
+      </div>
+    </div>
+
+    <div class="error-message" id="errorMessage"></div>
+    <div class="success-message" id="successMessage"></div>
+
+    <div class="button-container">
+      <button type="submit" class="save-button" id="saveButton">Save</button>
+      <a href="account-details.html" class="return-link">Return to account</a>
+    </div>
+  </form>
+</div>
+
+<!-- Firebase Config -->
+<script type="module" src="firebase-config.js"></script>
+
+<script>
+  // Get current user and display username
+  let currentUser = null;
+  let currentUsername = '';
+
+  // Username validation function
+  function validateUsername(username) {
+    const errors = [];
+    
+    // Check length (4-20 characters)
+    if (username.length < 4) {
+      errors.push('at least 4 characters');
+    }
+    if (username.length > 20) {
+      errors.push('no more than 20 characters');
+    }
+    
+    // Check for underscores
+    if (username.includes('_')) {
+      errors.push('no underscores');
+    }
+    
+    // Check for allowed characters (alphanumeric only, no spaces, no special chars except hyphens)
+    const usernameRegex = /^[a-zA-Z0-9-]+$/;
+    if (!usernameRegex.test(username)) {
+      errors.push('only letters, numbers, and hyphens');
+    }
+    
+    // Check it doesn't start or end with a hyphen
+    if (username.startsWith('-') || username.endsWith('-')) {
+      errors.push('cannot start or end with a hyphen');
+    }
+    
+    // Check it has at least one letter (not just numbers and hyphens)
+    if (!/[a-zA-Z]/.test(username)) {
+      errors.push('at least one letter');
+    }
+    
+    return {
+      isValid: errors.length === 0,
+      errors: errors
+    };
+  }
+
+  // Ensure DOM is ready
+  function initUsernamePage() {
+    const updateUsernameDisplay = async () => {
+      const currentUsernameEl = document.getElementById('currentUsername');
+      if (currentUsernameEl) {
+        if (window.firebaseAuth && window.firebaseAuth.currentUser && window.firebaseFirestoreFunctions && window.firebaseDb) {
+          const user = window.firebaseAuth.currentUser;
+          currentUser = user;
+          
+          try {
+            // Get username from Firestore
+            const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', user.uid);
+            const userDoc = await window.firebaseFirestoreFunctions.getDoc(userDocRef);
+            
+            if (userDoc.exists()) {
+              const userData = userDoc.data();
+              currentUsername = userData.username || user.email?.split('@')[0] || 'User';
+              currentUsernameEl.textContent = currentUsername;
+              console.log('✓ Username displayed:', currentUsername);
+            } else {
+              currentUsername = user.email?.split('@')[0] || 'User';
+              currentUsernameEl.textContent = currentUsername;
+            }
+          } catch (error) {
+            console.error('Error loading username:', error);
+            currentUsername = user.email?.split('@')[0] || 'User';
+            currentUsernameEl.textContent = currentUsername;
+          }
+        } else {
+          currentUsernameEl.textContent = 'Loading...';
+        }
+      }
+    };
+    
+    // Check for Firebase availability
+    const checkFirebase = setInterval(() => {
+      if (window.firebaseAuth && window.firebaseAuthFunctions && window.firebaseFirestoreFunctions && window.firebaseDb) {
+        clearInterval(checkFirebase);
+        
+        // Set up listener for auth state changes
+        window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, async (user) => {
+          if (user) {
+            currentUser = user;
+            await updateUsernameDisplay();
+          } else {
+            // User is not logged in - redirect to login
+            console.log('⚠️ User not logged in, redirecting...');
+            window.location.href = 'login.html?return=' + encodeURIComponent('change-username.html');
+          }
+        });
+        
+        // Try updating immediately
+        setTimeout(updateUsernameDisplay, 100);
+        setTimeout(updateUsernameDisplay, 500);
+        setTimeout(updateUsernameDisplay, 1000);
+      }
+    }, 100);
+    
+    // Wait for Firebase Functions separately
+    const checkFirebaseFunctions = setInterval(() => {
+      if (window.firebaseFunctions && window.firebaseFunctionsFunctions) {
+        clearInterval(checkFirebaseFunctions);
+        console.log('✓ Firebase Functions loaded and ready');
+      }
+    }, 100);
+  }
+
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initUsernamePage);
+  } else {
+    initUsernamePage();
+  }
+
+  // Check username availability in real-time
+  let usernameCheckTimeout = null;
+  const newUsernameInput = document.getElementById('newUsername');
+  const usernameError = document.getElementById('usernameError');
+  const usernameErrorText = document.getElementById('usernameErrorText');
+  
+  // Function to check if username is available
+  const checkUsernameAvailability = async function(username) {
+    if (!username || !username.trim()) {
+      usernameError.classList.remove('show');
+      newUsernameInput.classList.remove('error');
+      return;
+    }
+    
+    const trimmedUsername = username.trim();
+    
+    // Validate username format first
+    const usernameValidation = validateUsername(trimmedUsername);
+    if (!usernameValidation.isValid) {
+      // Format validation failed - show error
+      const errorList = usernameValidation.errors;
+      let errorText = 'Username must contain ';
+      if (errorList.length === 1) {
+        errorText += errorList[0] + '.';
+      } else if (errorList.length === 2) {
+        errorText += errorList[0] + ' and ' + errorList[1] + '.';
+      } else {
+        errorText += errorList.slice(0, -1).join(', ') + ', and ' + errorList[errorList.length - 1] + '.';
+      }
+      usernameErrorText.textContent = errorText;
+      usernameError.classList.add('show');
+      newUsernameInput.classList.add('error');
+      return;
+    }
+    
+    // Check if it's the same as current username
+    if (currentUsername && trimmedUsername.toLowerCase() === currentUsername.toLowerCase()) {
+      usernameErrorText.textContent = 'The username you entered is already your current username. Please enter a different username.';
+      usernameError.classList.add('show');
+      newUsernameInput.classList.add('error');
+      return;
+    }
+    
+    // Wait for Firebase to be ready
+    if (!window.firebaseFunctionsFunctions || !window.firebaseFunctionsInstance) {
+      return;
+    }
+    
+    // Check if username is already in use
+    try {
+      console.log('🔍 Checking username availability:', trimmedUsername);
+      
+      const checkUsernameAvailability = window.firebaseFunctionsFunctions.httpsCallable(window.firebaseFunctionsInstance, 'checkUsernameAvailability');
+      const result = await checkUsernameAvailability({ username: trimmedUsername });
+      
+      if (!result.data.available) {
+        // Username is taken
+        usernameErrorText.textContent = 'This username is already taken. Please choose another.';
+        usernameError.classList.add('show');
+        newUsernameInput.classList.add('error');
+      } else {
+        // Username is available - clear any errors
+        usernameError.classList.remove('show');
+        usernameErrorText.textContent = '';
+        newUsernameInput.classList.remove('error');
+      }
+    } catch (checkError) {
+      console.error('Error checking username availability:', checkError);
+      // On error, clear any previous errors and allow proceed (will check on form submission)
+      usernameError.classList.remove('show');
+      usernameErrorText.textContent = '';
+      newUsernameInput.classList.remove('error');
+    }
+  };
+  
+  if (newUsernameInput) {
+    // Check when user leaves the username field
+    newUsernameInput.addEventListener('blur', async function() {
+      const username = newUsernameInput.value.trim();
+      if (username && username.length > 0) {
+        await checkUsernameAvailability(username);
+      }
+    });
+    
+    // Also check on input with debounce
+    newUsernameInput.addEventListener('input', function() {
+      // Clear previous timeout
+      if (usernameCheckTimeout) {
+        clearTimeout(usernameCheckTimeout);
+      }
+      
+      // Clear error when user starts typing
+      const currentUsername = newUsernameInput.value.trim();
+      if (currentUsername.length === 0 || !usernameErrorText.textContent.includes(currentUsername)) {
+        usernameError.classList.remove('show');
+        usernameErrorText.textContent = '';
+        newUsernameInput.classList.remove('error');
+      }
+      
+      const username = newUsernameInput.value;
+      
+      // Debounce: wait 1 second after user stops typing
+      usernameCheckTimeout = setTimeout(() => {
+        checkUsernameAvailability(username);
+      }, 1000);
+    });
+  }
+
+  // Handle form submission
+  document.getElementById('changeUsernameForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    try {
+      // Check if user is still logged in
+      if (!window.firebaseAuth || !window.firebaseAuth.currentUser) {
+        console.warn('⚠️ User is not logged in, redirecting to login...');
+        window.location.href = 'login.html?return=' + encodeURIComponent('change-username.html');
+        return;
+      }
+      
+      // Get form elements
+      const errorMessage = document.getElementById('errorMessage');
+      const usernameError = document.getElementById('usernameError');
+      const usernameErrorText = document.getElementById('usernameErrorText');
+      const successMessage = document.getElementById('successMessage');
+      const saveButton = document.getElementById('saveButton');
+      const newUsernameInput = document.getElementById('newUsername');
+      
+      // Get form values
+      const newUsername = newUsernameInput ? newUsernameInput.value.trim() : '';
+      
+      // Clear previous messages
+      errorMessage.classList.remove('show');
+      usernameError.classList.remove('show');
+      successMessage.classList.remove('show');
+      if (newUsernameInput) newUsernameInput.classList.remove('error');
+      usernameErrorText.textContent = '';
+      errorMessage.textContent = '';
+      successMessage.textContent = '';
+      
+      // Get current user fresh from Firebase
+      const currentUser = window.firebaseAuth.currentUser;
+      if (!currentUser) {
+        console.warn('⚠️ No current user found, redirecting to login...');
+        window.location.href = 'login.html?return=' + encodeURIComponent('change-username.html');
+        return;
+      }
+      
+      // Check if username is missing
+      if (!newUsername || newUsername.trim() === '') {
+        usernameErrorText.textContent = 'Please enter a new username.';
+        usernameError.classList.add('show');
+        newUsernameInput.classList.add('error');
+        newUsernameInput.focus();
+        return;
+      }
+      
+      // Validate username format
+      const usernameValidation = validateUsername(newUsername);
+      if (!usernameValidation.isValid) {
+        const errorList = usernameValidation.errors;
+        let errorText = 'Username must contain ';
+        if (errorList.length === 1) {
+          errorText += errorList[0] + '.';
+        } else if (errorList.length === 2) {
+          errorText += errorList[0] + ' and ' + errorList[1] + '.';
+        } else {
+          errorText += errorList.slice(0, -1).join(', ') + ', and ' + errorList[errorList.length - 1] + '.';
+        }
+        usernameErrorText.textContent = errorText;
+        usernameError.classList.add('show');
+        newUsernameInput.classList.add('error');
+        newUsernameInput.focus();
+        return;
+      }
+      
+      // Check if new username is the same as current username
+      if (newUsername.toLowerCase() === currentUsername.toLowerCase()) {
+        usernameErrorText.textContent = 'The username you entered is already your current username. Please enter a different username.';
+        usernameError.classList.add('show');
+        newUsernameInput.classList.add('error');
+        newUsernameInput.focus();
+        return;
+      }
+      
+      // Check username availability
+      saveButton.disabled = true;
+      saveButton.textContent = 'Checking...';
+      
+      try {
+        if (!window.firebaseFunctionsFunctions || !window.firebaseFunctionsInstance) {
+          throw new Error('Firebase Functions not available. Please refresh the page.');
+        }
+        
+        const checkUsernameAvailability = window.firebaseFunctionsFunctions.httpsCallable(window.firebaseFunctionsInstance, 'checkUsernameAvailability');
+        const result = await checkUsernameAvailability({ username: newUsername });
+        
+        if (!result.data.available) {
+          saveButton.disabled = false;
+          saveButton.textContent = 'Save';
+          
+          usernameErrorText.textContent = 'This username is already taken. Please choose another.';
+          usernameError.classList.add('show');
+          newUsernameInput.classList.add('error');
+          newUsernameInput.focus();
+          return;
+        }
+        
+        // Username is available - proceed with update
+        saveButton.disabled = true;
+        saveButton.textContent = 'Saving...';
+        
+        // Update username in Firestore
+        const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
+        await window.firebaseFirestoreFunctions.updateDoc(userDocRef, {
+          username: newUsername
+        });
+        
+        console.log('✓ Username updated successfully');
+        
+        // Show success message
+        successMessage.innerHTML = '✓ Username changed successfully to <strong>' + newUsername + '</strong>.';
+        successMessage.classList.add('show');
+        
+        // Update current username display
+        currentUsername = newUsername;
+        const currentUsernameEl = document.getElementById('currentUsername');
+        if (currentUsernameEl) {
+          currentUsernameEl.textContent = newUsername;
+        }
+        
+        // Clear form
+        newUsernameInput.value = '';
+        
+        // Redirect to account details after a short delay
+        setTimeout(() => {
+          window.location.href = 'account-details.html';
+        }, 2000);
+        
+      } catch (updateError) {
+        console.error('Error updating username:', updateError);
+        
+        saveButton.disabled = false;
+        saveButton.textContent = 'Save';
+        
+        if (updateError.code === 'permission-denied') {
+          errorMessage.textContent = 'Permission denied. Please contact support.';
+        } else if (updateError.message) {
+          errorMessage.textContent = 'An error occurred: ' + updateError.message;
+        } else {
+          errorMessage.textContent = 'An error occurred while updating your username. Please try again.';
+        }
+        errorMessage.classList.add('show');
+      }
+      
+    } catch (error) {
+      console.error('Error changing username:', error);
+      
+      const errorMessage = document.getElementById('errorMessage');
+      const saveButton = document.getElementById('saveButton');
+      
+      if (errorMessage) {
+        errorMessage.textContent = 'An error occurred while changing your username. Please try again.';
+        errorMessage.classList.add('show');
+      }
+      
+      if (saveButton) {
+        saveButton.disabled = false;
+        saveButton.textContent = 'Save';
+      }
+    }
+  });
+</script>
+
+</body>
+</html>
