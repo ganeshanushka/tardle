@@ -2862,7 +2862,7 @@
       line-height: 0;
     }
 
-    /* Adjust keyboard for mobile - proper row-based layout */
+    /* Adjust keyboard for mobile - proper row-based layout with scaling */
     .keyboard {
       display: flex;
       flex-direction: column;
@@ -2871,9 +2871,11 @@
       margin-top: clamp(15px, 2.5vh, 20px);
       width: 100%;
       max-width: 100%;
-      padding: 0 clamp(4px, 1.2vw, 8px);
+      padding: 0;
       box-sizing: border-box;
       gap: clamp(6px, 0.9vh, 8px);
+      transform: scale(min(0.9, 95vw / 600));
+      transform-origin: center top;
     }
 
     .keyboard br {
@@ -2886,6 +2888,7 @@
       align-items: center;
       gap: clamp(3px, 0.5vw, 4px);
       width: 100%;
+      flex-wrap: nowrap;
     }
 
     .keyboard .key {
@@ -2902,9 +2905,9 @@
       font-weight: bold;
       border-radius: 4px;
       height: clamp(38px, 5.8vh, 44px);
-      min-width: clamp(28px, 4.2vw, 32px);
-      width: clamp(28px, 4.2vw, 32px);
-      max-width: clamp(28px, 4.2vw, 32px);
+      min-width: clamp(26px, 3.8vw, 30px);
+      width: clamp(26px, 3.8vw, 30px);
+      max-width: clamp(26px, 3.8vw, 30px);
       box-sizing: border-box;
       text-transform: uppercase;
       -webkit-appearance: none;
@@ -2915,9 +2918,9 @@
     /* Special sizing for ENTER and DELETE keys on mobile */
     .keyboard .key#enter,
     .keyboard .key[id="⌫"] {
-      min-width: clamp(55px, 8.5vw, 65px);
-      width: clamp(55px, 8.5vw, 65px);
-      max-width: clamp(55px, 8.5vw, 65px);
+      min-width: clamp(50px, 7.5vw, 60px);
+      width: clamp(50px, 7.5vw, 60px);
+      max-width: clamp(50px, 7.5vw, 60px);
       font-size: clamp(10px, 1.5vw, 12px);
     }
 
