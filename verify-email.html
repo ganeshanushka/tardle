@@ -368,22 +368,35 @@
       try {
         const pendingUsernameRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'pendingUsernames', user.uid);
         console.log('🔍 Checking Firestore pendingUsernames collection for UID:', user.uid);
+        console.log('🔍 Firestore database:', window.firebaseDb);
+        console.log('🔍 Firestore functions:', window.firebaseFirestoreFunctions);
+        
         const pendingUsernameDoc = await window.firebaseFirestoreFunctions.getDoc(pendingUsernameRef);
         console.log('🔍 Pending username document exists:', pendingUsernameDoc.exists());
+        
         if (pendingUsernameDoc.exists()) {
           const pendingData = pendingUsernameDoc.data();
           console.log('🔍 Pending username document data:', pendingData);
-          username = pendingData.username;
-          console.log('✓ Username retrieved from Firestore:', username);
-          // Delete the pending username document after retrieving it
-          await window.firebaseFirestoreFunctions.deleteDoc(pendingUsernameRef);
-          console.log('✓ Pending username document deleted');
+          console.log('🔍 Username field value:', pendingData.username);
+          console.log('🔍 Username type:', typeof pendingData.username);
+          
+          if (pendingData.username) {
+            username = String(pendingData.username).trim();
+            console.log('✓ Username retrieved from Firestore:', username);
+            // Delete the pending username document after retrieving it
+            await window.firebaseFirestoreFunctions.deleteDoc(pendingUsernameRef);
+            console.log('✓ Pending username document deleted');
+          } else {
+            console.warn('⚠️ Pending username document exists but username field is empty or undefined');
+          }
         } else {
           console.warn('⚠️ Pending username document does not exist in Firestore');
+          console.warn('⚠️ This means the username was not stored during signup or was already retrieved');
         }
       } catch (firestoreError) {
         console.error('❌ Error retrieving username from Firestore:', firestoreError);
         console.error('❌ Error details:', firestoreError.message, firestoreError.code);
+        console.error('❌ Error stack:', firestoreError.stack);
         // Continue to try localStorage fallback
       }
       
