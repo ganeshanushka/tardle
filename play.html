@@ -2832,14 +2832,14 @@
       line-height: 0;
     }
 
-    /* Adjust keyboard for mobile - clean three-row layout */
+    /* Adjust keyboard for mobile - clean QWERTY layout */
     .keyboard {
       display: block;
       text-align: center;
       margin-top: clamp(15px, 2.5vh, 20px);
       width: 100%;
       max-width: 100%;
-      padding: 0 clamp(8px, 2vw, 12px);
+      padding: 0 clamp(6px, 1.8vw, 10px);
       box-sizing: border-box;
       line-height: 0;
     }
@@ -2847,7 +2847,7 @@
     .keyboard br {
       display: block;
       content: "";
-      margin: clamp(8px, 1.2vh, 10px) 0;
+      margin: clamp(6px, 0.9vh, 8px) 0;
       line-height: 0;
       width: 100%;
       clear: both;
@@ -2855,7 +2855,7 @@
 
     .keyboard .key {
       display: inline-block;
-      vertical-align: middle;
+      vertical-align: top;
       text-align: center;
       border: 1px solid var(--border-color);
       padding: 0;
@@ -2863,28 +2863,28 @@
       color: #1a1a1b;
       cursor: pointer;
       transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-      font-size: clamp(14px, 2.5vw, 16px);
+      font-size: clamp(13px, 2.2vw, 15px);
       font-weight: bold;
       border-radius: 4px;
-      height: clamp(42px, 6.5vh, 48px);
-      min-width: clamp(32px, 5.2vw, 36px);
-      width: clamp(32px, 5.2vw, 36px);
-      max-width: clamp(32px, 5.2vw, 36px);
-      margin: clamp(3px, 0.5vw, 4px);
+      height: clamp(38px, 5.8vh, 44px);
+      min-width: clamp(28px, 4.2vw, 32px);
+      width: clamp(28px, 4.2vw, 32px);
+      max-width: clamp(28px, 4.2vw, 32px);
+      margin: clamp(2px, 0.35vw, 3px);
       box-sizing: border-box;
       text-transform: uppercase;
       -webkit-appearance: none;
       appearance: none;
-      line-height: clamp(42px, 6.5vh, 48px);
+      line-height: clamp(38px, 5.8vh, 44px);
     }
 
     /* Special sizing for ENTER and DELETE keys on mobile */
     .keyboard .key#enter,
     .keyboard .key[id="⌫"] {
-      min-width: clamp(65px, 10.5vw, 75px);
-      width: clamp(65px, 10.5vw, 75px);
-      max-width: clamp(65px, 10.5vw, 75px);
-      font-size: clamp(11px, 1.8vw, 13px);
+      min-width: clamp(55px, 8.5vw, 65px);
+      width: clamp(55px, 8.5vw, 65px);
+      max-width: clamp(55px, 8.5vw, 65px);
+      font-size: clamp(10px, 1.5vw, 12px);
     }
 
     /* Dark mode keyboard keys on mobile */
