@@ -431,6 +431,18 @@
 .completed-puzzle-container.show ~ * .hide-when-completed {
   display: none;
 }
+
+/* Hide normal content while checking completion status for logged-in users */
+.checking-completion .hide-when-completed {
+  display: none;
+}
+
+/* Show completed puzzle container while checking (in case it's completed) */
+.checking-completion .completed-puzzle-container {
+  display: block;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+}
 </style>
 </head>
 
@@ -604,6 +616,7 @@
           isUserLoggedIn = !!user;
           const loginButton = document.getElementById('loginButton');
           const howToPlayButton = document.getElementById('howToPlayButton');
+          const body = document.body;
           
           if (user) {
             // User is logged in - hide the login button and "How to play" button
@@ -614,8 +627,20 @@
               howToPlayButton.style.display = 'none';
             }
             
+            // Add checking class to hide normal content while we check completion status
+            // This prevents showing the normal homepage if user has completed the puzzle
+            if (body) {
+              body.classList.add('checking-completion');
+            }
+            
             // Check if user has completed today's puzzle
             const isCompleted = await checkTodayPuzzleCompleted(user);
+            
+            // Remove checking class now that we know the status
+            if (body) {
+              body.classList.remove('checking-completion');
+            }
+            
             if (isCompleted) {
               showCompletedPuzzleMessage();
             } else {
@@ -628,6 +653,10 @@
             }
             if (howToPlayButton) {
               howToPlayButton.style.display = '';
+            }
+            // Remove checking class if it exists
+            if (body) {
+              body.classList.remove('checking-completion');
             }
             hideCompletedPuzzleMessage();
           }
