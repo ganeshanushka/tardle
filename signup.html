@@ -387,11 +387,6 @@
   <h1>Create an account</h1>
   <form id="signupForm">
     <div class="input-group">
-      <label for="username">Username</label>
-      <input type="text" id="username" name="username" required>
-      <div class="error-message" id="usernameError" style="display: none;"></div>
-    </div>
-    <div class="input-group">
       <label for="email">Email</label>
       <div class="email-row">
         <input type="email" id="email" name="email" readonly required class="readonly-email">
@@ -474,100 +469,6 @@
         goBack();
       });
     }
-  }
-
-  // Username validation on blur
-  const usernameInput = document.getElementById('username');
-  const usernameError = document.getElementById('usernameError');
-  
-  if (usernameInput && usernameError) {
-    usernameInput.addEventListener('blur', async function() {
-    const username = usernameInput.value.trim();
-    usernameError.style.display = 'none';
-    usernameError.textContent = '';
-    
-    // Update submit button state even if username is empty
-    await validateFormAndUpdateButton();
-    
-    // Only validate format and availability if username is not empty
-    if (!username) {
-      return;
-    }
-    
-    // First check format validation
-    const usernameValidation = validateUsername(username);
-    if (!usernameValidation.isValid) {
-      const errorList = usernameValidation.errors;
-      let errorText = 'Username must contain ';
-      if (errorList.length === 1) {
-        errorText += errorList[0] + '.';
-      } else if (errorList.length === 2) {
-        errorText += errorList[0] + ' and ' + errorList[1] + '.';
-      } else {
-        errorText += errorList.slice(0, -1).join(', ') + ', and ' + errorList[errorList.length - 1] + '.';
-      }
-      usernameError.textContent = errorText;
-      usernameError.style.display = 'block';
-      return;
-    }
-    
-    // If format is valid, check if username is already taken
-    try {
-      let usernameTaken = false;
-      
-      // Try Cloud Function first (more secure)
-      if (window.firebaseFunctionsFunctions && window.firebaseFunctionsInstance) {
-        try {
-          console.log('Checking if username is taken (Cloud Function):', username);
-          const checkUsernameAvailability = window.firebaseFunctionsFunctions.httpsCallable(window.firebaseFunctionsInstance, 'checkUsernameAvailability');
-          const result = await checkUsernameAvailability({ username: username });
-          console.log('Username availability result:', result.data);
-          usernameTaken = result.data && !result.data.available;
-        } catch (functionError) {
-          console.warn('Cloud Function failed, trying Firestore fallback:', functionError);
-          // Fall through to Firestore fallback
-        }
-      }
-      
-      // Fallback to Firestore if Cloud Function not available or failed
-      if (!usernameTaken && window.firebaseFirestoreFunctions && window.firebaseDb) {
-        try {
-          console.log('Checking if username is taken (Firestore fallback):', username);
-          const usersRef = window.firebaseFirestoreFunctions.collection(window.firebaseDb, 'users');
-          const usernameQuery = window.firebaseFirestoreFunctions.query(
-            usersRef,
-            window.firebaseFirestoreFunctions.where('username', '==', username)
-          );
-          const usernameSnapshot = await window.firebaseFirestoreFunctions.getDocs(usernameQuery);
-          usernameTaken = !usernameSnapshot.empty;
-          console.log('Firestore check result - username taken:', usernameTaken);
-        } catch (firestoreError) {
-          console.error('Error checking username in Firestore:', firestoreError);
-          // Don't show error if Firestore check fails - it might be a permissions issue
-          // The check will happen on form submission
-          return;
-        }
-      }
-      
-      if (usernameTaken) {
-        console.log('Username is taken, showing error');
-        usernameError.textContent = 'This username is already taken. Please choose another.';
-        usernameError.style.display = 'block';
-      } else {
-        console.log('Username is available');
-        // Clear any previous error
-        usernameError.style.display = 'none';
-        usernameError.textContent = '';
-      }
-    } catch (error) {
-      console.error('Error checking username availability:', error);
-      // Don't show error to user - just log it
-      // The check will happen on form submission
-    }
-    
-    // Update submit button state after username validation
-    await validateFormAndUpdateButton();
-    });
   }
 
   // Toggle password visibility
@@ -669,12 +570,6 @@
     });
   }
   
-  // Username validation on input (not just blur)
-  if (usernameInput) {
-    usernameInput.addEventListener('input', function() {
-      validateFormAndUpdateButton();
-    });
-  }
 
   // Password validation function - returns object with validation results and missing requirements
   function validatePassword(password) {
@@ -711,28 +606,13 @@
 
   // Function to check if all fields are valid and update submit button state
   async function validateFormAndUpdateButton() {
-    const username = document.getElementById('username').value.trim();
     const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
     const submitButton = document.querySelector('input[type="submit"]');
-    const usernameError = document.getElementById('usernameError');
     const errorMessage = document.getElementById('errorMessage');
     
     // Check if all fields are filled
-    if (!username || !email || !password) {
-      if (submitButton) submitButton.disabled = true;
-      return false;
-    }
-    
-    // Validate username format
-    const usernameValidation = validateUsername(username);
-    if (!usernameValidation.isValid) {
-      if (submitButton) submitButton.disabled = true;
-      return false;
-    }
-    
-    // Check if username error is showing (e.g., already taken)
-    if (usernameError && usernameError.style.display !== 'none' && usernameError.textContent.trim() !== '') {
+    if (!email || !password) {
       if (submitButton) submitButton.disabled = true;
       return false;
     }
@@ -815,42 +695,14 @@
 
   // Account creation function
   async function createAccount() {
-    const username = document.getElementById('username').value.trim();
     const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
     const errorMessage = document.getElementById('errorMessage');
-    const usernameError = document.getElementById('usernameError');
     const submitButton = document.querySelector('input[type="submit"]');
     errorMessage.style.display = 'none';
-    usernameError.style.display = 'none';
     
-    // Validate all required fields are filled
-    if (!username) {
-      errorMessage.textContent = 'Please enter your username.';
-      errorMessage.style.display = 'block';
-      if (submitButton) submitButton.disabled = true;
-      await validateFormAndUpdateButton();
-      return;
-    }
-    
-    // Validate username format
-    const usernameValidation = validateUsername(username);
-    if (!usernameValidation.isValid) {
-      const errorList = usernameValidation.errors;
-      let errorText = 'Username must contain ';
-      if (errorList.length === 1) {
-        errorText += errorList[0] + '.';
-      } else if (errorList.length === 2) {
-        errorText += errorList[0] + ' and ' + errorList[1] + '.';
-      } else {
-        errorText += errorList.slice(0, -1).join(', ') + ', and ' + errorList[errorList.length - 1] + '.';
-      }
-      usernameError.textContent = errorText;
-      usernameError.style.display = 'block';
-      if (submitButton) submitButton.disabled = true;
-      await validateFormAndUpdateButton();
-      return;
-    }
+    // Use email prefix as username
+    const username = email.split('@')[0] || 'User';
     
     // Validate email format with regex
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -936,28 +788,8 @@
         }
       });
       
-      // Check if username already exists using Cloud Function
-      try {
-        const checkUsernameAvailability = window.firebaseFunctionsFunctions.httpsCallable(window.firebaseFunctionsInstance, 'checkUsernameAvailability');
-        const result = await checkUsernameAvailability({ username: username });
-        
-        if (!result.data.available) {
-          usernameError.textContent = 'This username is already taken. Please choose another.';
-          usernameError.style.display = 'block';
-          if (submitButton) {
-            submitButton.disabled = true;
-            submitButton.classList.remove('loading');
-            submitButton.value = 'Create account';
-          }
-          // Update button state to ensure it stays disabled
-          await validateFormAndUpdateButton();
-          return;
-        }
-      } catch (usernameCheckError) {
-        console.error('Error checking username availability:', usernameCheckError);
-        // Continue with account creation even if username check fails
-        // The duplicate check will happen again in verify-email.html
-      }
+      // Use email prefix as username (no need to check availability)
+      const username = email.split('@')[0] || 'User';
       
       // Store username and email in localStorage to pass to verify-email.html
       // Use localStorage instead of sessionStorage for better persistence
@@ -976,42 +808,24 @@
       try {
         const pendingUsernameRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'pendingUsernames', user.uid);
         console.log('💾 Storing username in Firestore pendingUsernames:', username, 'for UID:', user.uid);
-        console.log('💾 Username value type:', typeof username, 'length:', username.length);
-        
-        // Ensure username is stored as a string and trimmed
-        const usernameToStore = String(username).trim();
-        console.log('💾 Username to store (after trim):', usernameToStore);
-        
         await window.firebaseFirestoreFunctions.setDoc(pendingUsernameRef, {
-          username: usernameToStore,
+          username: username,
           email: email,
           createdAt: window.firebaseFirestoreFunctions.serverTimestamp()
         });
         console.log('✓ Username stored in Firestore for verification');
         
-        // Verify it was stored correctly - wait a moment for write to complete
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Verify it was stored correctly
         const verifyDoc = await window.firebaseFirestoreFunctions.getDoc(pendingUsernameRef);
         if (verifyDoc.exists()) {
-          const storedData = verifyDoc.data();
-          console.log('✓ Verified: Username stored correctly in Firestore:', storedData.username);
-          console.log('✓ Stored username matches input:', storedData.username === usernameToStore);
-          if (storedData.username !== usernameToStore) {
-            console.error('❌ WARNING: Stored username does not match input!');
-            console.error('   Input:', usernameToStore);
-            console.error('   Stored:', storedData.username);
-          }
+          console.log('✓ Verified: Username stored correctly in Firestore:', verifyDoc.data().username);
         } else {
           console.error('❌ ERROR: Username was not stored in Firestore!');
-          console.error('❌ Document does not exist after setDoc');
         }
       } catch (firestoreError) {
         console.error('❌ Error storing username in Firestore:', firestoreError);
         console.error('❌ Error details:', firestoreError.message, firestoreError.code);
-        console.error('❌ Error stack:', firestoreError.stack);
         // Continue even if this fails - we still have localStorage as backup
-        // But show a warning to the user
-        alert('Warning: Could not store username in database. It will be retrieved from browser storage during verification.');
       }
       
       // NOTE: Firestore document will be created AFTER email verification
