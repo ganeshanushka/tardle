@@ -1008,13 +1008,25 @@ let words = [
       guessGrid.innerHTML += '<br/>'
     }
   
-    // Create keyboard buttons
-    Object.keys(keys).forEach((key) => {
-      if (key.includes('break')) {
-        keyboard.innerHTML += '<br/>';
-      } else {
-        keyboard.innerHTML += `<button id="${key}" class="key" onclick="keyClick('${key}')">` + key + '</button>';
-      }
+    // Create keyboard buttons with proper row structure
+    const keyboardRows = [
+      ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
+      ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
+      ['enter', 'z', 'x', 'c', 'v', 'b', 'n', 'm', '⌫']
+    ];
+    
+    keyboardRows.forEach((row, rowIndex) => {
+      const rowDiv = document.createElement('div');
+      rowDiv.className = 'keyboard-row';
+      row.forEach((key) => {
+        const button = document.createElement('button');
+        button.id = key;
+        button.className = 'key';
+        button.textContent = key;
+        button.onclick = () => keyClick(key);
+        rowDiv.appendChild(button);
+      });
+      keyboard.appendChild(rowDiv);
     });
     
     // Show grid and keyboard immediately after creating DOM elements
