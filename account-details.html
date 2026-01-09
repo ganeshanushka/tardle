@@ -1201,20 +1201,54 @@
               }
             }
             
+            // Verify user is authenticated before creating document
+            if (!currentUser || !currentUser.uid) {
+              throw new Error('User is not authenticated. Please log in and try again.');
+            }
+            
+            console.log('Creating user document with UID:', currentUser.uid);
+            console.log('Current user email:', currentUser.email);
+            console.log('Auth token available:', !!currentUser.accessToken);
+            
             // Create user document in Firestore
             const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
-            await window.firebaseFirestoreFunctions.setDoc(userDocRef, {
-              email: currentUser.email || '',
-              username: username,
-              accountNumber: accountNumber,
-              gamesPlayed: 0,
-              gamesWon: 0,
-              currentStreak: 0,
-              maxStreak: 0,
-              points: 0,
-              emailSubscribed: false,
-              createdAt: window.firebaseFirestoreFunctions.serverTimestamp()
-            });
+            
+            // Try to create the document with retry logic
+            let retryCount = 0;
+            const maxRetries = 3;
+            let documentCreated = false;
+            
+            while (retryCount < maxRetries && !documentCreated) {
+              try {
+                await window.firebaseFirestoreFunctions.setDoc(userDocRef, {
+                  email: currentUser.email || '',
+                  username: username,
+                  accountNumber: accountNumber,
+                  gamesPlayed: 0,
+                  gamesWon: 0,
+                  currentStreak: 0,
+                  maxStreak: 0,
+                  points: 0,
+                  emailSubscribed: false,
+                  createdAt: window.firebaseFirestoreFunctions.serverTimestamp()
+                });
+                documentCreated = true;
+                console.log('✓ User document created successfully on attempt', retryCount + 1);
+              } catch (setDocError) {
+                retryCount++;
+                console.error(`Error creating document (attempt ${retryCount}/${maxRetries}):`, setDocError);
+                
+                if (retryCount >= maxRetries) {
+                  // Final attempt failed, throw the error
+                  throw setDocError;
+                }
+                
+                // Wait before retrying (exponential backoff)
+                const waitTime = Math.min(1000 * Math.pow(2, retryCount - 1), 3000);
+                console.log(`Retrying in ${waitTime}ms...`);
+                await new Promise(resolve => setTimeout(resolve, waitTime));
+              }
+            }
             
             console.log('User document created successfully with account number:', accountNumber);
             
@@ -1374,11 +1408,17 @@
             console.error('Error creating user document:', createError);
             console.error('Error code:', createError.code);
             console.error('Error message:', createError.message);
+            console.error('Current user UID:', currentUser?.uid);
+            console.error('Current user email:', currentUser?.email);
             
             // Show error but still display what we can from auth
             const errorMessageEl = document.getElementById('errorMessage');
             if (errorMessageEl) {
-              errorMessageEl.textContent = 'Error creating account. Please try refreshing the page.';
+              if (createError.code === 'permission-denied') {
+                errorMessageEl.textContent = 'Permission denied. Please refresh the page and try again. If the issue persists, the Firestore rules may need a moment to update.';
+              } else {
+                errorMessageEl.textContent = 'Error creating account: ' + (createError.message || createError.code || 'Unknown error') + '. Please try refreshing the page.';
+              }
               errorMessageEl.style.display = 'block';
             }
             
