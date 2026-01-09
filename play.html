@@ -2811,34 +2811,50 @@
       display: none;
     }
 
-    /* Adjust container spacing for mobile */
+    /* Adjust container spacing for mobile - match desktop layout */
     .container {
       margin-top: clamp(60px, 10vh, 80px);
-      padding-top: clamp(10px, 1.5vh, 15px);
-      padding-left: clamp(8px, 1.5vw, 12px);
-      padding-right: clamp(8px, 1.5vw, 12px);
-      max-width: 100%;
+      padding-top: clamp(15px, 2vh, 20px);
+      padding-left: clamp(10px, 2vw, 20px);
+      padding-right: clamp(10px, 2vw, 20px);
+      max-width: min(600px, 95vw);
+      width: 100%;
+      display: flex;
+      align-items: center;
+      flex-direction: column;
     }
 
-    /* Ensure game grid is properly sized on mobile */
+    /* Ensure game grid is properly sized on mobile - match desktop */
     #guessGrid {
+      text-align: center;
       margin: 0 auto;
+      line-height: 0;
     }
 
-    /* Adjust keyboard for mobile - better sizing and spacing */
+    /* Adjust keyboard for mobile - match desktop layout */
     .keyboard {
-      margin-top: clamp(10px, 2vh, 15px);
-      padding: 0 clamp(4px, 1vw, 8px);
-      gap: clamp(4px, 0.6vw, 6px);
-      max-width: 100%;
-      width: calc(100% - 16px);
+      display: grid;
+      grid-template-columns: repeat(10, minmax(0, 1fr));
+      gap: clamp(3px, 0.5vw, 5px);
+      margin-top: clamp(15px, 2.5vh, 20px);
+      width: 100%;
+      max-width: 600px;
+      padding: 0 clamp(5px, 1vw, 10px);
+      box-sizing: border-box;
     }
 
     .keyboard div {
-      padding: clamp(8px, 1.5vh, 12px);
-      font-size: clamp(12px, 2vw, 14px);
-      min-height: 42px;
+      border: 1px solid var(--border-color);
+      padding: clamp(10px, 1.8vh, 14px);
+      background-color: var(--key-bg);
+      color: #1a1a1b;
+      cursor: pointer;
+      transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+      font-size: clamp(14px, 2.2vw, 18px);
       border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     /* Hamburger menu adjustments for mobile */
