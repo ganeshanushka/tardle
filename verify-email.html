@@ -401,17 +401,21 @@
       }
       
       // If not found in Firestore, try localStorage (fallback)
+      // IMPORTANT: localStorage is checked even if Firestore read failed, as it's more reliable
       if (!username) {
         const storedUsername = localStorage.getItem('pendingUsername');
         console.log('🔍 Checking localStorage for pendingUsername:', storedUsername);
-        if (storedUsername) {
-          username = storedUsername;
-          localStorage.removeItem('pendingUsername'); // Clean up after use
+        if (storedUsername && storedUsername.trim()) {
+          username = storedUsername.trim();
           console.log('✓ Username retrieved from localStorage:', username);
+          // Don't remove from localStorage yet - keep it as backup until document is successfully created
         } else {
           console.warn('⚠️ No username found in localStorage either');
         }
       }
+      
+      // Only remove from localStorage after we've successfully stored it in the users document
+      // This ensures we don't lose it if document creation fails
       
       // If we found a username, validate it's still available
       if (username) {
@@ -454,6 +458,12 @@
       });
       
       console.log('✓ User Firestore document created successfully with account number:', accountNumber);
+      
+      // Only now remove from localStorage since we've successfully stored it in Firestore
+      if (username && localStorage.getItem('pendingUsername') === username) {
+        localStorage.removeItem('pendingUsername');
+        console.log('✓ Cleaned up pendingUsername from localStorage');
+      }
     } catch (error) {
       console.error('Error creating Firestore document:', error);
       // If it's a username error, re-throw it so it can be handled by the caller
@@ -461,6 +471,7 @@
         throw error;
       }
       // For other errors, don't throw - verification is still successful even if Firestore creation fails
+      // Keep username in localStorage as backup for account-details page
     }
   }
 

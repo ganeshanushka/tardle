@@ -1146,11 +1146,15 @@
           }
           
           // If not found in Firestore, try localStorage (fallback)
+          // IMPORTANT: Check localStorage even if Firestore read failed, as it's more reliable
           if (!username) {
-            username = localStorage.getItem('pendingUsername');
-            if (username) {
-              localStorage.removeItem('pendingUsername'); // Clean up after use
+            const storedUsername = localStorage.getItem('pendingUsername');
+            if (storedUsername && storedUsername.trim()) {
+              username = storedUsername.trim();
               console.log('✓ Username retrieved from localStorage:', username);
+              // Don't remove from localStorage yet - keep it until document is successfully created
+            } else {
+              console.warn('⚠️ No username found in localStorage either');
             }
           }
           
@@ -1213,6 +1217,12 @@
             });
             
             console.log('User document created successfully with account number:', accountNumber);
+            
+            // Clean up localStorage now that username is stored in Firestore
+            if (username && localStorage.getItem('pendingUsername') === username) {
+              localStorage.removeItem('pendingUsername');
+              console.log('✓ Cleaned up pendingUsername from localStorage');
+            }
             
             // Now fetch the newly created document to display all data
             const newUserDoc = await window.firebaseFirestoreFunctions.getDoc(userDocRef);
