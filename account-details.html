@@ -46,6 +46,12 @@
       color: #1a1a1b;
       line-height: 1.6;
       min-height: 100vh;
+      overflow: hidden;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
     }
     
     .page-container {
@@ -492,6 +498,19 @@
     }
 
     @media (max-width: 768px) {
+      body {
+        overflow: hidden;
+        padding: 0;
+      }
+
+      .page-container {
+        width: 100vw;
+        height: 100vh;
+        transform: scale(min(1, 100vw / 1200, 100vh / 900));
+        transform-origin: top left;
+        overflow: visible;
+      }
+
       .sidebar {
         width: 200px;
       }
