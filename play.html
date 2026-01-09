@@ -2831,7 +2831,7 @@
       line-height: 0;
     }
 
-    /* Adjust keyboard for mobile - use flexbox to respect <br/> breaks */
+    /* Adjust keyboard for mobile - use flexbox to respect <br/> breaks and scale down */
     .keyboard {
       display: block;
       text-align: center;
@@ -2840,6 +2840,8 @@
       max-width: 600px;
       padding: 0 clamp(5px, 1vw, 10px);
       box-sizing: border-box;
+      transform: scale(0.85);
+      transform-origin: center top;
     }
 
     .keyboard br {
@@ -2848,12 +2850,13 @@
       margin: 0;
       line-height: 0;
       width: 100%;
+      clear: both;
     }
 
     .keyboard .key {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
+      display: inline-block;
+      vertical-align: top;
+      text-align: center;
       border: 1px solid var(--border-color);
       padding: clamp(6px, 1vh, 8px) clamp(4px, 0.8vw, 6px);
       background-color: var(--key-bg);
@@ -2872,6 +2875,7 @@
       text-transform: uppercase;
       -webkit-appearance: none;
       appearance: none;
+      line-height: clamp(36px, 5vh, 40px);
     }
 
     /* Special sizing for ENTER and DELETE keys on mobile */
