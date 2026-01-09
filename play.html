@@ -189,6 +189,7 @@
     z-index: 1000;
     transition: left 0.3s ease;
     overflow-y: auto;
+    overflow-x: hidden;
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
   }
 
@@ -2838,6 +2839,47 @@
 
     .hamburger-menu span {
       width: clamp(18px, 2.8vw, 22px);
+    }
+
+    /* Side panel mobile - zoom out to fit without scrolling */
+    .side-panel {
+      overflow: hidden;
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-start;
+    }
+
+    .side-panel-content {
+      transform: scale(min(1, 100vh / 900, 80vw / 350));
+      transform-origin: top left;
+      width: 350px;
+      min-height: 100vh;
+      overflow: visible;
+    }
+
+    .side-panel-body {
+      padding: clamp(20px, 3vh, 30px) clamp(15px, 3vw, 20px);
+    }
+
+    .side-panel-greeting {
+      margin-bottom: clamp(15px, 2.5vh, 20px);
+      padding-bottom: clamp(12px, 2vh, 15px);
+    }
+
+    .side-panel-section {
+      margin-bottom: clamp(20px, 3vh, 30px);
+    }
+
+    .side-panel-divider {
+      margin: clamp(15px, 2.5vh, 20px) 0;
+    }
+
+    .side-panel-buttons {
+      position: relative;
+      bottom: auto;
+      left: auto;
+      right: auto;
+      margin-top: clamp(20px, 3vh, 30px);
     }
   }
 
