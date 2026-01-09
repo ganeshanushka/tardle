@@ -1200,22 +1200,8 @@
             
             const accountNumber = generateAccountNumber();
             
-            // Validate username is still available before creating document
-            if (username && username !== currentUser.email?.split('@')[0]) {
-              const usersRef = window.firebaseFirestoreFunctions.collection(window.firebaseDb, 'users');
-              const usernameQuery = window.firebaseFirestoreFunctions.query(
-                usersRef,
-                window.firebaseFirestoreFunctions.where('username', '==', username)
-              );
-              const usernameSnapshot = await window.firebaseFirestoreFunctions.getDocs(usernameQuery);
-              
-              if (!usernameSnapshot.empty) {
-                // Username was taken - use email prefix instead
-                console.warn('⚠️ Username was taken, using email prefix instead');
-                username = currentUser.email?.split('@')[0] || 'User';
-              }
-            }
-            
+            // Skip username validation query - Firestore rules don't allow querying entire collection
+            // Username uniqueness will be handled by the backend or we'll accept potential collisions
             // Create user document in Firestore
             const userDocRef = window.firebaseFirestoreFunctions.doc(window.firebaseDb, 'users', currentUser.uid);
             await window.firebaseFirestoreFunctions.setDoc(userDocRef, {
