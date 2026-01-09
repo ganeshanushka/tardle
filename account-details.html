@@ -1137,7 +1137,11 @@
               console.log('✓ Pending username document deleted');
             }
           } catch (firestoreError) {
-            console.error('Error retrieving username from Firestore:', firestoreError);
+            // This is expected if pendingUsernames document doesn't exist or permissions aren't set up yet
+            // Don't log as error - it's just a fallback mechanism
+            if (firestoreError.code !== 'permission-denied') {
+              console.warn('Could not retrieve username from pendingUsernames (this is OK):', firestoreError.message);
+            }
             // Continue to try localStorage fallback
           }
           
