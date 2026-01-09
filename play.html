@@ -2841,6 +2841,36 @@
       width: clamp(18px, 2.8vw, 22px);
     }
 
+    /* Help modal adjustments for mobile - make it scrollable and fit content */
+    .help-modal-content {
+      height: auto;
+      min-height: auto;
+      max-height: 90vh;
+      aspect-ratio: auto;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: clamp(15px, 3vw, 20px);
+    }
+
+    .help-content {
+      overflow: visible;
+    }
+
+    /* Dark mode help modal mobile adjustments */
+    :root.dark-mode #helpModal .help-modal-content {
+      height: auto;
+      min-height: auto;
+      max-height: 90vh;
+      aspect-ratio: auto;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: clamp(15px, 3vw, 20px);
+    }
+
+    :root.dark-mode #helpModal .help-content {
+      overflow: visible;
+    }
+
     /* Side panel mobile - zoom out to fit without scrolling */
     .side-panel {
       overflow: hidden;
