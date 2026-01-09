@@ -779,12 +779,12 @@
               console.error('Error code:', autoSendError.code);
               console.error('Error message:', autoSendError.message);
               
-              // Show helpful message for rate limiting
+              // Don't show error messages during auto-send to avoid interrupting verification process
+              // User can manually resend if needed
               if (autoSendError.code === 'auth/too-many-requests') {
                 // Store a longer cooldown time (10 minutes) when rate limited
                 localStorage.setItem(lastEmailSendKey, (now + (10 * 60 * 1000)).toString());
-                document.getElementById('errorMessage').textContent = 'Too many verification emails sent recently. Please wait 5-10 minutes before trying again, or check your inbox (including spam folder) for previous verification emails.';
-                document.getElementById('errorMessage').classList.add('show');
+                // Silently handle rate limiting during auto-send - don't show error
               }
               // Don't show error for other cases on auto-send - user can manually resend if needed
             }
