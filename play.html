@@ -2853,6 +2853,8 @@
       display: flex;
       align-items: center;
       flex-direction: column;
+      overflow-x: visible !important;
+      overflow-y: visible !important;
     }
 
     /* Ensure game grid is properly sized on mobile - match desktop */
@@ -2871,13 +2873,14 @@
       margin-top: clamp(15px, 2.5vh, 20px) !important;
       width: 100% !important;
       max-width: 100% !important;
-      padding: 0 clamp(30px, 7vw, 40px) !important;
+      padding: 0 !important;
       box-sizing: border-box !important;
       gap: clamp(4px, 0.7vh, 6px) !important;
-      transform: scale(0.55) !important;
+      transform: scale(0.5) !important;
       transform-origin: center top !important;
-      -webkit-transform: scale(0.55) !important;
+      -webkit-transform: scale(0.5) !important;
       -webkit-transform-origin: center top !important;
+      overflow: visible !important;
     }
 
     .keyboard br {
@@ -2891,7 +2894,7 @@
       gap: clamp(1.5px, 0.3vw, 2.5px) !important;
       width: 100% !important;
       flex-wrap: nowrap !important;
-      max-width: calc(100vw - clamp(60px, 14vw, 80px)) !important;
+      max-width: 100% !important;
       margin: 0 auto !important;
     }
 
