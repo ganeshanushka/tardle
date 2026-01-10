@@ -568,8 +568,9 @@
       
       .info-value-container {
         width: 100%;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
         gap: 8px;
+        align-items: center;
       }
       
       .info-value {
@@ -577,12 +578,14 @@
         overflow-wrap: break-word;
         flex: 1 1 auto;
         min-width: 0;
+        max-width: calc(100% - 100px); /* Reserve space for button */
       }
       
       .info-action {
         flex-shrink: 0;
-        margin-left: 0;
-        margin-top: 4px;
+        margin-left: 8px;
+        margin-top: 0;
+        white-space: nowrap;
       }
       
       .subscription-content {
