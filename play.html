@@ -2981,6 +2981,25 @@
       display: none;
     }
 
+    /* Stats popup mobile - ensure scrollable and button visible */
+    #statsPopup .popup-content {
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: clamp(20px, 4vw, 40px);
+    }
+
+    #statsPopup .stats-content {
+      overflow-y: visible;
+      overflow-x: hidden;
+    }
+
+    #statsShareButtonContainer {
+      display: flex !important;
+      justify-content: center;
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+
     /* Side panel mobile - zoom out to fit without scrolling */
     .side-panel {
       overflow: hidden;
