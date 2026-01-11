@@ -2846,8 +2846,8 @@
     .container {
       margin-top: clamp(60px, 10vh, 80px);
       padding-top: clamp(15px, 2vh, 20px);
-      padding-left: 5vw !important; /* Add side padding for proper spacing */
-      padding-right: 5vw !important;
+      padding-left: 0 !important; /* Let keyboard control its own spacing */
+      padding-right: 0 !important;
       max-width: 100vw !important;
       width: 100%;
       display: flex;
@@ -2869,15 +2869,19 @@
       box-sizing: border-box;
     }
 
-    /* Responsive keyboard for mobile - adapts to different screen sizes */
+    /* Responsive keyboard for mobile - precisely sized to fit all keys with side spacing */
     .keyboard {
       display: flex !important;
       flex-direction: column !important;
       align-items: center !important;
       justify-content: center !important;
       margin-top: clamp(15px, 2.5vh, 20px) !important;
-      width: 90% !important; /* Use percentage for responsive sizing */
-      max-width: 90% !important;
+      /* Calculate width: (10 keys * key width) + (9 gaps) + (side padding)
+         Key width: ~8.5vw, gap: ~0.5vw, side padding: ~3vw each = ~6vw total
+         Total: (10 * 8.5vw) + (9 * 0.5vw) + 6vw = 85vw + 4.5vw + 6vw = 95.5vw
+         Use 94% to ensure fit with visible margins */
+      width: 94% !important;
+      max-width: 94% !important;
       padding: 0 !important;
       box-sizing: border-box !important;
       gap: clamp(4px, 0.6vh, 6px) !important;
@@ -2895,7 +2899,7 @@
       display: flex !important;
       justify-content: center !important;
       align-items: center !important;
-      gap: clamp(2px, 0.4vw, 4px) !important;
+      gap: clamp(2px, 0.5vw, 3px) !important;
       width: 100% !important;
       max-width: 100% !important;
       flex-wrap: nowrap !important;
@@ -2904,25 +2908,26 @@
       padding: 0 !important;
     }
 
-    /* Responsive key sizing - scales based on available space */
+    /* Responsive key sizing - fixed width to ensure all keys fit */
     .keyboard .key {
       display: inline-flex !important;
       align-items: center !important;
       justify-content: center !important;
       border: 1px solid var(--border-color) !important;
-      padding: clamp(4px, 0.8vh, 6px) clamp(3px, 0.6vw, 5px) !important;
+      padding: clamp(4px, 0.8vh, 6px) clamp(2px, 0.5vw, 4px) !important;
       background-color: var(--key-bg) !important;
       color: #1a1a1b !important;
       cursor: pointer !important;
       transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
-      font-size: clamp(10px, 1.8vw, 13px) !important;
+      font-size: clamp(11px, 2vw, 14px) !important;
       font-weight: bold !important;
       border-radius: 3px !important;
-      height: clamp(32px, 5vh, 42px) !important;
-      min-width: 0 !important; /* Allow keys to shrink */
-      width: auto !important;
-      max-width: none !important;
-      flex: 0 1 auto !important; /* Allow slight shrinking if needed */
+      height: clamp(34px, 5.5vh, 44px) !important;
+      /* Fixed width based on viewport to ensure all 10 keys fit in top row */
+      width: clamp(28px, 8.2vw, 36px) !important;
+      min-width: clamp(28px, 8.2vw, 36px) !important;
+      max-width: clamp(28px, 8.2vw, 36px) !important;
+      flex: 0 0 auto !important;
       box-sizing: border-box !important;
       text-transform: uppercase !important;
       -webkit-appearance: none !important;
@@ -2932,10 +2937,10 @@
     /* Special sizing for ENTER and DELETE keys on mobile */
     .keyboard .key#enter,
     .keyboard .key[id="⌫"] {
-      min-width: clamp(50px, 8vw, 65px) !important;
-      width: auto !important;
-      max-width: none !important;
-      font-size: clamp(9px, 1.5vw, 12px) !important;
+      width: clamp(52px, 9vw, 68px) !important;
+      min-width: clamp(52px, 9vw, 68px) !important;
+      max-width: clamp(52px, 9vw, 68px) !important;
+      font-size: clamp(9px, 1.6vw, 12px) !important;
       flex: 0 0 auto !important;
     }
 
