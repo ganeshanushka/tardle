@@ -2872,16 +2872,16 @@
       align-items: center !important;
       justify-content: center !important;
       margin-top: clamp(15px, 2.5vh, 20px) !important;
-      width: 100% !important;
-      max-width: 100% !important;
-      padding: 0 clamp(10px, 3vw, 20px) !important; /* Side padding for spacing */
+      width: auto !important;
+      max-width: calc(100vw - 60px) !important; /* Reserve 30px on each side */
+      padding: 0 !important;
       box-sizing: border-box !important;
       gap: clamp(4px, 0.7vh, 6px) !important;
-      transform: scale(0.28) !important; /* Scale to fit all keys on screen */
+      transform: scale(0.25) !important; /* Scale to fit with side spacing */
       transform-origin: center top !important;
-      -webkit-transform: scale(0.28) !important;
+      -webkit-transform: scale(0.25) !important;
       -webkit-transform-origin: center top !important;
-      overflow: hidden !important; /* Prevent overflow */
+      overflow: visible !important;
       margin-left: auto !important;
       margin-right: auto !important;
     }
@@ -2895,7 +2895,7 @@
       justify-content: center !important;
       align-items: center !important;
       gap: clamp(1px, 0.2vw, 2px) !important;
-      width: 100% !important;
+      width: auto !important;
       max-width: 100% !important;
       flex-wrap: nowrap !important;
       margin: 0 auto !important;
