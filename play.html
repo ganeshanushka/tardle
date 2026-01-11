@@ -2853,8 +2853,9 @@
       display: flex;
       align-items: center;
       flex-direction: column;
-      overflow-x: visible !important;
+      overflow-x: hidden !important; /* Prevent horizontal overflow */
       overflow-y: visible !important;
+      box-sizing: border-box !important;
     }
 
     /* Ensure game grid is properly sized on mobile - match desktop */
@@ -2872,13 +2873,13 @@
       justify-content: center !important;
       margin-top: clamp(15px, 2.5vh, 20px) !important;
       width: auto !important;
-      max-width: calc(100vw - 60px) !important; /* Reserve 30px on each side */
-      padding: 0 !important;
+      max-width: calc(100vw - 80px) !important; /* Reserve 40px on each side */
+      padding: 0 20px !important; /* Add padding that won't be scaled */
       box-sizing: border-box !important;
       gap: clamp(4px, 0.7vh, 6px) !important;
-      transform: scale(0.2) !important; /* Reduced scale for more space */
+      transform: scale(0.22) !important; /* Scale for proper sizing */
       transform-origin: center top !important;
-      -webkit-transform: scale(0.2) !important;
+      -webkit-transform: scale(0.22) !important;
       -webkit-transform-origin: center top !important;
       overflow: visible !important;
       margin-left: auto !important;
