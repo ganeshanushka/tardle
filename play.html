@@ -2846,9 +2846,9 @@
     .container {
       margin-top: clamp(60px, 10vh, 80px);
       padding-top: clamp(15px, 2vh, 20px);
-      padding-left: clamp(10px, 2vw, 20px);
-      padding-right: clamp(10px, 2vw, 20px);
-      max-width: min(600px, 95vw);
+      padding-left: 0 !important; /* Remove side padding to maximize space */
+      padding-right: 0 !important;
+      max-width: 100vw !important; /* Use full viewport width */
       width: 100%;
       display: flex;
       align-items: center;
@@ -2872,16 +2872,16 @@
       align-items: center !important;
       justify-content: center !important;
       margin-top: clamp(15px, 2.5vh, 20px) !important;
-      width: auto !important;
-      max-width: calc(100vw - 80px) !important; /* Reserve 40px on each side */
-      padding: 0 20px !important; /* Add padding that won't be scaled */
+      width: 100% !important;
+      max-width: 100% !important;
+      padding: 0 clamp(20px, 5vw, 30px) !important; /* Side padding for spacing */
       box-sizing: border-box !important;
       gap: clamp(4px, 0.7vh, 6px) !important;
-      transform: scale(0.22) !important; /* Scale for proper sizing */
+      transform: scale(0.18) !important; /* Reduced scale to fit all keys */
       transform-origin: center top !important;
-      -webkit-transform: scale(0.22) !important;
+      -webkit-transform: scale(0.18) !important;
       -webkit-transform-origin: center top !important;
-      overflow: visible !important;
+      overflow: hidden !important; /* Prevent overflow */
       margin-left: auto !important;
       margin-right: auto !important;
     }
@@ -2894,11 +2894,12 @@
       display: flex !important;
       justify-content: center !important;
       align-items: center !important;
-      gap: clamp(1px, 0.25vw, 2px) !important;
-      width: auto !important;
-      flex-wrap: nowrap !important;
+      gap: clamp(1px, 0.2vw, 2px) !important;
+      width: 100% !important;
       max-width: 100% !important;
+      flex-wrap: nowrap !important;
       margin: 0 auto !important;
+      box-sizing: border-box !important;
     }
 
     .keyboard .key {
