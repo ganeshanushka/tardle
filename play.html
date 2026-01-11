@@ -2872,11 +2872,11 @@
       align-items: center !important;
       justify-content: center !important;
       margin-top: clamp(15px, 2.5vh, 20px) !important;
-      width: calc(100vw - 80px) !important; /* Reserve 40px on each side */
-      max-width: calc(100vw - 80px) !important;
+      width: calc(100vw - 100px) !important; /* Reserve 50px on each side for visible spacing */
+      max-width: calc(100vw - 100px) !important;
       padding: 0 !important;
       box-sizing: border-box !important;
-      gap: clamp(3px, 0.5vh, 4px) !important;
+      gap: clamp(2px, 0.4vh, 3px) !important;
       transform: none !important; /* Remove transform scale */
       overflow: hidden !important;
       margin-left: auto !important;
@@ -2891,12 +2891,13 @@
       display: flex !important;
       justify-content: center !important;
       align-items: center !important;
-      gap: clamp(2px, 0.3vw, 3px) !important;
+      gap: clamp(1px, 0.2vw, 2px) !important; /* Minimal gap to fit all keys */
       width: 100% !important;
       max-width: 100% !important;
       flex-wrap: nowrap !important;
       margin: 0 auto !important;
       box-sizing: border-box !important;
+      padding: 0 2px !important; /* Small padding to prevent edge keys from touching */
     }
 
     .keyboard .key {
@@ -2904,16 +2905,16 @@
       align-items: center !important;
       justify-content: center !important;
       border: 1px solid var(--border-color) !important;
-      padding: clamp(4px, 0.8vh, 6px) clamp(3px, 0.5vw, 4px) !important;
+      padding: clamp(3px, 0.6vh, 5px) clamp(2px, 0.4vw, 3px) !important;
       background-color: var(--key-bg) !important;
       color: #1a1a1b !important;
       cursor: pointer !important;
       transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
-      font-size: clamp(10px, 1.5vw, 12px) !important;
+      font-size: clamp(9px, 1.3vw, 11px) !important;
       font-weight: bold !important;
       border-radius: 3px !important;
-      height: clamp(28px, 4vh, 32px) !important;
-      min-width: clamp(14px, 2vw, 18px) !important;
+      height: clamp(26px, 3.8vh, 30px) !important;
+      min-width: clamp(12px, 1.8vw, 16px) !important;
       width: auto !important;
       max-width: none !important;
       flex: 0 0 auto !important;
@@ -2926,10 +2927,10 @@
     /* Special sizing for ENTER and DELETE keys on mobile */
     .keyboard .key#enter,
     .keyboard .key[id="⌫"] {
-      min-width: clamp(32px, 4.5vw, 40px) !important;
+      min-width: clamp(28px, 4vw, 35px) !important;
       width: auto !important;
       max-width: none !important;
-      font-size: clamp(9px, 1.2vw, 11px) !important;
+      font-size: clamp(8px, 1.1vw, 10px) !important;
       flex: 0 0 auto !important;
     }
 
