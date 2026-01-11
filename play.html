@@ -2881,7 +2881,7 @@
       box-sizing: border-box;
     }
 
-    /* Responsive keyboard for mobile - better proportions with side spacing */
+    /* Responsive keyboard for mobile - ensure all keys fit with visible side spacing */
     .keyboard {
       display: flex !important;
       flex-direction: column !important;
@@ -2890,14 +2890,14 @@
       margin-top: clamp(15px, 2.5vh, 20px) !important;
       margin-left: auto !important;
       margin-right: auto !important;
-      /* Width with visible side margins - balanced for better appearance */
-      width: calc(100vw - 50px) !important; /* 25px margin on each side */
-      max-width: 480px !important;
+      /* Wider width for better key sizing */
+      width: calc(100vw - 60px) !important; /* 30px margin on each side for visible spacing */
+      max-width: 420px !important; /* Increased to allow larger keys */
       padding: 0 !important;
       box-sizing: border-box !important;
       gap: clamp(7px, 1vh, 9px) !important;
       transform: none !important;
-      overflow: visible !important;
+      overflow: hidden !important; /* Prevent overflow */
     }
 
     .keyboard br {
@@ -2908,17 +2908,18 @@
       display: flex !important;
       justify-content: center !important;
       align-items: center !important;
-      gap: clamp(4px, 0.6vw, 6px) !important; /* Better spacing */
+      gap: clamp(4px, 0.7vw, 6px) !important; /* Better gaps for touch targets */
       width: 100% !important;
       max-width: 100% !important;
       flex-wrap: nowrap !important;
       margin: 0 auto !important;
       box-sizing: border-box !important;
-      padding: 0 !important;
+      padding: 0 2px !important; /* Better padding to prevent edge keys from touching */
       flex-shrink: 0 !important;
+      overflow: hidden !important;
     }
 
-    /* Touch-friendly key sizing - better proportions and appearance */
+    /* Touch-friendly key sizing - improved for better mobile experience */
     body.is-mobile .keyboard .key,
     #keyboard .keyboard .key,
     .keyboard .keyboard-row .key,
@@ -2927,20 +2928,20 @@
       align-items: center !important;
       justify-content: center !important;
       border: 1px solid #86888a !important; /* Dark gray border */
-      padding: clamp(8px, 1.2vh, 10px) clamp(5px, 0.9vw, 7px) !important; /* Better padding */
+      padding: clamp(8px, 1.2vh, 10px) clamp(6px, 1vw, 8px) !important;
       background-color: #d3d6da !important; /* Light gray background */
       color: #1a1a1b !important; /* Black text */
       cursor: pointer !important;
       transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease !important;
-      font-size: clamp(13px, 2vw, 15px) !important; /* Better font size */
+      font-size: clamp(14px, 2.2vw, 16px) !important; /* Larger, more readable font */
       font-weight: bold !important;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif !important;
       border-radius: 4px !important;
-      height: clamp(45px, 7vh, 55px) !important; /* Better height */
-      /* Balanced width - larger but still fits all keys */
-      width: clamp(28px, 4.5vw, 35px) !important;
-      min-width: clamp(28px, 4.5vw, 35px) !important;
-      max-width: clamp(28px, 4.5vw, 35px) !important;
+      height: clamp(45px, 7vh, 52px) !important; /* Taller keys for better touch targets */
+      /* Wider keys for better visibility and touch targets */
+      width: clamp(30px, 5vw, 36px) !important;
+      min-width: clamp(30px, 5vw, 36px) !important;
+      max-width: clamp(30px, 5vw, 36px) !important;
       flex: 0 0 auto !important;
       box-sizing: border-box !important;
       text-transform: uppercase !important;
@@ -2954,11 +2955,11 @@
     /* Special sizing for ENTER and DELETE keys on mobile */
     .keyboard .key#enter,
     .keyboard .key[id="⌫"] {
-      width: clamp(65px, 10vw, 78px) !important; /* Better proportions */
-      min-width: clamp(65px, 10vw, 78px) !important;
-      max-width: clamp(65px, 10vw, 78px) !important;
+      width: clamp(60px, 10vw, 75px) !important; /* Larger for better visibility */
+      min-width: clamp(60px, 10vw, 75px) !important;
+      max-width: clamp(60px, 10vw, 75px) !important;
       flex: 0 0 auto !important;
-      font-size: clamp(11px, 1.6vw, 13px) !important;
+      font-size: clamp(11px, 1.8vw, 13px) !important; /* Larger font for special keys */
       padding: clamp(8px, 1.2vh, 10px) clamp(8px, 1.2vw, 10px) !important;
     }
 
