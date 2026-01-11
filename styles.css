@@ -87,43 +87,43 @@ html, body {
       min-width: 35px !important;
     }
     
-    /* Override ALL key styles for mobile - use flexbox to fit all keys */
+    /* Override ALL key styles for mobile - use fixed sizes to ensure fit */
     .key,
     #keyboard .key,
     .keyboard .key,
     .keyboard .keyboard-row .key,
     button.key {
       border: 1px solid #86888a !important;
-      padding: clamp(6px, 0.9vh, 8px) clamp(4px, 0.7vw, 6px) !important;
+      padding: 5px 4px !important;
       background-color: #d3d6da !important;
       color: #1a1a1b !important;
-      font-size: clamp(11px, 1.6vw, 13px) !important;
+      font-size: 11px !important;
       font-weight: bold !important;
-      height: clamp(38px, 5.8vh, 44px) !important;
-      flex: 1 1 0% !important; /* Allow keys to grow/shrink evenly */
-      min-width: 0 !important; /* Allow flex shrinking */
-      max-width: none !important;
-      width: auto !important;
+      height: 38px !important;
+      width: 24px !important;
+      min-width: 24px !important;
+      max-width: 24px !important;
       margin: 0 !important;
       border-radius: 4px !important;
       box-sizing: border-box !important;
+      flex: 0 0 24px !important;
     }
     
     .keyboard .key#enter,
     .keyboard .key[id="⌫"] {
-      flex: 1.5 1 0% !important; /* Make special keys 1.5x wider */
-      min-width: 0 !important;
-      max-width: none !important;
-      width: auto !important;
-      font-size: clamp(9px, 1.3vw, 10px) !important;
-      padding: clamp(6px, 0.9vh, 8px) clamp(4px, 0.7vw, 6px) !important;
+      width: 42px !important;
+      min-width: 42px !important;
+      max-width: 42px !important;
+      flex: 0 0 42px !important;
+      font-size: 9px !important;
+      padding: 5px 4px !important;
     }
     
     .keyboard {
-      width: calc(100vw - 40px) !important; /* 20px margin on each side for visible spacing */
-      max-width: 320px !important;
+      width: calc(100% - 40px) !important; /* Use percentage of container */
+      max-width: calc(100vw - 40px) !important; /* Cap at viewport minus margins */
       min-width: 280px !important;
-      gap: clamp(5px, 0.8vh, 7px) !important;
+      gap: 5px !important;
       overflow: visible !important;
       margin-left: 20px !important;
       margin-right: 20px !important;
@@ -131,7 +131,7 @@ html, body {
     }
     
     .keyboard-row {
-      gap: clamp(2px, 0.4vw, 3px) !important;
+      gap: 2px !important;
       padding: 0 !important;
       overflow: visible !important;
       width: 100% !important;
