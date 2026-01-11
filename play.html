@@ -2824,10 +2824,13 @@
   }
 
   /* Mobile-responsive layout - Wordle-style for mobile, original for desktop */
-  /* Use multiple breakpoints to catch all mobile devices */
+  /* Use multiple breakpoints to catch all mobile devices - Updated for Wordle-style keyboard */
   @media (max-width: 1024px) and (orientation: portrait),
          (max-width: 768px),
-         (max-device-width: 768px) {
+         (max-device-width: 768px),
+         (max-width: 480px),
+         (max-device-width: 480px),
+         screen and (max-width: 768px) {
     /* Show title text on mobile */
     .title-text {
       display: block;
@@ -2943,11 +2946,15 @@
       overflow: visible !important;
     }
 
-    /* Touch-friendly key sizing - Wordle-style larger, readable keys */
+    /* Touch-friendly key sizing - Wordle-style larger, readable keys - v2 */
     body.is-mobile .keyboard .key,
+    body.is-mobile #keyboard .keyboard .key,
+    body.is-mobile .keyboard .keyboard-row .key,
     #keyboard .keyboard .key,
     .keyboard .keyboard-row .key,
-    .keyboard .key {
+    .keyboard .key,
+    button.keyboard .key,
+    .keyboard button.key {
       display: inline-flex !important;
       align-items: center !important;
       justify-content: center !important;

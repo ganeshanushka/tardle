@@ -78,21 +78,26 @@ html, body {
   
 
   /* Mobile base styles - override min dimensions */
-  /* Use multiple breakpoints to catch all mobile devices */
+  /* Use multiple breakpoints to catch all mobile devices - Updated for Wordle-style keyboard */
   @media (max-width: 1024px) and (orientation: portrait),
          (max-width: 768px),
-         (max-device-width: 768px) {
+         (max-device-width: 768px),
+         (max-width: 480px),
+         (max-device-width: 480px),
+         screen and (max-width: 768px) {
     .key-guess {
       min-height: 35px !important;
       min-width: 35px !important;
     }
     
-    /* Override ALL key styles for mobile - Wordle-style larger, readable keys */
+    /* Override ALL key styles for mobile - Wordle-style larger, readable keys - v2 */
     .key,
     #keyboard .key,
     .keyboard .key,
     .keyboard .keyboard-row .key,
-    button.key {
+    button.key,
+    .keyboard button.key,
+    #keyboard button.key {
       border: 1px solid #86888a !important;
       padding: 8px 6px !important;
       background-color: #d3d6da !important;
