@@ -87,22 +87,22 @@ html, body {
       min-width: 35px !important;
     }
     
-    /* Override ALL key styles for mobile - ensure all keys fit with side spacing */
+    /* Override ALL key styles for mobile - better proportions */
     .key,
     #keyboard .key,
     .keyboard .key,
     .keyboard .keyboard-row .key,
     button.key {
       border: 1px solid #86888a !important;
-      padding: clamp(6px, 1vh, 8px) clamp(4px, 0.8vw, 6px) !important;
+      padding: clamp(8px, 1.2vh, 10px) clamp(5px, 0.9vw, 7px) !important;
       background-color: #d3d6da !important;
       color: #1a1a1b !important;
-      font-size: clamp(12px, 1.9vw, 14px) !important;
+      font-size: clamp(13px, 2vw, 15px) !important;
       font-weight: bold !important;
-      height: clamp(42px, 6.5vh, 52px) !important;
-      width: clamp(26px, 4.2vw, 32px) !important;
-      min-width: clamp(26px, 4.2vw, 32px) !important;
-      max-width: clamp(26px, 4.2vw, 32px) !important;
+      height: clamp(45px, 7vh, 55px) !important;
+      width: clamp(28px, 4.5vw, 35px) !important;
+      min-width: clamp(28px, 4.5vw, 35px) !important;
+      max-width: clamp(28px, 4.5vw, 35px) !important;
       margin: 0 !important;
       flex: 0 0 auto !important;
       border-radius: 4px !important;
@@ -111,22 +111,22 @@ html, body {
     
     .keyboard .key#enter,
     .keyboard .key[id="⌫"] {
-      width: clamp(58px, 9vw, 70px) !important;
-      min-width: clamp(58px, 9vw, 70px) !important;
-      max-width: clamp(58px, 9vw, 70px) !important;
-      font-size: clamp(10px, 1.5vw, 12px) !important;
-      padding: clamp(6px, 1vh, 8px) clamp(6px, 1vw, 8px) !important;
+      width: clamp(65px, 10vw, 78px) !important;
+      min-width: clamp(65px, 10vw, 78px) !important;
+      max-width: clamp(65px, 10vw, 78px) !important;
+      font-size: clamp(11px, 1.6vw, 13px) !important;
+      padding: clamp(8px, 1.2vh, 10px) clamp(8px, 1.2vw, 10px) !important;
     }
     
     .keyboard {
-      width: calc(100vw - 60px) !important; /* 30px margin on each side */
-      max-width: 450px !important;
-      gap: clamp(6px, 0.9vh, 8px) !important;
+      width: calc(100vw - 50px) !important; /* 25px margin on each side */
+      max-width: 480px !important;
+      gap: clamp(7px, 1vh, 9px) !important;
     }
     
     .keyboard-row {
-      gap: clamp(3px, 0.5vw, 5px) !important;
-      padding: 0 2px !important;
+      gap: clamp(4px, 0.6vw, 6px) !important;
+      padding: 0 !important;
     }
   }
 
