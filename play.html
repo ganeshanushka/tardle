@@ -2865,7 +2865,7 @@
       display: flex;
       align-items: center;
       flex-direction: column;
-      overflow-x: hidden !important;
+      overflow-x: visible !important; /* Allow keyboard to be visible */
       overflow-y: visible !important;
       box-sizing: border-box !important;
     }
@@ -2885,19 +2885,21 @@
     .keyboard {
       display: flex !important;
       flex-direction: column !important;
-      align-items: center !important;
+      align-items: stretch !important;
       justify-content: center !important;
       margin-top: clamp(15px, 2.5vh, 20px) !important;
       margin-left: 20px !important;
       margin-right: 20px !important;
       /* Width with proper margins to ensure all keys fit */
       width: calc(100vw - 40px) !important; /* 20px margin on each side for visible spacing */
-      max-width: 340px !important; /* Ensures all keys fit on smallest screens */
+      max-width: 320px !important; /* Conservative max-width to ensure fit on all devices */
+      min-width: 280px !important; /* Ensure minimum width for very small screens */
       padding: 0 !important;
       box-sizing: border-box !important;
-      gap: clamp(6px, 0.9vh, 8px) !important;
+      gap: clamp(5px, 0.8vh, 7px) !important;
       transform: none !important;
       overflow: visible !important; /* Allow visibility of all keys */
+      position: relative !important;
     }
 
     .keyboard br {
@@ -2906,9 +2908,9 @@
 
     .keyboard-row {
       display: flex !important;
-      justify-content: center !important;
+      justify-content: center !important; /* Center keys with gaps */
       align-items: center !important;
-      gap: clamp(3px, 0.5vw, 4px) !important; /* Smaller gaps to fit all keys */
+      gap: clamp(2px, 0.4vw, 3px) !important; /* Minimal gaps to fit all keys */
       width: 100% !important;
       max-width: 100% !important;
       flex-wrap: nowrap !important;
@@ -2928,21 +2930,21 @@
       align-items: center !important;
       justify-content: center !important;
       border: 1px solid #86888a !important; /* Dark gray border */
-      padding: clamp(7px, 1vh, 9px) clamp(5px, 0.8vw, 7px) !important;
+      padding: clamp(6px, 0.9vh, 8px) clamp(4px, 0.7vw, 6px) !important;
       background-color: #d3d6da !important; /* Light gray background */
       color: #1a1a1b !important; /* Black text */
       cursor: pointer !important;
       transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease !important;
-      font-size: clamp(13px, 2vw, 15px) !important; /* Readable font size */
+      font-size: clamp(11px, 1.6vw, 13px) !important; /* Readable font size */
       font-weight: bold !important;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif !important;
       border-radius: 4px !important;
-      height: clamp(42px, 6.5vh, 48px) !important; /* Good touch target height */
-      /* Sized to fit all 10 keys in top row with gaps and margins */
-      width: clamp(24px, 4.2vw, 28px) !important;
-      min-width: clamp(24px, 4.2vw, 28px) !important;
-      max-width: clamp(24px, 4.2vw, 28px) !important;
-      flex: 0 0 auto !important;
+      height: clamp(38px, 5.8vh, 44px) !important; /* Good touch target height */
+      /* Use flex to distribute evenly - let the row control sizing */
+      flex: 1 1 0% !important; /* Allow keys to grow/shrink evenly */
+      min-width: 0 !important; /* Allow flex shrinking below content size */
+      max-width: none !important; /* Remove max-width constraint */
+      width: auto !important; /* Let flexbox control width */
       box-sizing: border-box !important;
       text-transform: uppercase !important;
       -webkit-appearance: none !important;
@@ -2952,15 +2954,15 @@
       margin: 0 !important;
     }
 
-    /* Special sizing for ENTER and DELETE keys on mobile */
+    /* Special sizing for ENTER and DELETE keys on mobile - they need to be larger */
     .keyboard .key#enter,
     .keyboard .key[id="⌫"] {
-      width: clamp(48px, 8.5vw, 56px) !important; /* Sized to fit with other keys */
-      min-width: clamp(48px, 8.5vw, 56px) !important;
-      max-width: clamp(48px, 8.5vw, 56px) !important;
-      flex: 0 0 auto !important;
-      font-size: clamp(10px, 1.6vw, 12px) !important; /* Readable font for special keys */
-      padding: clamp(7px, 1vh, 9px) clamp(6px, 1vw, 8px) !important;
+      flex: 1.5 1 0% !important; /* Make them 1.5x wider than regular keys */
+      min-width: 0 !important;
+      max-width: none !important;
+      width: auto !important;
+      font-size: clamp(9px, 1.3vw, 10px) !important; /* Readable font for special keys */
+      padding: clamp(6px, 0.9vh, 8px) clamp(4px, 0.7vw, 6px) !important;
     }
 
     /* Ensure grid cells scale properly on mobile */
