@@ -2869,22 +2869,19 @@
       box-sizing: border-box;
     }
 
-    /* Responsive keyboard for mobile - precisely sized to fit all keys with side spacing */
+    /* Responsive keyboard for mobile - 2x smaller with precise sizing */
     .keyboard {
       display: flex !important;
       flex-direction: column !important;
       align-items: center !important;
       justify-content: center !important;
       margin-top: clamp(15px, 2.5vh, 20px) !important;
-      /* Calculate width: (10 keys * key width) + (9 gaps) + (side padding)
-         Key width: ~8.5vw, gap: ~0.5vw, side padding: ~3vw each = ~6vw total
-         Total: (10 * 8.5vw) + (9 * 0.5vw) + 6vw = 85vw + 4.5vw + 6vw = 95.5vw
-         Use 94% to ensure fit with visible margins */
-      width: 94% !important;
-      max-width: 94% !important;
+      /* Reduced to 47% width (half of 94%) to make keyboard 2x smaller */
+      width: 47% !important;
+      max-width: 47% !important;
       padding: 0 !important;
       box-sizing: border-box !important;
-      gap: clamp(4px, 0.6vh, 6px) !important;
+      gap: clamp(2px, 0.3vh, 3px) !important; /* Half the gap */
       transform: none !important;
       overflow: visible !important;
       margin-left: auto !important;
@@ -2899,7 +2896,7 @@
       display: flex !important;
       justify-content: center !important;
       align-items: center !important;
-      gap: clamp(2px, 0.5vw, 3px) !important;
+      gap: clamp(1px, 0.25vw, 1.5px) !important; /* Half the gap */
       width: 100% !important;
       max-width: 100% !important;
       flex-wrap: nowrap !important;
@@ -2908,25 +2905,25 @@
       padding: 0 !important;
     }
 
-    /* Responsive key sizing - fixed width to ensure all keys fit */
+    /* Responsive key sizing - 2x smaller */
     .keyboard .key {
       display: inline-flex !important;
       align-items: center !important;
       justify-content: center !important;
       border: 1px solid var(--border-color) !important;
-      padding: clamp(4px, 0.8vh, 6px) clamp(2px, 0.5vw, 4px) !important;
+      padding: clamp(2px, 0.4vh, 3px) clamp(1px, 0.25vw, 2px) !important; /* Half the padding */
       background-color: var(--key-bg) !important;
       color: #1a1a1b !important;
       cursor: pointer !important;
       transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
-      font-size: clamp(11px, 2vw, 14px) !important;
+      font-size: clamp(5.5px, 1vw, 7px) !important; /* Half the font size */
       font-weight: bold !important;
-      border-radius: 3px !important;
-      height: clamp(34px, 5.5vh, 44px) !important;
-      /* Fixed width based on viewport to ensure all 10 keys fit in top row */
-      width: clamp(28px, 8.2vw, 36px) !important;
-      min-width: clamp(28px, 8.2vw, 36px) !important;
-      max-width: clamp(28px, 8.2vw, 36px) !important;
+      border-radius: 2px !important;
+      height: clamp(17px, 2.75vh, 22px) !important; /* Half the height */
+      /* Half the width to make keys 2x smaller */
+      width: clamp(14px, 4.1vw, 18px) !important;
+      min-width: clamp(14px, 4.1vw, 18px) !important;
+      max-width: clamp(14px, 4.1vw, 18px) !important;
       flex: 0 0 auto !important;
       box-sizing: border-box !important;
       text-transform: uppercase !important;
@@ -2934,13 +2931,13 @@
       appearance: none !important;
     }
 
-    /* Special sizing for ENTER and DELETE keys on mobile */
+    /* Special sizing for ENTER and DELETE keys on mobile - 2x smaller */
     .keyboard .key#enter,
     .keyboard .key[id="⌫"] {
-      width: clamp(52px, 9vw, 68px) !important;
-      min-width: clamp(52px, 9vw, 68px) !important;
-      max-width: clamp(52px, 9vw, 68px) !important;
-      font-size: clamp(9px, 1.6vw, 12px) !important;
+      width: clamp(26px, 4.5vw, 34px) !important; /* Half the width */
+      min-width: clamp(26px, 4.5vw, 34px) !important;
+      max-width: clamp(26px, 4.5vw, 34px) !important;
+      font-size: clamp(4.5px, 0.8vw, 6px) !important; /* Half the font size */
       flex: 0 0 auto !important;
     }
 
