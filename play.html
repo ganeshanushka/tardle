@@ -2888,16 +2888,16 @@
       align-items: center !important;
       justify-content: center !important;
       margin-top: clamp(15px, 2.5vh, 20px) !important;
-      margin-left: auto !important;
-      margin-right: auto !important;
-      /* Wider width for better key sizing */
-      width: calc(100vw - 60px) !important; /* 30px margin on each side for visible spacing */
-      max-width: 420px !important; /* Increased to allow larger keys */
+      margin-left: 20px !important;
+      margin-right: 20px !important;
+      /* Width with proper margins to ensure all keys fit */
+      width: calc(100vw - 40px) !important; /* 20px margin on each side for visible spacing */
+      max-width: 340px !important; /* Ensures all keys fit on smallest screens */
       padding: 0 !important;
       box-sizing: border-box !important;
-      gap: clamp(7px, 1vh, 9px) !important;
+      gap: clamp(6px, 0.9vh, 8px) !important;
       transform: none !important;
-      overflow: hidden !important; /* Prevent overflow */
+      overflow: visible !important; /* Allow visibility of all keys */
     }
 
     .keyboard br {
@@ -2908,18 +2908,18 @@
       display: flex !important;
       justify-content: center !important;
       align-items: center !important;
-      gap: clamp(4px, 0.7vw, 6px) !important; /* Better gaps for touch targets */
+      gap: clamp(3px, 0.5vw, 4px) !important; /* Smaller gaps to fit all keys */
       width: 100% !important;
       max-width: 100% !important;
       flex-wrap: nowrap !important;
       margin: 0 auto !important;
       box-sizing: border-box !important;
-      padding: 0 2px !important; /* Better padding to prevent edge keys from touching */
+      padding: 0 !important; /* No padding to maximize space for keys */
       flex-shrink: 0 !important;
-      overflow: hidden !important;
+      overflow: visible !important; /* Ensure all keys are visible */
     }
 
-    /* Touch-friendly key sizing - improved for better mobile experience */
+    /* Touch-friendly key sizing - sized to fit all keys with proper margins */
     body.is-mobile .keyboard .key,
     #keyboard .keyboard .key,
     .keyboard .keyboard-row .key,
@@ -2928,20 +2928,20 @@
       align-items: center !important;
       justify-content: center !important;
       border: 1px solid #86888a !important; /* Dark gray border */
-      padding: clamp(8px, 1.2vh, 10px) clamp(6px, 1vw, 8px) !important;
+      padding: clamp(7px, 1vh, 9px) clamp(5px, 0.8vw, 7px) !important;
       background-color: #d3d6da !important; /* Light gray background */
       color: #1a1a1b !important; /* Black text */
       cursor: pointer !important;
       transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease !important;
-      font-size: clamp(14px, 2.2vw, 16px) !important; /* Larger, more readable font */
+      font-size: clamp(13px, 2vw, 15px) !important; /* Readable font size */
       font-weight: bold !important;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif !important;
       border-radius: 4px !important;
-      height: clamp(45px, 7vh, 52px) !important; /* Taller keys for better touch targets */
-      /* Wider keys for better visibility and touch targets */
-      width: clamp(30px, 5vw, 36px) !important;
-      min-width: clamp(30px, 5vw, 36px) !important;
-      max-width: clamp(30px, 5vw, 36px) !important;
+      height: clamp(42px, 6.5vh, 48px) !important; /* Good touch target height */
+      /* Sized to fit all 10 keys in top row with gaps and margins */
+      width: clamp(24px, 4.2vw, 28px) !important;
+      min-width: clamp(24px, 4.2vw, 28px) !important;
+      max-width: clamp(24px, 4.2vw, 28px) !important;
       flex: 0 0 auto !important;
       box-sizing: border-box !important;
       text-transform: uppercase !important;
@@ -2955,12 +2955,12 @@
     /* Special sizing for ENTER and DELETE keys on mobile */
     .keyboard .key#enter,
     .keyboard .key[id="⌫"] {
-      width: clamp(60px, 10vw, 75px) !important; /* Larger for better visibility */
-      min-width: clamp(60px, 10vw, 75px) !important;
-      max-width: clamp(60px, 10vw, 75px) !important;
+      width: clamp(48px, 8.5vw, 56px) !important; /* Sized to fit with other keys */
+      min-width: clamp(48px, 8.5vw, 56px) !important;
+      max-width: clamp(48px, 8.5vw, 56px) !important;
       flex: 0 0 auto !important;
-      font-size: clamp(11px, 1.8vw, 13px) !important; /* Larger font for special keys */
-      padding: clamp(8px, 1.2vh, 10px) clamp(8px, 1.2vw, 10px) !important;
+      font-size: clamp(10px, 1.6vw, 12px) !important; /* Readable font for special keys */
+      padding: clamp(7px, 1vh, 9px) clamp(6px, 1vw, 8px) !important;
     }
 
     /* Ensure grid cells scale properly on mobile */
