@@ -2906,8 +2906,8 @@
       box-sizing: border-box;
     }
 
-    /* Responsive keyboard for mobile - Wordle-style with proper spacing */
-    .keyboard {
+    /* Responsive keyboard for mobile - Wordle-style with proper spacing - Target #keyboard */
+    #keyboard {
       display: flex !important;
       flex-direction: column !important;
       align-items: center !important;
@@ -2931,7 +2931,7 @@
       display: none !important;
     }
 
-    .keyboard-row {
+    #keyboard .keyboard-row {
       display: flex !important;
       justify-content: center !important; /* Center keys with gaps */
       align-items: center !important;
@@ -2946,15 +2946,13 @@
       overflow: visible !important;
     }
 
-    /* Touch-friendly key sizing - Wordle-style larger, readable keys - v2 */
-    body.is-mobile .keyboard .key,
-    body.is-mobile #keyboard .keyboard .key,
-    body.is-mobile .keyboard .keyboard-row .key,
-    #keyboard .keyboard .key,
-    .keyboard .keyboard-row .key,
-    .keyboard .key,
-    button.keyboard .key,
-    .keyboard button.key {
+    /* Touch-friendly key sizing - Wordle-style larger, readable keys - Target #keyboard directly */
+    #keyboard .keyboard-row .key,
+    #keyboard .keyboard-row button.key,
+    #keyboard button.key,
+    #keyboard .key,
+    body.is-mobile #keyboard .key,
+    body.is-mobile #keyboard .keyboard-row .key {
       display: inline-flex !important;
       align-items: center !important;
       justify-content: center !important;
@@ -2984,8 +2982,10 @@
     }
 
     /* Special sizing for ENTER and DELETE keys - 1.5x wider like Wordle */
-    .keyboard .key#enter,
-    .keyboard .key[id="⌫"] {
+    #keyboard .keyboard-row .key#enter,
+    #keyboard .keyboard-row .key[id="⌫"],
+    #keyboard button#enter,
+    #keyboard button[id="⌫"] {
       width: 45px !important; /* 1.5x wider than regular keys */
       min-width: 45px !important;
       max-width: 45px !important;

@@ -90,14 +90,11 @@ html, body {
       min-width: 35px !important;
     }
     
-    /* Override ALL key styles for mobile - Wordle-style larger, readable keys - v2 */
-    .key,
-    #keyboard .key,
-    .keyboard .key,
-    .keyboard .keyboard-row .key,
-    button.key,
-    .keyboard button.key,
-    #keyboard button.key {
+    /* Override ALL key styles for mobile - Wordle-style larger, readable keys - Target #keyboard */
+    #keyboard .keyboard-row .key,
+    #keyboard .keyboard-row button.key,
+    #keyboard button.key,
+    #keyboard .key {
       border: 1px solid #86888a !important;
       padding: 8px 6px !important;
       background-color: #d3d6da !important;
@@ -114,8 +111,10 @@ html, body {
       flex: 0 0 28px !important;
     }
     
-    .keyboard .key#enter,
-    .keyboard .key[id="⌫"] {
+    #keyboard .keyboard-row .key#enter,
+    #keyboard .keyboard-row .key[id="⌫"],
+    #keyboard button#enter,
+    #keyboard button[id="⌫"] {
       width: 45px !important; /* 1.5x wider */
       min-width: 45px !important;
       max-width: 45px !important;
@@ -124,7 +123,7 @@ html, body {
       padding: 8px 6px !important;
     }
     
-    .keyboard {
+    #keyboard {
       width: calc(100vw - 30px) !important; /* 15px margin on each side */
       max-width: calc(100vw - 30px) !important;
       min-width: 0 !important;
@@ -135,7 +134,7 @@ html, body {
       position: relative !important;
     }
     
-    .keyboard-row {
+    #keyboard .keyboard-row {
       gap: 3px !important;
       padding: 0 !important;
       overflow: visible !important;
