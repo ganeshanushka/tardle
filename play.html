@@ -2846,39 +2846,43 @@
     .container {
       margin-top: clamp(60px, 10vh, 80px);
       padding-top: clamp(15px, 2vh, 20px);
-      padding-left: 0 !important; /* Remove side padding to allow keyboard to control spacing */
-      padding-right: 0 !important;
-      max-width: 100vw !important; /* Use full viewport width */
+      padding-left: 5vw !important; /* Add side padding for proper spacing */
+      padding-right: 5vw !important;
+      max-width: 100vw !important;
       width: 100%;
       display: flex;
       align-items: center;
       flex-direction: column;
-      overflow-x: hidden !important; /* Prevent horizontal overflow */
+      overflow-x: hidden !important;
       overflow-y: visible !important;
       box-sizing: border-box !important;
     }
 
-    /* Ensure game grid is properly sized on mobile - match desktop */
+    /* Responsive game grid for mobile - scales with viewport */
     #guessGrid {
       text-align: center;
       margin: 0 auto;
       line-height: 0;
+      width: 100%;
+      max-width: min(90vw, 400px);
+      padding: 0 5vw;
+      box-sizing: border-box;
     }
 
-    /* Adjust keyboard for mobile - proper row-based layout with direct sizing */
+    /* Responsive keyboard for mobile - adapts to different screen sizes */
     .keyboard {
       display: flex !important;
       flex-direction: column !important;
       align-items: center !important;
       justify-content: center !important;
       margin-top: clamp(15px, 2.5vh, 20px) !important;
-      width: calc(100vw - 120px) !important; /* Reserve 60px on each side for visible spacing (accounts for container padding) */
-      max-width: calc(100vw - 120px) !important;
+      width: 90% !important; /* Use percentage for responsive sizing */
+      max-width: 90% !important;
       padding: 0 !important;
       box-sizing: border-box !important;
-      gap: clamp(2px, 0.4vh, 3px) !important;
-      transform: none !important; /* Remove transform scale */
-      overflow: hidden !important;
+      gap: clamp(4px, 0.6vh, 6px) !important;
+      transform: none !important;
+      overflow: visible !important;
       margin-left: auto !important;
       margin-right: auto !important;
     }
@@ -2891,33 +2895,34 @@
       display: flex !important;
       justify-content: center !important;
       align-items: center !important;
-      gap: 1px !important; /* Minimal gap to fit all keys */
+      gap: clamp(2px, 0.4vw, 4px) !important;
       width: 100% !important;
       max-width: 100% !important;
       flex-wrap: nowrap !important;
       margin: 0 auto !important;
       box-sizing: border-box !important;
-      padding: 0 1px !important; /* Small padding to prevent edge keys from touching */
+      padding: 0 !important;
     }
 
+    /* Responsive key sizing - scales based on available space */
     .keyboard .key {
       display: inline-flex !important;
       align-items: center !important;
       justify-content: center !important;
       border: 1px solid var(--border-color) !important;
-      padding: clamp(2px, 0.5vh, 4px) clamp(1px, 0.3vw, 2px) !important;
+      padding: clamp(4px, 0.8vh, 6px) clamp(3px, 0.6vw, 5px) !important;
       background-color: var(--key-bg) !important;
       color: #1a1a1b !important;
       cursor: pointer !important;
       transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
-      font-size: clamp(8px, 1.2vw, 10px) !important;
+      font-size: clamp(10px, 1.8vw, 13px) !important;
       font-weight: bold !important;
-      border-radius: 2px !important;
-      height: clamp(24px, 3.5vh, 28px) !important;
-      min-width: clamp(10px, 1.6vw, 14px) !important;
+      border-radius: 3px !important;
+      height: clamp(32px, 5vh, 42px) !important;
+      min-width: 0 !important; /* Allow keys to shrink */
       width: auto !important;
       max-width: none !important;
-      flex: 0 0 auto !important;
+      flex: 0 1 auto !important; /* Allow slight shrinking if needed */
       box-sizing: border-box !important;
       text-transform: uppercase !important;
       -webkit-appearance: none !important;
@@ -2927,11 +2932,23 @@
     /* Special sizing for ENTER and DELETE keys on mobile */
     .keyboard .key#enter,
     .keyboard .key[id="⌫"] {
-      min-width: clamp(24px, 3.5vw, 30px) !important;
+      min-width: clamp(50px, 8vw, 65px) !important;
       width: auto !important;
       max-width: none !important;
-      font-size: clamp(7px, 1vw, 9px) !important;
+      font-size: clamp(9px, 1.5vw, 12px) !important;
       flex: 0 0 auto !important;
+    }
+
+    /* Ensure grid cells scale properly on mobile */
+    .key-guess {
+      height: clamp(40px, 11vw, 58px) !important;
+      width: clamp(40px, 11vw, 58px) !important;
+      min-height: clamp(40px, 11vw, 58px) !important;
+      min-width: clamp(40px, 11vw, 58px) !important;
+      max-height: clamp(40px, 11vw, 58px) !important;
+      max-width: clamp(40px, 11vw, 58px) !important;
+      margin: clamp(2px, 0.5vw, 4px) !important;
+      font-size: clamp(20px, 5.5vw, 32px) !important;
     }
 
     /* Dark mode keyboard keys on mobile */
