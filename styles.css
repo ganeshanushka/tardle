@@ -87,43 +87,43 @@ html, body {
       min-width: 35px !important;
     }
     
-    /* Override ALL key styles for mobile - use fixed sizes to ensure fit */
+    /* Override ALL key styles for mobile - use smaller fixed sizes to ensure fit */
     .key,
     #keyboard .key,
     .keyboard .key,
     .keyboard .keyboard-row .key,
     button.key {
       border: 1px solid #86888a !important;
-      padding: 5px 4px !important;
+      padding: 4px 3px !important;
       background-color: #d3d6da !important;
       color: #1a1a1b !important;
-      font-size: 11px !important;
+      font-size: 10px !important;
       font-weight: bold !important;
-      height: 38px !important;
-      width: 24px !important;
-      min-width: 24px !important;
-      max-width: 24px !important;
+      height: 36px !important;
+      width: 22px !important;
+      min-width: 22px !important;
+      max-width: 22px !important;
       margin: 0 !important;
       border-radius: 4px !important;
       box-sizing: border-box !important;
-      flex: 0 0 24px !important;
+      flex: 0 0 22px !important;
     }
     
     .keyboard .key#enter,
     .keyboard .key[id="⌫"] {
-      width: 42px !important;
-      min-width: 42px !important;
-      max-width: 42px !important;
-      flex: 0 0 42px !important;
-      font-size: 9px !important;
-      padding: 5px 4px !important;
+      width: 38px !important;
+      min-width: 38px !important;
+      max-width: 38px !important;
+      flex: 0 0 38px !important;
+      font-size: 8px !important;
+      padding: 4px 3px !important;
     }
     
     .keyboard {
-      width: calc(100% - 40px) !important; /* Use percentage of container */
-      max-width: calc(100vw - 40px) !important; /* Cap at viewport minus margins */
-      min-width: 280px !important;
-      gap: 5px !important;
+      width: calc(100vw - 40px) !important; /* Use viewport directly */
+      max-width: calc(100vw - 40px) !important;
+      min-width: 0 !important;
+      gap: 4px !important;
       overflow: visible !important;
       margin-left: 20px !important;
       margin-right: 20px !important;
@@ -131,7 +131,7 @@ html, body {
     }
     
     .keyboard-row {
-      gap: 2px !important;
+      gap: 1.5px !important;
       padding: 0 !important;
       overflow: visible !important;
       width: 100% !important;

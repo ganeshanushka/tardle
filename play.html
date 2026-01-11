@@ -2912,13 +2912,13 @@
       margin-top: clamp(15px, 2.5vh, 20px) !important;
       margin-left: 20px !important;
       margin-right: 20px !important;
-      /* Use fixed calculation with safe margins - ensure 20px on each side */
-      width: calc(100% - 40px) !important; /* Use percentage of container, not viewport */
-      max-width: calc(100vw - 40px) !important; /* But cap at viewport minus margins */
-      min-width: 280px !important; /* Ensure minimum width for very small screens */
+      /* Use viewport-based width directly to ensure proper sizing */
+      width: calc(100vw - 40px) !important; /* 20px margin on each side */
+      max-width: calc(100vw - 40px) !important;
+      min-width: 0 !important; /* Remove min-width constraint */
       padding: 0 !important;
       box-sizing: border-box !important;
-      gap: clamp(5px, 0.8vh, 7px) !important;
+      gap: 4px !important;
       transform: none !important;
       overflow: visible !important; /* Allow visibility of all keys */
       position: relative !important;
@@ -2932,7 +2932,7 @@
       display: flex !important;
       justify-content: center !important; /* Center keys with gaps */
       align-items: center !important;
-      gap: 2px !important; /* Fixed minimal gap */
+      gap: 1.5px !important; /* Even smaller gap */
       width: 100% !important;
       max-width: 100% !important;
       flex-wrap: nowrap !important;
@@ -2943,7 +2943,7 @@
       overflow: visible !important; /* Ensure all keys are visible */
     }
 
-    /* Touch-friendly key sizing - use fixed sizes to ensure fit */
+    /* Touch-friendly key sizing - use smaller fixed sizes to ensure fit */
     body.is-mobile .keyboard .key,
     #keyboard .keyboard .key,
     .keyboard .keyboard-row .key,
@@ -2952,20 +2952,20 @@
       align-items: center !important;
       justify-content: center !important;
       border: 1px solid #86888a !important; /* Dark gray border */
-      padding: 5px 4px !important; /* Fixed padding for consistency */
+      padding: 4px 3px !important; /* Smaller padding */
       background-color: #d3d6da !important; /* Light gray background */
       color: #1a1a1b !important; /* Black text */
       cursor: pointer !important;
       transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease !important;
-      font-size: 11px !important; /* Fixed font size */
+      font-size: 10px !important; /* Smaller font size */
       font-weight: bold !important;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif !important;
       border-radius: 4px !important;
-      height: 38px !important; /* Fixed height */
-      /* Fixed width to ensure all keys fit - calculated for 10 keys in top row */
-      width: 24px !important;
-      min-width: 24px !important;
-      max-width: 24px !important;
+      height: 36px !important; /* Slightly smaller height */
+      /* Smaller width to ensure all keys fit - calculated for 10 keys in top row with 20px margins */
+      width: 22px !important;
+      min-width: 22px !important;
+      max-width: 22px !important;
       box-sizing: border-box !important;
       text-transform: uppercase !important;
       -webkit-appearance: none !important;
@@ -2973,18 +2973,18 @@
       -webkit-tap-highlight-color: transparent !important;
       touch-action: manipulation !important;
       margin: 0 !important;
-      flex: 0 0 24px !important; /* Prevent flex from changing size */
+      flex: 0 0 22px !important; /* Prevent flex from changing size */
     }
 
     /* Special sizing for ENTER and DELETE keys on mobile */
     .keyboard .key#enter,
     .keyboard .key[id="⌫"] {
-      width: 42px !important; /* Fixed width for special keys */
-      min-width: 42px !important;
-      max-width: 42px !important;
-      flex: 0 0 42px !important;
-      font-size: 9px !important; /* Smaller font for special keys */
-      padding: 5px 4px !important;
+      width: 38px !important; /* Smaller width for special keys */
+      min-width: 38px !important;
+      max-width: 38px !important;
+      flex: 0 0 38px !important;
+      font-size: 8px !important; /* Smaller font for special keys */
+      padding: 4px 3px !important;
     }
 
     /* Ensure grid cells scale properly on mobile */
