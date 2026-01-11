@@ -78,10 +78,55 @@ html, body {
   
 
   /* Mobile base styles - override min dimensions */
-  @media (max-width: 768px) {
+  /* Use multiple breakpoints to catch all mobile devices */
+  @media (max-width: 1024px) and (orientation: portrait),
+         (max-width: 768px),
+         (max-device-width: 768px) {
     .key-guess {
       min-height: 35px !important;
       min-width: 35px !important;
+    }
+    
+    /* Override ALL key styles for mobile - ensure all keys fit with side spacing */
+    .key,
+    #keyboard .key,
+    .keyboard .key,
+    .keyboard .keyboard-row .key,
+    button.key {
+      border: 1px solid #86888a !important;
+      padding: clamp(6px, 1vh, 8px) clamp(4px, 0.8vw, 6px) !important;
+      background-color: #d3d6da !important;
+      color: #1a1a1b !important;
+      font-size: clamp(12px, 1.9vw, 14px) !important;
+      font-weight: bold !important;
+      height: clamp(42px, 6.5vh, 52px) !important;
+      width: clamp(26px, 4.2vw, 32px) !important;
+      min-width: clamp(26px, 4.2vw, 32px) !important;
+      max-width: clamp(26px, 4.2vw, 32px) !important;
+      margin: 0 !important;
+      flex: 0 0 auto !important;
+      border-radius: 4px !important;
+      box-sizing: border-box !important;
+    }
+    
+    .keyboard .key#enter,
+    .keyboard .key[id="⌫"] {
+      width: clamp(58px, 9vw, 70px) !important;
+      min-width: clamp(58px, 9vw, 70px) !important;
+      max-width: clamp(58px, 9vw, 70px) !important;
+      font-size: clamp(10px, 1.5vw, 12px) !important;
+      padding: clamp(6px, 1vh, 8px) clamp(6px, 1vw, 8px) !important;
+    }
+    
+    .keyboard {
+      width: calc(100vw - 60px) !important; /* 30px margin on each side */
+      max-width: 450px !important;
+      gap: clamp(6px, 0.9vh, 8px) !important;
+    }
+    
+    .keyboard-row {
+      gap: clamp(3px, 0.5vw, 5px) !important;
+      padding: 0 2px !important;
     }
   }
 
@@ -130,6 +175,18 @@ html, body {
     -webkit-appearance: none;
     appearance: none;
     -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Desktop-only: ensure .key styles only apply on desktop */
+  @media (min-width: 769px) {
+    .key {
+      border: 0;
+      padding: clamp(6px, 1vh, 8px) clamp(4px, 0.8vw, 6px);
+      width: clamp(38px, 6vw, 43px);
+      min-width: clamp(38px, 6vw, 43px);
+      max-width: clamp(38px, 6vw, 43px);
+      height: clamp(42px, 6.5vh, 58px);
+    }
   }
 
   /* Dark mode: white keys with Carolina blue text.

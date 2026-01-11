@@ -645,6 +645,15 @@
     -webkit-appearance: none;
     appearance: none;
   }
+  
+  /* Desktop-only: ensure these don't apply on mobile */
+  @media (min-width: 769px) {
+    .keyboard .key {
+      border: 1px solid var(--border-color);
+      padding: clamp(10px, 1.8vh, 14px);
+      background-color: var(--key-bg);
+    }
+  }
 
   .keyboard .key#enter,
   .keyboard .key[id="⌫"] {
@@ -2793,7 +2802,10 @@
   }
 
   /* Mobile-responsive layout - Wordle-style for mobile, original for desktop */
-  @media (max-width: 768px) {
+  /* Use multiple breakpoints to catch all mobile devices */
+  @media (max-width: 1024px) and (orientation: portrait),
+         (max-width: 768px),
+         (max-device-width: 768px) {
     /* Show title text on mobile */
     .title-text {
       display: block;
@@ -2869,23 +2881,23 @@
       box-sizing: border-box;
     }
 
-    /* Responsive keyboard for mobile - 2x smaller with precise sizing */
+    /* Responsive keyboard for mobile - ensure all keys visible with side spacing */
     .keyboard {
       display: flex !important;
       flex-direction: column !important;
       align-items: center !important;
       justify-content: center !important;
       margin-top: clamp(15px, 2.5vh, 20px) !important;
-      /* Reduced to 47% width (half of 94%) to make keyboard 2x smaller */
-      width: 47% !important;
-      max-width: 47% !important;
-      padding: 0 !important;
-      box-sizing: border-box !important;
-      gap: clamp(2px, 0.3vh, 3px) !important; /* Half the gap */
-      transform: none !important;
-      overflow: visible !important;
       margin-left: auto !important;
       margin-right: auto !important;
+      /* Narrower width to ensure all keys fit with visible side margins */
+      width: calc(100vw - 60px) !important; /* 30px margin on each side */
+      max-width: 450px !important; /* Reduced max-width */
+      padding: 0 !important;
+      box-sizing: border-box !important;
+      gap: clamp(6px, 0.9vh, 8px) !important;
+      transform: none !important;
+      overflow: visible !important;
     }
 
     .keyboard br {
@@ -2896,49 +2908,58 @@
       display: flex !important;
       justify-content: center !important;
       align-items: center !important;
-      gap: clamp(1px, 0.25vw, 1.5px) !important; /* Half the gap */
+      gap: clamp(3px, 0.5vw, 5px) !important; /* Smaller gaps to fit all keys */
       width: 100% !important;
       max-width: 100% !important;
       flex-wrap: nowrap !important;
       margin: 0 auto !important;
       box-sizing: border-box !important;
-      padding: 0 !important;
+      padding: 0 2px !important; /* Small padding to prevent edge keys from touching */
+      flex-shrink: 0 !important;
     }
 
-    /* Responsive key sizing - 2x smaller */
+    /* Touch-friendly key sizing - ensure all keys fit with side spacing */
+    body.is-mobile .keyboard .key,
+    #keyboard .keyboard .key,
+    .keyboard .keyboard-row .key,
     .keyboard .key {
       display: inline-flex !important;
       align-items: center !important;
       justify-content: center !important;
-      border: 1px solid var(--border-color) !important;
-      padding: clamp(2px, 0.4vh, 3px) clamp(1px, 0.25vw, 2px) !important; /* Half the padding */
-      background-color: var(--key-bg) !important;
-      color: #1a1a1b !important;
+      border: 1px solid #86888a !important; /* Dark gray border */
+      padding: clamp(6px, 1vh, 8px) clamp(4px, 0.8vw, 6px) !important; /* Reduced padding */
+      background-color: #d3d6da !important; /* Light gray background */
+      color: #1a1a1b !important; /* Black text */
       cursor: pointer !important;
-      transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
-      font-size: clamp(5.5px, 1vw, 7px) !important; /* Half the font size */
+      transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease !important;
+      font-size: clamp(12px, 1.9vw, 14px) !important; /* Slightly smaller font to fit */
       font-weight: bold !important;
-      border-radius: 2px !important;
-      height: clamp(17px, 2.75vh, 22px) !important; /* Half the height */
-      /* Half the width to make keys 2x smaller */
-      width: clamp(14px, 4.1vw, 18px) !important;
-      min-width: clamp(14px, 4.1vw, 18px) !important;
-      max-width: clamp(14px, 4.1vw, 18px) !important;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif !important;
+      border-radius: 4px !important;
+      height: clamp(42px, 6.5vh, 52px) !important; /* Slightly shorter to fit better */
+      /* Smaller width to ensure all 10 keys fit in top row with side spacing */
+      width: clamp(26px, 4.2vw, 32px) !important;
+      min-width: clamp(26px, 4.2vw, 32px) !important;
+      max-width: clamp(26px, 4.2vw, 32px) !important;
       flex: 0 0 auto !important;
       box-sizing: border-box !important;
       text-transform: uppercase !important;
       -webkit-appearance: none !important;
       appearance: none !important;
+      -webkit-tap-highlight-color: transparent !important;
+      touch-action: manipulation !important;
+      margin: 0 !important;
     }
 
-    /* Special sizing for ENTER and DELETE keys on mobile - 2x smaller */
+    /* Special sizing for ENTER and DELETE keys on mobile */
     .keyboard .key#enter,
     .keyboard .key[id="⌫"] {
-      width: clamp(26px, 4.5vw, 34px) !important; /* Half the width */
-      min-width: clamp(26px, 4.5vw, 34px) !important;
-      max-width: clamp(26px, 4.5vw, 34px) !important;
-      font-size: clamp(4.5px, 0.8vw, 6px) !important; /* Half the font size */
+      width: clamp(58px, 9vw, 70px) !important; /* Smaller to fit better */
+      min-width: clamp(58px, 9vw, 70px) !important;
+      max-width: clamp(58px, 9vw, 70px) !important;
       flex: 0 0 auto !important;
+      font-size: clamp(10px, 1.5vw, 12px) !important;
+      padding: clamp(6px, 1vh, 8px) clamp(6px, 1vw, 8px) !important;
     }
 
     /* Ensure grid cells scale properly on mobile */
@@ -2955,8 +2976,34 @@
 
     /* Dark mode keyboard keys on mobile */
     :root.dark-mode .keyboard .key {
-      background-color: white;
-      color: #7BAFD4;
+      background-color: #818384 !important; /* Darker gray for dark mode */
+      color: white !important;
+      border-color: #5f6368 !important;
+    }
+    
+    /* Keyboard key state colors - maintain borders */
+    .keyboard .key.correct {
+      background-color: #6aaa64 !important; /* Green */
+      color: white !important;
+      border-color: #5a9455 !important;
+    }
+    
+    .keyboard .key.found {
+      background-color: #c9b458 !important; /* Yellow */
+      color: white !important;
+      border-color: #b8a44f !important;
+    }
+    
+    .keyboard .key.wrong {
+      background-color: #787c7e !important; /* Gray */
+      color: white !important;
+      border-color: #6a6d6f !important;
+    }
+    
+    /* Active state for better touch feedback */
+    .keyboard .key:active {
+      opacity: 0.7 !important;
+      transform: scale(0.95) !important;
     }
 
     /* Hamburger menu adjustments for mobile */
@@ -3896,6 +3943,10 @@
 
           // Initialize dark mode and high contrast mode on page load
           document.addEventListener('DOMContentLoaded', function() {
+            // Add mobile class for more reliable mobile detection
+            if (window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+              document.body.classList.add('is-mobile');
+            }
             initDarkMode();
             initHighContrastMode();
             initOnscreenKeyboardOnly();
