@@ -2904,14 +2904,14 @@
       box-sizing: border-box !important;
     }
 
-    /* Responsive game grid for mobile - scales with viewport */
+    /* Responsive game grid for mobile - scales with viewport, accommodates 9-letter words */
     #guessGrid {
       text-align: center;
       margin: 0 auto;
       line-height: 0;
       width: 100%;
-      max-width: min(90vw, 400px);
-      padding: 0 5vw;
+      max-width: min(95vw, 600px); /* Increased to prevent wrapping for 9-letter words */
+      padding: 0 2vw; /* Reduced padding to maximize space for grid */
       box-sizing: border-box;
     }
 
@@ -3003,16 +3003,16 @@
       padding: 8px 6px !important;
     }
 
-    /* Ensure grid cells scale properly on mobile */
+    /* Ensure grid cells scale properly on mobile - sized to fit 9 letters without wrapping */
     .key-guess {
-      height: clamp(40px, 11vw, 58px) !important;
-      width: clamp(40px, 11vw, 58px) !important;
-      min-height: clamp(40px, 11vw, 58px) !important;
-      min-width: clamp(40px, 11vw, 58px) !important;
-      max-height: clamp(40px, 11vw, 58px) !important;
-      max-width: clamp(40px, 11vw, 58px) !important;
-      margin: clamp(2px, 0.5vw, 4px) !important;
-      font-size: clamp(20px, 5.5vw, 32px) !important;
+      height: clamp(38px, 10vw, 56px) !important; /* Slightly smaller to fit 9 letters */
+      width: clamp(38px, 10vw, 56px) !important;
+      min-height: clamp(38px, 10vw, 56px) !important;
+      min-width: clamp(38px, 10vw, 56px) !important;
+      max-height: clamp(38px, 10vw, 56px) !important;
+      max-width: clamp(38px, 10vw, 56px) !important;
+      margin: clamp(2px, 0.4vw, 3px) !important; /* Slightly smaller margins */
+      font-size: clamp(18px, 5vw, 30px) !important; /* Adjusted font size */
     }
 
     /* Dark mode keyboard keys on mobile */
