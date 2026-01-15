@@ -631,6 +631,8 @@
     text-align: center;
     margin: 0 auto;
     line-height: 0; /* Remove default line spacing */
+    width: fit-content; /* Fit content width for proper centering */
+    max-width: 100%; /* Don't exceed container */
   }
   
   #guessGrid br {
@@ -2923,9 +2925,9 @@
     /* Responsive game grid for mobile - scales with viewport, accommodates 9-letter words */
     #guessGrid {
       text-align: center;
-      margin: 0 auto;
+      margin: 0 auto !important; /* Ensure centering */
       line-height: 0;
-      width: 100%;
+      width: fit-content !important; /* Fit content width for proper centering */
       max-width: 100vw !important; /* Use full viewport width to prevent wrapping */
       padding: 0 !important; /* No padding to maximize space for grid */
       box-sizing: border-box;
