@@ -1000,6 +1000,15 @@ let words = [
       keyboard.style.visibility = 'hidden';
     }
     
+    // Show bagel day message if word is BRANDWEIN (2026-01-13)
+    const bagelDayMessage = document.getElementById('bagelDayMessage');
+    if (bagelDayMessage && SecretWord === 'BRANDWEIN') {
+      bagelDayMessage.textContent = 'Happy national bagel day!';
+      bagelDayMessage.classList.remove('hidden');
+    } else if (bagelDayMessage) {
+      bagelDayMessage.classList.add('hidden');
+    }
+    
     // Create grid cells
     for (let i = 0; i < NumberOfGuesses; i++) { // This loop creates rows in the guess grid
       for (let j = 0; j < SecretWord.length; j++) { // This loop adds blocks based on the no. of letters in the secret
