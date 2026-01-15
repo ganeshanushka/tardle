@@ -605,7 +605,7 @@
     font-family: 'Field Gothic Narrow', sans-serif;
     font-weight: bold;
     flex-grow: 1;
-    max-width: min(600px, 95vw);
+    max-width: min(700px, 95vw); /* Increased to accommodate 9-letter words (9×62px + margins ≈ 650px) */
     width: 100%;
     position: relative; /* Needed for absolute positioning of success message */
     box-sizing: border-box;
@@ -640,7 +640,7 @@
     justify-content: center;
     margin-top: clamp(15px, 2.5vh, 20px);
     width: 100%;
-    max-width: 600px;
+      max-width: 700px; /* Increased to match container width for 9-letter words */
     padding: 0 clamp(5px, 1vw, 10px);
     box-sizing: border-box;
     gap: clamp(6px, 0.9vh, 8px);
