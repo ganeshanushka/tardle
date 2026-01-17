@@ -3209,69 +3209,76 @@
       margin-top: clamp(20px, 3vh, 30px);
     }
     
-    /* Results popup mobile - reduce all content sizes to fit without scrolling */
+    /* Results popup mobile - make content very compact to fit on one page */
     #resultsPopup {
       align-items: flex-start !important; /* Align to top */
-      padding: 5px !important; /* Minimal padding */
+      padding: 0 !important; /* No padding */
     }
     
     .results-popup-content {
-      max-height: calc(100vh - 10px) !important; /* Fit within viewport */
+      max-height: 100vh !important; /* Use full viewport height */
       overflow: hidden !important; /* No scrolling - content must fit */
-      padding: clamp(15px, 3vw, 20px) !important; /* Minimal padding */
-      margin: 5px !important; /* Minimal margin */
-      width: calc(100% - 10px) !important;
-      max-width: calc(100vw - 10px) !important;
+      padding: clamp(12px, 2.5vw, 18px) !important; /* Very minimal padding */
+      margin: 0 !important; /* No margin */
+      width: calc(100% - 0px) !important;
+      max-width: 100vw !important;
     }
     
-    /* Significantly reduce spacing and sizes in results popup on mobile */
+    /* Minimize all spacing and sizes in results popup on mobile */
     .results-icon {
-      width: clamp(40px, 10vw, 55px) !important; /* Smaller icon */
-      height: clamp(40px, 10vw, 55px) !important;
-      margin-bottom: clamp(6px, 1vh, 10px) !important; /* Minimal margin */
+      width: clamp(35px, 8vw, 45px) !important; /* Even smaller icon */
+      height: clamp(35px, 8vw, 45px) !important;
+      margin-bottom: clamp(4px, 0.8vh, 6px) !important; /* Very minimal margin */
     }
     
     .results-icon svg {
-      width: clamp(40px, 10vw, 55px) !important;
-      height: clamp(40px, 10vw, 55px) !important;
+      width: clamp(35px, 8vw, 45px) !important;
+      height: clamp(35px, 8vw, 45px) !important;
     }
     
     .results-heading {
-      font-size: clamp(1em, 3.5vw, 1.4em) !important; /* Smaller heading */
-      margin: 0 0 clamp(4px, 1vh, 8px) 0 !important; /* Minimal margin */
-      line-height: 1.2 !important;
+      font-size: clamp(0.9em, 3vw, 1.2em) !important; /* Smaller heading */
+      margin: 0 0 clamp(3px, 0.6vh, 5px) 0 !important; /* Very minimal margin */
+      line-height: 1.1 !important; /* Tighter line height */
     }
     
     .results-text {
-      font-size: clamp(0.65em, 2.2vw, 0.75em) !important; /* Smaller text */
-      margin: 0 0 clamp(8px, 1.5vh, 12px) 0 !important; /* Reduced margin */
-      line-height: 1.2 !important;
+      font-size: clamp(0.6em, 2vw, 0.7em) !important; /* Smaller text */
+      margin: 0 0 clamp(6px, 1.2vh, 8px) 0 !important; /* Minimal margin */
+      line-height: 1.15 !important; /* Tighter line height */
     }
     
     .results-create-account-btn {
-      padding: clamp(8px, 1.5vh, 10px) clamp(16px, 4vw, 24px) !important; /* Smaller padding */
-      font-size: clamp(12px, 3vw, 14px) !important; /* Smaller font */
-      margin-bottom: clamp(6px, 1vh, 8px) !important; /* Minimal margin */
+      padding: clamp(7px, 1.2vh, 9px) clamp(14px, 3.5vw, 20px) !important; /* Smaller padding */
+      font-size: clamp(11px, 2.8vw, 13px) !important; /* Smaller font */
+      margin-bottom: clamp(4px, 0.8vh, 6px) !important; /* Very minimal margin */
       min-width: auto !important;
       width: 100% !important;
-      max-width: 260px !important;
+      max-width: 240px !important;
     }
     
     .results-login-link {
-      font-size: clamp(11px, 2.5vw, 13px) !important; /* Smaller font */
-      margin-bottom: clamp(10px, 2vh, 14px) !important; /* Reduced margin */
+      font-size: clamp(10px, 2.2vw, 12px) !important; /* Smaller font */
+      margin-bottom: clamp(8px, 1.5vh, 10px) !important; /* Minimal margin */
     }
     
     .results-share-btn {
-      padding: clamp(8px, 1.5vh, 10px) clamp(16px, 4vw, 24px) !important; /* Smaller padding */
-      font-size: clamp(12px, 3vw, 14px) !important; /* Smaller font */
+      padding: clamp(7px, 1.2vh, 9px) clamp(14px, 3.5vw, 20px) !important; /* Smaller padding */
+      font-size: clamp(11px, 2.8vw, 13px) !important; /* Smaller font */
       min-width: auto !important;
       width: 100% !important;
-      max-width: 260px !important;
+      max-width: 240px !important;
     }
     
     .results-share-btn span {
-      font-size: clamp(12px, 3vw, 14px) !important; /* Smaller font */
+      font-size: clamp(11px, 2.8vw, 13px) !important; /* Smaller font */
+    }
+    
+    /* Reduce close button size on mobile */
+    .results-close-btn {
+      font-size: clamp(24px, 4vw, 28px) !important; /* Smaller close button */
+      top: clamp(8px, 1.5vw, 12px) !important;
+      right: clamp(8px, 1.5vw, 12px) !important;
     }
   }
 
