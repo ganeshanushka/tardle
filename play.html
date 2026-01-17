@@ -3209,68 +3209,69 @@
       margin-top: clamp(20px, 3vh, 30px);
     }
     
-    /* Results popup mobile - ensure share button is visible without scrolling */
+    /* Results popup mobile - reduce all content sizes to fit without scrolling */
     #resultsPopup {
-      align-items: flex-start !important; /* Align to top instead of center */
-      padding: 10px !important; /* Add padding for small screens */
+      align-items: flex-start !important; /* Align to top */
+      padding: 5px !important; /* Minimal padding */
     }
     
     .results-popup-content {
-      max-height: calc(100vh - 20px) !important; /* Fit within viewport with padding */
-      overflow-y: auto !important; /* Allow scrolling if needed, but optimize to fit */
-      padding: clamp(20px, 4vw, 30px) !important; /* Reduced padding on mobile */
-      margin: 10px !important; /* Small margin for very small screens */
-      width: calc(100% - 20px) !important; /* Account for margins */
-      max-width: calc(100vw - 20px) !important;
+      max-height: calc(100vh - 10px) !important; /* Fit within viewport */
+      overflow: hidden !important; /* No scrolling - content must fit */
+      padding: clamp(15px, 3vw, 20px) !important; /* Minimal padding */
+      margin: 5px !important; /* Minimal margin */
+      width: calc(100% - 10px) !important;
+      max-width: calc(100vw - 10px) !important;
     }
     
-    /* Reduce spacing in results popup on mobile */
+    /* Significantly reduce spacing and sizes in results popup on mobile */
     .results-icon {
-      width: clamp(50px, 12vw, 70px) !important;
-      height: clamp(50px, 12vw, 70px) !important;
-      margin-bottom: clamp(10px, 2vh, 15px) !important;
+      width: clamp(40px, 10vw, 55px) !important; /* Smaller icon */
+      height: clamp(40px, 10vw, 55px) !important;
+      margin-bottom: clamp(6px, 1vh, 10px) !important; /* Minimal margin */
     }
     
     .results-icon svg {
-      width: clamp(50px, 12vw, 70px) !important;
-      height: clamp(50px, 12vw, 70px) !important;
+      width: clamp(40px, 10vw, 55px) !important;
+      height: clamp(40px, 10vw, 55px) !important;
     }
     
     .results-heading {
-      font-size: clamp(1.2em, 4vw, 1.8em) !important;
-      margin: 0 0 clamp(8px, 1.5vh, 12px) 0 !important;
+      font-size: clamp(1em, 3.5vw, 1.4em) !important; /* Smaller heading */
+      margin: 0 0 clamp(4px, 1vh, 8px) 0 !important; /* Minimal margin */
+      line-height: 1.2 !important;
     }
     
     .results-text {
-      font-size: clamp(0.7em, 2.5vw, 0.8em) !important;
-      margin: 0 0 clamp(12px, 2vh, 20px) 0 !important;
-      line-height: 1.3 !important;
+      font-size: clamp(0.65em, 2.2vw, 0.75em) !important; /* Smaller text */
+      margin: 0 0 clamp(8px, 1.5vh, 12px) 0 !important; /* Reduced margin */
+      line-height: 1.2 !important;
     }
     
     .results-create-account-btn {
-      padding: clamp(10px, 2vh, 12px) clamp(20px, 5vw, 32px) !important;
-      font-size: clamp(14px, 3.5vw, 16px) !important;
-      margin-bottom: clamp(8px, 1.5vh, 12px) !important;
+      padding: clamp(8px, 1.5vh, 10px) clamp(16px, 4vw, 24px) !important; /* Smaller padding */
+      font-size: clamp(12px, 3vw, 14px) !important; /* Smaller font */
+      margin-bottom: clamp(6px, 1vh, 8px) !important; /* Minimal margin */
       min-width: auto !important;
       width: 100% !important;
-      max-width: 280px !important;
+      max-width: 260px !important;
     }
     
     .results-login-link {
-      font-size: clamp(12px, 3vw, 14px) !important;
-      margin-bottom: clamp(16px, 3vh, 24px) !important;
+      font-size: clamp(11px, 2.5vw, 13px) !important; /* Smaller font */
+      margin-bottom: clamp(10px, 2vh, 14px) !important; /* Reduced margin */
     }
     
     .results-share-btn {
-      padding: clamp(10px, 2vh, 12px) clamp(20px, 5vw, 32px) !important;
-      font-size: clamp(14px, 3.5vw, 16px) !important;
+      padding: clamp(8px, 1.5vh, 10px) clamp(16px, 4vw, 24px) !important; /* Smaller padding */
+      font-size: clamp(12px, 3vw, 14px) !important; /* Smaller font */
       min-width: auto !important;
       width: 100% !important;
-      max-width: 280px !important;
+      max-width: 260px !important;
     }
     
     .results-share-btn span {
-      font-size: clamp(14px, 3.5vw, 16px) !important;
+      font-size: clamp(12px, 3vw, 14px) !important; /* Smaller font */
     }
   }
 
