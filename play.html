@@ -3033,30 +3033,70 @@
       font-size: clamp(15px, 4.2vw, 24px) !important; /* Smaller font to fit in smaller cells */
     }
 
-    /* Dark mode keyboard keys on mobile */
-    :root.dark-mode .keyboard .key {
+    /* Dark mode keyboard keys on mobile - Target #keyboard */
+    :root.dark-mode #keyboard .keyboard-row .key,
+    :root.dark-mode #keyboard .keyboard-row button.key,
+    :root.dark-mode #keyboard button.key,
+    :root.dark-mode #keyboard .key {
       background-color: #818384 !important; /* Darker gray for dark mode */
       color: white !important;
       border-color: #5f6368 !important;
     }
     
-    /* Keyboard key state colors - maintain borders */
-    .keyboard .key.correct {
-      background-color: #6aaa64 !important; /* Green */
+    /* Keyboard key state colors - use CSS variables for consistency - Target #keyboard */
+    #keyboard .keyboard-row .key.correct,
+    #keyboard .keyboard-row button.key.correct,
+    #keyboard button.key.correct,
+    #keyboard .key.correct {
+      background-color: var(--correct-color) !important; /* Use CSS variable */
       color: white !important;
-      border-color: #5a9455 !important;
+      border-color: var(--correct-color) !important;
     }
     
-    .keyboard .key.found {
-      background-color: #c9b458 !important; /* Yellow */
+    #keyboard .keyboard-row .key.found,
+    #keyboard .keyboard-row button.key.found,
+    #keyboard button.key.found,
+    #keyboard .key.found {
+      background-color: var(--found-color) !important; /* Use CSS variable */
       color: white !important;
-      border-color: #b8a44f !important;
+      border-color: var(--found-color) !important;
     }
     
-    .keyboard .key.wrong {
-      background-color: #787c7e !important; /* Gray */
+    #keyboard .keyboard-row .key.wrong,
+    #keyboard .keyboard-row button.key.wrong,
+    #keyboard button.key.wrong,
+    #keyboard .key.wrong {
+      background-color: var(--wrong-color) !important; /* Use CSS variable */
       color: white !important;
-      border-color: #6a6d6f !important;
+      border-color: var(--wrong-color) !important;
+    }
+    
+    /* Ensure dark mode state colors override base dark mode keys */
+    :root.dark-mode #keyboard .keyboard-row .key.correct,
+    :root.dark-mode #keyboard .keyboard-row button.key.correct,
+    :root.dark-mode #keyboard button.key.correct,
+    :root.dark-mode #keyboard .key.correct {
+      background-color: var(--correct-color) !important;
+      color: white !important;
+      border-color: var(--correct-color) !important;
+    }
+    
+    :root.dark-mode #keyboard .keyboard-row .key.found,
+    :root.dark-mode #keyboard .keyboard-row button.key.found,
+    :root.dark-mode #keyboard button.key.found,
+    :root.dark-mode #keyboard .key.found {
+      background-color: var(--found-color) !important;
+      color: white !important;
+      border-color: var(--found-color) !important;
+    }
+    
+    :root.dark-mode #keyboard .keyboard-row .key.wrong,
+    :root.dark-mode #keyboard .keyboard-row button.key.wrong,
+    :root.dark-mode #keyboard button.key.wrong,
+    :root.dark-mode #keyboard .key.wrong {
+      background-color: var(--wrong-color) !important;
+      color: white !important;
+      border-color: var(--wrong-color) !important;
     }
     
     /* Active state for better touch feedback */
