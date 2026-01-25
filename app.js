@@ -1001,12 +1001,28 @@ let words = [
     }
     
     // Show bagel day message if word is BRANDWEIN (2026-01-13)
+    // Or show "Stay safe and warm tarheels🩵" if word matches tomorrow's word
     const bagelDayMessage = document.getElementById('bagelDayMessage');
-    if (bagelDayMessage && SecretWord === 'BRANDWEIN') {
-      bagelDayMessage.textContent = 'Happy national bagel day!';
-      bagelDayMessage.classList.remove('hidden');
-    } else if (bagelDayMessage) {
-      bagelDayMessage.classList.add('hidden');
+    if (bagelDayMessage) {
+      // Calculate tomorrow's date and get tomorrow's word
+      const today = new Date();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(today.getDate() + 1);
+      const tomorrowYear = tomorrow.getFullYear();
+      const tomorrowMonth = String(tomorrow.getMonth() + 1).padStart(2, '0');
+      const tomorrowDay = String(tomorrow.getDate()).padStart(2, '0');
+      const tomorrowDateString = `${tomorrowYear}-${tomorrowMonth}-${tomorrowDay}`;
+      const tomorrowWord = dailyWordMap[tomorrowDateString];
+      
+      if (SecretWord === 'BRANDWEIN') {
+        bagelDayMessage.textContent = 'Happy national bagel day!';
+        bagelDayMessage.classList.remove('hidden');
+      } else if (tomorrowWord && SecretWord === tomorrowWord) {
+        bagelDayMessage.textContent = 'Stay safe and warm tarheels🩵';
+        bagelDayMessage.classList.remove('hidden');
+      } else {
+        bagelDayMessage.classList.add('hidden');
+      }
     }
     
     // Create grid cells
