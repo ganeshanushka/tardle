@@ -1001,7 +1001,7 @@ let words = [
     }
     
     // Show bagel day message if word is BRANDWEIN (2026-01-13)
-    // Or show "Stay safe and warm tarheels🩵" if word matches tomorrow's word
+    // Or show "Stay safe and warm tarheels🩵" if tomorrow has a word scheduled
     const bagelDayMessage = document.getElementById('bagelDayMessage');
     if (bagelDayMessage) {
       // Calculate tomorrow's date and get tomorrow's word
@@ -1017,7 +1017,8 @@ let words = [
       if (SecretWord === 'BRANDWEIN') {
         bagelDayMessage.textContent = 'Happy national bagel day!';
         bagelDayMessage.classList.remove('hidden');
-      } else if (tomorrowWord && SecretWord === tomorrowWord) {
+      } else if (tomorrowWord) {
+        // Show message when tomorrow has a word scheduled
         bagelDayMessage.textContent = 'Stay safe and warm tarheels🩵';
         bagelDayMessage.classList.remove('hidden');
       } else {
