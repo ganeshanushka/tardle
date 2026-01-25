@@ -1001,16 +1001,25 @@ let words = [
     }
     
     // Show bagel day message if word is BRANDWEIN (2026-01-13)
-    // Or show "Stay safe and warm tarheels🩵" if word is GARDNER (2026-01-24)
+    // Or show "Stay safe and warm tarheels🩵" from Jan 24-27, 2026
     const bagelDayMessage = document.getElementById('bagelDayMessage');
-    if (bagelDayMessage && SecretWord === 'BRANDWEIN') {
-      bagelDayMessage.textContent = 'Happy national bagel day!';
-      bagelDayMessage.classList.remove('hidden');
-    } else if (bagelDayMessage && SecretWord === 'GARDNER') {
-      bagelDayMessage.textContent = 'Stay safe and warm tarheels🩵';
-      bagelDayMessage.classList.remove('hidden');
-    } else if (bagelDayMessage) {
-      bagelDayMessage.classList.add('hidden');
+    if (bagelDayMessage) {
+      // Get current date string
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const day = String(today.getDate()).padStart(2, '0');
+      const dateString = `${year}-${month}-${day}`;
+      
+      if (SecretWord === 'BRANDWEIN') {
+        bagelDayMessage.textContent = 'Happy national bagel day!';
+        bagelDayMessage.classList.remove('hidden');
+      } else if (dateString >= '2026-01-24' && dateString <= '2026-01-27') {
+        bagelDayMessage.textContent = 'Stay safe and warm tarheels🩵';
+        bagelDayMessage.classList.remove('hidden');
+      } else {
+        bagelDayMessage.classList.add('hidden');
+      }
     }
     
     // Create grid cells
