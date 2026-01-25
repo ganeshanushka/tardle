@@ -823,7 +823,7 @@ let words = [
     '2026-01-21': 'GREENLAW',
     '2026-01-22': 'CUAB',
     '2026-01-23': 'EHAUS',
-    '2026-01-24': 'TOPO',
+    '2026-01-24': 'GARDNER',
     '2026-01-25': 'GARDNER',
     '2026-01-26': 'ROTC',
     '2026-01-27': 'GARDNER',
@@ -1001,29 +1001,16 @@ let words = [
     }
     
     // Show bagel day message if word is BRANDWEIN (2026-01-13)
-    // Or show "Stay safe and warm tarheels🩵" if tomorrow has a word scheduled
+    // Or show "Stay safe and warm tarheels🩵" if word is GARDNER (2026-01-24)
     const bagelDayMessage = document.getElementById('bagelDayMessage');
-    if (bagelDayMessage) {
-      // Calculate tomorrow's date and get tomorrow's word
-      const today = new Date();
-      const tomorrow = new Date(today);
-      tomorrow.setDate(today.getDate() + 1);
-      const tomorrowYear = tomorrow.getFullYear();
-      const tomorrowMonth = String(tomorrow.getMonth() + 1).padStart(2, '0');
-      const tomorrowDay = String(tomorrow.getDate()).padStart(2, '0');
-      const tomorrowDateString = `${tomorrowYear}-${tomorrowMonth}-${tomorrowDay}`;
-      const tomorrowWord = dailyWordMap[tomorrowDateString];
-      
-      if (SecretWord === 'BRANDWEIN') {
-        bagelDayMessage.textContent = 'Happy national bagel day!';
-        bagelDayMessage.classList.remove('hidden');
-      } else if (tomorrowWord) {
-        // Show message when tomorrow has a word scheduled
-        bagelDayMessage.textContent = 'Stay safe and warm tarheels🩵';
-        bagelDayMessage.classList.remove('hidden');
-      } else {
-        bagelDayMessage.classList.add('hidden');
-      }
+    if (bagelDayMessage && SecretWord === 'BRANDWEIN') {
+      bagelDayMessage.textContent = 'Happy national bagel day!';
+      bagelDayMessage.classList.remove('hidden');
+    } else if (bagelDayMessage && SecretWord === 'GARDNER') {
+      bagelDayMessage.textContent = 'Stay safe and warm tarheels🩵';
+      bagelDayMessage.classList.remove('hidden');
+    } else if (bagelDayMessage) {
+      bagelDayMessage.classList.add('hidden');
     }
     
     // Create grid cells
