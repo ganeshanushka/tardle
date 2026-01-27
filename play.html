@@ -19,7 +19,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <link rel="stylesheet" href="styles.css">
 </head>
-<title>Tardle</title>
+<title>Tar.dle</title>
 <style>
   /* Field Gothic Narrow Font Face */
   @font-face {
@@ -3391,7 +3391,7 @@
   <div id="loginPromptModal">
     <div class="login-prompt-content">
       <button class="login-prompt-close" id="loginPromptCloseBtn">×</button>
-      <h2 class="login-prompt-heading">Make a Tardle account if you hate Duke!</h2>
+      <h2 class="login-prompt-heading">Make a Tar.dle account if you hate Duke!</h2>
       <p class="login-prompt-text">(It's free, and you'll never lose a streak again)</p>
       <a href="login.html" class="login-prompt-button">Log in or create an account</a>
     </div>
@@ -3458,7 +3458,7 @@
       <div class="side-panel-header">
         <button class="side-panel-close" id="sidePanelCloseBtn">×</button>
         <div class="side-panel-separator"></div>
-        <h2 class="side-panel-title">Tardle</h2>
+        <h2 class="side-panel-title">Tar.dle</h2>
       </div>
       
       <div class="side-panel-body">
@@ -3495,7 +3495,7 @@
       <span></span>
       <span></span>
     </div>
-    <div class="title-text">Tardle</div>
+    <div class="title-text">Tar.dle</div>
     <div class="podium-icon" id="podiumIcon" aria-label="Leaderboard">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter">
         <!-- Podium with three bars: left (medium), middle (tallest), right (shortest) -->
@@ -3651,7 +3651,7 @@
                 </svg>
               </div>
               <h2 class="stats-login-subtitle">Track your stats.</h2>
-              <p class="stats-login-text">Access your Tardle win percentage, streaks, and more with a free account.</p>
+              <p class="stats-login-text">Access your Tar.dle win percentage, streaks, and more with a free account.</p>
               <a href="login.html?return=play.html" class="stats-login-button">Create a free account</a>
             </div>
           </div>
@@ -3711,7 +3711,7 @@
                 </svg>
               </div>
               <h1 class="results-heading">Thanks for playing today!</h1>
-              <p class="results-text">Track your Tardle win percentage and see your game statistics.</p>
+              <p class="results-text">Track your Tar.dle win percentage and see your game statistics.</p>
               <button class="results-create-account-btn" id="resultsCreateAccountBtn">Create a free account</button>
               <a href="login.html?return=play.html" class="results-login-link">Already Registered? Log In</a>
               <div style="position: relative; display: inline-block;">
@@ -4345,7 +4345,7 @@
             const resultLine = isWin ? `${guessCount}/${maxGuesses}` : 'X/6';
             
             // Build the share text with emoji hearts
-            let shareText = `Tardle ${resultLine}\n\n`;
+            let shareText = `Tar.dle ${resultLine}\n\n`;
             
             // Add emoji grid for each guess using hearts
             gameGuesses.forEach((guess) => {
@@ -4432,7 +4432,7 @@
                 console.log('Clipboard API failed, trying Web Share API');
                 if (navigator.share) {
                   navigator.share({
-                    title: 'Tardle',
+                    title: 'Tar.dle',
                     text: shareText
                   }).catch(() => {
                     // If share also fails, show alert

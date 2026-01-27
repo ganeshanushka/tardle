@@ -121,7 +121,7 @@ exports.sendDailyTardleEmail = functions.pubsub
         const results = await Promise.allSettled(
           batch.map(email =>
             resend.emails.send({
-              from: "Tardle <no-reply@playtardle.com>",
+              from: "Tar.dle <no-reply@playtardle.com>",
               to: email,
               subject: "Don't break the streak 👀",
               html: `
@@ -224,7 +224,7 @@ exports.sendDailyTardleEmail = functions.pubsub
                       </div>
                     </div>
                   </div>
-                  <div class="logo-text">Tardle</div>
+                  <div class="logo-text">Tar.dle</div>
                 </body>
                 </html>
               `,
@@ -246,7 +246,7 @@ exports.sendDailyTardleEmail = functions.pubsub
       console.log(`Sent emails to ${successCount} users. ${errorCount} errors.`);
 
     } catch (err) {
-      console.error("Error sending Tardle emails:", err);
+      console.error("Error sending Tar.dle emails:", err);
     }
     return null;
   });
@@ -268,9 +268,9 @@ exports.sendVerificationCode = functions.https.onCall(async (data, context) => {
     await resend.emails.send({
       from: "Tardle <no-reply@playtardle.com>",
       to: email,
-      subject: "Verify your Tardle account",
+      subject: "Verify your Tar.dle account",
       html: `
-        <h2>Welcome to Tardle, ${username || 'there'}!</h2>
+        <h2>Welcome to Tar.dle, ${username || 'there'}!</h2>
         <p>Thank you for creating an account. Please verify your email address by entering the following code:</p>
         <div style="background-color: #f5f5f5; padding: 20px; text-align: center; margin: 20px 0; border-radius: 8px;">
           <h1 style="font-size: 32px; letter-spacing: 8px; color: #001A57; margin: 0;">${code}</h1>
@@ -278,7 +278,7 @@ exports.sendVerificationCode = functions.https.onCall(async (data, context) => {
         <p>This code will expire in 15 minutes.</p>
         <p>If you didn't create an account, please ignore this email.</p>
         <p>Happy playing!</p>
-        <p>- The Tardle Team</p>
+        <p>- The Tar.dle Team</p>
       `,
     });
 
@@ -327,7 +327,7 @@ exports.sendProfessionalVerificationEmail = functions.https.onCall(async (data, 
     await resend.emails.send({
       from: "Tardle <no-reply@playtardle.com>",
       to: email,
-      subject: "Verify your Tardle account",
+      subject: "Verify your Tar.dle account",
       html: `
         <!DOCTYPE html>
         <html>
@@ -396,10 +396,10 @@ exports.sendProfessionalVerificationEmail = functions.https.onCall(async (data, 
         <body>
           <div class="email-container">
             <div class="header">
-              <div class="logo">Tardle</div>
+              <div class="logo">Tar.dle</div>
             </div>
             
-            <h2 style="color: #1a1a1a; margin-top: 0;">Welcome to Tardle!</h2>
+            <h2 style="color: #1a1a1a; margin-top: 0;">Welcome to Tar.dle!</h2>
             
             <p>Thank you for creating your account. To complete your registration and start playing, please verify your email address by clicking the button below:</p>
             
@@ -413,13 +413,13 @@ exports.sendProfessionalVerificationEmail = functions.https.onCall(async (data, 
             </p>
             
             <p style="font-size: 14px; color: #666; margin-top: 20px;">
-              This verification link will expire in 3 days. If you didn't create a Tardle account, you can safely ignore this email.
+              This verification link will expire in 3 days. If you didn't create a Tar.dle account, you can safely ignore this email.
             </p>
           </div>
           
           <div class="footer">
             <p>Happy playing!</p>
-            <p><strong>The Tardle Team</strong></p>
+            <p><strong>The Tar.dle Team</strong></p>
             <p style="font-size: 12px; color: #999;">
               <a href="${BASE_URL}" style="color: #7BAFD4; text-decoration: none;">playtardle.com</a> | 
               <a href="${BASE_URL}/privacy-policy.html" style="color: #7BAFD4; text-decoration: none;">Privacy Policy</a>
@@ -481,7 +481,7 @@ exports.sendEmailChangeVerification = functions.https.onCall(async (data, contex
     const emailResult = await resend.emails.send({
       from: "Tardle <no-reply@playtardle.com>",
       to: email,
-      subject: "Verify your new email address for Tardle",
+      subject: "Verify your new email address for Tar.dle",
       html: `
         <p>Hi ${username || 'there'},</p>
         <p>You requested to change your email from <strong>${currentEmail}</strong> to <strong>${email}</strong>.</p>
@@ -1160,7 +1160,7 @@ exports.sendPasswordResetCode = functions.https.onCall(async (data, context) => 
     const emailResult = await resend.emails.send({
       from: "Tardle <no-reply@playtardle.com>",
       to: email,
-      subject: "Reset your Tardle password",
+      subject: "Reset your Tar.dle password",
       html: `
         <h2>Reset your password</h2>
         <p>You requested to reset your password. Enter the following code to update your login:</p>
@@ -1536,7 +1536,7 @@ exports.sendTestDailyEmail = functions.https.onCall(async (data, context) => {
                 <body>
                   <div class="header-divider"></div>
                   <div class="reminder-header">
-                    Tardle Reminder
+                    Tar.dle Reminder
                   </div>
                   <div class="reminder-date">
                     ${dateStr}, ${timeStr}
@@ -1572,7 +1572,7 @@ exports.sendTestDailyEmail = functions.https.onCall(async (data, context) => {
                       </div>
                     </div>
                   </div>
-                  <div class="logo-text">Tardle</div>
+                  <div class="logo-text">Tar.dle</div>
                 </body>
                 </html>
               `,
