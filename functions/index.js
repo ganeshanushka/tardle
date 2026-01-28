@@ -191,6 +191,18 @@ exports.sendDailyTardleEmail = functions.pubsub
                       color: #0000EE;
                       text-decoration: underline;
                     }
+                    .footer {
+                      margin-top: 30px;
+                      padding-top: 20px;
+                      border-top: 1px solid #ddd;
+                      font-size: 12px;
+                      color: #666;
+                      text-align: center;
+                    }
+                    .unsubscribe-link {
+                      color: #0000EE;
+                      text-decoration: underline;
+                    }
                   </style>
                 </head>
                 <body>
@@ -225,6 +237,10 @@ exports.sendDailyTardleEmail = functions.pubsub
                     </div>
                   </div>
                   <div class="logo-text">Tar.dle</div>
+                  
+                  <div class="footer">
+                    <p>Don't want to receive these emails? You can <a href="${BASE_URL}/unsubscribe.html" class="unsubscribe-link">unsubscribe</a> or manage your email preferences in your account settings.</p>
+                  </div>
                 </body>
                 </html>
               `,
