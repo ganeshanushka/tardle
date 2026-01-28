@@ -1602,3 +1602,83 @@ exports.sendTestDailyEmail = functions.https.onCall(async (data, context) => {
   }
 });
 
+// One-time function to subscribe all existing users to reminder emails
+// Call this function once to opt-in all existing users (they can unsubscribe later)
+exports.subscribeAllExistingUsers = functions.https.onCall(async (data, context) => {
+  try {
+    // Optional: Add authentication check if you want to restrict who can call this
+    // if (!context.auth) {
+    //   throw new functions.https.HttpsError('unauthenticated', 'Must be authenticated to run this function');
+    // }
+
+    console.log('Starting bulk subscription of all existing users...');
+    
+    let subscribedCount = 0;
+    let alreadySubscribedCount = 0;
+    let errorCount = 0;
+    const batchSize = 500; // Firestore batch write limit
+    
+    // Get all users from Firestore
+    const usersSnapshot = await db.collection('users').get();
+    console.log(`Found ${usersSnapshot.size} total users`);
+    
+    if (usersSnapshot.empty) {
+      return {
+        success: true,
+        message: 'No users found',
+        subscribedCount: 0,
+        alreadySubscribedCount: 0,
+        errorCount: 0
+      };
+    }
+    
+    // Process users in batches
+    const users = usersSnapshot.docs;
+    for (let i = 0; i < users.length; i += batchSize) {
+      const batch = db.batch();
+      const batchUsers = users.slice(i, i + batchSize);
+      
+      for (const userDoc of batchUsers) {
+        const userData = userDoc.data();
+        const currentSubscriptionStatus = userData.emailSubscribed;
+        
+        // Subscribe user if they're not already subscribed
+        // This will subscribe users who have emailSubscribed: false or undefined
+        if (currentSubscriptionStatus !== true) {
+          batch.update(userDoc.ref, {
+            emailSubscribed: true,
+            subscriptionUpdatedAt: admin.firestore.FieldValue.serverTimestamp()
+          });
+          subscribedCount++;
+        } else {
+          alreadySubscribedCount++;
+        }
+      }
+      
+      try {
+        await batch.commit();
+        console.log(`Processed batch ${Math.floor(i / batchSize) + 1}, subscribed ${subscribedCount} users so far`);
+      } catch (batchError) {
+        console.error(`Error committing batch starting at index ${i}:`, batchError);
+        errorCount += batchUsers.length;
+      }
+    }
+    
+    const result = {
+      success: true,
+      message: `Subscription update complete`,
+      totalUsers: usersSnapshot.size,
+      subscribedCount: subscribedCount,
+      alreadySubscribedCount: alreadySubscribedCount,
+      errorCount: errorCount
+    };
+    
+    console.log('Bulk subscription complete:', result);
+    return result;
+    
+  } catch (err) {
+    console.error("Error subscribing all users:", err);
+    throw new functions.https.HttpsError('internal', 'Failed to subscribe all users: ' + err.message);
+  }
+});
+
