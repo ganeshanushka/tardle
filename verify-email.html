@@ -435,7 +435,7 @@
         currentStreak: 0,
         maxStreak: 0,
         points: 0,
-        emailSubscribed: false,
+        emailSubscribed: true, // Auto-subscribe new users to reminder emails (can opt out in settings)
         createdAt: window.firebaseFirestoreFunctions.serverTimestamp(),
         verifiedAt: window.firebaseFirestoreFunctions.serverTimestamp()
       });
