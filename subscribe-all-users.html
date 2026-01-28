@@ -150,13 +150,20 @@
         // Display results
         result.className = 'success';
         result.style.display = 'block';
-        result.innerHTML = `
+        let resultHTML = `
           <h3>✅ Success!</h3>
-          <p><strong>Total users:</strong> ${data.totalUsers}</p>
+          <p><strong>Total Auth users:</strong> ${data.totalAuthUsers || data.totalUsers}</p>
+          <p><strong>Total Firestore users:</strong> ${data.totalFirestoreUsers || data.totalUsers}</p>
+        `;
+        if (data.createdDocumentsCount > 0) {
+          resultHTML += `<p><strong>Created Firestore documents:</strong> ${data.createdDocumentsCount}</p>`;
+        }
+        resultHTML += `
           <p><strong>Newly subscribed:</strong> ${data.subscribedCount}</p>
           <p><strong>Already subscribed:</strong> ${data.alreadySubscribedCount}</p>
           <p><strong>Errors:</strong> ${data.errorCount}</p>
         `;
+        result.innerHTML = resultHTML;
         
       } catch (error) {
         console.error('Error:', error);
