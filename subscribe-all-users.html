@@ -152,17 +152,27 @@
         result.style.display = 'block';
         let resultHTML = `
           <h3>✅ Success!</h3>
-          <p><strong>Total Auth users:</strong> ${data.totalAuthUsers || data.totalUsers}</p>
-          <p><strong>Total Firestore users:</strong> ${data.totalFirestoreUsers || data.totalUsers}</p>
         `;
-        if (data.createdDocumentsCount > 0) {
+        
+        // Handle both old and new response formats
+        const totalAuthUsers = data.totalAuthUsers || data.totalUsers || 0;
+        const totalFirestoreUsers = data.totalFirestoreUsers || data.totalUsers || 0;
+        
+        resultHTML += `
+          <p><strong>Total Auth users:</strong> ${totalAuthUsers}</p>
+          <p><strong>Total Firestore users:</strong> ${totalFirestoreUsers}</p>
+        `;
+        
+        if (data.createdDocumentsCount && data.createdDocumentsCount > 0) {
           resultHTML += `<p><strong>Created Firestore documents:</strong> ${data.createdDocumentsCount}</p>`;
         }
+        
         resultHTML += `
-          <p><strong>Newly subscribed:</strong> ${data.subscribedCount}</p>
-          <p><strong>Already subscribed:</strong> ${data.alreadySubscribedCount}</p>
-          <p><strong>Errors:</strong> ${data.errorCount}</p>
+          <p><strong>Newly subscribed:</strong> ${data.subscribedCount || 0}</p>
+          <p><strong>Already subscribed:</strong> ${data.alreadySubscribedCount || 0}</p>
+          <p><strong>Errors:</strong> ${data.errorCount || 0}</p>
         `;
+        
         result.innerHTML = resultHTML;
         
       } catch (error) {
