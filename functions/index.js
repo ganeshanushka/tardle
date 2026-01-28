@@ -1616,24 +1616,95 @@ exports.subscribeAllExistingUsers = functions.https.onCall(async (data, context)
     let subscribedCount = 0;
     let alreadySubscribedCount = 0;
     let errorCount = 0;
+    let createdDocumentsCount = 0;
     const batchSize = 500; // Firestore batch write limit
     
     // Get all users from Firestore
     const usersSnapshot = await db.collection('users').get();
-    console.log(`Found ${usersSnapshot.size} total users`);
+    const firestoreUserIds = new Set(usersSnapshot.docs.map(doc => doc.id));
+    console.log(`Found ${usersSnapshot.size} users in Firestore`);
     
-    if (usersSnapshot.empty) {
+    // Get all users from Firebase Auth
+    const auth = admin.auth();
+    let allAuthUsers = [];
+    let nextPageToken;
+    
+    do {
+      const listUsersResult = await auth.listUsers(1000, nextPageToken);
+      allAuthUsers = allAuthUsers.concat(listUsersResult.users);
+      nextPageToken = listUsersResult.pageToken;
+    } while (nextPageToken);
+    
+    console.log(`Found ${allAuthUsers.length} users in Firebase Auth`);
+    
+    // Find Auth users without Firestore documents (verified users only)
+    const verifiedAuthUsersWithoutDocs = allAuthUsers.filter(authUser => 
+      authUser.emailVerified && !firestoreUserIds.has(authUser.uid)
+    );
+    
+    console.log(`Found ${verifiedAuthUsersWithoutDocs.length} verified Auth users without Firestore documents`);
+    
+    // Create Firestore documents for verified Auth users who don't have them
+    if (verifiedAuthUsersWithoutDocs.length > 0) {
+      for (let i = 0; i < verifiedAuthUsersWithoutDocs.length; i += batchSize) {
+        const batch = db.batch();
+        const batchUsers = verifiedAuthUsersWithoutDocs.slice(i, i + batchSize);
+        
+        for (const authUser of batchUsers) {
+          try {
+            const userDocRef = db.collection('users').doc(authUser.uid);
+            const username = authUser.email?.split('@')[0] || 'User';
+            const accountNumber = Math.floor(100000000 + Math.random() * 900000000);
+            
+            batch.set(userDocRef, {
+              email: authUser.email || '',
+              username: username,
+              accountNumber: accountNumber,
+              gamesPlayed: 0,
+              gamesWon: 0,
+              currentStreak: 0,
+              maxStreak: 0,
+              points: 0,
+              emailSubscribed: true, // Auto-subscribe
+              createdAt: admin.firestore.FieldValue.serverTimestamp(),
+              verifiedAt: admin.firestore.FieldValue.serverTimestamp()
+            });
+            createdDocumentsCount++;
+          } catch (userError) {
+            console.error(`Error preparing document for user ${authUser.uid}:`, userError);
+            errorCount++;
+          }
+        }
+        
+        try {
+          await batch.commit();
+          console.log(`Created ${createdDocumentsCount} new Firestore documents`);
+        } catch (batchError) {
+          console.error(`Error committing batch for new documents:`, batchError);
+          errorCount += batchUsers.length;
+        }
+      }
+    }
+    
+    // Now get updated Firestore users count
+    const updatedUsersSnapshot = await db.collection('users').get();
+    console.log(`Total Firestore users after creating missing documents: ${updatedUsersSnapshot.size}`);
+    
+    if (updatedUsersSnapshot.empty) {
       return {
         success: true,
         message: 'No users found',
+        totalAuthUsers: allAuthUsers.length,
+        totalFirestoreUsers: 0,
         subscribedCount: 0,
         alreadySubscribedCount: 0,
-        errorCount: 0
+        createdDocumentsCount: createdDocumentsCount,
+        errorCount: errorCount
       };
     }
     
-    // Process users in batches
-    const users = usersSnapshot.docs;
+    // Process users in batches to subscribe them
+    const users = updatedUsersSnapshot.docs;
     for (let i = 0; i < users.length; i += batchSize) {
       const batch = db.batch();
       const batchUsers = users.slice(i, i + batchSize);
@@ -1667,9 +1738,11 @@ exports.subscribeAllExistingUsers = functions.https.onCall(async (data, context)
     const result = {
       success: true,
       message: `Subscription update complete`,
-      totalUsers: usersSnapshot.size,
+      totalAuthUsers: allAuthUsers.length,
+      totalFirestoreUsers: updatedUsersSnapshot.size,
       subscribedCount: subscribedCount,
       alreadySubscribedCount: alreadySubscribedCount,
+      createdDocumentsCount: createdDocumentsCount,
       errorCount: errorCount
     };
     
