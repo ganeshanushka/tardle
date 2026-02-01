@@ -70,7 +70,7 @@ let words = [
 
     // 4 letter words
     'Hojo', 'Cobb', 'Rams', 'Navy', 'Quad', 'Yopo', 'Buns', 'Dook', 'Maye', 'Mack', 'Pete', 'Seth', 'Blue', 'Topo',
-    'Bolo', 'Well', 'ROTC', 'LWOC', 'LDOC', 'FDOC', 'FWOC', 'Yaya', 'Moge', 'Cuab', 'SASB',
+    'Bolo', 'Well', 'ROTC', 'LWOC', 'LDOC', 'FDOC', 'FWOC', 'Yaya', 'Moge', 'Cuab', 'SASB', 'CAPS',
 
 
     // 5 letter words
@@ -803,8 +803,36 @@ let words = [
   }
 
   
-  // Daily word mapping based on spreadsheet (dates in 2026)
+  // Daily word mapping based on spreadsheet (dates in 2025, 2026)
   const dailyWordMap = {
+    '2025-02-01': 'CAPS',
+    '2025-02-02': 'CRAIGE',
+    '2025-02-03': 'SUTTONS',
+    '2025-02-04': 'SPENCER',
+    '2025-02-05': 'MAW',
+    '2025-02-06': 'CANVAS',
+    '2025-02-07': 'FOOKDOOK',
+    '2025-02-08': 'FETZER',
+    '2025-02-09': 'CCS',
+    '2025-02-10': 'QUAD',
+    '2025-02-11': 'WOOLLEN',
+    '2025-02-12': 'CAROLINA',
+    '2025-02-13': 'COSMIC',
+    '2025-02-14': 'PHILIPS',
+    '2025-02-15': 'BUNS',
+    '2025-02-16': 'KOURY',
+    '2025-02-17': 'BOLO',
+    '2025-02-18': 'CAUDILL',
+    '2025-02-19': 'HOOKER',
+    '2025-02-20': 'RAMS',
+    '2025-02-21': 'BAITY',
+    '2025-02-22': 'WELL',
+    '2025-02-23': 'STILLLIFE',
+    '2025-02-24': 'TEAGUE',
+    '2025-02-25': 'SASB',
+    '2025-02-26': 'CALEB',
+    '2025-02-27': 'MURPHEY',
+    '2025-02-28': 'WILSON',
     '2026-01-06': 'DAVIS',
     '2026-01-07': 'FDOC',
     '2026-01-08': 'KENAN',
@@ -831,7 +859,7 @@ let words = [
     '2026-01-29': 'PID',
     '2026-01-30': 'UNION',
     '2026-01-31': 'EVERETT',
-    '2026-02-01': 'TOPO',
+    '2026-02-01': 'CAPS',
     '2026-02-02': 'CRAIGE',
     '2026-02-03': 'SUTTONS',
     '2026-02-04': 'SPENCER',
@@ -1016,6 +1044,9 @@ let words = [
         bagelDayMessage.classList.remove('hidden');
       } else if (dateString >= '2026-01-24' && dateString <= '2026-01-27') {
         bagelDayMessage.textContent = 'Stay safe and warm tarheels🩵';
+        bagelDayMessage.classList.remove('hidden');
+      } else if (dateString === '2025-02-07' || dateString === '2026-02-07') {
+        bagelDayMessage.textContent = 'Happy Beat Duke Day!';
         bagelDayMessage.classList.remove('hidden');
       } else {
         bagelDayMessage.classList.add('hidden');
