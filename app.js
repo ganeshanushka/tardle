@@ -864,7 +864,7 @@ let words = [
     '2026-02-03': 'SUTTONS',
     '2026-02-04': 'SPENCER',
     '2026-02-05': 'MAW',
-    '2026-02-06': 'HEELS',
+    '2026-02-06': 'CANVAS',
     '2026-02-07': 'FOOKDOOK',
     '2026-02-08': 'FETZER',
     '2026-02-09': 'CCS',
@@ -873,20 +873,20 @@ let words = [
     '2026-02-12': 'CAROLINA',
     '2026-02-13': 'COSMIC',
     '2026-02-14': 'PHILIPS',
-    '2026-02-15': 'KOURY',
-    '2026-02-16': 'BUNS',
-    '2026-02-17': 'HOOKER',
+    '2026-02-15': 'BUNS',
+    '2026-02-16': 'KOURY',
+    '2026-02-17': 'BOLO',
     '2026-02-18': 'CAUDILL',
-    '2026-02-19': 'BOLO',
+    '2026-02-19': 'HOOKER',
     '2026-02-20': 'RAMS',
     '2026-02-21': 'BAITY',
-    '2026-02-22': 'DARTY',
-    '2026-02-23': 'MOGE',
+    '2026-02-22': 'WELL',
+    '2026-02-23': 'STILLLIFE',
     '2026-02-24': 'TEAGUE',
     '2026-02-25': 'SASB',
     '2026-02-26': 'CALEB',
     '2026-02-27': 'MURPHEY',
-    '2026-02-28': 'SENIOR',
+    '2026-02-28': 'WILSON',
     '2026-03-01': 'NCAA',
     '2026-03-02': 'BILL',
     '2026-03-03': 'UNC',
@@ -1053,12 +1053,16 @@ let words = [
       }
     }
     
-    // Create grid cells
-    for (let i = 0; i < NumberOfGuesses; i++) { // This loop creates rows in the guess grid
-      for (let j = 0; j < SecretWord.length; j++) { // This loop adds blocks based on the no. of letters in the secret
-        guessGrid.innerHTML += `<div id="${i}${j}" class="key-guess"></div>`
+    // Create grid cells - always match today's word length (e.g. CANVAS = 6, not fixed 5)
+    const wordLength = SecretWord.length;
+    if (guessGrid) {
+      guessGrid.innerHTML = ''; // Clear any existing/stale grid first
+      for (let i = 0; i < NumberOfGuesses; i++) { // Rows
+        for (let j = 0; j < wordLength; j++) {   // Columns = letters in secret word
+          guessGrid.innerHTML += `<div id="${i}${j}" class="key-guess"></div>`;
+        }
+        guessGrid.innerHTML += '<br/>';
       }
-      guessGrid.innerHTML += '<br/>'
     }
   
     // Create keyboard buttons with proper row structure
