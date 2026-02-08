@@ -812,7 +812,7 @@ let words = [
     '2025-02-05': 'MAW',
     '2025-02-06': 'CANVAS',
     '2025-02-07': 'FOOKDOOK',
-    '2025-02-08': 'FETZER',
+    '2025-02-08': 'GDTBATH',
     '2025-02-09': 'CCS',
     '2025-02-10': 'QUAD',
     '2025-02-11': 'WOOLLEN',
@@ -866,7 +866,7 @@ let words = [
     '2026-02-05': 'MAW',
     '2026-02-06': 'CANVAS',
     '2026-02-07': 'FOOKDOOK',
-    '2026-02-08': 'FETZER',
+    '2026-02-08': 'GDTBATH',
     '2026-02-09': 'CCS',
     '2026-02-10': 'QUAD',
     '2026-02-11': 'WOOLLEN',
@@ -959,16 +959,18 @@ let words = [
     '2026-05-09': 'GRAD'
   };
   
-  // Get daily word based on date (deterministic - same date = same word)
+  // Get daily word based on date (use server date when available so puzzle matches real calendar day)
   function getDailyWord() {
-    const today = new Date();
-    // Use local date to match home page display
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    
-    // Create date string in YYYY-MM-DD format
-    const dateString = `${year}-${month}-${day}`;
+    let dateString;
+    if (typeof window !== 'undefined' && window.serverDateString) {
+      dateString = window.serverDateString; // Set by play.html from worldtimeapi.org before app.js loads
+    } else {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const day = String(today.getDate()).padStart(2, '0');
+      dateString = `${year}-${month}-${day}`;
+    }
     
     // Check if we have a word for this date in the mapping
     if (dailyWordMap[dateString]) {

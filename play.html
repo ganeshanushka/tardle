@@ -5267,30 +5267,34 @@
           // Prevent app.js from loading until verification is checked
           window.verificationComplete = false;
           
-          // Function to allow page to load
+          // Function to allow page to load (fetch server date first so puzzle matches real calendar day)
           function allowPageLoad() {
-            // Prevent multiple calls
-            if (window.verificationComplete) {
-              return;
-            }
+            if (window.verificationComplete) return;
             window.verificationComplete = true;
             document.body.style.pointerEvents = '';
             document.body.style.overflow = '';
-            // Now load app.js (only once)
-            if (!window.appJsLoaded) {
+            function loadAppJs() {
+              if (window.appJsLoaded) return;
               window.appJsLoaded = true;
               const appScript = document.createElement('script');
-              // Add version parameter to force cache refresh
-              const version = new Date().getTime();
-              appScript.src = 'app.js?v=' + version;
-              appScript.onerror = function() {
-                console.error('Failed to load app.js');
-              };
-              appScript.onload = function() {
-                console.log('app.js loaded successfully, version:', version);
-              };
+              appScript.src = 'app.js?v=' + new Date().getTime();
+              appScript.onerror = function() { console.error('Failed to load app.js'); };
+              appScript.onload = function() { console.log('app.js loaded'); };
               document.body.appendChild(appScript);
             }
+            // Use server date so everyone sees same puzzle (e.g. CANVAS on Feb 6) regardless of device date
+            var controller = new AbortController();
+            var timeoutId = setTimeout(function() { controller.abort(); }, 2500);
+            fetch('https://worldtimeapi.org/api/ip', { signal: controller.signal })
+              .then(function(r) { return r.json(); })
+              .then(function(data) {
+                if (data && data.datetime) {
+                  var d = data.datetime.slice(0, 10);
+                  if (/^\d{4}-\d{2}-\d{2}$/.test(d)) window.serverDateString = d;
+                }
+              })
+              .catch(function() {})
+              .finally(function() { clearTimeout(timeoutId); loadAppJs(); });
           }
         </script>
         
