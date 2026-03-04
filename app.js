@@ -1084,9 +1084,14 @@ let words = [
     }
 
     // Holi background on March 4 (Holi festival)
+    // Use same date source as puzzle (server or local) for consistency
     const today = new Date();
-    const isMarch4 = String(today.getMonth() + 1).padStart(2, '0') === '03' && String(today.getDate()).padStart(2, '0') === '04';
-    if (SecretWord === 'HOLI' || isMarch4) {
+    const dateForHoli = (typeof window !== 'undefined' && window.serverDateString)
+      ? window.serverDateString
+      : `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    const isMarch4 = dateForHoli.endsWith('-03-04');
+    const forceHoli = typeof URLSearchParams !== 'undefined' && new URLSearchParams(window.location.search).get('holi') === '1';
+    if (SecretWord === 'HOLI' || isMarch4 || forceHoli) {
       const guessGridWrapper = document.getElementById('guessGridWrapper');
       const container = document.querySelector('.container');
       if (document.body) document.body.classList.add('holi-day');
