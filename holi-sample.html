@@ -180,6 +180,100 @@
       border-radius: 8px;
       cursor: pointer;
     }
+
+    .holi-event {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 480px;
+      margin-top: 36px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+      overflow: hidden;
+      text-align: center;
+      font-family: 'Field Gothic Narrow', sans-serif;
+    }
+    .holi-event-header {
+      background: linear-gradient(135deg, #E91E63, #FF9800, #FFEB3B, #4CAF50, #00BCD4, #7C4DFF);
+      padding: 20px 16px 14px;
+      color: white;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.25);
+    }
+    .holi-event-header h2 {
+      margin: 0 0 2px;
+      font-size: 28px;
+      letter-spacing: 1px;
+    }
+    .holi-event-header .subtitle {
+      font-size: 14px;
+      font-weight: bold;
+      opacity: 0.92;
+    }
+    .holi-event-body {
+      padding: 20px 24px 24px;
+    }
+    .holi-event-body .cle-badge {
+      display: inline-block;
+      background: #E91E63;
+      color: white;
+      font-size: 12px;
+      font-weight: bold;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-bottom: 14px;
+      letter-spacing: 0.5px;
+    }
+    .holi-detail {
+      margin-bottom: 14px;
+      font-size: 16px;
+      color: #333;
+      line-height: 1.5;
+    }
+    .holi-detail .label {
+      font-weight: bold;
+      color: #1a1a1b;
+    }
+    .holi-detail .emoji {
+      margin-right: 6px;
+    }
+    .buy-tickets-btn {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 14px 40px;
+      font-family: 'Field Gothic Narrow', sans-serif;
+      font-weight: bold;
+      font-size: 18px;
+      background: linear-gradient(135deg, #E91E63, #FF5722);
+      color: white;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      text-decoration: none;
+      letter-spacing: 0.5px;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 4px 14px rgba(233, 30, 99, 0.35);
+    }
+    .buy-tickets-btn:hover {
+      transform: scale(1.04);
+      box-shadow: 0 6px 20px rgba(233, 30, 99, 0.45);
+    }
+    .holi-price {
+      font-size: 26px;
+      font-weight: bold;
+      color: #E91E63;
+      margin: 10px 0 4px;
+    }
+    .holi-instagram {
+      margin-top: 16px;
+      font-size: 14px;
+      color: #666;
+    }
+    .holi-instagram a {
+      color: #E91E63;
+      text-decoration: none;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -209,6 +303,41 @@
       <div id="guessGrid"></div>
     </div>
     <button class="see-results-btn">See results</button>
+
+    <div class="holi-event">
+      <div class="holi-event-header">
+        <h2>🌈 HOLI MOLI 🌈</h2>
+        <div class="subtitle">The LARGEST Student-Run Event at UNC!</div>
+      </div>
+      <div class="holi-event-body">
+        <span class="cle-badge">CLE EVENT</span>
+
+        <div class="holi-price">$20</div>
+        <div class="holi-detail">Buy your tickets before they sell out!</div>
+
+        <a href="https://holi-moli-unc.myshopify.com" target="_blank" class="buy-tickets-btn">🎟️ Buy Tickets Now</a>
+
+        <div class="holi-detail" style="margin-top: 20px;">
+          <span class="emoji">📍</span>
+          <span class="label">Ticket Pickup:</span> The Pit<br>
+          March 2–6 &nbsp;|&nbsp; 11 AM – 2 PM
+        </div>
+
+        <div class="holi-detail">
+          <span class="emoji">📅</span>
+          <span class="label">Event:</span> March 8th, 2–5 PM<br>
+          Hooker Fields
+        </div>
+
+        <div class="holi-detail" style="font-size: 15px;">
+          🥳 You don't want to miss this colorful celebration!
+        </div>
+
+        <div class="holi-instagram">
+          Follow us: <a href="https://instagram.com/holimoliunc" target="_blank">@holimoliunc</a>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
