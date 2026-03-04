@@ -688,57 +688,113 @@
     font-weight: 900;
   }
 
+  .holi-ad-close {
+    display: none;
+  }
+
+  .holi-ad.holi-ad-dismissed {
+    display: none !important;
+  }
+
+  .holi-mobile-only { display: none; }
+  .holi-desktop-only { display: block; }
+
+  .holi-ad-images-row {
+    display: none;
+  }
+
   @media (max-width: 900px) {
     body.holi-day {
       --holi-ad-height: 0px;
-      overflow-y: auto !important;
     }
     body.holi-day .container {
       margin-top: clamp(50px, 8vh, 60px) !important;
-      height: auto !important;
-      overflow: visible !important;
+      height: calc(100vh - clamp(50px, 8vh, 60px)) !important;
+      overflow: hidden !important;
       padding-top: 8px !important;
     }
     body.holi-day #guessGridWrapper {
-      transform: none !important;
-      margin-top: 8px !important;
+      transform: scale(0.84) !important;
+      transform-origin: top center;
+      margin-top: 2px !important;
     }
     body.holi-day .guess-grid-wrapper.holi-day {
-      padding: 40px 56px !important;
+      padding: 34px 52px !important;
     }
     body.holi-day #keyboard {
-      transform: none !important;
-      margin-top: 8px !important;
+      transform: scale(0.84) !important;
+      transform-origin: top center;
+      margin-top: -6px !important;
     }
     .holi-ad {
-      position: relative !important;
-      top: auto !important;
+      position: fixed !important;
+      top: 0 !important;
       left: 0 !important;
       right: 0 !important;
-      margin: 0 10px;
+      bottom: 0 !important;
+      background: rgba(0, 0, 0, 0.55);
+      z-index: 2000 !important;
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    body.holi-day .holi-ad {
+      display: flex !important;
+    }
+    .holi-ad-close {
+      display: block;
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: none;
+      background: white;
+      color: #333;
+      font-size: 22px;
+      font-weight: bold;
+      cursor: pointer;
+      z-index: 2001;
+      line-height: 1;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     }
     .holi-ad-bar {
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 8px;
-      padding: 10px;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding: 16px;
       height: auto;
+      max-height: 80vh;
+      overflow-y: auto;
+      width: 100%;
+      max-width: 340px;
+      border-radius: 16px;
     }
     .holi-img-left,
     .holi-img-right {
-      width: 45%;
-      max-width: 160px;
+      width: 48%;
+      max-width: 140px;
       flex: 0 0 auto;
       height: auto;
     }
+    .holi-mobile-only { display: block !important; }
+    .holi-desktop-only { display: none !important; }
+    .holi-ad-images-row {
+      display: flex !important;
+      gap: 10px;
+      justify-content: center;
+      width: 100%;
+    }
     .holi-ad-bar-content {
       flex: 1 1 100%;
-      font-size: 12px;
-      line-height: 1.4;
+      font-size: 13px;
+      line-height: 1.45;
       text-align: center;
     }
-    .holi-ad-bar-content p { margin: 0 0 4px 0; }
-    .holi-ad-chip { margin-top: 6px; padding: 4px 8px; font-size: 10px; }
+    .holi-ad-bar-content p { margin: 0 0 6px 0; }
+    .holi-ad-chip { margin-top: 8px; padding: 5px 10px; font-size: 11px; }
   }
 
   body.holi-day {
@@ -3789,8 +3845,13 @@
   </div>
 
   <aside class="holi-ad" id="holiAd" aria-label="Holi event promotion">
+    <button class="holi-ad-close" id="holiAdClose" aria-label="Close ad">&times;</button>
     <div class="holi-ad-bar">
-      <img class="holi-ad-bar-img holi-img-left" src="assets/holi-one-more.png" alt="One More Holi">
+      <img class="holi-ad-bar-img holi-img-left holi-desktop-only" src="assets/holi-one-more.png" alt="One More Holi">
+      <div class="holi-ad-images-row holi-mobile-only">
+        <img class="holi-ad-bar-img holi-img-left" src="assets/holi-one-more.png" alt="One More Holi">
+        <img class="holi-ad-bar-img holi-img-right" src="assets/holi-flash-sale.png" alt="Happy Holi Flash Sale">
+      </div>
       <div class="holi-ad-bar-content">
         <p>Holi is fast approaching!!! Buy your tickets now!! It's a CLE event!!</p>
         <p>🌈 Tickets are $17!! Buy now before they sell out!!</p>
@@ -3800,11 +3861,22 @@
         <p>Instagram: <a class="holi-ad-link" href="https://instagram.com/holimoliunc" target="_blank" rel="noopener noreferrer">@holimoliunc</a></p>
         <span class="holi-ad-chip">holimoli x tardle collab</span>
       </div>
-      <img class="holi-ad-bar-img holi-img-right" src="assets/holi-flash-sale.png" alt="Happy Holi Flash Sale">
+      <img class="holi-ad-bar-img holi-img-right holi-desktop-only" src="assets/holi-flash-sale.png" alt="Happy Holi Flash Sale">
     </div>
   </aside>
   </div>
 
+  <script>
+    (function() {
+      var btn = document.getElementById('holiAdClose');
+      var ad = document.getElementById('holiAd');
+      if (btn && ad) {
+        btn.addEventListener('click', function() {
+          ad.classList.add('holi-ad-dismissed');
+        });
+      }
+    })();
+  </script>
 
           <div id="gameOverPopup" class="hidden">
             <div class="popup-content">
