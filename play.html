@@ -602,13 +602,16 @@
   .holi-ad {
     display: none;
     flex-direction: column;
-    gap: 20px;
-    width: 200px;
+    gap: 12px;
+    width: clamp(210px, 19vw, 250px);
     position: fixed;
     right: 24px;
-    top: 50%;
-    transform: translateY(-50%);
+    top: 24px;
+    bottom: 24px;
+    transform: none;
     z-index: 100;
+    overflow-y: auto;
+    padding-right: 2px;
   }
 
   body.holi-day .holi-ad {
@@ -616,8 +619,8 @@
   }
 
   .holi-ad-tile {
-    width: 200px;
-    height: 200px;
+    width: 100%;
+    height: clamp(120px, 16vh, 200px);
     perspective: 1000px;
     flex-shrink: 0;
   }
@@ -663,8 +666,8 @@
   }
 
   .holi-ad-tile-text {
-    width: 200px;
-    height: 280px;
+    width: 100%;
+    height: clamp(150px, 20vh, 280px);
     perspective: 600px;
     flex-shrink: 0;
   }
@@ -677,7 +680,7 @@
     background: #ffffff;
     color: #7BAFD4;
     padding: 14px;
-    font-size: 11px;
+    font-size: clamp(10px, 1.3vh, 13px);
     font-weight: bold;
     text-align: left;
     line-height: 1.5;
