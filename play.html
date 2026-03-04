@@ -645,6 +645,16 @@
     display: inline-block;
     margin: 0 auto;
   }
+
+  /* Holi: image as background directly behind the grid */
+  .guess-grid-wrapper.holi-day {
+    background-image: url('assets/holi-explosion.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    padding: 60px 80px;
+    border-radius: 16px;
+  }
   
   .holi-splash {
     display: none;
@@ -656,17 +666,10 @@
   .guess-grid-wrapper.holi-day .holi-splash {
     display: block;
   }
-  
-  /* When it's Holi, show the background image - on body for full-page coverage */
-  body.holi-day {
-    background-image: url('assets/holi-explosion.png');
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: cover;
-    background-attachment: fixed;
-  }
-  .container.holi-day {
-    background: transparent; /* Let body background show through */
+
+  .guess-grid-wrapper.holi-day #guessGrid {
+    position: relative;
+    z-index: 2;
   }
   
   /* Large organic paint splatters (approximate the design from holi-sample) */
