@@ -606,8 +606,8 @@
     width: clamp(210px, 19vw, 250px);
     position: fixed;
     right: 24px;
-    top: 24px;
-    bottom: 24px;
+    top: calc(clamp(50px, 8vh, 60px) + 12px);
+    bottom: 16px;
     transform: none;
     z-index: 100;
     overflow-y: auto;
@@ -693,7 +693,28 @@
   }
 
   @media (max-width: 900px) {
-    .holi-ad { display: none !important; }
+    body.holi-day .holi-ad {
+      display: flex !important;
+      position: relative;
+      right: auto;
+      top: auto;
+      bottom: auto;
+      transform: none;
+      width: min(88vw, 420px);
+      margin: 16px auto 24px;
+      gap: 16px;
+      overflow: visible;
+      padding-right: 0;
+      z-index: auto;
+    }
+
+    .holi-ad-tile {
+      height: 200px;
+    }
+
+    .holi-ad-tile-text {
+      height: 320px;
+    }
   }
 
 .container {
