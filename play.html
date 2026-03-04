@@ -3736,20 +3736,40 @@
     document.addEventListener("DOMContentLoaded", function() {
       const adTiles = document.querySelectorAll(".holi-ad-tile-inner");
       if (!adTiles.length) return;
+
       const flipDelay = 250;
       const flipDuration = 800;
-      adTiles.forEach((tile, index) => {
-        tile.classList.remove("flip", "revealed");
-        setTimeout(() => {
-          tile.classList.add("flip");
+      let hasAnimatedAdTiles = false;
+
+      function animateAdTiles() {
+        if (hasAnimatedAdTiles) return;
+        hasAnimatedAdTiles = true;
+        adTiles.forEach((tile, index) => {
+          tile.classList.remove("flip", "revealed");
           setTimeout(() => {
-            tile.classList.add("revealed");
-          }, flipDuration / 2);
-          setTimeout(() => {
-            tile.classList.remove("flip");
-          }, flipDuration);
-        }, index * flipDelay);
-      });
+            tile.classList.add("flip");
+            setTimeout(() => {
+              tile.classList.add("revealed");
+            }, flipDuration / 2);
+            setTimeout(() => {
+              tile.classList.remove("flip");
+            }, flipDuration);
+          }, index * flipDelay);
+        });
+      }
+
+      // Holi classes are added by app.js after page load. Wait until visible.
+      if (document.body.classList.contains("holi-day")) {
+        animateAdTiles();
+      } else {
+        const holiCheck = setInterval(() => {
+          if (document.body.classList.contains("holi-day")) {
+            clearInterval(holiCheck);
+            animateAdTiles();
+          }
+        }, 100);
+        setTimeout(() => clearInterval(holiCheck), 10000);
+      }
     });
   </script>
 
