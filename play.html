@@ -753,24 +753,32 @@
       display: flex !important;
     }
     .holi-ad-close {
-      display: block;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       position: absolute;
-      top: 12px;
-      right: 12px;
-      width: 36px;
-      height: 36px;
+      top: -14px;
+      right: -14px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
-      border: none;
+      border: 2px solid #e0e0e0;
       background: white;
-      color: #333;
-      font-size: 22px;
-      font-weight: bold;
+      color: #999;
+      font-size: 18px;
+      font-weight: 400;
       cursor: pointer;
       z-index: 2001;
       line-height: 1;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      box-shadow: 0 1px 6px rgba(0,0,0,0.15);
+      transition: background 0.15s, color 0.15s;
+    }
+    .holi-ad-close:active {
+      background: #f0f0f0;
+      color: #555;
     }
     .holi-ad-bar {
+      position: relative;
       flex-direction: column;
       align-items: center;
       gap: 10px;
@@ -3855,8 +3863,8 @@
   </div>
 
   <aside class="holi-ad" id="holiAd" aria-label="Holi event promotion">
-    <button class="holi-ad-close" id="holiAdClose" aria-label="Close ad">&times;</button>
     <div class="holi-ad-bar">
+      <button class="holi-ad-close" id="holiAdClose" aria-label="Close ad">&times;</button>
       <img class="holi-ad-bar-img holi-img-left holi-desktop-only" src="assets/holi-one-more.png" alt="One More Holi">
       <div class="holi-ad-images-row holi-mobile-only">
         <img class="holi-ad-bar-img holi-img-left" src="assets/holi-one-more.png" alt="One More Holi">
