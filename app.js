@@ -833,6 +833,34 @@ let words = [
     '2025-02-26': 'CALEB',
     '2025-02-27': 'MURPHEY',
     '2025-02-28': 'WILSON',
+    '2025-03-04': 'HOLI',
+    '2025-03-05': 'FRANKLIN',
+    '2025-03-06': 'CHAPMAN',
+    '2025-03-07': 'SAFEWALK',
+    '2025-03-08': 'PARKER',
+    '2025-03-09': 'RAMESES',
+    '2025-03-10': 'YIKYAK',
+    '2025-03-11': 'AGORA',
+    '2025-03-12': 'HORTON',
+    '2025-03-13': 'GENOME',
+    '2025-03-14': 'FRAT',
+    '2025-03-15': 'HUBERT',
+    '2025-03-16': 'ALUMNI',
+    '2025-03-17': 'SUBWAY',
+    '2025-03-18': 'MATSON',
+    '2025-03-19': 'GPA',
+    '2025-03-20': 'POLK',
+    '2025-03-21': 'GRAHAM',
+    '2025-03-22': 'COCKER',
+    '2025-03-23': 'TRU',
+    '2025-03-24': 'ONYEN',
+    '2025-03-25': 'HARDIN',
+    '2025-03-26': 'BONCHON',
+    '2025-03-27': 'JORDAN',
+    '2025-03-28': 'WINSTON',
+    '2025-03-29': 'MOREHEAD',
+    '2025-03-30': 'ROY',
+    '2025-03-31': 'PLAYA',
     '2026-01-06': 'DAVIS',
     '2026-01-07': 'FDOC',
     '2026-01-08': 'KENAN',
@@ -1053,6 +1081,12 @@ let words = [
       } else {
         bagelDayMessage.classList.add('hidden');
       }
+    }
+
+    // Holi day: show colorful splashes around the word grid
+    const guessGridWrapper = document.getElementById('guessGridWrapper');
+    if (guessGridWrapper && SecretWord === 'HOLI') {
+      guessGridWrapper.classList.add('holi-day');
     }
     
     // Create grid cells - always match today's word length (e.g. CANVAS = 6, not fixed 5)

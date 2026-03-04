@@ -638,6 +638,138 @@
   #guessGrid br {
     line-height: 0; /* Remove spacing from line breaks */
   }
+
+  /* Holi day: colorful splashes and UNC badge around the word grid */
+  .guess-grid-wrapper {
+    position: relative;
+    display: inline-block;
+    margin: 0 auto;
+  }
+  
+  .holi-splash {
+    display: none;
+    position: absolute;
+    pointer-events: none;
+    opacity: 0.5;
+  }
+  
+  .guess-grid-wrapper.holi-day .holi-splash {
+    display: block;
+  }
+  
+  /* Large organic paint splatters (approximate the design from holi-sample) */
+  .holi-splash-1 {
+    width: 180px;
+    height: 180px;
+    background: #E91E63;
+    border-radius: 60% 40% 70% 30% / 50% 60% 40% 50%;
+    top: -20px;
+    right: -40px;
+  }
+  .holi-splash-2 {
+    width: 160px;
+    height: 160px;
+    background: #00BCD4;
+    border-radius: 40% 60% 50% 50% / 60% 40% 60% 40%;
+    top: 80px;
+    left: -60px;
+  }
+  .holi-splash-3 {
+    width: 140px;
+    height: 140px;
+    background: #64B5F6;
+    border-radius: 50% 50% 40% 60% / 50% 60% 50% 40%;
+    bottom: 60px;
+    left: -30px;
+  }
+  .holi-splash-4 {
+    width: 150px;
+    height: 150px;
+    background: #FFEB3B;
+    border-radius: 60% 40% 50% 50% / 40% 60% 50% 50%;
+    bottom: 40px;
+    right: -50px;
+  }
+  .holi-splash-5 {
+    width: 100px;
+    height: 100px;
+    background: #F06292;
+    border-radius: 50% 60% 40% 50% / 50% 50% 60% 40%;
+    top: 120px;
+    right: 20px;
+  }
+  .holi-splash-6 {
+    width: 90px;
+    height: 90px;
+    background: #4DD0E1;
+    border-radius: 40% 60% 60% 40% / 50% 50% 50% 50%;
+    bottom: 140px;
+    right: -20px;
+  }
+  .holi-splash-7 {
+    width: 80px;
+    height: 80px;
+    background: #4FC3F7;
+    border-radius: 50% 40% 60% 50% / 50% 60% 40% 50%;
+    bottom: -10px;
+    left: -10px;
+  }
+  .holi-splash-8 {
+    width: 80px;
+    height: 80px;
+    background: #FFCDD2;
+    border-radius: 40% 60% 50% 50% / 60% 40% 50% 50%;
+    top: -30px;
+    left: 10px;
+  }
+  
+  /* UNC badge centered above the grid, only on Holi day */
+  .unc-badge {
+    display: none;
+    position: absolute;
+    top: -28px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1a1a1b;
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 3px 8px;
+    border-radius: 4px;
+    z-index: 2;
+  }
+  
+  .guess-grid-wrapper.holi-day .unc-badge {
+    display: inline-block;
+  }
+  
+  /* Slightly lighter borders between tiles to echo the mockup */
+  .guess-grid-wrapper.holi-day .key-guess {
+    border-color: #b8c4ce !important;
+  }
+  
+  /* Vertical accent lines over the grid (Holi layout) */
+  .guess-grid-wrapper.holi-day::before,
+  .guess-grid-wrapper.holi-day::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background-color: #f48fb1;
+    z-index: 1;
+    opacity: 0.9;
+  }
+  
+  .guess-grid-wrapper.holi-day::before {
+    left: 33.333%;
+    transform: translateX(-1.5px);
+  }
+  
+  .guess-grid-wrapper.holi-day::after {
+    left: 66.666%;
+    transform: translateX(-1.5px);
+  }
   
   /* Darker border when box has a letter (like Wordle) */
   .key-guess.filled {
@@ -2479,8 +2611,7 @@
     align-items: center;
     opacity: 0;
     transition: opacity 0.3s ease;
-    /* Tell Chrome this is not an ad */
-    data-ad-type="none";
+    /* Tell Chrome this is not an ad (non-functional hint) */
   }
 
   #loginPromptModal.show {
@@ -3551,7 +3682,18 @@
       </div>
     </div>
     <div id="bagelDayMessage" class="bagel-day-message hidden"></div>
-    <div id="guessGrid"></div>
+    <div id="guessGridWrapper" class="guess-grid-wrapper">
+      <span class="unc-badge">UNC</span>
+      <div class="holi-splash holi-splash-1"></div>
+      <div class="holi-splash holi-splash-2"></div>
+      <div class="holi-splash holi-splash-3"></div>
+      <div class="holi-splash holi-splash-4"></div>
+      <div class="holi-splash holi-splash-5"></div>
+      <div class="holi-splash holi-splash-6"></div>
+      <div class="holi-splash holi-splash-7"></div>
+      <div class="holi-splash holi-splash-8"></div>
+      <div id="guessGrid"></div>
+    </div>
     <div id="keyboard"></div>
     <div id="gameOverButtons" class="hidden" style="display: none; flex-direction: column; align-items: center; gap: 12px; margin-top: 20px;">
       <button class="game-over-button" id="gameOverButton">See results</button>
