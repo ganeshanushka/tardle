@@ -602,8 +602,8 @@
   .holi-ad {
     display: none;
     position: fixed;
-    left: 24px;
-    right: 24px;
+    left: 12px;
+    right: 12px;
     top: calc(clamp(50px, 8vh, 60px) + 10px);
     z-index: 900;
   }
@@ -624,20 +624,29 @@
   }
 
   .holi-ad-bar-img {
-    width: 500px;
-    flex: 0 0 500px;
     border-radius: 10px;
     object-fit: contain;
     background: #ffffff;
   }
 
+  .holi-img-left.holi-desktop-only {
+    width: 300px;
+    flex: 0 0 300px;
+  }
+
+  .holi-img-right.holi-desktop-only {
+    width: 500px;
+    flex: 0 0 500px;
+  }
+
   .holi-ad-bar-content {
     flex: 1;
+    min-width: 0;
     color: #7BAFD4;
-    font-size: clamp(10px, 0.9vw, 13px);
+    font-size: clamp(12px, 1.1vw, 15px);
     font-weight: bold;
     text-align: left;
-    line-height: 1.3;
+    line-height: 1.4;
     overflow: visible;
   }
 
@@ -818,13 +827,13 @@
     transform: scale(0.72);
     transform-origin: top center;
     margin-top: -4px;
-    margin-bottom: -100px;
+    margin-bottom: -80px;
   }
 
   body.holi-day #keyboard {
     transform: scale(0.78);
     transform-origin: top center;
-    margin-top: -40px;
+    margin-top: -25px;
   }
 
 .container {
