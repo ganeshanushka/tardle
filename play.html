@@ -755,29 +755,7 @@
       display: flex !important;
     }
     .holi-ad-close {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: absolute;
-      top: -14px;
-      right: -14px;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      border: 2px solid #e0e0e0;
-      background: white;
-      color: #999;
-      font-size: 18px;
-      font-weight: 400;
-      cursor: pointer;
-      z-index: 2001;
-      line-height: 1;
-      box-shadow: 0 1px 6px rgba(0,0,0,0.15);
-      transition: background 0.15s, color 0.15s;
-    }
-    .holi-ad-close:active {
-      background: #f0f0f0;
-      color: #555;
+      display: none !important;
     }
     .holi-ad-bar {
       position: relative;
@@ -3888,15 +3866,15 @@
 
   <script>
     (function() {
-      var btn = document.getElementById('holiAdClose');
       var ad = document.getElementById('holiAd');
-      if (btn && ad) {
-        btn.addEventListener('click', function() {
+      if (!ad) return;
+      ad.addEventListener('click', function(e) {
+        if (e.target === ad) {
           ad.classList.add('holi-ad-dismissed');
           var grid = document.getElementById('guessGridWrapper');
           if (grid) grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        });
-      }
+        }
+      });
     })();
   </script>
 
