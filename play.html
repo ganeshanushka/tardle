@@ -595,18 +595,8 @@
   }
 
 .play-layout {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: flex-start;
-    gap: 24px;
+    position: relative;
     width: 100%;
-    max-width: 1200px;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: clamp(80px, 12vh, 120px);
-    padding: 0 clamp(10px, 2vw, 20px);
-    box-sizing: border-box;
   }
 
   .holi-ad {
@@ -614,7 +604,11 @@
     flex-direction: column;
     gap: 20px;
     width: 200px;
-    flex-shrink: 0;
+    position: fixed;
+    right: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 100;
   }
 
   body.holi-day .holi-ad {
@@ -636,7 +630,7 @@
     display: flex;
     align-items: center;
     flex-direction: column;
-    margin-top: 0;
+    margin-top: clamp(80px, 12vh, 120px);
     padding-top: clamp(15px, 2vh, 20px);
     padding-left: clamp(10px, 2vw, 20px);
     padding-right: clamp(10px, 2vw, 20px);
