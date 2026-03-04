@@ -594,7 +594,42 @@
     height: 100%;
   }
 
-.container {
+  .main-layout {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 24px;
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .holi-ad-sidebar {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding-top: clamp(80px, 12vh, 120px);
+    padding-right: clamp(10px, 2vw, 24px);
+  }
+
+  body.holi-day .holi-ad-sidebar {
+    display: flex;
+  }
+
+  .holi-ad-sidebar img {
+    max-width: 220px;
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+  }
+
+  @media (max-width: 900px) {
+    .holi-ad-sidebar { display: none !important; }
+  }
+
+  .container {
     display: flex;
     align-items: center;
     flex-direction: column;
@@ -3561,6 +3596,7 @@
     </div>
     <div class="close-button" id="closeButton">X</div>
   </div>
+  <div class="main-layout">
   <div class="container">
     <div id="customPopup" class="hidden">
       <div class="popup-content success-message">
@@ -3598,6 +3634,12 @@
       <span id="notEnoughLettersMessage">Not enough letters</span>
       </div>
     </div>
+  </div>
+
+  <aside class="holi-ad-sidebar">
+    <img src="assets/holi-ad-one-holi-moi.png" alt="ONE HOLI MOI!">
+    <img src="assets/holi-ad-poster.png" alt="UNC HOLI MOLI event poster">
+  </aside>
   </div>
 
 
