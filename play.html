@@ -657,12 +657,16 @@
     display: block;
   }
   
-  /* When it's Holi, show the background image on the main content area */
-  .container.holi-day {
+  /* When it's Holi, show the background image - on body for full-page coverage */
+  body.holi-day {
     background-image: url('assets/holi-explosion.png');
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
+    background-attachment: fixed;
+  }
+  .container.holi-day {
+    background: transparent; /* Let body background show through */
   }
   
   /* Large organic paint splatters (approximate the design from holi-sample) */

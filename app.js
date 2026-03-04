@@ -1083,11 +1083,16 @@ let words = [
       }
     }
 
-    // Temporarily show Holi background for all words
-    const guessGridWrapper = document.getElementById('guessGridWrapper');
-    const container = document.querySelector('.container');
-    if (guessGridWrapper) guessGridWrapper.classList.add('holi-day');
-    if (container) container.classList.add('holi-day');
+    // Holi background on March 4 (Holi festival)
+    const today = new Date();
+    const isMarch4 = String(today.getMonth() + 1).padStart(2, '0') === '03' && String(today.getDate()).padStart(2, '0') === '04';
+    if (SecretWord === 'HOLI' || isMarch4) {
+      const guessGridWrapper = document.getElementById('guessGridWrapper');
+      const container = document.querySelector('.container');
+      if (document.body) document.body.classList.add('holi-day');
+      if (guessGridWrapper) guessGridWrapper.classList.add('holi-day');
+      if (container) container.classList.add('holi-day');
+    }
     
     // Create grid cells - always match today's word length (e.g. CANVAS = 6, not fixed 5)
     const wordLength = SecretWord.length;
