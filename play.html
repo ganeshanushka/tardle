@@ -628,7 +628,7 @@
     height: 100%;
   }
 
-  .holi-ad-tile:hover .holi-ad-tile-inner {
+  .holi-ad-tile-inner.flip {
     animation: flip 0.8s ease-in-out;
   }
 
@@ -662,6 +662,12 @@
     height: 100%;
     object-fit: contain;
     border-radius: 12px;
+    visibility: hidden;
+  }
+
+  .holi-ad-tile-inner.revealed .holi-ad-tile-front img,
+  .holi-ad-tile-inner.revealed .holi-ad-tile-front {
+    visibility: visible;
   }
 
   .holi-ad-tile-text {
@@ -3704,7 +3710,7 @@
   <aside class="holi-ad" id="holiAd" aria-label="Holi event promotion">
     <div class="holi-ad-tile">
       <div class="holi-ad-tile-inner">
-        <div class="holi-ad-tile-front">
+        <div class="holi-ad-tile-front" aria-hidden="true">
           <img src="assets/holi-one-more.png" alt="One More Holi">
         </div>
         <div class="holi-ad-tile-back">Buy tickets! $20 • Link in bio</div>
@@ -3712,7 +3718,7 @@
     </div>
     <div class="holi-ad-tile">
       <div class="holi-ad-tile-inner">
-        <div class="holi-ad-tile-front">
+        <div class="holi-ad-tile-front" aria-hidden="true">
           <img src="assets/holi-event.png" alt="UNC Holi Moli event">
         </div>
         <div class="holi-ad-tile-back">April 12th • Hooker Fields • 2-5 PM</div>
@@ -3720,7 +3726,7 @@
     </div>
     <div class="holi-ad-tile holi-ad-tile-text">
       <div class="holi-ad-tile-inner">
-        <div class="holi-ad-tile-front">
+        <div class="holi-ad-tile-front" aria-hidden="true">
           Holi is fast approaching!!! Buy your tickets now!! It's a CLE event!!<br><br>
           🌈 Tickets are $20!! Buy now before we sell out!!<br>
           🎟️ Link in bio to buy tickets<br>
@@ -3732,6 +3738,25 @@
     </div>
   </aside>
   </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const adTiles = document.querySelectorAll(".holi-ad-tile-inner");
+      if (!adTiles.length) return;
+      const flipDelay = 200;
+      const flipDuration = 800;
+      adTiles.forEach((tile, index) => {
+        tile.classList.remove("flip", "revealed");
+        setTimeout(() => {
+          tile.classList.add("flip");
+          setTimeout(() => {
+            tile.classList.remove("flip");
+            tile.classList.add("revealed");
+          }, flipDuration);
+        }, index * flipDelay);
+      });
+    });
+  </script>
 
 
           <div id="gameOverPopup" class="hidden">
