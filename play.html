@@ -606,17 +606,15 @@
     right: 0;
     top: calc(clamp(50px, 8vh, 60px) + 10px);
     z-index: 900;
-    padding: 0 12px;
-    box-sizing: border-box;
+    text-align: center;
   }
 
   body.holi-day .holi-ad {
-    display: flex;
-    justify-content: center;
+    display: block;
   }
 
   .holi-ad-bar {
-    display: flex;
+    display: inline-flex;
     align-items: stretch;
     justify-content: center;
     gap: 6px;
@@ -625,8 +623,7 @@
     padding: 8px;
     box-sizing: border-box;
     height: var(--holi-ad-height);
-    width: 100%;
-    max-width: 1400px;
+    margin: 0 auto;
   }
 
   .holi-ad-bar-img {
@@ -652,7 +649,7 @@
     color: #7BAFD4;
     font-size: clamp(12px, 1.1vw, 15px);
     font-weight: bold;
-    text-align: center;
+    text-align: left;
     line-height: 1.25;
     overflow: visible;
   }
