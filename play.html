@@ -602,25 +602,31 @@
   .holi-ad {
     display: none;
     position: fixed;
-    left: 12px;
-    right: 12px;
+    left: 0;
+    right: 0;
     top: calc(clamp(50px, 8vh, 60px) + 10px);
     z-index: 900;
+    padding: 0 12px;
+    box-sizing: border-box;
   }
 
   body.holi-day .holi-ad {
-    display: block;
+    display: flex;
+    justify-content: center;
   }
 
   .holi-ad-bar {
     display: flex;
     align-items: stretch;
+    justify-content: center;
     gap: 6px;
     background: #ffffff;
     border-radius: 12px;
     padding: 8px;
     box-sizing: border-box;
     height: var(--holi-ad-height);
+    width: 100%;
+    max-width: 1400px;
   }
 
   .holi-ad-bar-img {
