@@ -692,6 +692,49 @@
     overflow-y: auto;
   }
 
+  .holi-ad-card-title {
+    font-size: 16px;
+    font-weight: 900;
+    line-height: 1.2;
+    margin-bottom: 10px;
+    color: #001a57;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  .holi-ad-card-copy {
+    font-size: inherit;
+    line-height: inherit;
+    font-weight: inherit;
+  }
+
+  .holi-ad-card-copy .emph {
+    color: #001a57;
+    font-weight: 900;
+  }
+
+  .holi-ad-chip {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #7BAFD4;
+    color: #ffffff;
+    font-weight: 900;
+    font-size: 12px;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .holi-ad-link {
+    display: block;
+    margin-top: 10px;
+    color: #001a57;
+    text-decoration: underline;
+    word-break: break-word;
+    font-weight: 900;
+  }
+
   @media (max-width: 900px) {
     body.holi-day .holi-ad {
       display: flex !important;
@@ -3738,11 +3781,14 @@
       <div class="holi-ad-tile-inner">
         <div class="holi-ad-tile-front">
           <div class="holi-ad-content">
-            Holi is fast approaching!!! Buy your tickets now!! It's a CLE event!!<br><br>
-            🌈 Tickets are $20!! Buy now before they sell out!!<br>
-            🎟️ Link below to buy tickets<br>
-            📍 Pickup: The Pit | April 7-11 | 11 AM - 2 PM<br><br>
-            Join holimoliunc on April 12th from 2-5 PM at Hooker Fields for the LARGEST STUDENT-RUN EVENT AT UNC! 🥳 You don't want to miss this colorful celebration!
+            <div class="holi-ad-card-title">HOLI MOLI 2026</div>
+            <div class="holi-ad-card-copy">
+              Holi is fast approaching. Buy your tickets now - it's a CLE event.<br><br>
+              🌈 <span class="emph">Tickets are $20</span> (before they sell out)<br>
+              📍 Pickup: The Pit | April 7-11 | 11 AM - 2 PM<br><br>
+              Join @holimoliunc on April 12th from 2-5 PM at Hooker Fields for the <span class="emph">largest student-run event at UNC</span> 🥳
+            </div>
+            <span class="holi-ad-chip">Get tickets now</span>
           </div>
         </div>
       </div>
@@ -3758,9 +3804,14 @@
       <div class="holi-ad-tile-inner">
         <div class="holi-ad-tile-front">
           <div class="holi-ad-content">
-            Link to buy tickets: https://holi-moli-unc.myshopify.com<br><br>
-            Instagram: @holimoliunc<br><br>
-            holimoli x tardle collab
+            <div class="holi-ad-card-title">Links</div>
+            <div class="holi-ad-card-copy">
+              Instagram: <span class="emph">@holimoliunc</span>
+            </div>
+            <a class="holi-ad-link" href="https://holi-moli-unc.myshopify.com" target="_blank" rel="noopener noreferrer">
+              Buy tickets: holi-moli-unc.myshopify.com
+            </a>
+            <span class="holi-ad-chip">holimoli x tardle collab</span>
           </div>
         </div>
       </div>
