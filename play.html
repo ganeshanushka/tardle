@@ -624,8 +624,8 @@
   }
 
   .holi-ad-bar-img {
-    width: 420px;
-    flex: 0 0 420px;
+    width: 280px;
+    flex: 0 0 280px;
     border-radius: 10px;
     object-fit: contain;
     background: #ffffff;
@@ -798,32 +798,31 @@
   }
 
   body.holi-day {
-    --holi-ad-height: clamp(180px, 28vh, 340px);
+    --holi-ad-height: clamp(140px, 18vh, 200px);
     overflow-y: hidden;
   }
 
   body.holi-day .container {
-    margin-top: calc(clamp(50px, 8vh, 60px) + 10px + var(--holi-ad-height) + 14px);
-    height: calc(100vh - (clamp(50px, 8vh, 60px) + 10px + var(--holi-ad-height) + 18px));
+    margin-top: calc(clamp(50px, 8vh, 60px) + 10px + var(--holi-ad-height) + 10px);
+    height: calc(100vh - (clamp(50px, 8vh, 60px) + 10px + var(--holi-ad-height) + 14px));
     overflow: hidden;
     padding-top: 0;
   }
 
   body.holi-day .guess-grid-wrapper.holi-day {
-    /* Reduce vertical footprint so keyboard rows are not clipped */
-    padding: 34px 52px;
+    padding: 24px 40px;
   }
 
   body.holi-day #guessGridWrapper {
-    transform: scale(0.84);
+    transform: scale(0.75);
     transform-origin: top center;
-    margin-top: 2px;
+    margin-top: 0;
   }
 
   body.holi-day #keyboard {
-    transform: scale(0.84);
+    transform: scale(0.80);
     transform-origin: top center;
-    margin-top: -6px;
+    margin-top: -12px;
   }
 
 .container {
