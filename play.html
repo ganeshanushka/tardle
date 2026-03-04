@@ -689,51 +689,17 @@
   }
 
   @media (max-width: 900px) {
-    .holi-ad { left: 14px; right: 14px; }
-    .holi-ad-bar {
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      padding: 10px;
-      height: auto;
-      overflow-y: auto;
-    }
-    .holi-ad-bar-img {
-      width: 100%;
-      max-width: 280px;
-      flex: 0 0 auto;
-      height: auto;
-    }
-    .holi-ad-bar-content {
-      font-size: 13px;
-      line-height: 1.4;
-      text-align: center;
-    }
-    .holi-ad-chip { margin-top: 8px; padding: 5px 10px; font-size: 11px; }
-  }
-
-  @media (max-width: 900px) {
-    body.holi-day {
-      --holi-ad-height: auto;
-      overflow-y: auto;
-    }
-    body.holi-day .holi-ad {
-      position: relative;
-      top: auto;
-      left: 0;
-      right: 0;
-      margin: 10px 14px;
-      z-index: 1;
-    }
-    body.holi-day .container {
-      margin-top: clamp(50px, 8vh, 60px);
-      height: auto;
-      overflow: visible;
-    }
+    .holi-ad { left: 10px; right: 10px; }
+    .holi-ad-bar { gap: 6px; padding: 6px; }
+    .holi-ad-bar-img { width: 100px; flex: 0 0 100px; }
+    .holi-ad-bar-content { font-size: 10px; line-height: 1.25; }
+    .holi-ad-bar-content p { margin: 0 0 3px 0; }
+    .holi-ad-chip { margin-top: 4px; padding: 3px 7px; font-size: 9px; }
+    .holi-ad-link { font-size: 9px; }
   }
 
   body.holi-day {
-    --holi-ad-height: clamp(160px, 25vh, 240px);
+    --holi-ad-height: clamp(130px, 20vh, 240px);
     overflow-y: hidden;
   }
 
