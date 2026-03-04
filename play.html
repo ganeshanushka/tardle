@@ -648,13 +648,14 @@
   
   .holi-splash {
     display: none;
-    position: absolute;
-    pointer-events: none;
-    opacity: 0.5;
   }
   
-  .guess-grid-wrapper.holi-day .holi-splash {
-    display: block;
+  /* When it's Holi, show the background image instead of individual splash divs */
+  .guess-grid-wrapper.holi-day {
+    background-image: url('assets/holi-splash.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
   }
   
   /* Large organic paint splatters (approximate the design from holi-sample) */

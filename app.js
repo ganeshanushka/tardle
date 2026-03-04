@@ -1083,9 +1083,9 @@ let words = [
       }
     }
 
-    // Holi day: show colorful splashes around the word grid
+    // Temporarily show Holi background around the word grid for all words
     const guessGridWrapper = document.getElementById('guessGridWrapper');
-    if (guessGridWrapper && SecretWord === 'HOLI') {
+    if (guessGridWrapper) {
       guessGridWrapper.classList.add('holi-day');
     }
     
