@@ -601,17 +601,20 @@
 
   .holi-ad {
     display: none;
-    flex-direction: column;
-    gap: 12px;
-    width: clamp(210px, 19vw, 250px);
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: center;
+    gap: 10px;
+    width: auto;
     position: fixed;
-    right: 24px;
+    left: 12px;
+    right: 12px;
     top: calc(clamp(50px, 8vh, 60px) + 12px);
-    bottom: 16px;
+    height: clamp(120px, 18vh, 180px);
     transform: none;
-    z-index: 100;
-    overflow-y: auto;
-    padding-right: 2px;
+    z-index: 900;
+    overflow: hidden;
+    padding: 0;
   }
 
   body.holi-day .holi-ad {
@@ -619,8 +622,9 @@
   }
 
   .holi-ad-tile {
-    width: 100%;
-    height: clamp(150px, 19vh, 220px);
+    width: min(23vw, 240px);
+    min-width: 140px;
+    height: 100%;
     perspective: 1000px;
     flex-shrink: 0;
   }
@@ -666,8 +670,9 @@
   }
 
   .holi-ad-tile-text {
-    width: 100%;
-    height: clamp(240px, 34vh, 420px);
+    width: min(28vw, 280px);
+    min-width: 170px;
+    height: 100%;
     perspective: 600px;
     flex-shrink: 0;
   }
@@ -679,17 +684,17 @@
   .holi-ad-tile-text .holi-ad-content {
     background: #ffffff;
     color: #7BAFD4;
-    padding: 14px;
-    font-size: clamp(10px, 1.3vh, 13px);
+    padding: 10px;
+    font-size: clamp(8px, 0.9vw, 11px);
     font-weight: bold;
     text-align: left;
-    line-height: 1.5;
+    line-height: 1.3;
     box-sizing: border-box;
     border-radius: 12px;
     display: block;
     width: 100%;
     height: 100%;
-    overflow-y: auto;
+    overflow: hidden;
   }
 
   .holi-ad-card-title {
@@ -736,28 +741,26 @@
   }
 
   @media (max-width: 900px) {
-    body.holi-day .holi-ad {
-      display: flex !important;
-      position: relative;
-      right: auto;
-      top: auto;
-      bottom: auto;
-      transform: none;
-      width: min(88vw, 420px);
-      margin: 16px auto 24px;
-      gap: 16px;
-      overflow: visible;
-      padding-right: 0;
-      z-index: auto;
+    .holi-ad {
+      left: 8px;
+      right: 8px;
+      gap: 6px;
+      height: clamp(96px, 16vh, 140px);
     }
 
     .holi-ad-tile {
-      height: 200px;
+      min-width: 0;
+      width: 24%;
     }
 
     .holi-ad-tile-text {
-      height: 320px;
+      min-width: 0;
+      width: 28%;
     }
+  }
+
+  body.holi-day .container {
+    margin-top: calc(clamp(80px, 12vh, 120px) + clamp(120px, 18vh, 180px) + 16px);
   }
 
 .container {
