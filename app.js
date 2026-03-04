@@ -1083,11 +1083,11 @@ let words = [
       }
     }
 
-    // Temporarily show Holi background around the word grid for all words
+    // Temporarily show Holi background for all words
     const guessGridWrapper = document.getElementById('guessGridWrapper');
-    if (guessGridWrapper) {
-      guessGridWrapper.classList.add('holi-day');
-    }
+    const container = document.querySelector('.container');
+    if (guessGridWrapper) guessGridWrapper.classList.add('holi-day');
+    if (container) container.classList.add('holi-day');
     
     // Create grid cells - always match today's word length (e.g. CANVAS = 6, not fixed 5)
     const wordLength = SecretWord.length;
