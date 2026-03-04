@@ -624,8 +624,8 @@
   }
 
   .holi-ad-bar-img {
-    width: 280px;
-    flex: 0 0 280px;
+    width: 360px;
+    flex: 0 0 360px;
     border-radius: 10px;
     object-fit: contain;
     background: #ffffff;
@@ -692,7 +692,8 @@
     display: none;
   }
 
-  .holi-ad.holi-ad-dismissed {
+  .holi-ad.holi-ad-dismissed,
+  body.holi-day .holi-ad.holi-ad-dismissed {
     display: none !important;
   }
 
@@ -798,7 +799,7 @@
   }
 
   body.holi-day {
-    --holi-ad-height: clamp(140px, 18vh, 200px);
+    --holi-ad-height: clamp(160px, 22vh, 240px);
     overflow-y: hidden;
   }
 
@@ -814,15 +815,16 @@
   }
 
   body.holi-day #guessGridWrapper {
-    transform: scale(0.75);
+    transform: scale(0.72);
     transform-origin: top center;
-    margin-top: 0;
+    margin-top: -4px;
+    margin-bottom: -40px;
   }
 
   body.holi-day #keyboard {
-    transform: scale(0.80);
+    transform: scale(0.78);
     transform-origin: top center;
-    margin-top: -12px;
+    margin-top: -20px;
   }
 
 .container {
@@ -3872,6 +3874,8 @@
       if (btn && ad) {
         btn.addEventListener('click', function() {
           ad.classList.add('holi-ad-dismissed');
+          var grid = document.getElementById('guessGridWrapper');
+          if (grid) grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
       }
     })();
