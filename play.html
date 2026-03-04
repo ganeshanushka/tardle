@@ -690,10 +690,46 @@
 
   @media (max-width: 900px) {
     .holi-ad { left: 14px; right: 14px; }
-    .holi-ad-bar { gap: 6px; padding: 6px; min-height: 132px; }
-    .holi-ad-bar-img { width: 180px; flex-basis: 180px; }
-    .holi-ad-bar-content { font-size: 11px; line-height: 1.2; }
-    .holi-ad-chip { margin-top: 6px; padding: 4px 8px; font-size: 10px; }
+    .holi-ad-bar {
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 10px;
+      height: auto;
+      overflow-y: auto;
+    }
+    .holi-ad-bar-img {
+      width: 100%;
+      max-width: 280px;
+      flex: 0 0 auto;
+      height: auto;
+    }
+    .holi-ad-bar-content {
+      font-size: 13px;
+      line-height: 1.4;
+      text-align: center;
+    }
+    .holi-ad-chip { margin-top: 8px; padding: 5px 10px; font-size: 11px; }
+  }
+
+  @media (max-width: 900px) {
+    body.holi-day {
+      --holi-ad-height: auto;
+      overflow-y: auto;
+    }
+    body.holi-day .holi-ad {
+      position: relative;
+      top: auto;
+      left: 0;
+      right: 0;
+      margin: 10px 14px;
+      z-index: 1;
+    }
+    body.holi-day .container {
+      margin-top: clamp(50px, 8vh, 60px);
+      height: auto;
+      overflow: visible;
+    }
   }
 
   body.holi-day {
