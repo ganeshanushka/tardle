@@ -626,12 +626,10 @@
     position: relative;
     width: 100%;
     height: 100%;
-    transition: transform 0.6s;
-    transform-style: preserve-3d;
   }
 
   .holi-ad-tile:hover .holi-ad-tile-inner {
-    transform: rotateY(180deg);
+    animation: flip 0.8s ease-in-out;
   }
 
   .holi-ad-tile-front,
