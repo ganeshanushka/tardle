@@ -632,42 +632,31 @@
     animation: flip 0.8s ease-in-out;
   }
 
-  .holi-ad-tile-front,
-  .holi-ad-tile-back {
+  .holi-ad-tile-front {
     position: absolute;
     width: 100%;
     height: 100%;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
     border-radius: 12px;
     overflow: hidden;
+    background: #efefef;
+    border: 2px solid #d3d6da;
+    box-sizing: border-box;
   }
 
-  .holi-ad-tile-back {
-    transform: rotateY(180deg);
-    background: #1a1a1b;
-    color: white;
-    padding: 16px;
-    font-size: 12px;
-    font-weight: normal;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    line-height: 1.4;
+  .holi-ad-content {
+    opacity: 0;
+    transition: opacity 0.05s linear;
   }
 
-  .holi-ad-tile-front img {
+  .holi-ad-tile-inner.revealed .holi-ad-content {
+    opacity: 1;
+  }
+
+  .holi-ad-tile-front img.holi-ad-content {
     width: 100%;
     height: 100%;
     object-fit: contain;
-    border-radius: 12px;
-    visibility: hidden;
-  }
-
-  .holi-ad-tile-inner.revealed .holi-ad-tile-front img,
-  .holi-ad-tile-inner.revealed .holi-ad-tile-front {
-    visibility: visible;
+    border-radius: 10px;
   }
 
   .holi-ad-tile-text {
@@ -687,11 +676,6 @@
     line-height: 1.5;
     display: block;
     overflow-y: auto;
-  }
-
-  .holi-ad-tile-text .holi-ad-tile-back {
-    font-size: 14px;
-    font-weight: bold;
   }
 
   @media (max-width: 900px) {
@@ -3710,30 +3694,29 @@
   <aside class="holi-ad" id="holiAd" aria-label="Holi event promotion">
     <div class="holi-ad-tile">
       <div class="holi-ad-tile-inner">
-        <div class="holi-ad-tile-front" aria-hidden="true">
-          <img src="assets/holi-one-more.png" alt="One More Holi">
+        <div class="holi-ad-tile-front">
+          <img class="holi-ad-content" src="assets/holi-one-more.png" alt="One More Holi">
         </div>
-        <div class="holi-ad-tile-back">Buy tickets! $20 • Link in bio</div>
       </div>
     </div>
     <div class="holi-ad-tile">
       <div class="holi-ad-tile-inner">
-        <div class="holi-ad-tile-front" aria-hidden="true">
-          <img src="assets/holi-event.png" alt="UNC Holi Moli event">
+        <div class="holi-ad-tile-front">
+          <img class="holi-ad-content" src="assets/holi-event.png" alt="UNC Holi Moli event">
         </div>
-        <div class="holi-ad-tile-back">April 12th • Hooker Fields • 2-5 PM</div>
       </div>
     </div>
     <div class="holi-ad-tile holi-ad-tile-text">
       <div class="holi-ad-tile-inner">
-        <div class="holi-ad-tile-front" aria-hidden="true">
-          Holi is fast approaching!!! Buy your tickets now!! It's a CLE event!!<br><br>
-          🌈 Tickets are $20!! Buy now before we sell out!!<br>
-          🎟️ Link in bio to buy tickets<br>
-          📍 Pickup: The Pit | April 7-11 | 11 AM - 2 PM<br><br>
-          Join us on April 12th from 2-5 PM at Hooker Fields for the LARGEST STUDENT-RUN EVENT AT UNC! 🎉 You don't want to miss this colorful celebration!
+        <div class="holi-ad-tile-front">
+          <div class="holi-ad-content">
+            Holi is fast approaching!!! Buy your tickets now!! It's a CLE event!!<br><br>
+            🌈 Tickets are $20!! Buy now before we sell out!!<br>
+            🎟️ Link in bio to buy tickets<br>
+            📍 Pickup: The Pit | April 7-11 | 11 AM - 2 PM<br><br>
+            Join us on April 12th from 2-5 PM at Hooker Fields for the LARGEST STUDENT-RUN EVENT AT UNC! 🥳 You don't want to miss this colorful celebration!
+          </div>
         </div>
-        <div class="holi-ad-tile-back">Link in bio to buy tickets! 🎟️</div>
       </div>
     </div>
   </aside>
@@ -3750,8 +3733,10 @@
         setTimeout(() => {
           tile.classList.add("flip");
           setTimeout(() => {
-            tile.classList.remove("flip");
             tile.classList.add("revealed");
+          }, flipDuration / 2);
+          setTimeout(() => {
+            tile.classList.remove("flip");
           }, flipDuration);
         }, index * flipDelay);
       });
