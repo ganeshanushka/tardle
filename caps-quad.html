@@ -2,124 +2,47 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Tar.dle – Holi Festival</title>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Tar.dle – Holi Tiles</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
-
     body {
       margin: 0;
       padding: 0;
-      background: linear-gradient(135deg, #fff5f5 0%, #f0f8ff 50%, #f5fff5 100%);
+      background: #ffffff;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      font-family: 'Fredoka One', cursive;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
-
-    .holi-container {
-      position: relative;
-    }
-
-    .splash {
-      position: absolute;
-      border-radius: 50%;
-      opacity: 0.65;
-      animation: float 3s ease-in-out infinite;
-    }
-    .splash-2 { animation-delay: 0.5s; }
-    .splash-3 { animation-delay: 1s; }
-    .splash-4 { animation-delay: 1.5s; }
-    .splash-5 { animation-delay: 0.3s; }
-    .splash-6 { animation-delay: 0.8s; }
-    .splash-7 { animation-delay: 1.2s; }
-    .splash-8 { animation-delay: 1.8s; }
-    @keyframes float {
-      0%, 100% { transform: translate(0, 0); }
-      50% { transform: translate(4px, -6px); }
-    }
-    .splash-1 { width: 40px; height: 40px; background: #E91E63; top: -10px; left: -20px; }
-    .splash-2 { width: 30px; height: 30px; background: #4CAF50; top: -5px; right: -15px; }
-    .splash-3 { width: 35px; height: 35px; background: #FF9800; bottom: -8px; left: -10px; }
-    .splash-4 { width: 45px; height: 45px; background: #2196F3; bottom: -15px; right: -25px; }
-    .splash-5 { width: 25px; height: 25px; background: #9C27B0; top: 20px; left: -30px; }
-    .splash-6 { width: 28px; height: 28px; background: #FFEB3B; top: 15px; right: -35px; }
-    .splash-7 { width: 22px; height: 22px; background: #F44336; bottom: 25px; left: -20px; }
-    .splash-8 { width: 32px; height: 32px; background: #00BCD4; bottom: 20px; right: -28px; }
-
     .tile-row {
       display: flex;
-      gap: 4px;
-      position: relative;
-      z-index: 1;
     }
-
     .tile {
       display: inline-flex;
       justify-content: center;
       align-items: center;
-      width: 64px;
-      height: 64px;
-      padding: 4px;
-      color: white;
-      font-size: 36px;
+      width: 60px;
+      height: 60px;
+      margin: 2px;
+      background-color: #7BAFD4; /* Carolina blue */
+      color: #ffffff;
+      font-size: 32px;
       font-weight: 700;
       text-transform: uppercase;
       box-sizing: border-box;
-      border-radius: 8px;
-      position: relative;
-      overflow: hidden;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
     }
-
-    .tile span {
-      position: relative;
-      z-index: 2;
-    }
-
-    /* Holi splash effect inside each tile */
-    .tile::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-      background: radial-gradient(
-        circle at 30% 30%,
-        rgba(255,255,255,0.4) 0%,
-        transparent 50%
-      ),
-      radial-gradient(
-        circle at 70% 70%,
-        rgba(255,255,255,0.2) 0%,
-        transparent 40%
-      );
-      pointer-events: none;
-    }
-
-    .tile.h { background: linear-gradient(135deg, #E91E63, #F06292); }
-    .tile.o { background: linear-gradient(135deg, #FF9800, #FFB74D); }
-    .tile.l { background: linear-gradient(135deg, #4CAF50, #81C784); }
-    .tile.i { background: linear-gradient(135deg, #2196F3, #64B5F6); }
   </style>
 </head>
 <body>
-  <div class="holi-container">
-    <h1 style="text-align: center; color: #E91E63; margin-bottom: 20px; font-size: 28px;">Holi</h1>
-    <div class="splash splash-1"></div>
-    <div class="splash splash-2"></div>
-    <div class="splash splash-3"></div>
-    <div class="splash splash-4"></div>
-    <div class="splash splash-5"></div>
-    <div class="splash splash-6"></div>
-    <div class="splash splash-7"></div>
-    <div class="splash splash-8"></div>
-
-    <div class="tile-row">
-      <div class="tile h"><span>H</span></div>
-      <div class="tile o"><span>O</span></div>
-      <div class="tile l"><span>L</span></div>
-      <div class="tile i"><span>I</span></div>
-    </div>
+  <!-- Holi tiles (Wilson was replaced) -->
+  <div class="tile-row">
+    <div class="tile">H</div>
+    <div class="tile">O</div>
+    <div class="tile">L</div>
+    <div class="tile">I</div>
   </div>
 </body>
 </html>

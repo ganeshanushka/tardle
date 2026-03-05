@@ -718,6 +718,19 @@
   }
 
   @media (max-width: 900px) {
+    /* Holi popup ad disabled on mobile - keep at top of block so nothing overrides */
+    #holiAd,
+    .holi-ad,
+    body.holi-day .holi-ad,
+    body.holi-day #holiAd {
+      display: none !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+      height: 0 !important;
+      overflow: hidden !important;
+      position: absolute !important;
+      left: -9999px !important;
+    }
     body.holi-day {
       --holi-ad-height: 0px;
     }
@@ -741,22 +754,6 @@
     body.holi-day #keyboard {
       transform: none !important;
       margin-top: 8px !important;
-    }
-    .holi-ad {
-      position: fixed !important;
-      top: 0 !important;
-      left: 0 !important;
-      right: 0 !important;
-      bottom: 0 !important;
-      background: rgba(0, 0, 0, 0.55);
-      z-index: 2000 !important;
-      display: flex !important;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-    body.holi-day .holi-ad {
-      display: none !important; /* Holi popup disabled on mobile */
     }
     .holi-ad-close {
       display: none !important;
