@@ -1075,7 +1075,11 @@ let words = [
       } else if (dateString >= '2026-01-24' && dateString <= '2026-01-27') {
         bagelDayMessage.textContent = 'Stay safe and warm tarheels🩵';
         bagelDayMessage.classList.remove('hidden');
-      } else if (dateString === '2025-02-07' || dateString === '2026-02-07') {
+      } else if (
+        dateString === '2025-02-07' ||
+        dateString === '2026-02-07' ||
+        dateString === '2026-03-05'
+      ) {
         bagelDayMessage.textContent = 'Happy Beat Duke Day!';
         bagelDayMessage.classList.remove('hidden');
       } else {
