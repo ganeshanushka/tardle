@@ -1078,7 +1078,7 @@ let words = [
       } else if (
         dateString === '2025-02-07' ||
         dateString === '2026-02-07' ||
-        dateString === '2026-03-05'
+        dateString === '2026-03-07'
       ) {
         bagelDayMessage.textContent = 'Happy Beat Duke Day!';
         bagelDayMessage.classList.remove('hidden');
