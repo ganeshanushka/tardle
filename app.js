@@ -922,7 +922,7 @@ let words = [
     '2026-03-05': 'FRANKLIN',
     '2026-03-06': 'CHAPMAN',
     '2026-03-07': 'DUCKFUKE',
-    '2026-03-08': 'PARKER',
+    '2026-03-08': 'SALLIE',
     '2026-03-09': 'RAMESES',
     '2026-03-10': 'YIKYAK',
     '2026-03-11': 'AGORA',
@@ -1074,6 +1074,9 @@ let words = [
         bagelDayMessage.classList.remove('hidden');
       } else if (dateString >= '2026-01-24' && dateString <= '2026-01-27') {
         bagelDayMessage.textContent = 'Stay safe and warm tarheels🩵';
+        bagelDayMessage.classList.remove('hidden');
+      } else if (dateString.endsWith('-03-08')) {
+        bagelDayMessage.textContent = "Happy women's day!";
         bagelDayMessage.classList.remove('hidden');
       } else if (
         dateString === '2025-02-07' ||
